@@ -27,6 +27,7 @@ export default function Nav() {
     { href: '/pomodoro', label: 'Timer' },
     { href: '/vakken', label: tr.nav.subjects },
     { href: '/wrapped', label: tr.nav.monthly },
+    { href: '/profiel', label: tr.nav.profile },
   ]
 
   const desktopLinks = allLinks.slice(0, 3)

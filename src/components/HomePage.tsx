@@ -13,6 +13,7 @@ type Props = {
   allMoments: { duration_minutes: number | null; learned_at: string }[]
   thisMonth: { category: string | null; duration_minutes: number | null }[]
   subjects: { name: string; goal_minutes: number | null; goal_date: string | null; recurring_type: string | null; recurring_goal_minutes: number | null }[]
+  displayName: string | null
 }
 
 const TIMEFRAMES = [
@@ -22,7 +23,7 @@ const TIMEFRAMES = [
   { label: 'Alles', days: null },
 ]
 
-export default function HomePage({ user, allMoments, thisMonth, subjects }: Props) {
+export default function HomePage({ user, allMoments, thisMonth, subjects, displayName }: Props) {
   const [timeframe, setTimeframe] = useState<number | null>(30)
 
   const totalMinutes = allMoments.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
@@ -76,7 +77,7 @@ export default function HomePage({ user, allMoments, thisMonth, subjects }: Prop
     })
   }, [allMoments, timeframe])
 
-  const firstName = user.email?.split('@')[0] ?? 'daar'
+  const firstName = displayName ?? user.email?.split('@')[0] ?? 'daar'
 
   const shortcuts = [
     { href: '/leermomenten', label: 'Leermoment toevoegen', sub: 'Log wat je vandaag hebt geleerd', gradient: true },
