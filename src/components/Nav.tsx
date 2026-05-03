@@ -14,6 +14,7 @@ export default function Nav() {
   const { lang, setLang, tr } = useLanguage()
   const [showLangMenu, setShowLangMenu] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [showMoreMenu, setShowMoreMenu] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
@@ -25,10 +26,11 @@ export default function Nav() {
     { href: '/resultaten', label: tr.nav.results },
     { href: '/pomodoro', label: 'Timer' },
     { href: '/vakken', label: tr.nav.subjects },
-    { href: '/wrapped', label: 'Maandoverzicht' },
+    { href: '/wrapped', label: tr.nav.monthly },
   ]
 
   const desktopLinks = allLinks.slice(0, 3)
+  const moreLinks = allLinks.slice(3)
 
   const isActive = (href: string) => pathname.startsWith(href)
 
@@ -58,9 +60,23 @@ export default function Nav() {
               </Link>
             ))}
             <div className="relative">
-              <button className="text-sm font-medium px-3 py-1.5 rounded-lg transition-all text-indigo-400 hover:text-indigo-600">
-                Meer ▾
+              <button onClick={() => setShowMoreMenu(s => !s)}
+                className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all ${showMoreMenu ? 'bg-white text-indigo-700 shadow-sm' : 'text-indigo-400 hover:text-indigo-600'}`}>
+                {tr.nav.more} ▾
               </button>
+              {showMoreMenu && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setShowMoreMenu(false)} />
+                  <div className="absolute left-0 top-full mt-2 bg-white rounded-2xl border border-indigo-100 shadow-xl py-2 z-20 min-w-[180px]">
+                    {moreLinks.map(link => (
+                      <Link key={link.href} href={link.href} onClick={() => setShowMoreMenu(false)}
+                        className={`block px-4 py-2 text-sm hover:bg-indigo-50 transition-colors ${isActive(link.href) ? 'text-indigo-700 font-semibold' : 'text-gray-600'}`}>
+                        {link.label}
+                      </Link>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </nav>
         </div>
