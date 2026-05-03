@@ -9,9 +9,9 @@ export default async function ProfielPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('voornaam, achternaam')
+    .select('voornaam, achternaam, telefoonnummer, geboortedatum, postcode, stad')
     .eq('id', user.id)
     .single()
 
-  return <ProfielForm user={user} profile={profile ?? { voornaam: '', achternaam: '' }} />
+  return <ProfielForm user={user} profile={profile ?? {}} />
 }
