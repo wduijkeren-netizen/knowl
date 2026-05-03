@@ -1,12 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import Dashboard from '@/components/Dashboard'
+import GuestDashboard from '@/components/GuestDashboard'
 
 export default async function Home() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) redirect('/login')
+  if (!user) {
+    return <GuestDashboard />
+  }
 
   const [{ data: moments }, { data: subjects }] = await Promise.all([
     supabase.from('learning_moments').select('*').order('learned_at', { ascending: false }),
