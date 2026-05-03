@@ -3,23 +3,24 @@
 import { useState, useEffect, useRef } from 'react'
 import Nav from '@/components/Nav'
 
-type Mode = 'work' | 'break' | 'longbreak'
-
-const MODES: Record<Mode, { label: string; minutes: number; color: string; bg: string }> = {
-  work:      { label: 'Focus',        minutes: 25, color: 'text-indigo-700',  bg: 'from-indigo-600 to-violet-600' },
-  break:     { label: 'Korte pauze',  minutes: 5,  color: 'text-emerald-700', bg: 'from-emerald-500 to-teal-500' },
-  longbreak: { label: 'Lange pauze',  minutes: 15, color: 'text-sky-700',     bg: 'from-sky-500 to-blue-500' },
-}
+type Mode = 'work' | 'break'
 
 export default function PomodoroTimer() {
   const [mode, setMode] = useState<Mode>('work')
-  const [seconds, setSeconds] = useState(MODES.work.minutes * 60)
-  const [running, setRunning] = useState(false)
-  const [completed, setCompleted] = useState(0)
   const [customWork, setCustomWork] = useState(25)
   const [customBreak, setCustomBreak] = useState(5)
+  const [seconds, setSeconds] = useState(25 * 60)
+  const [running, setRunning] = useState(false)
+  const [completed, setCompleted] = useState(0)
   const [showSettings, setShowSettings] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  const config = {
+    work:  { label: 'Focus',  color: 'text-indigo-700',  bg: 'from-indigo-600 to-violet-600', gradStart: '#6366f1', gradEnd: '#8b5cf6' },
+    break: { label: 'Pauze',  color: 'text-emerald-700', bg: 'from-emerald-500 to-teal-500',  gradStart: '#10b981', gradEnd: '#14b8a6' },
+  }
+
+  const total = (mode === 'work' ? customWork : customBreak) * 60
 
   useEffect(() => {
     if (running) {
@@ -28,10 +29,8 @@ export default function PomodoroTimer() {
           if (s <= 1) {
             clearInterval(intervalRef.current!)
             setRunning(false)
-            if (mode === 'work') {
-              setCompleted(c => c + 1)
-              new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(() => {})
-            }
+            if (mode === 'work') setCompleted(c => c + 1)
+            new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(() => {})
             return 0
           }
           return s - 1
@@ -46,28 +45,24 @@ export default function PomodoroTimer() {
   function switchMode(m: Mode) {
     setMode(m)
     setRunning(false)
-    const mins = m === 'work' ? customWork : m === 'break' ? customBreak : 15
-    setSeconds(mins * 60)
+    setSeconds((m === 'work' ? customWork : customBreak) * 60)
   }
 
   function reset() {
     setRunning(false)
-    const mins = mode === 'work' ? customWork : mode === 'break' ? customBreak : 15
-    setSeconds(mins * 60)
+    setSeconds((mode === 'work' ? customWork : customBreak) * 60)
   }
 
   function applySettings() {
-    MODES.work.minutes = customWork
-    MODES.break.minutes = customBreak
     setShowSettings(false)
-    reset()
+    setRunning(false)
+    setSeconds((mode === 'work' ? customWork : customBreak) * 60)
   }
 
-  const total = (mode === 'work' ? customWork : mode === 'break' ? customBreak : 15) * 60
   const progress = ((total - seconds) / total) * 100
   const mins = String(Math.floor(seconds / 60)).padStart(2, '0')
   const secs = String(seconds % 60).padStart(2, '0')
-  const m = MODES[mode]
+  const c = config[mode]
   const circumference = 2 * Math.PI * 110
 
   return (
@@ -81,13 +76,13 @@ export default function PomodoroTimer() {
 
         {/* Mode knoppen */}
         <div className="flex gap-2 bg-white rounded-2xl border border-indigo-100 p-2">
-          {(Object.keys(MODES) as Mode[]).map(m => (
+          {(['work', 'break'] as Mode[]).map(m => (
             <button
               key={m}
               onClick={() => switchMode(m)}
-              className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${mode === m ? `bg-gradient-to-r ${MODES[m].bg} text-white shadow-sm` : 'text-indigo-400 hover:text-indigo-600'}`}
+              className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${mode === m ? `bg-gradient-to-r ${config[m].bg} text-white shadow-sm` : 'text-indigo-400 hover:text-indigo-600'}`}
             >
-              {MODES[m].label}
+              {config[m].label}
             </button>
           ))}
         </div>
@@ -109,22 +104,21 @@ export default function PomodoroTimer() {
               />
               <defs>
                 <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor={mode === 'work' ? '#6366f1' : mode === 'break' ? '#10b981' : '#0ea5e9'} />
-                  <stop offset="100%" stopColor={mode === 'work' ? '#8b5cf6' : mode === 'break' ? '#14b8a6' : '#3b82f6'} />
+                  <stop offset="0%" stopColor={c.gradStart} />
+                  <stop offset="100%" stopColor={c.gradEnd} />
                 </linearGradient>
               </defs>
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className={`text-6xl font-bold tabular-nums ${m.color}`}>{mins}:{secs}</span>
-              <span className="text-sm text-indigo-400 mt-1">{m.label}</span>
+              <span className={`text-6xl font-bold tabular-nums ${c.color}`}>{mins}:{secs}</span>
+              <span className="text-sm text-indigo-400 mt-1">{c.label}</span>
             </div>
           </div>
 
-          {/* Knoppen */}
           <div className="flex gap-3 w-full">
             <button
               onClick={() => setRunning(r => !r)}
-              className={`flex-1 py-3 rounded-2xl font-semibold text-white text-sm transition-all shadow-sm bg-gradient-to-r ${m.bg} hover:opacity-90`}
+              className={`flex-1 py-3 rounded-2xl font-semibold text-white text-sm transition-all shadow-sm bg-gradient-to-r ${c.bg} hover:opacity-90`}
             >
               {running ? 'Pauzeren' : seconds === total ? 'Starten' : 'Hervatten'}
             </button>
@@ -136,7 +130,6 @@ export default function PomodoroTimer() {
             </button>
           </div>
 
-          {/* Pomodoro teller */}
           <div className="flex items-center gap-2">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className={`w-3 h-3 rounded-full transition-all ${i < (completed % 4) ? 'bg-indigo-500' : 'bg-indigo-100'}`} />
@@ -163,8 +156,8 @@ export default function PomodoroTimer() {
                     className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
                 </div>
                 <div>
-                  <label className="block text-xs text-indigo-400 mb-1">Korte pauze (minuten)</label>
-                  <input type="number" min="1" max="30" value={customBreak} onChange={e => setCustomBreak(parseInt(e.target.value))}
+                  <label className="block text-xs text-indigo-400 mb-1">Pauze (minuten)</label>
+                  <input type="number" min="1" max="60" value={customBreak} onChange={e => setCustomBreak(parseInt(e.target.value))}
                     className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
                 </div>
               </div>
