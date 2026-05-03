@@ -1,11 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import MonthlyWrapped from '@/components/MonthlyWrapped'
 
 export default async function WrappedPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+
+  if (!user) {
+    const now = new Date()
+    return <MonthlyWrapped thisMonth={[]} lastMonth={[]} monthName={now.toLocaleString('nl-NL', { month: 'long' })} isGuest />
+  }
 
   const now = new Date()
   const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]

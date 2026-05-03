@@ -43,7 +43,7 @@ export default function Nav() {
     <header className="bg-white/80 backdrop-blur-sm border-b border-indigo-100 sticky top-0 z-10">
       <div className="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <Link href="/" className="text-lg font-bold text-indigo-700 tracking-tight hover:text-indigo-500 transition-colors shrink-0">
+          <Link href={isLoggedIn ? '/home' : '/'} className="text-lg font-bold text-indigo-700 tracking-tight hover:text-indigo-500 transition-colors shrink-0">
             Knowl
           </Link>
 

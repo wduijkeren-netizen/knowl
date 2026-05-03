@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import VakkenBeheer from '@/components/VakkenBeheer'
 
 function getPeriodStart(type: string) {
@@ -23,7 +22,17 @@ export default async function VakkenPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) redirect('/login')
+  if (!user) {
+    return (
+      <VakkenBeheer
+        user={null}
+        subjects={[]}
+        momentCounts={{}}
+        minutesPerSubject={{}}
+        minutesThisPeriod={{}}
+      />
+    )
+  }
 
   const [{ data: subjects }, { data: moments }] = await Promise.all([
     supabase.from('subjects').select('id, name, goal_minutes, goal_date, recurring_type, recurring_goal_minutes').order('name'),

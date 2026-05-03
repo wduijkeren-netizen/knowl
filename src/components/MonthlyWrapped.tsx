@@ -14,9 +14,10 @@ type Props = {
   thisMonth: Moment[]
   lastMonth: Moment[]
   monthName: string
+  isGuest?: boolean
 }
 
-export default function MonthlyWrapped({ thisMonth, lastMonth, monthName }: Props) {
+export default function MonthlyWrapped({ thisMonth, lastMonth, monthName, isGuest }: Props) {
   const totalMinutes = thisMonth.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
   const lastMonthMinutes = lastMonth.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
   const totalHours = Math.floor(totalMinutes / 60)
@@ -55,6 +56,12 @@ export default function MonthlyWrapped({ thisMonth, lastMonth, monthName }: Prop
     <div className="min-h-screen bg-[#f8f7ff]">
       <Nav />
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+        {isGuest && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+            <p className="text-sm font-semibold text-amber-800">Je bekijkt Knowl als gast</p>
+            <p className="text-sm text-amber-600 mt-0.5">Log in om je maandoverzicht te zien. <Link href="/login" className="underline font-medium hover:text-amber-800">Maak een gratis account aan</Link></p>
+          </div>
+        )}
         <div className="bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 rounded-3xl p-8 text-white text-center">
           <p className="text-indigo-200 text-sm uppercase tracking-widest font-medium">Jouw maandoverzicht</p>
           <h1 className="text-4xl font-bold mt-2 capitalize">{monthName}</h1>

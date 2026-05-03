@@ -17,7 +17,7 @@ type Subject = {
 }
 
 type Props = {
-  user: User
+  user: User | null
   subjects: Subject[]
   momentCounts: Record<string, number>
   minutesPerSubject: Record<string, number>
@@ -45,7 +45,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim()) return
+    if (!name.trim() || !user) return
     setLoading(true)
     const { data, error } = await supabase
       .from('subjects')
@@ -109,6 +109,13 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
           <h1 className="text-2xl font-bold text-indigo-900">{s.title}</h1>
           <p className="text-sm text-indigo-400 mt-1">{s.subtitle}</p>
         </div>
+
+        {!user && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+            <p className="text-sm font-semibold text-amber-800">Je bekijkt Knowl als gast</p>
+            <p className="text-sm text-amber-600 mt-0.5">Log in om vakken aan te maken en je voortgang bij te houden. <Link href="/login" className="underline font-medium hover:text-amber-800">Maak een gratis account aan</Link></p>
+          </div>
+        )}
 
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
           <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-4">

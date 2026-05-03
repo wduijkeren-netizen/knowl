@@ -19,9 +19,10 @@ type Moment = {
 
 type Props = {
   moments: Moment[]
+  isGuest?: boolean
 }
 
-export default function Resultaten({ moments }: Props) {
+export default function Resultaten({ moments, isGuest }: Props) {
   const { tr } = useLanguage()
   const r = tr.results
 
@@ -48,6 +49,13 @@ export default function Resultaten({ moments }: Props) {
           <h1 className="text-2xl font-bold text-indigo-900">{r.title}</h1>
           <p className="text-sm text-indigo-400 mt-1">{r.subtitle}</p>
         </div>
+
+        {isGuest && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+            <p className="text-sm font-semibold text-amber-800">Je bekijkt Knowl als gast</p>
+            <p className="text-sm text-amber-600 mt-0.5">Log in om je eigen resultaten te zien. <a href="/login" className="underline font-medium hover:text-amber-800">Maak een gratis account aan</a></p>
+          </div>
+        )}
 
         {!heeftData ? (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-16 text-center">
