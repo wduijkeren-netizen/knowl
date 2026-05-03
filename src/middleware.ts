@@ -35,7 +35,7 @@ export async function middleware(request: NextRequest) {
 
   if (user && path.startsWith('/login')) {
     const url = request.nextUrl.clone()
-    url.pathname = '/home'
+    url.pathname = '/leermomenten'
     return NextResponse.redirect(url)
   }
 

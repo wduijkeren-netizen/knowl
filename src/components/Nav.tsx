@@ -13,23 +13,22 @@ export default function Nav() {
   const supabase = createClient()
   const { lang, setLang, tr } = useLanguage()
   const [showLangMenu, setShowLangMenu] = useState(false)
-  const [showMoreMenu, setShowMoreMenu] = useState(false)
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setIsLoggedIn(!!data.user))
   }, [])
 
-  const mainLinks = [
+  const allLinks = [
     { href: '/leermomenten', label: tr.nav.moments },
     { href: '/resultaten', label: tr.nav.results },
     { href: '/pomodoro', label: 'Timer' },
-  ]
-
-  const moreLinks = [
     { href: '/vakken', label: tr.nav.subjects },
     { href: '/wrapped', label: 'Maandoverzicht' },
   ]
+
+  const desktopLinks = allLinks.slice(0, 3)
 
   const isActive = (href: string) => pathname.startsWith(href)
 
@@ -43,60 +42,46 @@ export default function Nav() {
   return (
     <header className="bg-white/80 backdrop-blur-sm border-b border-indigo-100 sticky top-0 z-10">
       <div className="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="text-lg font-bold text-indigo-700 tracking-tight hover:text-indigo-500 transition-colors">
+        <div className="flex items-center gap-3">
+          <Link href="/" className="text-lg font-bold text-indigo-700 tracking-tight hover:text-indigo-500 transition-colors shrink-0">
             Knowl
           </Link>
-          <nav className="flex gap-1 bg-indigo-50 rounded-xl p-1">
-            {mainLinks.map(link => (
+
+          {/* Desktop nav */}
+          <nav className="hidden md:flex gap-1 bg-indigo-50 rounded-xl p-1">
+            {desktopLinks.map(link => (
               <Link key={link.href} href={link.href}
-                className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all ${
+                className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
                   isActive(link.href) ? 'bg-white text-indigo-700 shadow-sm' : 'text-indigo-400 hover:text-indigo-600'
                 }`}>
                 {link.label}
               </Link>
             ))}
             <div className="relative">
-              <button onClick={() => setShowMoreMenu(s => !s)}
-                className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all ${
-                  moreLinks.some(l => isActive(l.href)) ? 'bg-white text-indigo-700 shadow-sm' : 'text-indigo-400 hover:text-indigo-600'
-                }`}>
+              <button className="text-sm font-medium px-3 py-1.5 rounded-lg transition-all text-indigo-400 hover:text-indigo-600">
                 Meer ▾
               </button>
-              {showMoreMenu && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setShowMoreMenu(false)} />
-                  <div className="absolute left-0 top-full mt-2 bg-white rounded-2xl border border-indigo-100 shadow-xl py-2 z-20 min-w-[160px]">
-                    {moreLinks.map(link => (
-                      <Link key={link.href} href={link.href} onClick={() => setShowMoreMenu(false)}
-                        className="block px-4 py-2 text-sm text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                        {link.label}
-                      </Link>
-                    ))}
-                  </div>
-                </>
-              )}
             </div>
           </nav>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="relative">
+        <div className="flex items-center gap-2">
+          {/* Taal — desktop only */}
+          <div className="relative hidden md:block">
             <button onClick={() => setShowLangMenu(!showLangMenu)}
-              className="flex items-center gap-1.5 text-sm text-indigo-400 hover:text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg px-3 py-1.5 transition-colors">
+              className="flex items-center gap-1 text-sm text-indigo-400 hover:text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg px-2.5 py-1.5 transition-colors">
               <span>{currentLang?.flag}</span>
-              <span className="font-medium">{currentLang?.code.toUpperCase()}</span>
+              <span className="font-medium text-xs">{currentLang?.code.toUpperCase()}</span>
               <span className="text-xs opacity-60">▾</span>
             </button>
             {showLangMenu && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowLangMenu(false)} />
-                <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl border border-indigo-100 shadow-xl py-2 z-20 min-w-[180px]">
+                <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl border border-indigo-100 shadow-xl py-2 z-20 min-w-[170px]">
                   {languages.map(l => (
                     <button key={l.code} onClick={() => { setLang(l.code as LangCode); setShowLangMenu(false) }}
                       className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-indigo-50 transition-colors ${lang === l.code ? 'text-indigo-700 font-semibold' : 'text-gray-600'}`}>
-                      <span>{l.flag}</span>
-                      <span>{l.label}</span>
+                      <span>{l.flag}</span><span>{l.label}</span>
                       {lang === l.code && <span className="ml-auto text-indigo-400">✓</span>}
                     </button>
                   ))}
@@ -105,17 +90,56 @@ export default function Nav() {
             )}
           </div>
 
+          {/* Login/logout — desktop */}
           {isLoggedIn ? (
-            <button onClick={handleLogout} className="text-sm text-indigo-300 hover:text-indigo-500 transition-colors">
+            <button onClick={handleLogout} className="hidden md:block text-sm text-indigo-300 hover:text-indigo-500 transition-colors">
               {tr.nav.logout}
             </button>
           ) : (
-            <Link href="/login" className="text-sm bg-indigo-600 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
-              Inloggen
+            <Link href="/login" className="hidden md:block text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+              Log in
             </Link>
           )}
+
+          {/* Hamburger — mobile */}
+          <button onClick={() => setShowMobileMenu(s => !s)}
+            className="md:hidden flex flex-col gap-1.5 p-2 rounded-lg hover:bg-indigo-50 transition-colors">
+            <span className={`block w-5 h-0.5 bg-indigo-600 transition-all ${showMobileMenu ? 'rotate-45 translate-y-2' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-indigo-600 transition-all ${showMobileMenu ? 'opacity-0' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-indigo-600 transition-all ${showMobileMenu ? '-rotate-45 -translate-y-2' : ''}`} />
+          </button>
         </div>
       </div>
+
+      {/* Mobile menu */}
+      {showMobileMenu && (
+        <div className="md:hidden border-t border-indigo-100 bg-white px-4 py-3 space-y-1">
+          {allLinks.map(link => (
+            <Link key={link.href} href={link.href} onClick={() => setShowMobileMenu(false)}
+              className={`block px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                isActive(link.href) ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-indigo-50'
+              }`}>
+              {link.label}
+            </Link>
+          ))}
+          <div className="pt-2 border-t border-indigo-50 flex justify-between items-center">
+            <select value={lang} onChange={e => setLang(e.target.value as LangCode)}
+              className="text-sm text-indigo-500 bg-indigo-50 rounded-lg px-2 py-1.5 border-0 focus:outline-none">
+              {languages.map(l => <option key={l.code} value={l.code}>{l.flag} {l.label}</option>)}
+            </select>
+            {isLoggedIn ? (
+              <button onClick={handleLogout} className="text-sm text-red-400 hover:text-red-600 px-3 py-1.5">
+                {tr.nav.logout}
+              </button>
+            ) : (
+              <Link href="/login" onClick={() => setShowMobileMenu(false)}
+                className="text-sm bg-indigo-600 text-white px-4 py-1.5 rounded-lg font-medium">
+                Log in
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   )
 }
