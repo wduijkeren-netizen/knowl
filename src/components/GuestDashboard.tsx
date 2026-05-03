@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Nav from '@/components/Nav'
 
 type Moment = {
   id: string
@@ -45,17 +46,7 @@ export default function GuestDashboard() {
 
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
-      <header className="bg-white/80 backdrop-blur-sm border-b border-indigo-100 sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
-          <span className="text-lg font-bold text-indigo-700 tracking-tight">Knowl</span>
-          <Link
-            href="/login"
-            className="text-sm font-medium bg-indigo-600 text-white px-4 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors"
-          >
-            Inloggen / Aanmelden
-          </Link>
-        </div>
-      </header>
+      <Nav />
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         {/* Gastbanner */}
