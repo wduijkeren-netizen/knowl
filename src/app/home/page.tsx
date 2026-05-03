@@ -1,0 +1,20 @@
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import HomePage from '@/components/HomePage'
+
+export default async function Home() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const now = new Date()
+  const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
+
+  const [{ data: allMoments }, { data: thisMonth }, { data: subjects }] = await Promise.all([
+    supabase.from('learning_moments').select('duration_minutes, learned_at').order('learned_at', { ascending: false }),
+    supabase.from('learning_moments').select('category, duration_minutes').gte('learned_at', firstOfMonth),
+    supabase.from('subjects').select('name, goal_minutes, goal_date, recurring_type, recurring_goal_minutes'),
+  ])
+
+  return <HomePage user={user} allMoments={allMoments ?? []} thisMonth={thisMonth ?? []} subjects={subjects ?? []} />
+}

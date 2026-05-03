@@ -295,6 +295,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
             <h2 className="font-semibold text-indigo-900">{d.recent}</h2>
             <span className="text-xs text-indigo-400 bg-indigo-50 px-2.5 py-1 rounded-full">{moments.length} {d.total}</span>
           </div>
+          <p className="text-xs text-indigo-300">De laatste 5 — alle momenten staan per vak onder Vakken</p>
 
           {moments.length === 0 && (
             <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-10 text-center">
@@ -302,7 +303,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
             </div>
           )}
 
-          {moments.map((moment) => (
+          {moments.slice(0, 5).map((moment) => (
             <div key={moment.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all">
               {moment.photo_url && (
                 <img src={moment.photo_url} alt="Foto" className="w-full max-h-48 object-cover rounded-t-2xl" />
