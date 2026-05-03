@@ -53,7 +53,7 @@ export default function Resultaten({ moments, isGuest }: Props) {
         {isGuest && (
           <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
             <p className="text-sm font-semibold text-amber-800">Je bekijkt Knowl als gast</p>
-            <p className="text-sm text-amber-600 mt-0.5">Log in om je eigen resultaten te zien. <a href="/login" className="underline font-medium hover:text-amber-800">Maak een gratis account aan</a></p>
+            <p className="text-sm text-amber-600 mt-0.5">Log in om je eigen resultaten te zien. <a href="/login?signup=true" className="underline font-medium hover:text-amber-800">Maak een gratis account aan</a></p>
           </div>
         )}
 

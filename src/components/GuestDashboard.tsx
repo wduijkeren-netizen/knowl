@@ -53,7 +53,7 @@ export default function GuestDashboard() {
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex justify-between items-start gap-4">
           <div>
             <p className="text-sm font-semibold text-amber-800">Je gebruikt Knowl als gast</p>
-            <p className="text-sm text-amber-600 mt-0.5">Alles wat je invult verdwijnt zodra je de pagina vernieuwt. <Link href="/login" className="underline font-medium hover:text-amber-800">Maak een gratis account aan</Link> om je data te bewaren.</p>
+            <p className="text-sm text-amber-600 mt-0.5">Alles wat je invult verdwijnt zodra je de pagina vernieuwt. <Link href="/login?signup=true" className="underline font-medium hover:text-amber-800">Maak een gratis account aan</Link> om je data te bewaren.</p>
           </div>
         </div>
 

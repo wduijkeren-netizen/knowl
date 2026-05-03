@@ -59,7 +59,7 @@ export default function MonthlyWrapped({ thisMonth, lastMonth, monthName, isGues
         {isGuest && (
           <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
             <p className="text-sm font-semibold text-amber-800">Je bekijkt Knowl als gast</p>
-            <p className="text-sm text-amber-600 mt-0.5">Log in om je maandoverzicht te zien. <Link href="/login" className="underline font-medium hover:text-amber-800">Maak een gratis account aan</Link></p>
+            <p className="text-sm text-amber-600 mt-0.5">Log in om je maandoverzicht te zien. <Link href="/login?signup=true" className="underline font-medium hover:text-amber-800">Maak een gratis account aan</Link></p>
           </div>
         )}
         <div className="bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 rounded-3xl p-8 text-white text-center">

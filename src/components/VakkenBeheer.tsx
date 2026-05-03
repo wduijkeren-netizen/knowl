@@ -113,7 +113,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
         {!user && (
           <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
             <p className="text-sm font-semibold text-amber-800">Je bekijkt Knowl als gast</p>
-            <p className="text-sm text-amber-600 mt-0.5">Log in om vakken aan te maken en je voortgang bij te houden. <Link href="/login" className="underline font-medium hover:text-amber-800">Maak een gratis account aan</Link></p>
+            <p className="text-sm text-amber-600 mt-0.5">Log in om vakken aan te maken en je voortgang bij te houden. <Link href="/login?signup=true" className="underline font-medium hover:text-amber-800">Maak een gratis account aan</Link></p>
           </div>
         )}
 
