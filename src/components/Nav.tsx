@@ -23,13 +23,18 @@ export default function Nav() {
     supabase.auth.getUser().then(({ data }) => setIsLoggedIn(!!data.user))
   }, [])
 
-  const allLinks = [
+  const allLinks = isLoggedIn ? [
+    { href: '/home', label: 'Home' },
     { href: '/leermomenten', label: tr.nav.moments },
     { href: '/resultaten', label: tr.nav.results },
     { href: '/pomodoro', label: 'Timer' },
     { href: '/vakken', label: tr.nav.subjects },
     { href: '/wrapped', label: tr.nav.monthly },
     { href: '/profiel', label: tr.nav.profile },
+  ] : [
+    { href: '/leermomenten', label: tr.nav.moments },
+    { href: '/resultaten', label: tr.nav.results },
+    { href: '/pomodoro', label: 'Timer' },
   ]
 
   const desktopLinks = allLinks.slice(0, 3)

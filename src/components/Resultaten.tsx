@@ -58,8 +58,29 @@ export default function Resultaten({ moments, isGuest }: Props) {
         )}
 
         {!heeftData ? (
-          <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-16 text-center">
-            <p className="text-indigo-300 text-sm">{r.empty}</p>
+          <div className="space-y-4">
+            <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden relative">
+              <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-4">
+                <h2 className="font-semibold text-white">{r.barTitle}</h2>
+                <p className="text-indigo-200 text-sm mt-0.5">{r.barSub}</p>
+              </div>
+              <div className="p-6 relative">
+                {/* Placeholder bars */}
+                <div className="flex items-end gap-4 h-40 opacity-20">
+                  {[80, 120, 55, 160, 95, 40].map((h, i) => (
+                    <div key={i} className="flex-1 bg-gradient-to-t from-indigo-500 to-violet-500 rounded-t-lg" style={{ height: `${h}px` }} />
+                  ))}
+                </div>
+                {/* Overlay */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 rounded-2xl">
+                  <p className="text-indigo-700 font-semibold text-base">Zo zien jouw resultaten er straks uit</p>
+                  <p className="text-indigo-400 text-sm mt-1 max-w-xs text-center">{r.empty}</p>
+                  <a href="/leermomenten" className="mt-4 text-sm bg-indigo-600 text-white px-5 py-2 rounded-xl font-medium hover:bg-indigo-700 transition-colors">
+                    Voeg een leermoment toe →
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <>
