@@ -80,9 +80,10 @@ export default function VakDetail({ vakNaam, moments, goalMinutes, goalDate }: P
         {moments.length === 0 && (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-12 text-center">
             <p className="text-indigo-300 text-sm">{d.empty} {vakNaam}.</p>
-            <Link href="/" className="text-indigo-500 text-sm mt-2 inline-block hover:underline">
+            <Link href="/leermomenten" className="text-indigo-500 text-sm mt-2 inline-block hover:underline">
               {d.addLink}
             </Link>
+
           </div>
         )}
 

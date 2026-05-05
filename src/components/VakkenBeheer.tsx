@@ -36,6 +36,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
   const [subjects, setSubjects] = useState(initialSubjects)
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [editingGoal, setEditingGoal] = useState<string | null>(null)
   const [goalMinutes, setGoalMinutes] = useState('')
   const [goalDate, setGoalDate] = useState('')
@@ -64,6 +65,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
     e.stopPropagation()
     await supabase.from('subjects').delete().eq('id', id)
     setSubjects(subjects.filter(s => s.id !== id))
+    setConfirmDeleteId(null)
   }
 
   function startGoalEdit(subject: Subject, e: React.MouseEvent) {
@@ -190,12 +192,20 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
                       >
                         Doel instellen
                       </button>
-                      <button
-                        onClick={(e) => handleDelete(subject.id, e)}
-                        className="text-xs text-gray-300 hover:text-red-400 transition-colors"
-                      >
-                        {s.delete}
-                      </button>
+                      {confirmDeleteId === subject.id ? (
+                        <span className="flex items-center gap-1">
+                          <button onClick={(e) => handleDelete(subject.id, e)} className="text-xs text-red-500 hover:text-red-700 font-medium">Ja</button>
+                          <span className="text-xs text-gray-300">·</span>
+                          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmDeleteId(null) }} className="text-xs text-gray-400 hover:text-gray-600">Nee</button>
+                        </span>
+                      ) : (
+                        <button
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmDeleteId(subject.id) }}
+                          className="text-xs text-gray-300 hover:text-red-400 transition-colors"
+                        >
+                          {s.delete}
+                        </button>
+                      )}
                     </div>
                   </div>
 

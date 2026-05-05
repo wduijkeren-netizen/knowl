@@ -10,6 +10,9 @@ function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isSignUp, setIsSignUp] = useState(searchParams.get('signup') === 'true')
+  const [showForgot, setShowForgot] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotSent, setForgotSent] = useState(false)
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
@@ -33,6 +36,15 @@ function LoginForm() {
     }
 
     setLoading(false)
+  }
+
+  async function handleForgot(e: React.FormEvent) {
+    e.preventDefault()
+    if (!forgotEmail) return
+    await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      redirectTo: 'https://knowl-omega.vercel.app/login',
+    })
+    setForgotSent(true)
   }
 
   return (
@@ -77,11 +89,29 @@ function LoginForm() {
           </button>
         </form>
 
-        <div className="mt-6 pt-6 border-t border-gray-100 text-center">
-          <button onClick={() => { setIsSignUp(!isSignUp); setError(''); setInfo('') }}
-            className="text-sm text-indigo-400 hover:text-indigo-600 transition-colors">
+        <div className="mt-6 pt-6 border-t border-gray-100 text-center space-y-3">
+          <button onClick={() => { setIsSignUp(!isSignUp); setError(''); setInfo(''); setShowForgot(false) }}
+            className="text-sm text-indigo-400 hover:text-indigo-600 transition-colors block w-full">
             {isSignUp ? 'Al een account? Inloggen →' : 'Nog geen account? Aanmelden →'}
           </button>
+          {!isSignUp && !showForgot && (
+            <button onClick={() => setShowForgot(true)} className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+              Wachtwoord vergeten?
+            </button>
+          )}
+          {showForgot && !forgotSent && (
+            <form onSubmit={handleForgot} className="space-y-2 pt-2">
+              <input type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} required
+                placeholder="jij@voorbeeld.nl"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+              <button type="submit" className="w-full bg-indigo-100 text-indigo-700 rounded-xl py-2.5 text-sm font-medium hover:bg-indigo-200 transition-colors">
+                Stuur herstelmail
+              </button>
+            </form>
+          )}
+          {forgotSent && (
+            <p className="text-sm text-emerald-600 pt-1">Check je e-mail voor een herstellink.</p>
+          )}
         </div>
       </div>
     </div>

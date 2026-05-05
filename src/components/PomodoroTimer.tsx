@@ -30,7 +30,16 @@ export default function PomodoroTimer() {
             clearInterval(intervalRef.current!)
             setRunning(false)
             if (mode === 'work') setCompleted(c => c + 1)
-            new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(() => {})
+            try {
+              const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
+              const osc = ctx.createOscillator()
+              const gain = ctx.createGain()
+              osc.connect(gain); gain.connect(ctx.destination)
+              osc.frequency.value = 660
+              gain.gain.setValueAtTime(0.3, ctx.currentTime)
+              gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8)
+              osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.8)
+            } catch {}
             return 0
           }
           return s - 1

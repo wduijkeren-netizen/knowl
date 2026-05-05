@@ -11,7 +11,7 @@ export default async function Home() {
   const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
 
   const [{ data: allMoments }, { data: thisMonth }, { data: subjects }, { data: profile }] = await Promise.all([
-    supabase.from('learning_moments').select('duration_minutes, learned_at').order('learned_at', { ascending: false }),
+    supabase.from('learning_moments').select('duration_minutes, learned_at, category').order('learned_at', { ascending: false }),
     supabase.from('learning_moments').select('category, duration_minutes').gte('learned_at', firstOfMonth),
     supabase.from('subjects').select('name, goal_minutes, goal_date, recurring_type, recurring_goal_minutes'),
     supabase.from('profiles').select('voornaam').eq('id', user.id).single(),

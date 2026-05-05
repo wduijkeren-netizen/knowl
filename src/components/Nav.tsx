@@ -6,12 +6,14 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { languages, type LangCode } from '@/lib/i18n/translations'
+import { useTheme } from '@/lib/ThemeContext'
 
 export default function Nav() {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
   const { lang, setLang, tr } = useLanguage()
+  const { dark, toggle: toggleDark } = useTheme()
   const [showLangMenu, setShowLangMenu] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [showMoreMenu, setShowMoreMenu] = useState(false)
@@ -117,6 +119,13 @@ export default function Nav() {
               Log in
             </Link>
           )}
+
+          {/* Dark mode toggle */}
+          <button onClick={toggleDark}
+            className="hidden md:flex items-center justify-center w-8 h-8 rounded-lg text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+            title={dark ? 'Licht' : 'Donker'}>
+            {dark ? '☀' : '☾'}
+          </button>
 
           {/* Hamburger — mobile */}
           <button onClick={() => setShowMobileMenu(s => !s)}

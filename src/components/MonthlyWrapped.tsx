@@ -43,6 +43,8 @@ export default function MonthlyWrapped({ thisMonth, lastMonth, monthName, isGues
   const streak = (() => {
     const days = Array.from(new Set(thisMonth.map(m => m.learned_at))).sort().reverse()
     if (!days.length) return 0
+    const today = new Date().toISOString().split('T')[0]
+    if (days[0] !== today) return 0
     let count = 1
     for (let i = 1; i < days.length; i++) {
       const diff = (new Date(days[i - 1]).getTime() - new Date(days[i]).getTime()) / 86400000
@@ -73,7 +75,7 @@ export default function MonthlyWrapped({ thisMonth, lastMonth, monthName, isGues
         {thisMonth.length === 0 ? (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-12 text-center">
             <p className="text-indigo-300 text-sm">Voeg leermomenten toe om je maandoverzicht te zien.</p>
-            <Link href="/" className="text-indigo-500 text-sm mt-2 inline-block hover:underline">Naar leermomenten →</Link>
+            <Link href="/leermomenten" className="text-indigo-500 text-sm mt-2 inline-block hover:underline">Naar leermomenten →</Link>
           </div>
         ) : (
           <>

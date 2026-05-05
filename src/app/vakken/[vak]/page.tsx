@@ -1,14 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import VakDetail from '@/components/VakDetail'
 
 export default async function VakDetailPage({ params }: { params: { vak: string } }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) redirect('/login')
-
   const vakNaam = decodeURIComponent(params.vak)
+
+  if (!user) {
+    return <VakDetail vakNaam={vakNaam} moments={[]} goalMinutes={null} goalDate={null} />
+  }
 
   const [{ data: moments }, { data: subject }] = await Promise.all([
     supabase.from('learning_moments').select('*').eq('category', vakNaam).order('learned_at', { ascending: false }),

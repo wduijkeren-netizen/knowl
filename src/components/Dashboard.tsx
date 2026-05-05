@@ -45,6 +45,8 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
   const [editData, setEditData] = useState<Partial<Moment>>({})
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [showSpaced, setShowSpaced] = useState(true)
+  const [search, setSearch] = useState('')
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const supabase = createClient()
 
   async function uploadPhoto(file: File, userId: string): Promise<string | null> {
@@ -101,7 +103,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
   async function handleDelete(id: string) {
     const { error } = await supabase.from('learning_moments').delete().eq('id', id)
     if (error) alert(d.deleteError + error.message)
-    else setMoments(moments.filter(m => m.id !== id))
+    else { setMoments(moments.filter(m => m.id !== id)); setConfirmDeleteId(null) }
   }
 
   function startEdit(moment: Moment) {
@@ -170,7 +172,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
           <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-5">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-xs font-semibold text-amber-600 uppercase tracking-wide mb-1">💡 Weet je het nog?</p>
+                <p className="text-xs font-semibold text-amber-600 uppercase tracking-wide mb-1">Weet je het nog?</p>
                 <p className="text-sm font-medium text-amber-900">Je leerde dit op {spacedMoment.learned_at}:</p>
                 <p className="font-bold text-amber-800 mt-1">{spacedMoment.title}</p>
                 {spacedMoment.description && (
@@ -289,13 +291,48 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
           </form>
         </div>
 
+        {/* Welkomstbanner voor nieuwe gebruikers */}
+        {moments.length === 0 && (
+          <div className="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-6 text-white">
+            <h2 className="text-lg font-bold">Welkom bij Knowl!</h2>
+            <p className="text-indigo-200 text-sm mt-1 mb-4">Je bent er. Voeg je eerste leermoment toe en begin met het bijhouden van je groei.</p>
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div className="bg-white/10 rounded-xl p-3">
+                <p className="text-2xl font-bold">1</p>
+                <p className="text-xs text-indigo-200 mt-0.5">Voeg een moment toe</p>
+              </div>
+              <div className="bg-white/10 rounded-xl p-3">
+                <p className="text-2xl font-bold">2</p>
+                <p className="text-xs text-indigo-200 mt-0.5">Maak vakken aan</p>
+              </div>
+              <div className="bg-white/10 rounded-xl p-3">
+                <p className="text-2xl font-bold">3</p>
+                <p className="text-xs text-indigo-200 mt-0.5">Bekijk je groei</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Lijst */}
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <h2 className="font-semibold text-indigo-900">{d.recent}</h2>
             <span className="text-xs text-indigo-400 bg-indigo-50 px-2.5 py-1 rounded-full">{moments.length} {d.total}</span>
           </div>
-          <p className="text-xs text-indigo-300">De laatste 5 — alle momenten staan per vak onder Vakken</p>
+
+          {/* Zoekbalk */}
+          {moments.length > 0 && (
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Zoeken in leermomenten..."
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all"
+            />
+          )}
+
+          {!search && moments.length > 0 && (
+            <p className="text-xs text-indigo-300">De laatste 5 — alle momenten staan per vak onder Vakken</p>
+          )}
 
           {moments.length === 0 && (
             <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-10 text-center">
@@ -303,7 +340,16 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
             </div>
           )}
 
-          {moments.slice(0, 5).map((moment) => (
+          {search && moments.filter(m => m.title.toLowerCase().includes(search.toLowerCase()) || m.description?.toLowerCase().includes(search.toLowerCase())).length === 0 && (
+            <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-8 text-center">
+              <p className="text-indigo-300 text-sm">Geen resultaten voor &ldquo;{search}&rdquo;</p>
+            </div>
+          )}
+
+          {(search
+            ? moments.filter(m => m.title.toLowerCase().includes(search.toLowerCase()) || m.description?.toLowerCase().includes(search.toLowerCase()))
+            : moments.slice(0, 5)
+          ).map((moment) => (
             <div key={moment.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all">
               {moment.photo_url && (
                 <img src={moment.photo_url} alt="Foto" className="w-full max-h-48 object-cover rounded-t-2xl" />
@@ -345,7 +391,15 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
                           className={`text-xs transition-colors ${moment.is_public ? 'text-emerald-500 hover:text-emerald-700' : 'text-gray-300 hover:text-indigo-500'}`}>
                           {copiedId === moment.id ? 'Link gekopieerd!' : moment.is_public ? 'Gedeeld ✓' : 'Delen'}
                         </button>
-                        <button onClick={() => handleDelete(moment.id)} className="text-xs text-gray-300 hover:text-red-400 transition-colors">{d.delete}</button>
+                        {confirmDeleteId === moment.id ? (
+                          <span className="flex items-center gap-1">
+                            <button onClick={() => handleDelete(moment.id)} className="text-xs text-red-500 hover:text-red-700 font-medium">Ja</button>
+                            <span className="text-xs text-gray-300">·</span>
+                            <button onClick={() => setConfirmDeleteId(null)} className="text-xs text-gray-400 hover:text-gray-600">Nee</button>
+                          </span>
+                        ) : (
+                          <button onClick={() => setConfirmDeleteId(moment.id)} className="text-xs text-gray-300 hover:text-red-400 transition-colors">{d.delete}</button>
+                        )}
                       </div>
                     </div>
                     {moment.description && (

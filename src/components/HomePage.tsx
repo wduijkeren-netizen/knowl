@@ -10,7 +10,7 @@ import {
 
 type Props = {
   user: User
-  allMoments: { duration_minutes: number | null; learned_at: string }[]
+  allMoments: { duration_minutes: number | null; learned_at: string; category?: string | null }[]
   thisMonth: { category: string | null; duration_minutes: number | null }[]
   subjects: { name: string; goal_minutes: number | null; goal_date: string | null; recurring_type: string | null; recurring_goal_minutes: number | null }[]
   displayName: string | null
@@ -201,7 +201,7 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
             </div>
             <div className="space-y-4">
               {subjects.filter(s => s.goal_minutes).map(subject => {
-                const done = thisMonth.filter(m => m.category === subject.name).reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
+                const done = allMoments.filter(m => m.category === subject.name).reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
                 const progress = Math.min(100, Math.round((done / subject.goal_minutes!) * 100))
                 const days = subject.goal_date ? Math.ceil((new Date(subject.goal_date).getTime() - Date.now()) / 86400000) : null
                 return (
