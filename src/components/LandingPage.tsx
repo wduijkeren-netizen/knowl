@@ -75,47 +75,57 @@ export default function LandingPage() {
 
         {/* Preview kaarten */}
         <div className="relative max-w-4xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4 px-0">
+
+          {/* Kaart 1 — leermoment na college */}
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-lg p-5">
             <div className="flex justify-between items-start mb-3">
-              <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">Nieuw moment</span>
+              <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">Na het college</span>
               <span className="text-xs text-indigo-300">vandaag</span>
             </div>
-            <p className="font-bold text-indigo-900 text-sm">Uitleg over rechtspersonenrecht</p>
-            <p className="text-xs text-indigo-400 mt-2 leading-relaxed">Bestudeerd hoe rechtspersonen aansprakelijk gesteld kunnen worden...</p>
+            <p className="font-bold text-indigo-900 text-sm">Statistiek H6 — normale verdeling</p>
+            <p className="text-xs text-indigo-400 mt-2 leading-relaxed">Eindelijk snap ik het verschil tussen z-score en t-toets. Geoefend met tentamenvragen...</p>
             <div className="flex gap-2 mt-3">
-              <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-0.5 font-medium">Recht</span>
-              <span className="text-xs bg-violet-50 text-violet-500 rounded-full px-2.5 py-0.5 font-medium">45 min</span>
+              <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-0.5 font-medium">Statistiek</span>
+              <span className="text-xs bg-violet-50 text-violet-500 rounded-full px-2.5 py-0.5 font-medium">50 min</span>
             </div>
           </div>
 
+          {/* Kaart 2 — tentamen countdown met doel */}
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-lg p-5">
-            <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">Deze maand</span>
-            <div className="grid grid-cols-2 gap-3 mt-3">
-              <div>
-                <p className="text-3xl font-bold text-indigo-700">24</p>
-                <p className="text-xs text-indigo-400">momenten</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-indigo-700">18<span className="text-lg text-indigo-300">u</span></p>
-                <p className="text-xs text-indigo-400">geleerd</p>
-              </div>
+            <div className="flex justify-between items-start mb-1">
+              <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">Tentamen over</span>
+              <span className="text-xs font-bold text-red-400">8 dagen</span>
             </div>
+            <p className="text-lg font-bold text-indigo-900 mt-1">Bedrijfseconomie</p>
             <div className="mt-3 h-2 bg-indigo-100 rounded-full overflow-hidden">
-              <div className="h-full w-3/4 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full" />
+              <div className="h-full w-[62%] bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full" />
             </div>
-            <p className="text-xs text-indigo-400 mt-1">75% van maanddoel</p>
+            <p className="text-xs text-indigo-400 mt-1.5">620 / 1000 minuten — 62% van doel</p>
+            <div className="grid grid-cols-2 gap-2 mt-3">
+              <div className="bg-indigo-50 rounded-xl p-2.5 text-center">
+                <p className="text-xl font-bold text-indigo-700">14</p>
+                <p className="text-xs text-indigo-400">sessies</p>
+              </div>
+              <div className="bg-violet-50 rounded-xl p-2.5 text-center">
+                <p className="text-xl font-bold text-violet-600">48</p>
+                <p className="text-xs text-violet-400">min nodig/dag</p>
+              </div>
+            </div>
           </div>
 
+          {/* Kaart 3 — streak */}
           <div className="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl shadow-lg p-5 text-white">
-            <span className="text-xs font-semibold text-indigo-200 uppercase tracking-wide">Huidige streak</span>
-            <p className="text-5xl font-bold mt-2">7</p>
-            <p className="text-indigo-200 text-sm">dagen op rij</p>
-            <div className="flex gap-1.5 mt-4">
-              {[1,2,3,4,5,6,7].map(i => (
-                <div key={i} className="flex-1 h-1.5 bg-white rounded-full opacity-90" />
+            <span className="text-xs font-semibold text-indigo-200 uppercase tracking-wide">Studeerstreak</span>
+            <p className="text-5xl font-bold mt-2">12</p>
+            <p className="text-indigo-200 text-sm">dagen op rij gestudeerd</p>
+            <div className="flex gap-1 mt-4 flex-wrap">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="w-5 h-5 rounded-md bg-white/30 flex items-center justify-center">
+                  <div className="w-2.5 h-2.5 rounded-sm bg-white opacity-90" />
+                </div>
               ))}
             </div>
-            <p className="text-xs text-indigo-300 mt-2">Ga zo door!</p>
+            <p className="text-xs text-indigo-300 mt-3">Beste week: 9u 40min · Topvak: Marketing</p>
           </div>
         </div>
       </section>
