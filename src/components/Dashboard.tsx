@@ -31,6 +31,7 @@ type Props = {
 export default function Dashboard({ user, moments: initialMoments, subjects, spacedMoment }: Props) {
   const { tr } = useLanguage()
   const d = tr.dashboard
+  const h = tr.home
   const [moments, setMoments] = useState(initialMoments)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -294,21 +295,21 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
         {/* Welkomstbanner voor nieuwe gebruikers */}
         {moments.length === 0 && (
           <div className="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-6 text-white">
-            <h2 className="text-lg font-bold">Welkom bij Knowl!</h2>
-            <p className="text-indigo-200 text-sm mt-1 mb-4">Je bent er. Voeg je eerste leermoment toe en begin met het bijhouden van je groei.</p>
+            <h2 className="text-lg font-bold">{h.welcome}</h2>
+            <p className="text-indigo-200 text-sm mt-1 mb-4">{h.welcomeSub}</p>
             <div className="grid grid-cols-3 gap-3 text-center">
               <Link href="/vakken" className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl p-3 block">
                 <p className="text-2xl font-bold">1</p>
-                <p className="text-xs text-indigo-200 mt-0.5">Maak vakken aan</p>
-                <p className="text-xs text-white/60 mt-1">Ga naar vakken →</p>
+                <p className="text-xs text-indigo-200 mt-0.5">{h.step1}</p>
+                <p className="text-xs text-white/60 mt-1">{h.manage}</p>
               </Link>
               <div className="bg-white/10 rounded-xl p-3">
                 <p className="text-2xl font-bold">2</p>
-                <p className="text-xs text-indigo-200 mt-0.5">Voeg een moment toe</p>
+                <p className="text-xs text-indigo-200 mt-0.5">{h.step2}</p>
               </div>
               <div className="bg-white/10 rounded-xl p-3">
                 <p className="text-2xl font-bold">3</p>
-                <p className="text-xs text-indigo-200 mt-0.5">Bekijk je groei</p>
+                <p className="text-xs text-indigo-200 mt-0.5">{h.step3}</p>
               </div>
             </div>
           </div>

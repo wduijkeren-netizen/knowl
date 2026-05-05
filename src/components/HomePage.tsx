@@ -4,6 +4,7 @@ import Nav from '@/components/Nav'
 import Link from 'next/link'
 import { useState, useMemo } from 'react'
 import type { User } from '@supabase/supabase-js'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
@@ -16,14 +17,11 @@ type Props = {
   displayName: string | null
 }
 
-const TIMEFRAMES = [
-  { label: '7 dagen', days: 7 },
-  { label: '30 dagen', days: 30 },
-  { label: '3 maanden', days: 90 },
-  { label: 'Alles', days: null },
-]
+const TIMEFRAME_DAYS = [7, 30, 90, null]
 
 export default function HomePage({ user, allMoments, thisMonth, subjects, displayName }: Props) {
+  const { tr } = useLanguage()
+  const h = tr.home
   const [timeframe, setTimeframe] = useState<number | null>(30)
 
   const totalMinutes = allMoments.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
@@ -80,11 +78,13 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
   const firstName = displayName ?? user.email?.split('@')[0] ?? 'daar'
 
   const shortcuts = [
-    { href: '/leermomenten', label: 'Leermoment toevoegen', sub: 'Log wat je vandaag hebt geleerd', gradient: true },
-    { href: '/pomodoro', label: 'Pomodoro starten', sub: 'Focus in blokken van 25 minuten', gradient: false },
-    { href: '/resultaten', label: 'Resultaten bekijken', sub: 'Grafieken per vak', gradient: false },
-    { href: '/wrapped', label: 'Maandoverzicht', sub: 'Jouw maandwrap', gradient: false },
+    { href: '/leermomenten', label: h.s1label, sub: h.s1sub, gradient: true },
+    { href: '/pomodoro', label: h.s2label, sub: h.s2sub, gradient: false },
+    { href: '/resultaten', label: h.s3label, sub: h.s3sub, gradient: false },
+    { href: '/wrapped', label: h.s4label, sub: h.s4sub, gradient: false },
   ]
+
+  const timeframeLabels = [`7 ${h.days}`, `30 ${h.days}`, `3 ${h.months}`, h.all]
 
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
@@ -100,19 +100,19 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
         {/* Statistieken */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">Totaal uren</p>
+            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.totalHours}</p>
             <p className="text-4xl font-bold text-indigo-700 mt-2">{totalHours}<span className="text-xl text-indigo-300">u</span></p>
           </div>
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">Deze maand</p>
+            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.thisMonth}</p>
             <p className="text-4xl font-bold text-indigo-700 mt-2">{monthMinutes}<span className="text-xl text-indigo-300">m</span></p>
           </div>
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">Streak</p>
+            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.streak}</p>
             <p className="text-4xl font-bold text-indigo-700 mt-2">{streak}<span className="text-xl text-indigo-300">d</span></p>
           </div>
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">Topvak</p>
+            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.topSubject}</p>
             <p className="text-lg font-bold text-indigo-700 mt-2 truncate">{topVak?.[0] ?? '—'}</p>
           </div>
         </div>
@@ -121,21 +121,21 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
           <div className="flex justify-between items-center mb-5 flex-wrap gap-3">
             <div>
-              <h2 className="font-semibold text-indigo-900">Cumulatief geleerd</h2>
-              <p className="text-xs text-indigo-400 mt-0.5">Totaal minuten in de loop van de tijd</p>
+              <h2 className="font-semibold text-indigo-900">{h.cumulative}</h2>
+              <p className="text-xs text-indigo-400 mt-0.5">{h.cumulativeSub}</p>
             </div>
             <div className="flex gap-1 bg-indigo-50 rounded-xl p-1">
-              {TIMEFRAMES.map(tf => (
+              {TIMEFRAME_DAYS.map((days, i) => (
                 <button
-                  key={tf.label}
-                  onClick={() => setTimeframe(tf.days)}
+                  key={i}
+                  onClick={() => setTimeframe(days)}
                   className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-all ${
-                    timeframe === tf.days
+                    timeframe === days
                       ? 'bg-white text-indigo-700 shadow-sm'
                       : 'text-indigo-400 hover:text-indigo-600'
                   }`}
                 >
-                  {tf.label}
+                  {timeframeLabels[i]}
                 </button>
               ))}
             </div>
@@ -143,7 +143,7 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
 
           {chartData.length === 0 ? (
             <div className="h-48 flex items-center justify-center">
-              <p className="text-indigo-300 text-sm">Nog geen data in dit tijdframe</p>
+              <p className="text-indigo-300 text-sm">{h.noData}</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={200}>
@@ -196,8 +196,8 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
         {subjects.filter(s => s.goal_minutes).length > 0 && (
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="font-semibold text-indigo-900">Voortgang doelen</h2>
-              <Link href="/vakken" className="text-xs text-indigo-400 hover:text-indigo-600">Beheren →</Link>
+              <h2 className="font-semibold text-indigo-900">{h.goalProgress}</h2>
+              <Link href="/vakken" className="text-xs text-indigo-400 hover:text-indigo-600">{h.manage}</Link>
             </div>
             <div className="space-y-4">
               {subjects.filter(s => s.goal_minutes).map(subject => {

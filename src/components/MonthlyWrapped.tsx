@@ -2,6 +2,7 @@
 
 import Nav from '@/components/Nav'
 import Link from 'next/link'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Moment = {
   title: string
@@ -18,6 +19,8 @@ type Props = {
 }
 
 export default function MonthlyWrapped({ thisMonth, lastMonth, monthName, isGuest }: Props) {
+  const { tr } = useLanguage()
+  const w = tr.wrapped
   const totalMinutes = thisMonth.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
   const lastMonthMinutes = lastMonth.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
   const totalHours = Math.floor(totalMinutes / 60)
@@ -65,36 +68,36 @@ export default function MonthlyWrapped({ thisMonth, lastMonth, monthName, isGues
           </div>
         )}
         <div className="bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 rounded-3xl p-8 text-white text-center">
-          <p className="text-indigo-200 text-sm uppercase tracking-widest font-medium">Jouw maandoverzicht</p>
+          <p className="text-indigo-200 text-sm uppercase tracking-widest font-medium">{w.title}</p>
           <h1 className="text-4xl font-bold mt-2 capitalize">{monthName}</h1>
           <p className="text-indigo-200 mt-2 text-sm">
-            {thisMonth.length === 0 ? 'Nog geen leermomenten deze maand.' : `${thisMonth.length} leermomenten gelogd`}
+            {thisMonth.length === 0 ? w.noMoments : `${thisMonth.length} ${w.moments} gelogd`}
           </p>
         </div>
 
         {thisMonth.length === 0 ? (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-12 text-center">
-            <p className="text-indigo-300 text-sm">Voeg leermomenten toe om je maandoverzicht te zien.</p>
-            <Link href="/leermomenten" className="text-indigo-500 text-sm mt-2 inline-block hover:underline">Naar leermomenten →</Link>
+            <p className="text-indigo-300 text-sm">{w.addMoments}</p>
+            <Link href="/leermomenten" className="text-indigo-500 text-sm mt-2 inline-block hover:underline">{w.goTo}</Link>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
-                <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">Uren geleerd</p>
+                <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{w.hoursLearned}</p>
                 <p className="text-4xl font-bold text-indigo-700 mt-2">{totalHours}<span className="text-xl text-indigo-300">u</span></p>
                 {diffPercent !== null && (
                   <p className={`text-xs mt-1 font-medium ${diffPercent >= 0 ? 'text-emerald-500' : 'text-red-400'}`}>
-                    {diffPercent >= 0 ? '+' : ''}{diffPercent}% vs vorige maand
+                    {diffPercent >= 0 ? '+' : ''}{diffPercent}% {w.vsLastMonth}
                   </p>
                 )}
               </div>
               <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
-                <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">Leermomenten</p>
+                <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{w.moments}</p>
                 <p className="text-4xl font-bold text-indigo-700 mt-2">{thisMonth.length}</p>
                 {lastMonth.length > 0 && (
                   <p className={`text-xs mt-1 font-medium ${thisMonth.length >= lastMonth.length ? 'text-emerald-500' : 'text-red-400'}`}>
-                    {thisMonth.length >= lastMonth.length ? '+' : ''}{thisMonth.length - lastMonth.length} vs vorige maand
+                    {thisMonth.length >= lastMonth.length ? '+' : ''}{thisMonth.length - lastMonth.length} {w.vsLastMonth}
                   </p>
                 )}
               </div>
@@ -103,27 +106,27 @@ export default function MonthlyWrapped({ thisMonth, lastMonth, monthName, isGues
             <div className="grid grid-cols-3 gap-4">
               {topVak && (
                 <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 col-span-1">
-                  <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">Topvak</p>
+                  <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{w.topSubject}</p>
                   <p className="text-lg font-bold text-indigo-700 mt-2 leading-tight">{topVak[0]}</p>
-                  <p className="text-xs text-indigo-300 mt-1">{topVak[1]} min</p>
+                  <p className="text-xs text-indigo-300 mt-1">{topVak[1]} {w.min}</p>
                 </div>
               )}
               {topDayName && (
                 <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 col-span-1">
-                  <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">Drukste dag</p>
+                  <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{w.busiestDay}</p>
                   <p className="text-lg font-bold text-indigo-700 mt-2 capitalize leading-tight">{topDayName}</p>
-                  <p className="text-xs text-indigo-300 mt-1">{topDay[1]}x gelogd</p>
+                  <p className="text-xs text-indigo-300 mt-1">{topDay[1]}{w.timesLogged}</p>
                 </div>
               )}
               <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 col-span-1">
-                <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">Streak</p>
+                <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{w.streak}</p>
                 <p className="text-4xl font-bold text-indigo-700 mt-2">{streak}</p>
-                <p className="text-xs text-indigo-300 mt-1">dagen op rij</p>
+                <p className="text-xs text-indigo-300 mt-1">{w.daysInRow}</p>
               </div>
             </div>
 
             <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
-              <h2 className="font-semibold text-indigo-900 mb-4">Verdeling per vak</h2>
+              <h2 className="font-semibold text-indigo-900 mb-4">{w.distribution}</h2>
               <div className="space-y-3">
                 {Object.entries(perCategory).sort((a, b) => b[1] - a[1]).map(([vak, min]) => (
                   <div key={vak}>
@@ -143,7 +146,7 @@ export default function MonthlyWrapped({ thisMonth, lastMonth, monthName, isGues
             </div>
 
             <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
-              <h2 className="font-semibold text-indigo-900 mb-4">Alle leermomenten deze maand</h2>
+              <h2 className="font-semibold text-indigo-900 mb-4">{w.allMoments}</h2>
               <div className="space-y-2">
                 {thisMonth.map((m, i) => (
                   <div key={i} className="flex justify-between items-center py-2 border-b border-indigo-50 last:border-0">

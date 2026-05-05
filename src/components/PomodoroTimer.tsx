@@ -2,10 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Nav from '@/components/Nav'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Mode = 'work' | 'break'
 
 export default function PomodoroTimer() {
+  const { tr } = useLanguage()
+  const p = tr.pomodoro
   const [mode, setMode] = useState<Mode>('work')
   const [customWork, setCustomWork] = useState(25)
   const [customBreak, setCustomBreak] = useState(5)
@@ -16,8 +19,8 @@ export default function PomodoroTimer() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const config = {
-    work:  { label: 'Focus',  color: 'text-indigo-700',  bg: 'from-indigo-600 to-violet-600', gradStart: '#6366f1', gradEnd: '#8b5cf6' },
-    break: { label: 'Pauze',  color: 'text-emerald-700', bg: 'from-emerald-500 to-teal-500',  gradStart: '#10b981', gradEnd: '#14b8a6' },
+    work:  { label: p.focus, color: 'text-indigo-700',  bg: 'from-indigo-600 to-violet-600', gradStart: '#6366f1', gradEnd: '#8b5cf6' },
+    break: { label: p.break, color: 'text-emerald-700', bg: 'from-emerald-500 to-teal-500',  gradStart: '#10b981', gradEnd: '#14b8a6' },
   }
 
   const total = (mode === 'work' ? customWork : customBreak) * 60
@@ -80,7 +83,7 @@ export default function PomodoroTimer() {
       <main className="max-w-md mx-auto px-4 py-10 space-y-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-indigo-900">Pomodoro Timer</h1>
-          <p className="text-sm text-indigo-400 mt-1">Focus in blokken, rust bewust</p>
+          <p className="text-sm text-indigo-400 mt-1">{p.subtitle}</p>
         </div>
 
         {/* Mode knoppen */}
@@ -129,13 +132,13 @@ export default function PomodoroTimer() {
               onClick={() => setRunning(r => !r)}
               className={`flex-1 py-3 rounded-2xl font-semibold text-white text-sm transition-all shadow-sm bg-gradient-to-r ${c.bg} hover:opacity-90`}
             >
-              {running ? 'Pauzeren' : seconds === total ? 'Starten' : 'Hervatten'}
+              {running ? p.pause : seconds === total ? p.start : p.resume}
             </button>
             <button
               onClick={reset}
               className="px-5 py-3 rounded-2xl text-sm font-medium text-indigo-400 bg-indigo-50 hover:bg-indigo-100 transition-colors"
             >
-              Reset
+              {p.reset}
             </button>
           </div>
 
@@ -143,7 +146,7 @@ export default function PomodoroTimer() {
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className={`w-3 h-3 rounded-full transition-all ${i < (completed % 4) ? 'bg-indigo-500' : 'bg-indigo-100'}`} />
             ))}
-            <span className="text-xs text-indigo-400 ml-1">{completed} voltooid</span>
+            <span className="text-xs text-indigo-400 ml-1">{completed} {p.completed}</span>
           </div>
         </div>
 
@@ -153,25 +156,25 @@ export default function PomodoroTimer() {
             onClick={() => setShowSettings(s => !s)}
             className="w-full text-sm font-medium text-indigo-500 hover:text-indigo-700 flex justify-between items-center"
           >
-            <span>Tijden aanpassen</span>
+            <span>{p.settings}</span>
             <span>{showSettings ? '▲' : '▼'}</span>
           </button>
           {showSettings && (
             <div className="mt-4 space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-indigo-400 mb-1">Focus (minuten)</label>
+                  <label className="block text-xs text-indigo-400 mb-1">{p.focusMin}</label>
                   <input type="number" min="1" max="60" value={customWork} onChange={e => setCustomWork(parseInt(e.target.value))}
                     className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
                 </div>
                 <div>
-                  <label className="block text-xs text-indigo-400 mb-1">Pauze (minuten)</label>
+                  <label className="block text-xs text-indigo-400 mb-1">{p.breakMin}</label>
                   <input type="number" min="1" max="60" value={customBreak} onChange={e => setCustomBreak(parseInt(e.target.value))}
                     className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
                 </div>
               </div>
               <button onClick={applySettings} className="w-full bg-indigo-600 text-white rounded-xl py-2 text-sm font-medium hover:bg-indigo-700 transition-colors">
-                Toepassen
+                {p.apply}
               </button>
             </div>
           )}
