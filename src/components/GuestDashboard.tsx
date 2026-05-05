@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
 
@@ -13,8 +13,11 @@ type Moment = {
   duration_minutes: number | null
 }
 
+const STORAGE_KEY = 'knowl_guest_moments'
+
 export default function GuestDashboard() {
   const [moments, setMoments] = useState<Moment[]>([])
+  const [loaded, setLoaded] = useState(false)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState('')
@@ -25,16 +28,33 @@ export default function GuestDashboard() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
 
+  // Load from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) setMoments(JSON.parse(saved))
+    } catch {}
+    setLoaded(true)
+  }, [])
+
+  // Save to localStorage on change
+  useEffect(() => {
+    if (!loaded) return
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(moments))
+    } catch {}
+  }, [moments, loaded])
+
   function handleAdd(e: React.FormEvent) {
     e.preventDefault()
-    setMoments([{
+    setMoments(prev => [{
       id: crypto.randomUUID(),
       title,
       description: description || null,
       category: category || null,
       learned_at: learnedAt,
       duration_minutes: duration ? parseInt(duration) : null,
-    }, ...moments])
+    }, ...prev])
     setTitle('')
     setDescription('')
     setCategory('')
@@ -67,13 +87,19 @@ export default function GuestDashboard() {
       <Nav />
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-        {/* Gastbanner */}
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex justify-between items-start gap-4">
-          <div>
-            <p className="text-sm font-semibold text-amber-800">Je gebruikt Knowl als gast</p>
-            <p className="text-sm text-amber-600 mt-0.5">Alles wat je invult verdwijnt zodra je de pagina vernieuwt. <Link href="/login?signup=true" className="underline font-medium hover:text-amber-800">Maak een gratis account aan</Link> om je data te bewaren.</p>
+
+        {/* Account-prompt — alleen tonen als ze al iets hebben ingevuld */}
+        {moments.length > 0 && (
+          <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-5 py-4 flex justify-between items-center gap-4">
+            <p className="text-sm text-indigo-600">
+              Je hebt {moments.length} {moments.length === 1 ? 'moment' : 'momenten'} opgeslagen in je browser.{' '}
+              <Link href="/login?signup=true" className="font-semibold underline hover:text-indigo-800">
+                Maak een gratis account aan
+              </Link>{' '}
+              om ze permanent te bewaren.
+            </p>
           </div>
-        </div>
+        )}
 
         {/* Statistieken */}
         <div className="grid grid-cols-2 gap-4">
@@ -105,9 +131,6 @@ export default function GuestDashboard() {
               <textarea value={description} onChange={e => setDescription(e.target.value)}
                 placeholder="Vat samen wat je hebt geleerd..."
                 rows={3} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none" />
-            </div>
-            <div className="bg-indigo-50 rounded-xl px-4 py-2.5 text-xs text-indigo-400">
-              Foto toevoegen? <Link href="/login?signup=true" className="underline font-medium">Maak een account aan</Link> om foto&apos;s op te slaan.
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div>
@@ -143,13 +166,14 @@ export default function GuestDashboard() {
 
           {moments.length > 0 && (
             <input value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Zoeken in leermomenten..."
+              placeholder="Zoeken..."
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all" />
           )}
 
           {moments.length === 0 && (
             <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-10 text-center">
               <p className="text-indigo-300 text-sm">Nog geen leermomenten. Voeg je eerste toe!</p>
+              <p className="text-indigo-200 text-xs mt-2">Je data wordt opgeslagen in je browser — ook na vernieuwen.</p>
             </div>
           )}
 

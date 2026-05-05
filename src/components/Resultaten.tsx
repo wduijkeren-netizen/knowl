@@ -22,11 +22,21 @@ type Props = {
   isGuest?: boolean
 }
 
+const DEMO_MOMENTS = [
+  { category: 'Recht', duration_minutes: 180 },
+  { category: 'Wiskunde', duration_minutes: 120 },
+  { category: 'Economie', duration_minutes: 90 },
+  { category: 'Nederlands', duration_minutes: 60 },
+  { category: 'Engels', duration_minutes: 45 },
+]
+
 export default function Resultaten({ moments, isGuest }: Props) {
   const { tr } = useLanguage()
   const r = tr.results
 
-  const perCategory = moments.reduce<Record<string, number>>((acc, m) => {
+  const sourceMoments = isGuest && moments.length === 0 ? DEMO_MOMENTS : moments
+
+  const perCategory = sourceMoments.reduce<Record<string, number>>((acc, m) => {
     const key = m.category || 'Overig'
     acc[key] = (acc[key] ?? 0) + (m.duration_minutes ?? 0)
     return acc
@@ -37,6 +47,7 @@ export default function Resultaten({ moments, isGuest }: Props) {
     .sort((a, b) => b.minuten - a.minuten)
 
   const radarData = barData.map(({ vak, minuten }) => ({ vak, minuten }))
+  const isDemo = isGuest && moments.length === 0
   const heeftData = barData.length > 0 && barData.some(d => d.minuten > 0)
   const totaalMinuten = barData.reduce((sum, d) => sum + d.minuten, 0)
 
@@ -50,37 +61,22 @@ export default function Resultaten({ moments, isGuest }: Props) {
           <p className="text-sm text-indigo-400 mt-1">{r.subtitle}</p>
         </div>
 
-        {isGuest && (
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
-            <p className="text-sm font-semibold text-amber-800">Je bekijkt Knowl als gast</p>
-            <p className="text-sm text-amber-600 mt-0.5">Log in om je eigen resultaten te zien. <a href="/login?signup=true" className="underline font-medium hover:text-amber-800">Maak een gratis account aan</a></p>
+        {isDemo && (
+          <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-5 py-3 flex justify-between items-center gap-4">
+            <p className="text-sm text-indigo-600">
+              Dit zijn voorbeeldresultaten.{' '}
+              <a href="/login?signup=true" className="font-semibold underline hover:text-indigo-800">Maak een account aan</a>{' '}
+              om jouw eigen data te zien.
+            </p>
           </div>
         )}
 
         {!heeftData ? (
-          <div className="space-y-4">
-            <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden relative">
-              <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-4">
-                <h2 className="font-semibold text-white">{r.barTitle}</h2>
-                <p className="text-indigo-200 text-sm mt-0.5">{r.barSub}</p>
-              </div>
-              <div className="p-6 relative">
-                {/* Placeholder bars */}
-                <div className="flex items-end gap-4 h-40 opacity-20">
-                  {[80, 120, 55, 160, 95, 40].map((h, i) => (
-                    <div key={i} className="flex-1 bg-gradient-to-t from-indigo-500 to-violet-500 rounded-t-lg" style={{ height: `${h}px` }} />
-                  ))}
-                </div>
-                {/* Overlay */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 rounded-2xl">
-                  <p className="text-indigo-700 font-semibold text-base">Zo zien jouw resultaten er straks uit</p>
-                  <p className="text-indigo-400 text-sm mt-1 max-w-xs text-center">{r.empty}</p>
-                  <a href="/leermomenten" className="mt-4 text-sm bg-indigo-600 text-white px-5 py-2 rounded-xl font-medium hover:bg-indigo-700 transition-colors">
-                    Voeg een leermoment toe →
-                  </a>
-                </div>
-              </div>
-            </div>
+          <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-16 text-center">
+            <p className="text-indigo-300 text-sm">{r.empty}</p>
+            <a href="/leermomenten" className="mt-4 inline-block text-sm bg-indigo-600 text-white px-5 py-2 rounded-xl font-medium hover:bg-indigo-700 transition-colors">
+              Voeg een leermoment toe →
+            </a>
           </div>
         ) : (
           <>
