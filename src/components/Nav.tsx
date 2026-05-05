@@ -122,7 +122,7 @@ export default function Nav() {
 
           {/* Dark mode toggle */}
           <button onClick={toggleDark}
-            className="hidden md:flex items-center justify-center w-8 h-8 rounded-lg text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-lg text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
             title={dark ? 'Licht' : 'Donker'}>
             {dark ? '☀' : '☾'}
           </button>
