@@ -32,7 +32,7 @@ function LoginForm() {
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) setError(error.message)
-      else router.push('/leermomenten')
+      else router.push('/home')
     }
 
     setLoading(false)
