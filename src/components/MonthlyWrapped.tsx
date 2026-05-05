@@ -14,13 +14,18 @@ type Moment = {
 type Props = {
   thisMonth: Moment[]
   lastMonth: Moment[]
-  monthName: string
   isGuest?: boolean
 }
 
-export default function MonthlyWrapped({ thisMonth, lastMonth, monthName, isGuest }: Props) {
-  const { tr } = useLanguage()
+const LOCALE_MAP: Record<string, string> = {
+  nl: 'nl-NL', en: 'en-GB', es: 'es-ES', pt: 'pt-PT',
+  fr: 'fr-FR', de: 'de-DE', da: 'da-DK', sv: 'sv-SE', no: 'nb-NO',
+}
+
+export default function MonthlyWrapped({ thisMonth, lastMonth, isGuest }: Props) {
+  const { lang, tr } = useLanguage()
   const w = tr.wrapped
+  const monthName = new Date().toLocaleString(LOCALE_MAP[lang] ?? 'nl-NL', { month: 'long' })
   const totalMinutes = thisMonth.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
   const lastMonthMinutes = lastMonth.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
   const totalHours = Math.floor(totalMinutes / 60)
@@ -71,7 +76,7 @@ export default function MonthlyWrapped({ thisMonth, lastMonth, monthName, isGues
           <p className="text-indigo-200 text-sm uppercase tracking-widest font-medium">{w.title}</p>
           <h1 className="text-4xl font-bold mt-2 capitalize">{monthName}</h1>
           <p className="text-indigo-200 mt-2 text-sm">
-            {thisMonth.length === 0 ? w.noMoments : `${thisMonth.length} ${w.moments} gelogd`}
+            {thisMonth.length === 0 ? w.noMoments : `${thisMonth.length} ${w.moments} ${w.logged}`}
           </p>
         </div>
 

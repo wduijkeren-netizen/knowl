@@ -6,8 +6,7 @@ export default async function WrappedPage() {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    const now = new Date()
-    return <MonthlyWrapped thisMonth={[]} lastMonth={[]} monthName={now.toLocaleString('nl-NL', { month: 'long' })} isGuest />
+    return <MonthlyWrapped thisMonth={[]} lastMonth={[]} isGuest />
   }
 
   const now = new Date()
@@ -20,5 +19,5 @@ export default async function WrappedPage() {
     supabase.from('learning_moments').select('*').gte('learned_at', firstOfLastMonth).lte('learned_at', lastOfLastMonth),
   ])
 
-  return <MonthlyWrapped thisMonth={thisMonth ?? []} lastMonth={lastMonth ?? []} monthName={now.toLocaleString('nl-NL', { month: 'long' })} />
+  return <MonthlyWrapped thisMonth={thisMonth ?? []} lastMonth={lastMonth ?? []} />
 }

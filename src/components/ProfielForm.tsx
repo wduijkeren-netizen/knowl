@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Nav from '@/components/Nav'
 import type { User } from '@supabase/supabase-js'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Profile = {
   voornaam?: string | null
@@ -35,6 +36,8 @@ function Field({ label, required, children }: { label: string; required?: boolea
 }
 
 export default function ProfielForm({ user, profile }: Props) {
+  const { tr } = useLanguage()
+  const p = tr.profile
   const [voornaam, setVoornaam] = useState(profile.voornaam ?? '')
   const [achternaam, setAchternaam] = useState(profile.achternaam ?? '')
   const [telefoonnummer, setTelefoonnummer] = useState(profile.telefoonnummer ?? '')
@@ -64,7 +67,7 @@ export default function ProfielForm({ user, profile }: Props) {
       updated_at: new Date().toISOString(),
     })
 
-    if (error) setError('Kon profiel niet opslaan. Probeer opnieuw.')
+    if (error) setError(p.error)
     else setSaved(true)
     setSaving(false)
   }
@@ -76,8 +79,8 @@ export default function ProfielForm({ user, profile }: Props) {
       <Nav />
       <main className="max-w-lg mx-auto px-4 py-10 space-y-8">
         <div>
-          <h1 className="text-2xl font-bold text-indigo-900">Profiel</h1>
-          <p className="text-sm text-indigo-400 mt-1">Jouw persoonlijke gegevens</p>
+          <h1 className="text-2xl font-bold text-indigo-900">{p.title}</h1>
+          <p className="text-sm text-indigo-400 mt-1">{p.subtitle}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -85,7 +88,7 @@ export default function ProfielForm({ user, profile }: Props) {
           {/* Account */}
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
             <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-4">
-              <h2 className="font-semibold text-white">Account</h2>
+              <h2 className="font-semibold text-white">{p.account}</h2>
             </div>
             <div className="p-6">
               <Field label="E-mailadres">
@@ -94,7 +97,7 @@ export default function ProfielForm({ user, profile }: Props) {
                   disabled
                   className="w-full border border-gray-100 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-400 cursor-not-allowed"
                 />
-                <p className="text-xs text-gray-400 mt-1">Je e-mailadres kan niet worden gewijzigd.</p>
+                <p className="text-xs text-gray-400 mt-1">{p.emailNote}</p>
               </Field>
             </div>
           </div>
@@ -102,11 +105,11 @@ export default function ProfielForm({ user, profile }: Props) {
           {/* Persoonsgegevens */}
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
             <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-4">
-              <h2 className="font-semibold text-white">Persoonsgegevens</h2>
+              <h2 className="font-semibold text-white">{p.personalInfo}</h2>
             </div>
             <div className="p-6 space-y-5">
               <div className="grid grid-cols-2 gap-4">
-                <Field label="Voornaam" required>
+                <Field label={p.firstName} required>
                   <input
                     value={voornaam}
                     onChange={e => setVoornaam(e.target.value)}
@@ -115,7 +118,7 @@ export default function ProfielForm({ user, profile }: Props) {
                     className={inputClass}
                   />
                 </Field>
-                <Field label="Achternaam">
+                <Field label={p.lastName}>
                   <input
                     value={achternaam}
                     onChange={e => setAchternaam(e.target.value)}
@@ -125,7 +128,7 @@ export default function ProfielForm({ user, profile }: Props) {
                 </Field>
               </div>
 
-              <Field label="Telefoonnummer">
+              <Field label={p.phone}>
                 <input
                   type="tel"
                   value={telefoonnummer}
@@ -135,7 +138,7 @@ export default function ProfielForm({ user, profile }: Props) {
                 />
               </Field>
 
-              <Field label="Geboortedatum">
+              <Field label={p.birthdate}>
                 <input
                   type="date"
                   value={geboortedatum}
@@ -149,11 +152,11 @@ export default function ProfielForm({ user, profile }: Props) {
           {/* Adres */}
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
             <div className="bg-gradient-to-r from-violet-600 to-purple-600 px-6 py-4">
-              <h2 className="font-semibold text-white">Adres</h2>
+              <h2 className="font-semibold text-white">{p.address}</h2>
             </div>
             <div className="p-6 space-y-5">
               <div className="grid grid-cols-2 gap-4">
-                <Field label="Postcode">
+                <Field label={p.postcode}>
                   <input
                     value={postcode}
                     onChange={e => setPostcode(e.target.value)}

@@ -24,7 +24,7 @@ export default function Nav() {
   }, [])
 
   const allLinks = isLoggedIn ? [
-    { href: '/home', label: 'Home' },
+    { href: '/home', label: tr.nav.home },
     { href: '/leermomenten', label: tr.nav.moments },
     { href: '/resultaten', label: tr.nav.results },
     { href: '/pomodoro', label: 'Timer' },

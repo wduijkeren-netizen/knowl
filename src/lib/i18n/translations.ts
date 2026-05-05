@@ -14,7 +14,7 @@ export type LangCode = typeof languages[number]['code']
 
 const t = {
   nl: {
-    nav: { moments: 'Leermomenten', results: 'Resultaten', subjects: 'Vakken', logout: 'Uitloggen', more: 'Meer', monthly: 'Maandoverzicht', profile: 'Profiel' },
+    nav: { moments: 'Leermomenten', results: 'Resultaten', subjects: 'Vakken', logout: 'Uitloggen', more: 'Meer', monthly: 'Maandoverzicht', profile: 'Profiel', home: 'Home' },
     dashboard: {
       momentsCount: 'Leermomenten', minutesLearned: 'Minuten geleerd', inHours: 'In uren',
       newMoment: 'Nieuw leermoment', newMomentSub: 'Wat heb je vandaag geleerd?',
@@ -73,7 +73,7 @@ const t = {
       distribution: 'Verdeling per vak', allMoments: 'Alle leermomenten deze maand',
       vsLastMonth: 'vs vorige maand', noMoments: 'Nog geen leermomenten deze maand.',
       addMoments: 'Voeg leermomenten toe om je maandoverzicht te zien.', goTo: 'Naar leermomenten →',
-      timesLogged: 'x gelogd', min: 'min',
+      timesLogged: 'x gelogd', min: 'min', logged: 'gelogd',
     },
     pomodoro: {
       focus: 'Focus', break: 'Pauze', subtitle: 'Focus in blokken, rust bewust',
@@ -81,9 +81,18 @@ const t = {
       completed: 'voltooid', settings: 'Tijden aanpassen',
       focusMin: 'Focus (minuten)', breakMin: 'Pauze (minuten)', apply: 'Toepassen',
     },
+    profile: {
+      title: 'Profiel', subtitle: 'Jouw persoonlijke gegevens',
+      account: 'Account', personalInfo: 'Persoonsgegevens', address: 'Adres',
+      emailNote: 'Je e-mailadres kan niet worden gewijzigd.',
+      firstName: 'Voornaam', lastName: 'Achternaam', phone: 'Telefoonnummer',
+      birthdate: 'Geboortedatum', postcode: 'Postcode', city: 'Stad',
+      save: 'Opslaan', saving: 'Opslaan...', saved: 'Profiel opgeslagen.',
+      error: 'Kon profiel niet opslaan. Probeer opnieuw.',
+    },
   },
   en: {
-    nav: { moments: 'Learning moments', results: 'Results', subjects: 'Subjects', logout: 'Log out', more: 'More', monthly: 'Monthly overview', profile: 'Profile' },
+    nav: { moments: 'Learning moments', results: 'Results', subjects: 'Subjects', logout: 'Log out', more: 'More', monthly: 'Monthly overview', profile: 'Profile', home: 'Home' },
     dashboard: {
       momentsCount: 'Learning moments', minutesLearned: 'Minutes learned', inHours: 'In hours',
       newMoment: 'New learning moment', newMomentSub: 'What did you learn today?',
@@ -142,7 +151,7 @@ const t = {
       distribution: 'Distribution per subject', allMoments: 'All moments this month',
       vsLastMonth: 'vs last month', noMoments: 'No learning moments this month.',
       addMoments: 'Add learning moments to see your monthly overview.', goTo: 'Go to moments →',
-      timesLogged: 'x logged', min: 'min',
+      timesLogged: 'x logged', min: 'min', logged: 'logged',
     },
     pomodoro: {
       focus: 'Focus', break: 'Break', subtitle: 'Focus in blocks, rest deliberately',
@@ -150,9 +159,18 @@ const t = {
       completed: 'completed', settings: 'Adjust times',
       focusMin: 'Focus (minutes)', breakMin: 'Break (minutes)', apply: 'Apply',
     },
+    profile: {
+      title: 'Profile', subtitle: 'Your personal details',
+      account: 'Account', personalInfo: 'Personal information', address: 'Address',
+      emailNote: 'Your email address cannot be changed.',
+      firstName: 'First name', lastName: 'Last name', phone: 'Phone number',
+      birthdate: 'Date of birth', postcode: 'Postcode', city: 'City',
+      save: 'Save', saving: 'Saving...', saved: 'Profile saved.',
+      error: 'Could not save profile. Please try again.',
+    },
   },
   es: {
-    nav: { moments: 'Momentos de aprendizaje', results: 'Resultados', subjects: 'Asignaturas', logout: 'Cerrar sesión', more: 'Más', monthly: 'Resumen mensual', profile: 'Perfil' },
+    nav: { moments: 'Momentos de aprendizaje', results: 'Resultados', subjects: 'Asignaturas', logout: 'Cerrar sesión', more: 'Más', monthly: 'Resumen mensual', profile: 'Perfil', home: 'Inicio' },
     dashboard: {
       momentsCount: 'Momentos', minutesLearned: 'Minutos aprendidos', inHours: 'En horas',
       newMoment: 'Nuevo momento de aprendizaje', newMomentSub: '¿Qué aprendiste hoy?',
@@ -193,6 +211,7 @@ const t = {
       signupBtn: 'Crear cuenta', loginBtn: 'Iniciar sesión', loading: 'Cargando...',
       toLogin: '¿Ya tienes cuenta? Inicia sesión →', toSignup: '¿Sin cuenta? Regístrate →',
       confirmEmail: 'Revisa tu correo para confirmar.',
+    },
     home: {
       totalHours: 'Horas totales', thisMonth: 'Este mes', streak: 'Racha', topSubject: 'Mejor asignatura',
       cumulative: 'Aprendizaje acumulado', cumulativeSub: 'Minutos totales a lo largo del tiempo',
@@ -210,7 +229,7 @@ const t = {
       distribution: 'Distribución por asignatura', allMoments: 'Todos los momentos este mes',
       vsLastMonth: 'vs mes anterior', noMoments: 'Sin momentos de aprendizaje este mes.',
       addMoments: 'Añade momentos para ver tu resumen mensual.', goTo: 'Ir a momentos →',
-      timesLogged: 'x registrado', min: 'min',
+      timesLogged: 'x registrado', min: 'min', logged: 'registrados',
     },
     pomodoro: {
       focus: 'Enfoque', break: 'Descanso', subtitle: 'Enfócate en bloques, descansa conscientemente',
@@ -218,10 +237,18 @@ const t = {
       completed: 'completado', settings: 'Ajustar tiempos',
       focusMin: 'Enfoque (minutos)', breakMin: 'Descanso (minutos)', apply: 'Aplicar',
     },
+    profile: {
+      title: 'Perfil', subtitle: 'Tus datos personales',
+      account: 'Cuenta', personalInfo: 'Datos personales', address: 'Dirección',
+      emailNote: 'Tu dirección de correo no se puede cambiar.',
+      firstName: 'Nombre', lastName: 'Apellido', phone: 'Teléfono',
+      birthdate: 'Fecha de nacimiento', postcode: 'Código postal', city: 'Ciudad',
+      save: 'Guardar', saving: 'Guardando...', saved: 'Perfil guardado.',
+      error: 'No se pudo guardar el perfil. Inténtalo de nuevo.',
     },
   },
   pt: {
-    nav: { moments: 'Momentos de aprendizado', results: 'Resultados', subjects: 'Disciplinas', logout: 'Sair', more: 'Mais', monthly: 'Resumo mensal', profile: 'Perfil' },
+    nav: { moments: 'Momentos de aprendizado', results: 'Resultados', subjects: 'Disciplinas', logout: 'Sair', more: 'Mais', monthly: 'Resumo mensal', profile: 'Perfil', home: 'Início' },
     dashboard: {
       momentsCount: 'Momentos', minutesLearned: 'Minutos aprendidos', inHours: 'Em horas',
       newMoment: 'Novo momento de aprendizado', newMomentSub: 'O que você aprendeu hoje?',
@@ -262,6 +289,7 @@ const t = {
       signupBtn: 'Criar conta', loginBtn: 'Entrar', loading: 'Carregando...',
       toLogin: 'Já tem conta? Entre →', toSignup: 'Sem conta? Cadastre-se →',
       confirmEmail: 'Verifique seu e-mail para confirmar.',
+    },
     home: {
       totalHours: 'Horas totais', thisMonth: 'Este mês', streak: 'Sequência', topSubject: 'Melhor disciplina',
       cumulative: 'Aprendizado acumulado', cumulativeSub: 'Total de minutos ao longo do tempo',
@@ -279,7 +307,7 @@ const t = {
       distribution: 'Distribuição por disciplina', allMoments: 'Todos os momentos deste mês',
       vsLastMonth: 'vs mês anterior', noMoments: 'Sem momentos de aprendizado este mês.',
       addMoments: 'Adicione momentos para ver seu resumo mensal.', goTo: 'Ir para momentos →',
-      timesLogged: 'x registrado', min: 'min',
+      timesLogged: 'x registrado', min: 'min', logged: 'registrados',
     },
     pomodoro: {
       focus: 'Foco', break: 'Pausa', subtitle: 'Foque em blocos, descanse intencionalmente',
@@ -287,10 +315,18 @@ const t = {
       completed: 'concluído', settings: 'Ajustar tempos',
       focusMin: 'Foco (minutos)', breakMin: 'Pausa (minutos)', apply: 'Aplicar',
     },
+    profile: {
+      title: 'Perfil', subtitle: 'Seus dados pessoais',
+      account: 'Conta', personalInfo: 'Dados pessoais', address: 'Endereço',
+      emailNote: 'Seu endereço de e-mail não pode ser alterado.',
+      firstName: 'Nome', lastName: 'Sobrenome', phone: 'Telefone',
+      birthdate: 'Data de nascimento', postcode: 'CEP', city: 'Cidade',
+      save: 'Salvar', saving: 'Salvando...', saved: 'Perfil salvo.',
+      error: 'Não foi possível salvar o perfil. Tente novamente.',
     },
   },
   fr: {
-    nav: { moments: "Moments d'apprentissage", results: 'Résultats', subjects: 'Matières', logout: 'Se déconnecter', more: 'Plus', monthly: 'Bilan mensuel', profile: 'Profil' },
+    nav: { moments: "Moments d'apprentissage", results: 'Résultats', subjects: 'Matières', logout: 'Se déconnecter', more: 'Plus', monthly: 'Bilan mensuel', profile: 'Profil', home: 'Accueil' },
     dashboard: {
       momentsCount: 'Moments', minutesLearned: 'Minutes apprises', inHours: 'En heures',
       newMoment: "Nouveau moment d'apprentissage", newMomentSub: "Qu'avez-vous appris aujourd'hui ?",
@@ -331,6 +367,7 @@ const t = {
       signupBtn: 'Créer un compte', loginBtn: 'Se connecter', loading: 'Chargement...',
       toLogin: 'Déjà un compte ? Connectez-vous →', toSignup: 'Pas de compte ? Inscrivez-vous →',
       confirmEmail: 'Vérifiez votre e-mail pour confirmer.',
+    },
     home: {
       totalHours: 'Heures totales', thisMonth: 'Ce mois', streak: 'Série', topSubject: 'Meilleure matière',
       cumulative: 'Apprentissage cumulé', cumulativeSub: 'Minutes totales au fil du temps',
@@ -348,7 +385,7 @@ const t = {
       distribution: 'Répartition par matière', allMoments: 'Tous les moments ce mois',
       vsLastMonth: 'vs mois précédent', noMoments: "Aucun moment d'apprentissage ce mois.",
       addMoments: 'Ajoutez des moments pour voir votre bilan mensuel.', goTo: 'Aller aux moments →',
-      timesLogged: 'x enregistré', min: 'min',
+      timesLogged: 'x enregistré', min: 'min', logged: 'enregistrés',
     },
     pomodoro: {
       focus: 'Concentration', break: 'Pause', subtitle: 'Concentrez-vous par blocs, reposez-vous intentionnellement',
@@ -356,10 +393,18 @@ const t = {
       completed: 'complété', settings: 'Ajuster les temps',
       focusMin: 'Concentration (minutes)', breakMin: 'Pause (minutes)', apply: 'Appliquer',
     },
+    profile: {
+      title: 'Profil', subtitle: 'Vos données personnelles',
+      account: 'Compte', personalInfo: 'Données personnelles', address: 'Adresse',
+      emailNote: 'Votre adresse e-mail ne peut pas être modifiée.',
+      firstName: 'Prénom', lastName: 'Nom', phone: 'Téléphone',
+      birthdate: 'Date de naissance', postcode: 'Code postal', city: 'Ville',
+      save: 'Enregistrer', saving: 'Enregistrement...', saved: 'Profil enregistré.',
+      error: 'Impossible de sauvegarder le profil. Réessayez.',
     },
   },
   de: {
-    nav: { moments: 'Lernmomente', results: 'Ergebnisse', subjects: 'Fächer', logout: 'Abmelden', more: 'Mehr', monthly: 'Monatsübersicht', profile: 'Profil' },
+    nav: { moments: 'Lernmomente', results: 'Ergebnisse', subjects: 'Fächer', logout: 'Abmelden', more: 'Mehr', monthly: 'Monatsübersicht', profile: 'Profil', home: 'Start' },
     dashboard: {
       momentsCount: 'Lernmomente', minutesLearned: 'Gelernte Minuten', inHours: 'In Stunden',
       newMoment: 'Neuer Lernmoment', newMomentSub: 'Was hast du heute gelernt?',
@@ -400,6 +445,7 @@ const t = {
       signupBtn: 'Konto erstellen', loginBtn: 'Anmelden', loading: 'Laden...',
       toLogin: 'Bereits ein Konto? Anmelden →', toSignup: 'Noch kein Konto? Registrieren →',
       confirmEmail: 'Prüfe deine E-Mail zur Bestätigung.',
+    },
     home: {
       totalHours: 'Gesamtstunden', thisMonth: 'Dieser Monat', streak: 'Streak', topSubject: 'Bestes Fach',
       cumulative: 'Kumulatives Lernen', cumulativeSub: 'Gesamtminuten im Laufe der Zeit',
@@ -417,7 +463,7 @@ const t = {
       distribution: 'Verteilung nach Fach', allMoments: 'Alle Momente diesen Monat',
       vsLastMonth: 'vs letzten Monat', noMoments: 'Noch keine Lernmomente diesen Monat.',
       addMoments: 'Füge Lernmomente hinzu um deine Monatsübersicht zu sehen.', goTo: 'Zu den Momenten →',
-      timesLogged: 'x eingetragen', min: 'Min',
+      timesLogged: 'x eingetragen', min: 'Min', logged: 'eingetragen',
     },
     pomodoro: {
       focus: 'Fokus', break: 'Pause', subtitle: 'Konzentriere dich in Blöcken, ruh dich bewusst aus',
@@ -425,10 +471,18 @@ const t = {
       completed: 'abgeschlossen', settings: 'Zeiten anpassen',
       focusMin: 'Fokus (Minuten)', breakMin: 'Pause (Minuten)', apply: 'Anwenden',
     },
+    profile: {
+      title: 'Profil', subtitle: 'Deine persönlichen Daten',
+      account: 'Konto', personalInfo: 'Persönliche Daten', address: 'Adresse',
+      emailNote: 'Deine E-Mail-Adresse kann nicht geändert werden.',
+      firstName: 'Vorname', lastName: 'Nachname', phone: 'Telefonnummer',
+      birthdate: 'Geburtsdatum', postcode: 'Postleitzahl', city: 'Stadt',
+      save: 'Speichern', saving: 'Speichern...', saved: 'Profil gespeichert.',
+      error: 'Profil konnte nicht gespeichert werden. Versuche es erneut.',
     },
   },
   da: {
-    nav: { moments: 'Læringsøjeblikke', results: 'Resultater', subjects: 'Fag', logout: 'Log ud', more: 'Mere', monthly: 'Månedsoversigt', profile: 'Profil' },
+    nav: { moments: 'Læringsøjeblikke', results: 'Resultater', subjects: 'Fag', logout: 'Log ud', more: 'Mere', monthly: 'Månedsoversigt', profile: 'Profil', home: 'Hjem' },
     dashboard: {
       momentsCount: 'Læringsøjeblikke', minutesLearned: 'Minutter lært', inHours: 'I timer',
       newMoment: 'Nyt læringsøjeblik', newMomentSub: 'Hvad lærte du i dag?',
@@ -469,6 +523,7 @@ const t = {
       signupBtn: 'Opret konto', loginBtn: 'Log ind', loading: 'Indlæser...',
       toLogin: 'Har du allerede en konto? Log ind →', toSignup: 'Ingen konto? Tilmeld dig →',
       confirmEmail: 'Tjek din e-mail for bekræftelse.',
+    },
     home: {
       totalHours: 'Samlede timer', thisMonth: 'Denne måned', streak: 'Streak', topSubject: 'Topfag',
       cumulative: 'Kumulativ læring', cumulativeSub: 'Samlede minutter over tid',
@@ -486,7 +541,7 @@ const t = {
       distribution: 'Fordeling pr. fag', allMoments: 'Alle øjeblikke denne måned',
       vsLastMonth: 'vs forrige måned', noMoments: 'Ingen læringsøjeblikke denne måned.',
       addMoments: 'Tilføj læringsøjeblikke for at se din månedsoversigt.', goTo: 'Gå til øjeblikke →',
-      timesLogged: 'x logget', min: 'min',
+      timesLogged: 'x logget', min: 'min', logged: 'logget',
     },
     pomodoro: {
       focus: 'Fokus', break: 'Pause', subtitle: 'Fokuser i blokke, hvil bevidst',
@@ -494,10 +549,18 @@ const t = {
       completed: 'gennemført', settings: 'Juster tider',
       focusMin: 'Fokus (minutter)', breakMin: 'Pause (minutter)', apply: 'Anvend',
     },
+    profile: {
+      title: 'Profil', subtitle: 'Dine personlige oplysninger',
+      account: 'Konto', personalInfo: 'Personlige oplysninger', address: 'Adresse',
+      emailNote: 'Din e-mailadresse kan ikke ændres.',
+      firstName: 'Fornavn', lastName: 'Efternavn', phone: 'Telefonnummer',
+      birthdate: 'Fødselsdato', postcode: 'Postnummer', city: 'By',
+      save: 'Gem', saving: 'Gemmer...', saved: 'Profil gemt.',
+      error: 'Kunne ikke gemme profil. Prøv igen.',
     },
   },
   sv: {
-    nav: { moments: 'Lärstunder', results: 'Resultat', subjects: 'Ämnen', logout: 'Logga ut', more: 'Mer', monthly: 'Månadsöversikt', profile: 'Profil' },
+    nav: { moments: 'Lärstunder', results: 'Resultat', subjects: 'Ämnen', logout: 'Logga ut', more: 'Mer', monthly: 'Månadsöversikt', profile: 'Profil', home: 'Hem' },
     dashboard: {
       momentsCount: 'Lärstunder', minutesLearned: 'Minuter lärt', inHours: 'I timmar',
       newMoment: 'Ny lärstund', newMomentSub: 'Vad lärde du dig idag?',
@@ -538,6 +601,7 @@ const t = {
       signupBtn: 'Skapa konto', loginBtn: 'Logga in', loading: 'Laddar...',
       toLogin: 'Har du redan ett konto? Logga in →', toSignup: 'Inget konto? Registrera dig →',
       confirmEmail: 'Kontrollera din e-post för bekräftelse.',
+    },
     home: {
       totalHours: 'Totalt antal timmar', thisMonth: 'Denna månad', streak: 'Streak', topSubject: 'Toppämne',
       cumulative: 'Kumulativt lärande', cumulativeSub: 'Totalt antal minuter över tid',
@@ -555,7 +619,7 @@ const t = {
       distribution: 'Fördelning per ämne', allMoments: 'Alla tillfällen denna månad',
       vsLastMonth: 'vs förra månaden', noMoments: 'Inga lärstunder denna månad.',
       addMoments: 'Lägg till lärstunder för att se din månadsöversikt.', goTo: 'Gå till tillfällen →',
-      timesLogged: 'x loggat', min: 'min',
+      timesLogged: 'x loggat', min: 'min', logged: 'loggade',
     },
     pomodoro: {
       focus: 'Fokus', break: 'Paus', subtitle: 'Fokusera i block, vila medvetet',
@@ -563,10 +627,18 @@ const t = {
       completed: 'slutfört', settings: 'Justera tider',
       focusMin: 'Fokus (minuter)', breakMin: 'Paus (minuter)', apply: 'Tillämpa',
     },
+    profile: {
+      title: 'Profil', subtitle: 'Dina personuppgifter',
+      account: 'Konto', personalInfo: 'Personuppgifter', address: 'Adress',
+      emailNote: 'Din e-postadress kan inte ändras.',
+      firstName: 'Förnamn', lastName: 'Efternamn', phone: 'Telefonnummer',
+      birthdate: 'Födelsedatum', postcode: 'Postnummer', city: 'Stad',
+      save: 'Spara', saving: 'Sparar...', saved: 'Profil sparad.',
+      error: 'Kunde inte spara profilen. Försök igen.',
     },
   },
   no: {
-    nav: { moments: 'Læringsøyeblikk', results: 'Resultater', subjects: 'Fag', logout: 'Logg ut', more: 'Mer', monthly: 'Månedsoversikt', profile: 'Profil' },
+    nav: { moments: 'Læringsøyeblikk', results: 'Resultater', subjects: 'Fag', logout: 'Logg ut', more: 'Mer', monthly: 'Månedsoversikt', profile: 'Profil', home: 'Hjem' },
     dashboard: {
       momentsCount: 'Læringsøyeblikk', minutesLearned: 'Minutter lært', inHours: 'I timer',
       newMoment: 'Nytt læringsøyeblikk', newMomentSub: 'Hva lærte du i dag?',
@@ -607,6 +679,7 @@ const t = {
       signupBtn: 'Opprett konto', loginBtn: 'Logg inn', loading: 'Laster...',
       toLogin: 'Har du allerede en konto? Logg inn →', toSignup: 'Ingen konto? Registrer deg →',
       confirmEmail: 'Sjekk e-posten din for bekreftelse.',
+    },
     home: {
       totalHours: 'Totalt antall timer', thisMonth: 'Denne måneden', streak: 'Streak', topSubject: 'Toppfag',
       cumulative: 'Kumulativ læring', cumulativeSub: 'Totalt antall minutter over tid',
@@ -624,7 +697,7 @@ const t = {
       distribution: 'Fordeling per fag', allMoments: 'Alle øyeblikk denne måneden',
       vsLastMonth: 'vs forrige måned', noMoments: 'Ingen læringsøyeblikk denne måneden.',
       addMoments: 'Legg til læringsøyeblikk for å se din månedsoversikt.', goTo: 'Gå til øyeblikk →',
-      timesLogged: 'x logget', min: 'min',
+      timesLogged: 'x logget', min: 'min', logged: 'logget',
     },
     pomodoro: {
       focus: 'Fokus', break: 'Pause', subtitle: 'Fokuser i blokker, hvil bevisst',
@@ -632,6 +705,14 @@ const t = {
       completed: 'fullført', settings: 'Juster tider',
       focusMin: 'Fokus (minutter)', breakMin: 'Pause (minutter)', apply: 'Bruk',
     },
+    profile: {
+      title: 'Profil', subtitle: 'Dine personlige opplysninger',
+      account: 'Konto', personalInfo: 'Personlige opplysninger', address: 'Adresse',
+      emailNote: 'E-postadressen din kan ikke endres.',
+      firstName: 'Fornavn', lastName: 'Etternavn', phone: 'Telefonnummer',
+      birthdate: 'Fødselsdato', postcode: 'Postnummer', city: 'By',
+      save: 'Lagre', saving: 'Lagrer...', saved: 'Profil lagret.',
+      error: 'Kunne ikke lagre profil. Prøv igjen.',
     },
   },
 } as const
