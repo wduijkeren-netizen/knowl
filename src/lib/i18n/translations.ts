@@ -68,6 +68,7 @@ const t = {
       s4label: 'Maandoverzicht', s4sub: 'Jouw maandwrap',
       welcome: 'Welkom bij Knowl!', welcomeSub: 'Je bent er. Voeg je eerste leermoment toe en begin met het bijhouden van je groei.',
       step1: 'Maak vakken aan', step2: 'Voeg een moment toe', step3: 'Bekijk je groei',
+      shields: 'Schilden', shieldsInfo: 'Reserve-beschermingen voor je streak',
     },
     wrapped: {
       title: 'Jouw maandoverzicht', hoursLearned: 'Uren geleerd', moments: 'Leermomenten',
@@ -82,6 +83,12 @@ const t = {
       pause: 'Pauzeren', start: 'Starten', resume: 'Hervatten', reset: 'Reset',
       completed: 'voltooid', settings: 'Tijden aanpassen',
       focusMin: 'Focus (minuten)', breakMin: 'Pauze (minuten)', apply: 'Toepassen',
+      sessionMode: 'Sessiemodus', sessionDone: 'Sessie voltooid! 🎉', sessionAdd: 'Leermoment toevoegen', sessionSkip: 'Overslaan', sessionTitle: 'Wat heb je geleerd?', sessionSaved: 'Opgeslagen!', sessionSubject: 'Vak', sessionMinutes: 'Minuten', sessionTitleLabel: 'Titel',
+    },
+    rating: {
+      title: 'Leermoment opgeslagen! 🎉', question: 'Hoe goed begreep je de stof?',
+      labels: ['Nauwelijks', 'Een beetje', 'Redelijk', 'Goed', 'Uitstekend!'],
+      skip: 'Overslaan', saved: 'Beoordeling opgeslagen', export: 'Exporteren', exportCsv: 'Downloaden als CSV',
     },
     profile: {
       title: 'Profiel', subtitle: 'Jouw persoonlijke gegevens',
@@ -163,6 +170,7 @@ const t = {
       s4label: 'Monthly overview', s4sub: 'Your monthly wrap',
       welcome: 'Welcome to Knowl!', welcomeSub: 'You made it. Add your first learning moment and start tracking your growth.',
       step1: 'Create subjects', step2: 'Add a moment', step3: 'View your growth',
+      shields: 'Shields', shieldsInfo: 'Reserve protection for your streak',
     },
     wrapped: {
       title: 'Your monthly overview', hoursLearned: 'Hours learned', moments: 'Learning moments',
@@ -177,6 +185,12 @@ const t = {
       pause: 'Pause', start: 'Start', resume: 'Resume', reset: 'Reset',
       completed: 'completed', settings: 'Adjust times',
       focusMin: 'Focus (minutes)', breakMin: 'Break (minutes)', apply: 'Apply',
+      sessionMode: 'Session mode', sessionDone: 'Session complete! 🎉', sessionAdd: 'Add learning moment', sessionSkip: 'Skip', sessionTitle: 'What did you learn?', sessionSaved: 'Saved!', sessionSubject: 'Subject', sessionMinutes: 'Minutes', sessionTitleLabel: 'Title',
+    },
+    rating: {
+      title: 'Learning moment saved! 🎉', question: 'How well did you understand the material?',
+      labels: ['Barely', 'A little', 'Reasonably', 'Well', 'Excellent!'],
+      skip: 'Skip', saved: 'Rating saved', export: 'Export data', exportCsv: 'Download as CSV',
     },
     profile: {
       title: 'Profile', subtitle: 'Your personal details',
@@ -258,6 +272,7 @@ const t = {
       s4label: 'Resumen mensual', s4sub: 'Tu resumen del mes',
       welcome: '¡Bienvenido a Knowl!', welcomeSub: 'Añade tu primer momento de aprendizaje y comienza a seguir tu progreso.',
       step1: 'Crea asignaturas', step2: 'Añade un momento', step3: 'Ve tu progreso',
+      shields: 'Escudos', shieldsInfo: 'Protección de reserva para tu racha',
     },
     wrapped: {
       title: 'Tu resumen mensual', hoursLearned: 'Horas aprendidas', moments: 'Momentos',
@@ -272,6 +287,12 @@ const t = {
       pause: 'Pausar', start: 'Iniciar', resume: 'Reanudar', reset: 'Reiniciar',
       completed: 'completado', settings: 'Ajustar tiempos',
       focusMin: 'Enfoque (minutos)', breakMin: 'Descanso (minutos)', apply: 'Aplicar',
+      sessionMode: 'Modo sesión', sessionDone: '¡Sesión completada! 🎉', sessionAdd: 'Agregar momento', sessionSkip: 'Omitir', sessionTitle: '¿Qué aprendiste?', sessionSaved: '¡Guardado!', sessionSubject: 'Asignatura', sessionMinutes: 'Minutos', sessionTitleLabel: 'Título',
+    },
+    rating: {
+      title: '¡Momento guardado! 🎉', question: '¿Qué tan bien entendiste el material?',
+      labels: ['Apenas', 'Un poco', 'Más o menos', 'Bien', '¡Excelente!'],
+      skip: 'Omitir', saved: 'Valoración guardada', export: 'Exportar datos', exportCsv: 'Descargar como CSV',
     },
     profile: {
       title: 'Perfil', subtitle: 'Tus datos personales',
@@ -353,6 +374,7 @@ const t = {
       s4label: 'Resumo mensal', s4sub: 'Seu resumo do mês',
       welcome: 'Bem-vindo ao Knowl!', welcomeSub: 'Adicione seu primeiro momento de aprendizado e comece a acompanhar seu crescimento.',
       step1: 'Crie disciplinas', step2: 'Adicione um momento', step3: 'Veja seu progresso',
+      shields: 'Escudos', shieldsInfo: 'Proteção reserva para sua sequência',
     },
     wrapped: {
       title: 'Seu resumo mensal', hoursLearned: 'Horas aprendidas', moments: 'Momentos',
@@ -367,6 +389,12 @@ const t = {
       pause: 'Pausar', start: 'Iniciar', resume: 'Retomar', reset: 'Reiniciar',
       completed: 'concluído', settings: 'Ajustar tempos',
       focusMin: 'Foco (minutos)', breakMin: 'Pausa (minutos)', apply: 'Aplicar',
+      sessionMode: 'Modo sessão', sessionDone: 'Sessão concluída! 🎉', sessionAdd: 'Adicionar momento', sessionSkip: 'Pular', sessionTitle: 'O que você aprendeu?', sessionSaved: 'Salvo!', sessionSubject: 'Disciplina', sessionMinutes: 'Minutos', sessionTitleLabel: 'Título',
+    },
+    rating: {
+      title: 'Momento salvo! 🎉', question: 'Quão bem você entendeu o material?',
+      labels: ['Quase nada', 'Um pouco', 'Razoavelmente', 'Bem', 'Excelente!'],
+      skip: 'Pular', saved: 'Avaliação salva', export: 'Exportar dados', exportCsv: 'Baixar como CSV',
     },
     profile: {
       title: 'Perfil', subtitle: 'Seus dados pessoais',
@@ -448,6 +476,7 @@ const t = {
       s4label: 'Bilan mensuel', s4sub: 'Votre bilan du mois',
       welcome: 'Bienvenue sur Knowl !', welcomeSub: 'Ajoutez votre premier moment et commencez à suivre votre progression.',
       step1: 'Créer des matières', step2: 'Ajouter un moment', step3: 'Voir vos progrès',
+      shields: 'Boucliers', shieldsInfo: 'Protection de réserve pour votre série',
     },
     wrapped: {
       title: 'Votre bilan mensuel', hoursLearned: 'Heures apprises', moments: 'Moments',
@@ -462,6 +491,12 @@ const t = {
       pause: 'Pause', start: 'Démarrer', resume: 'Reprendre', reset: 'Réinitialiser',
       completed: 'complété', settings: 'Ajuster les temps',
       focusMin: 'Concentration (minutes)', breakMin: 'Pause (minutes)', apply: 'Appliquer',
+      sessionMode: 'Mode session', sessionDone: 'Session terminée ! 🎉', sessionAdd: 'Ajouter un moment', sessionSkip: 'Passer', sessionTitle: "Qu'avez-vous appris ?", sessionSaved: 'Enregistré !', sessionSubject: 'Matière', sessionMinutes: 'Minutes', sessionTitleLabel: 'Titre',
+    },
+    rating: {
+      title: 'Moment enregistré ! 🎉', question: 'Dans quelle mesure avez-vous compris la matière ?',
+      labels: ['À peine', 'Un peu', 'Raisonnablement', 'Bien', 'Excellent !'],
+      skip: 'Passer', saved: 'Évaluation enregistrée', export: 'Exporter les données', exportCsv: 'Télécharger en CSV',
     },
     profile: {
       title: 'Profil', subtitle: 'Vos données personnelles',
@@ -543,6 +578,7 @@ const t = {
       s4label: 'Monatsübersicht', s4sub: 'Deine Monatsauswertung',
       welcome: 'Willkommen bei Knowl!', welcomeSub: 'Füge deinen ersten Lernmoment hinzu und beginne deinen Fortschritt zu verfolgen.',
       step1: 'Fächer erstellen', step2: 'Moment hinzufügen', step3: 'Fortschritt ansehen',
+      shields: 'Schutzschilde', shieldsInfo: 'Reserve-Schutz für deine Streak',
     },
     wrapped: {
       title: 'Deine Monatsübersicht', hoursLearned: 'Gelernte Stunden', moments: 'Lernmomente',
@@ -557,6 +593,12 @@ const t = {
       pause: 'Pausieren', start: 'Starten', resume: 'Fortsetzen', reset: 'Zurücksetzen',
       completed: 'abgeschlossen', settings: 'Zeiten anpassen',
       focusMin: 'Fokus (Minuten)', breakMin: 'Pause (Minuten)', apply: 'Anwenden',
+      sessionMode: 'Sitzungsmodus', sessionDone: 'Sitzung abgeschlossen! 🎉', sessionAdd: 'Lernmoment hinzufügen', sessionSkip: 'Überspringen', sessionTitle: 'Was hast du gelernt?', sessionSaved: 'Gespeichert!', sessionSubject: 'Fach', sessionMinutes: 'Minuten', sessionTitleLabel: 'Titel',
+    },
+    rating: {
+      title: 'Lernmoment gespeichert! 🎉', question: 'Wie gut hast du den Stoff verstanden?',
+      labels: ['Kaum', 'Ein wenig', 'Einigermaßen', 'Gut', 'Ausgezeichnet!'],
+      skip: 'Überspringen', saved: 'Bewertung gespeichert', export: 'Daten exportieren', exportCsv: 'Als CSV herunterladen',
     },
     profile: {
       title: 'Profil', subtitle: 'Deine persönlichen Daten',
@@ -638,6 +680,7 @@ const t = {
       s4label: 'Månedsoversigt', s4sub: 'Din månedlige oversigt',
       welcome: 'Velkommen til Knowl!', welcomeSub: 'Tilføj dit første læringsøjeblik og begynd at følge din vækst.',
       step1: 'Opret fag', step2: 'Tilføj et moment', step3: 'Se din vækst',
+      shields: 'Skjolde', shieldsInfo: 'Reserve-beskyttelse til din streak',
     },
     wrapped: {
       title: 'Din månedsoversigt', hoursLearned: 'Lærte timer', moments: 'Læringsøjeblikke',
@@ -652,6 +695,12 @@ const t = {
       pause: 'Pause', start: 'Start', resume: 'Genoptag', reset: 'Nulstil',
       completed: 'gennemført', settings: 'Juster tider',
       focusMin: 'Fokus (minutter)', breakMin: 'Pause (minutter)', apply: 'Anvend',
+      sessionMode: 'Sessionstilstand', sessionDone: 'Session fuldført! 🎉', sessionAdd: 'Tilføj læringsøjeblik', sessionSkip: 'Spring over', sessionTitle: 'Hvad lærte du?', sessionSaved: 'Gemt!', sessionSubject: 'Fag', sessionMinutes: 'Minutter', sessionTitleLabel: 'Titel',
+    },
+    rating: {
+      title: 'Øjeblik gemt! 🎉', question: 'Hvor godt forstod du materialet?',
+      labels: ['Næppe', 'Lidt', 'Nogenlunde', 'Godt', 'Fremragende!'],
+      skip: 'Spring over', saved: 'Vurdering gemt', export: 'Eksporter data', exportCsv: 'Download som CSV',
     },
     profile: {
       title: 'Profil', subtitle: 'Dine personlige oplysninger',
@@ -733,6 +782,7 @@ const t = {
       s4label: 'Månadsöversikt', s4sub: 'Din månadssammanfattning',
       welcome: 'Välkommen till Knowl!', welcomeSub: 'Lägg till ditt första inlärningstillfälle och börja följa dina framsteg.',
       step1: 'Skapa ämnen', step2: 'Lägg till ett moment', step3: 'Se dina framsteg',
+      shields: 'Sköldar', shieldsInfo: 'Reserveskydd för din streak',
     },
     wrapped: {
       title: 'Din månadsöversikt', hoursLearned: 'Inlärda timmar', moments: 'Lärstunder',
@@ -747,6 +797,12 @@ const t = {
       pause: 'Pausa', start: 'Starta', resume: 'Återuppta', reset: 'Återställ',
       completed: 'slutfört', settings: 'Justera tider',
       focusMin: 'Fokus (minuter)', breakMin: 'Paus (minuter)', apply: 'Tillämpa',
+      sessionMode: 'Sessionsläge', sessionDone: 'Session avklarad! 🎉', sessionAdd: 'Lägg till lärstund', sessionSkip: 'Hoppa över', sessionTitle: 'Vad lärde du dig?', sessionSaved: 'Sparat!', sessionSubject: 'Ämne', sessionMinutes: 'Minuter', sessionTitleLabel: 'Titel',
+    },
+    rating: {
+      title: 'Lärstund sparad! 🎉', question: 'Hur väl förstod du materialet?',
+      labels: ['Knappt', 'Lite', 'Ganska bra', 'Bra', 'Utmärkt!'],
+      skip: 'Hoppa över', saved: 'Betyg sparat', export: 'Exportera data', exportCsv: 'Ladda ned som CSV',
     },
     profile: {
       title: 'Profil', subtitle: 'Dina personuppgifter',
@@ -828,6 +884,7 @@ const t = {
       s4label: 'Månedsoversikt', s4sub: 'Din månedlige oversikt',
       welcome: 'Velkommen til Knowl!', welcomeSub: 'Legg til ditt første læringsøyeblikk og begynn å følge din vekst.',
       step1: 'Opprett fag', step2: 'Legg til et moment', step3: 'Se din vekst',
+      shields: 'Skjold', shieldsInfo: 'Reservebeskyttelse for din streak',
     },
     wrapped: {
       title: 'Din månedsoversikt', hoursLearned: 'Lærte timer', moments: 'Læringsøyeblikk',
@@ -842,6 +899,12 @@ const t = {
       pause: 'Pause', start: 'Start', resume: 'Fortsett', reset: 'Tilbakestill',
       completed: 'fullført', settings: 'Juster tider',
       focusMin: 'Fokus (minutter)', breakMin: 'Pause (minutter)', apply: 'Bruk',
+      sessionMode: 'Øktmodus', sessionDone: 'Økt fullført! 🎉', sessionAdd: 'Legg til læringsøyeblikk', sessionSkip: 'Hopp over', sessionTitle: 'Hva lærte du?', sessionSaved: 'Lagret!', sessionSubject: 'Fag', sessionMinutes: 'Minutter', sessionTitleLabel: 'Tittel',
+    },
+    rating: {
+      title: 'Øyeblikk lagret! 🎉', question: 'Hvor godt forstod du materialet?',
+      labels: ['Knapt', 'Litt', 'Rimelig bra', 'Bra', 'Utmerket!'],
+      skip: 'Hopp over', saved: 'Vurdering lagret', export: 'Eksporter data', exportCsv: 'Last ned som CSV',
     },
     profile: {
       title: 'Profil', subtitle: 'Dine personlige opplysninger',

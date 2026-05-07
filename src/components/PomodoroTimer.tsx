@@ -3,10 +3,19 @@
 import { useState, useEffect, useRef } from 'react'
 import Nav from '@/components/Nav'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import { createClient } from '@/lib/supabase/client'
+import type { User } from '@supabase/supabase-js'
 
 type Mode = 'work' | 'break'
 
-export default function PomodoroTimer() {
+type Subject = { id: string; name: string }
+
+type Props = {
+  user: User | null
+  subjects: Subject[]
+}
+
+export default function PomodoroTimer({ user, subjects }: Props) {
   const { tr } = useLanguage()
   const p = tr.pomodoro
   const [mode, setMode] = useState<Mode>('work')
@@ -16,7 +25,17 @@ export default function PomodoroTimer() {
   const [running, setRunning] = useState(false)
   const [completed, setCompleted] = useState(0)
   const [showSettings, setShowSettings] = useState(false)
+  const [sessionMode, setSessionMode] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Post-session form state
+  const [showSessionForm, setShowSessionForm] = useState(false)
+  const [sessionTitle, setSessionTitle] = useState('')
+  const [sessionSubject, setSessionSubject] = useState('')
+  const [sessionMinutes, setSessionMinutes] = useState('')
+  const [sessionSaving, setSessionSaving] = useState(false)
+  const [sessionSaved, setSessionSaved] = useState(false)
+  const supabase = createClient()
 
   const config = {
     work:  { label: p.focus, color: 'text-indigo-700',  bg: 'from-indigo-600 to-violet-600', gradStart: '#6366f1', gradEnd: '#8b5cf6' },
@@ -32,7 +51,16 @@ export default function PomodoroTimer() {
           if (s <= 1) {
             clearInterval(intervalRef.current!)
             setRunning(false)
-            if (mode === 'work') setCompleted(c => c + 1)
+            if (mode === 'work') {
+              setCompleted(c => c + 1)
+              if (sessionMode && user) {
+                setSessionTitle('')
+                setSessionSubject('')
+                setSessionMinutes(String(customWork))
+                setSessionSaved(false)
+                setShowSessionForm(true)
+              }
+            }
             try {
               const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
               const osc = ctx.createOscillator()
@@ -52,7 +80,7 @@ export default function PomodoroTimer() {
       clearInterval(intervalRef.current!)
     }
     return () => clearInterval(intervalRef.current!)
-  }, [running, mode])
+  }, [running, mode, sessionMode, customWork, user])
 
   function switchMode(m: Mode) {
     setMode(m)
@@ -71,6 +99,22 @@ export default function PomodoroTimer() {
     setSeconds((mode === 'work' ? customWork : customBreak) * 60)
   }
 
+  async function saveSessionMoment() {
+    if (!sessionTitle.trim() || !user) return
+    setSessionSaving(true)
+    await supabase.from('learning_moments').insert({
+      id: crypto.randomUUID(),
+      title: sessionTitle.trim(),
+      category: sessionSubject || null,
+      duration_minutes: parseInt(sessionMinutes) || null,
+      learned_at: new Date().toISOString().split('T')[0],
+      user_id: user.id,
+    })
+    setSessionSaving(false)
+    setSessionSaved(true)
+    setTimeout(() => { setShowSessionForm(false); setSessionSaved(false) }, 1500)
+  }
+
   const progress = ((total - seconds) / total) * 100
   const mins = String(Math.floor(seconds / 60)).padStart(2, '0')
   const secs = String(seconds % 60).padStart(2, '0')
@@ -80,11 +124,89 @@ export default function PomodoroTimer() {
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
       <Nav />
+
+      {/* Post-session modal */}
+      {showSessionForm && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 space-y-5">
+            <div className="text-center">
+              <div className="text-4xl mb-2">🎉</div>
+              <h2 className="text-xl font-bold text-indigo-900">{p.sessionDone}</h2>
+            </div>
+
+            {sessionSaved ? (
+              <p className="text-center text-emerald-500 font-semibold py-4">{p.sessionSaved} ✓</p>
+            ) : (
+              <>
+                <div>
+                  <label className="text-xs font-medium text-indigo-400 uppercase tracking-wide block mb-1">{p.sessionTitleLabel}</label>
+                  <input
+                    value={sessionTitle}
+                    onChange={e => setSessionTitle(e.target.value)}
+                    placeholder={p.sessionTitle}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                    autoFocus
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-medium text-indigo-400 uppercase tracking-wide block mb-1">{p.sessionSubject}</label>
+                    {subjects.length > 0 ? (
+                      <select value={sessionSubject} onChange={e => setSessionSubject(e.target.value)}
+                        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
+                        <option value="">—</option>
+                        {subjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+                      </select>
+                    ) : (
+                      <input type="text" value={sessionSubject} onChange={e => setSessionSubject(e.target.value)}
+                        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-indigo-400 uppercase tracking-wide block mb-1">{p.sessionMinutes}</label>
+                    <input type="number" value={sessionMinutes} onChange={e => setSessionMinutes(e.target.value)}
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button onClick={() => setShowSessionForm(false)}
+                    className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                    {p.sessionSkip}
+                  </button>
+                  <button onClick={saveSessionMoment} disabled={sessionSaving || !sessionTitle.trim()}
+                    className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-colors">
+                    {sessionSaving ? '...' : p.sessionAdd}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       <main className="max-w-md mx-auto px-4 py-10 space-y-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-indigo-900">Pomodoro Timer</h1>
           <p className="text-sm text-indigo-400 mt-1">{p.subtitle}</p>
         </div>
+
+        {/* Sessiemodus toggle */}
+        {user && (
+          <div className="flex items-center justify-between bg-white rounded-2xl border border-indigo-100 px-5 py-3">
+            <div>
+              <p className="text-sm font-medium text-indigo-800">{p.sessionMode}</p>
+              <p className="text-xs text-indigo-400">Na elke sessie direct een leermoment invullen</p>
+            </div>
+            <button
+              onClick={() => setSessionMode(s => !s)}
+              className={`relative w-12 h-6 rounded-full transition-colors ${sessionMode ? 'bg-indigo-600' : 'bg-gray-200'}`}
+            >
+              <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${sessionMode ? 'left-7' : 'left-1'}`} />
+            </button>
+          </div>
+        )}
 
         {/* Mode knoppen */}
         <div className="flex gap-2 bg-white rounded-2xl border border-indigo-100 p-2">

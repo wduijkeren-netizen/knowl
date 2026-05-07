@@ -2,7 +2,7 @@
 
 import Nav from '@/components/Nav'
 import Link from 'next/link'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import {
@@ -28,19 +28,52 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
   const totalHours = Math.floor(totalMinutes / 60)
   const monthMinutes = thisMonth.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
 
-  const streak = (() => {
-    const days = Array.from(new Set(allMoments.map(m => m.learned_at))).sort().reverse()
-    if (!days.length) return 0
-    let count = 1
+  const [usedShields, setUsedShields] = useState(0)
+  useEffect(() => {
+    try {
+      const s = parseInt(localStorage.getItem('knowl_used_shields') ?? '0')
+      setUsedShields(isNaN(s) ? 0 : s)
+    } catch {}
+  }, [])
+
+  // Streak + shields calculation
+  const { streak, shields } = useMemo(() => {
+    const days = Array.from(new Set(allMoments.map(m => m.learned_at))).sort()
+    if (!days.length) return { streak: 0, shields: 0 }
+
     const today = new Date().toISOString().split('T')[0]
-    if (days[0] !== today) return 0
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+
+    // Count shields earned: every 3 consecutive days = 1 shield
+    let earnedShields = 0
+    let run = 1
     for (let i = 1; i < days.length; i++) {
-      const diff = (new Date(days[i - 1]).getTime() - new Date(days[i]).getTime()) / 86400000
-      if (diff === 1) count++
-      else break
+      const diff = (new Date(days[i]).getTime() - new Date(days[i - 1]).getTime()) / 86400000
+      if (diff === 1) { run++; if (run % 3 === 0) earnedShields++ }
+      else run = 1
     }
-    return count
-  })()
+    const availableShields = Math.max(0, earnedShields - usedShields)
+
+    // Streak: consecutive days from today (or yesterday), with 1 free day per 7 exempt
+    const rev = [...days].reverse()
+    if (rev[0] !== today && rev[0] !== yesterday) {
+      // Potentially broken — check if shields cover the gap
+      if (availableShields > 0) return { streak: 1, shields: availableShields }
+      return { streak: 0, shields: availableShields }
+    }
+
+    let count = 1
+    let freeUsed = 0
+    const maxFree = Math.floor(days.length / 7) // 1 free day per 7 days
+
+    for (let i = 1; i < rev.length; i++) {
+      const diff = (new Date(rev[i - 1]).getTime() - new Date(rev[i]).getTime()) / 86400000
+      if (diff === 1) count++
+      else if (diff === 2 && freeUsed < maxFree) { count++; freeUsed++ }
+      else { break }
+    }
+    return { streak: count, shields: availableShields }
+  }, [allMoments, usedShields])
 
   const perCategory: Record<string, number> = {}
   for (const m of thisMonth) {
@@ -110,6 +143,9 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
             <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.streak}</p>
             <p className="text-4xl font-bold text-indigo-700 mt-2">{streak}<span className="text-xl text-indigo-300">d</span></p>
+            {shields > 0 && (
+              <p className="text-xs text-amber-500 mt-1 font-medium">{'🛡️'.repeat(Math.min(shields, 5))} {h.shields}</p>
+            )}
           </div>
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
             <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.topSubject}</p>

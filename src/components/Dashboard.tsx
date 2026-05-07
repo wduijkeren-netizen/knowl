@@ -28,9 +28,41 @@ type Props = {
   spacedMoment: Moment | null
 }
 
+const RATINGS_KEY = 'knowl_ratings'
+
+function getRatings(): Record<string, number> {
+  try { return JSON.parse(localStorage.getItem(RATINGS_KEY) ?? '{}') } catch { return {} }
+}
+function saveRating(id: string, stars: number) {
+  const r = getRatings()
+  r[id] = stars
+  try { localStorage.setItem(RATINGS_KEY, JSON.stringify(r)) } catch {}
+}
+
+function exportCsv(moments: Moment[], ratings: Record<string, number>) {
+  const header = ['Datum', 'Titel', 'Vak', 'Minuten', 'Beoordeling (1-5)', 'Samenvatting']
+  const rows = moments.map(m => [
+    m.learned_at,
+    `"${(m.title ?? '').replace(/"/g, '""')}"`,
+    m.category ?? '',
+    m.duration_minutes ?? '',
+    ratings[m.id] ?? '',
+    `"${(m.description ?? '').replace(/"/g, '""')}"`,
+  ])
+  const csv = [header, ...rows].map(r => r.join(',')).join('\n')
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `knowl-leermomenten-${new Date().toISOString().split('T')[0]}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export default function Dashboard({ user, moments: initialMoments, subjects, spacedMoment }: Props) {
   const { tr } = useLanguage()
   const d = tr.dashboard
+  const r = tr.rating
   const h = tr.home
   const [moments, setMoments] = useState(initialMoments)
   const [title, setTitle] = useState('')
@@ -45,10 +77,17 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editData, setEditData] = useState<Partial<Moment>>({})
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [duplicateSuccess, setDuplicateSuccess] = useState(false)
   const [showSpaced, setShowSpaced] = useState(true)
   const [search, setSearch] = useState('')
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [duplicateSuccess, setDuplicateSuccess] = useState(false)
+
+  // Rating modal state
+  const [ratingMomentId, setRatingMomentId] = useState<string | null>(null)
+  const [ratingHover, setRatingHover] = useState(0)
+  const [ratingSaved, setRatingSaved] = useState(false)
+  const [ratings, setRatings] = useState<Record<string, number>>(getRatings)
+
   const supabase = createClient()
 
   async function uploadPhoto(file: File, userId: string): Promise<string | null> {
@@ -67,9 +106,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
     setLoading(true)
 
     let photo_url: string | null = null
-    if (photoFile) {
-      photo_url = await uploadPhoto(photoFile, user.id)
-    }
+    if (photoFile) photo_url = await uploadPhoto(photoFile, user.id)
 
     const { data, error } = await supabase
       .from('learning_moments')
@@ -98,8 +135,20 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
       setPhotoFile(null)
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)
+      // Show rating modal
+      setRatingMomentId(data.id)
+      setRatingSaved(false)
+      setRatingHover(0)
     }
     setLoading(false)
+  }
+
+  function handleRate(stars: number) {
+    if (!ratingMomentId) return
+    saveRating(ratingMomentId, stars)
+    setRatings(getRatings())
+    setRatingSaved(true)
+    setTimeout(() => { setRatingMomentId(null); setRatingSaved(false) }, 1200)
   }
 
   async function handleDelete(id: string) {
@@ -174,9 +223,50 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
   const totalHours = Math.floor(totalMinutes / 60)
   const remainingMinutes = totalMinutes % 60
 
+  const starLabels = r.labels
+
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
       <Nav />
+
+      {/* Rating modal */}
+      {ratingMomentId && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center space-y-5">
+            <div className="text-5xl mb-1">🎉</div>
+            <h2 className="text-xl font-bold text-indigo-900">{r.title}</h2>
+            <p className="text-sm text-indigo-500">{r.question}</p>
+
+            {ratingSaved ? (
+              <p className="text-emerald-500 font-semibold py-4">{r.saved} ✓</p>
+            ) : (
+              <>
+                <div className="flex justify-center gap-2 py-2">
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <button
+                      key={star}
+                      onMouseEnter={() => setRatingHover(star)}
+                      onMouseLeave={() => setRatingHover(0)}
+                      onClick={() => handleRate(star)}
+                      className="text-4xl transition-transform hover:scale-125 focus:outline-none"
+                    >
+                      {star <= ratingHover ? '⭐' : '☆'}
+                    </button>
+                  ))}
+                </div>
+                {ratingHover > 0 && (
+                  <p className="text-xs text-indigo-400 -mt-2">{starLabels[ratingHover - 1]}</p>
+                )}
+                <button
+                  onClick={() => setRatingMomentId(null)}
+                  className="text-sm text-indigo-300 hover:text-indigo-500 transition-colors">
+                  {r.skip}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
 
@@ -332,7 +422,16 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <h2 className="font-semibold text-indigo-900">{d.recent}</h2>
-            <span className="text-xs text-indigo-400 bg-indigo-50 px-2.5 py-1 rounded-full">{moments.length} {d.total}</span>
+            <div className="flex items-center gap-2">
+              {moments.length > 0 && (
+                <button
+                  onClick={() => exportCsv(moments, ratings)}
+                  className="text-xs text-indigo-400 hover:text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg transition-colors font-medium">
+                  {r.exportCsv} ↓
+                </button>
+              )}
+              <span className="text-xs text-indigo-400 bg-indigo-50 px-2.5 py-1 rounded-full">{moments.length} {d.total}</span>
+            </div>
           </div>
 
           {/* Zoekbalk */}
@@ -398,13 +497,16 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
                 ) : (
                   <>
                     <div className="flex justify-between items-start gap-4">
-                      <h3 className="font-semibold text-indigo-900">{moment.title}</h3>
-                      <div className="flex gap-2 shrink-0 items-center">
+                      <div>
+                        <h3 className="font-semibold text-indigo-900">{moment.title}</h3>
+                        {ratings[moment.id] && (
+                          <span className="text-xs text-amber-400">{'⭐'.repeat(ratings[moment.id])}</span>
+                        )}
+                      </div>
+                      <div className="flex gap-2 shrink-0 items-center flex-wrap justify-end">
                         <span className="text-xs text-indigo-300">{moment.learned_at}</span>
                         <button onClick={() => startEdit(moment)} className="text-xs text-gray-300 hover:text-indigo-500 transition-colors">{d.edit}</button>
-                        <button onClick={() => duplicateMoment(moment)} className="text-xs text-gray-300 hover:text-indigo-500 transition-colors">
-                          {d.duplicate}
-                        </button>
+                        <button onClick={() => duplicateMoment(moment)} className="text-xs text-gray-300 hover:text-indigo-500 transition-colors">{d.duplicate}</button>
                         <button onClick={() => handleShare(moment)}
                           className={`text-xs transition-colors ${moment.is_public ? 'text-emerald-500 hover:text-emerald-700' : 'text-gray-300 hover:text-indigo-500'}`}>
                           {copiedId === moment.id ? d.linkCopied : moment.is_public ? d.shared : d.share}
