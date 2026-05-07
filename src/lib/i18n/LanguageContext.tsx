@@ -17,12 +17,24 @@ const LanguageContext = createContext<LanguageContextType>({
   tr: t.nl,
 })
 
+const BROWSER_LANG_MAP: Record<string, LangCode> = {
+  nl: 'nl', en: 'en', de: 'de', fr: 'fr', es: 'es',
+  pt: 'pt', da: 'da', sv: 'sv', nb: 'no', no: 'no',
+}
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<LangCode>('nl')
 
   useEffect(() => {
     const saved = localStorage.getItem('knowl-lang') as LangCode | null
-    if (saved && saved in t) setLangState(saved)
+    if (saved && saved in t) {
+      setLangState(saved)
+      return
+    }
+    // Auto-detect browser language on first visit
+    const browserLang = navigator.language?.split('-')[0]?.toLowerCase()
+    const detected = browserLang ? BROWSER_LANG_MAP[browserLang] : undefined
+    if (detected) setLangState(detected)
   }, [])
 
   function setLang(newLang: LangCode) {

@@ -68,6 +68,7 @@ const t = {
       s4label: 'Maandoverzicht', s4sub: 'Jouw maandwrap',
       welcome: 'Welkom bij Knowl!', welcomeSub: 'Je bent er. Voeg je eerste leermoment toe en begin met het bijhouden van je groei.',
       step1: 'Maak vakken aan', step2: 'Voeg een moment toe', step3: 'Bekijk je groei',
+      greeting: 'Hoi, {name}', greetingSub: 'Welkom terug bij Knowl. Hier is je overzicht.',
       shields: 'Schilden', shieldsInfo: 'Reserve-beschermingen voor je streak',
     },
     wrapped: {
@@ -98,6 +99,13 @@ const t = {
       birthdate: 'Geboortedatum', postcode: 'Postcode', city: 'Stad',
       save: 'Opslaan', saving: 'Opslaan...', saved: 'Profiel opgeslagen.',
       error: 'Kon profiel niet opslaan. Probeer opnieuw.',
+    },
+    onboarding: {
+      welcome: 'Welkom bij Knowl! 👋', welcomeSub: 'Even snel je account instellen — duurt minder dan een minuut.',
+      step1title: 'Maak je eerste vak aan', step1sub: 'Bijv. Wiskunde, Economie of Engels. Je kunt er later meer toevoegen.',
+      step2title: 'Log je eerste leermoment', step2sub: 'Wat heb je vandaag geleerd? Geef het een titel en vak.',
+      step3title: 'Bekijk je voortgang', step3sub: 'Na een paar momenten zie je grafieken, streaks en je topvak.',
+      step: 'Stap', of: 'van', next: 'Volgende →', prev: '← Terug', done: 'Aan de slag! →', skip: 'Overslaan',
     },
     agenda: {
       title: 'Agenda', subtitle: 'Jouw studiekalender',
@@ -170,6 +178,7 @@ const t = {
       s4label: 'Monthly overview', s4sub: 'Your monthly wrap',
       welcome: 'Welcome to Knowl!', welcomeSub: 'You made it. Add your first learning moment and start tracking your growth.',
       step1: 'Create subjects', step2: 'Add a moment', step3: 'View your growth',
+      greeting: 'Hey, {name}', greetingSub: 'Welcome back to Knowl. Here is your overview.',
       shields: 'Shields', shieldsInfo: 'Reserve protection for your streak',
     },
     wrapped: {
@@ -200,6 +209,13 @@ const t = {
       birthdate: 'Date of birth', postcode: 'Postcode', city: 'City',
       save: 'Save', saving: 'Saving...', saved: 'Profile saved.',
       error: 'Could not save profile. Please try again.',
+    },
+    onboarding: {
+      welcome: 'Welcome to Knowl! 👋', welcomeSub: 'Quick setup — takes less than a minute.',
+      step1title: 'Create your first subject', step1sub: 'E.g. Mathematics, Economics or English. You can add more later.',
+      step2title: 'Log your first learning moment', step2sub: 'What did you learn today? Give it a title and subject.',
+      step3title: 'Track your progress', step3sub: 'After a few moments you can see charts, streaks and your top subject.',
+      step: 'Step', of: 'of', next: 'Next →', prev: '← Back', done: 'Get started! →', skip: 'Skip',
     },
     agenda: {
       title: 'Agenda', subtitle: 'Your study calendar',
@@ -272,6 +288,7 @@ const t = {
       s4label: 'Resumen mensual', s4sub: 'Tu resumen del mes',
       welcome: '¡Bienvenido a Knowl!', welcomeSub: 'Añade tu primer momento de aprendizaje y comienza a seguir tu progreso.',
       step1: 'Crea asignaturas', step2: 'Añade un momento', step3: 'Ve tu progreso',
+      greeting: 'Hola, {name}', greetingSub: 'Bienvenido de nuevo a Knowl. Aquí está tu resumen.',
       shields: 'Escudos', shieldsInfo: 'Protección de reserva para tu racha',
     },
     wrapped: {
@@ -302,6 +319,13 @@ const t = {
       birthdate: 'Fecha de nacimiento', postcode: 'Código postal', city: 'Ciudad',
       save: 'Guardar', saving: 'Guardando...', saved: 'Perfil guardado.',
       error: 'No se pudo guardar el perfil. Inténtalo de nuevo.',
+    },
+    onboarding: {
+      welcome: '¡Bienvenido a Knowl! 👋', welcomeSub: 'Configuración rápida — tarda menos de un minuto.',
+      step1title: 'Crea tu primera asignatura', step1sub: 'Ej. Matemáticas, Economía o Inglés. Puedes agregar más después.',
+      step2title: 'Registra tu primer momento de aprendizaje', step2sub: '¿Qué aprendiste hoy? Dale un título y asignatura.',
+      step3title: 'Sigue tu progreso', step3sub: 'Después de unos momentos verás gráficas, rachas y tu materia favorita.',
+      step: 'Paso', of: 'de', next: 'Siguiente →', prev: '← Atrás', done: '¡Empezar! →', skip: 'Omitir',
     },
     agenda: {
       title: 'Agenda', subtitle: 'Tu calendario de estudio',
@@ -374,6 +398,7 @@ const t = {
       s4label: 'Resumo mensal', s4sub: 'Seu resumo do mês',
       welcome: 'Bem-vindo ao Knowl!', welcomeSub: 'Adicione seu primeiro momento de aprendizado e comece a acompanhar seu crescimento.',
       step1: 'Crie disciplinas', step2: 'Adicione um momento', step3: 'Veja seu progresso',
+      greeting: 'Olá, {name}', greetingSub: 'Bem-vindo de volta ao Knowl. Aqui está seu resumo.',
       shields: 'Escudos', shieldsInfo: 'Proteção reserva para sua sequência',
     },
     wrapped: {
@@ -404,6 +429,13 @@ const t = {
       birthdate: 'Data de nascimento', postcode: 'CEP', city: 'Cidade',
       save: 'Salvar', saving: 'Salvando...', saved: 'Perfil salvo.',
       error: 'Não foi possível salvar o perfil. Tente novamente.',
+    },
+    onboarding: {
+      welcome: 'Bem-vindo ao Knowl! 👋', welcomeSub: 'Configuração rápida — menos de um minuto.',
+      step1title: 'Crie sua primeira disciplina', step1sub: 'Ex. Matemática, Economia ou Inglês. Você pode adicionar mais depois.',
+      step2title: 'Registre seu primeiro momento de aprendizado', step2sub: 'O que você aprendeu hoje? Dê um título e disciplina.',
+      step3title: 'Acompanhe seu progresso', step3sub: 'Após alguns momentos você verá gráficos, sequências e sua matéria favorita.',
+      step: 'Passo', of: 'de', next: 'Próximo →', prev: '← Voltar', done: 'Começar! →', skip: 'Pular',
     },
     agenda: {
       title: 'Agenda', subtitle: 'Seu calendário de estudos',
@@ -476,6 +508,7 @@ const t = {
       s4label: 'Bilan mensuel', s4sub: 'Votre bilan du mois',
       welcome: 'Bienvenue sur Knowl !', welcomeSub: 'Ajoutez votre premier moment et commencez à suivre votre progression.',
       step1: 'Créer des matières', step2: 'Ajouter un moment', step3: 'Voir vos progrès',
+      greeting: 'Bonjour, {name}', greetingSub: 'Bienvenue sur Knowl. Voici votre aperçu.',
       shields: 'Boucliers', shieldsInfo: 'Protection de réserve pour votre série',
     },
     wrapped: {
@@ -506,6 +539,13 @@ const t = {
       birthdate: 'Date de naissance', postcode: 'Code postal', city: 'Ville',
       save: 'Enregistrer', saving: 'Enregistrement...', saved: 'Profil enregistré.',
       error: 'Impossible de sauvegarder le profil. Réessayez.',
+    },
+    onboarding: {
+      welcome: 'Bienvenue sur Knowl ! 👋', welcomeSub: "Configuration rapide — moins d'une minute.",
+      step1title: 'Créez votre première matière', step1sub: 'Ex. Mathématiques, Économie ou Anglais. Vous pouvez en ajouter plus tard.',
+      step2title: "Enregistrez votre premier moment d'apprentissage", step2sub: "Qu'avez-vous appris aujourd'hui ? Donnez-lui un titre et une matière.",
+      step3title: 'Suivez vos progrès', step3sub: 'Après quelques moments vous verrez des graphiques, des séries et votre matière préférée.',
+      step: 'Étape', of: 'sur', next: 'Suivant →', prev: '← Retour', done: 'Commencer ! →', skip: 'Passer',
     },
     agenda: {
       title: 'Agenda', subtitle: 'Votre calendrier d\'études',
@@ -578,6 +618,7 @@ const t = {
       s4label: 'Monatsübersicht', s4sub: 'Deine Monatsauswertung',
       welcome: 'Willkommen bei Knowl!', welcomeSub: 'Füge deinen ersten Lernmoment hinzu und beginne deinen Fortschritt zu verfolgen.',
       step1: 'Fächer erstellen', step2: 'Moment hinzufügen', step3: 'Fortschritt ansehen',
+      greeting: 'Hallo, {name}', greetingSub: 'Willkommen zurück bei Knowl. Hier ist deine Übersicht.',
       shields: 'Schutzschilde', shieldsInfo: 'Reserve-Schutz für deine Streak',
     },
     wrapped: {
@@ -608,6 +649,13 @@ const t = {
       birthdate: 'Geburtsdatum', postcode: 'Postleitzahl', city: 'Stadt',
       save: 'Speichern', saving: 'Speichern...', saved: 'Profil gespeichert.',
       error: 'Profil konnte nicht gespeichert werden. Versuche es erneut.',
+    },
+    onboarding: {
+      welcome: 'Willkommen bei Knowl! 👋', welcomeSub: 'Schnelle Einrichtung — dauert weniger als eine Minute.',
+      step1title: 'Erstelle dein erstes Fach', step1sub: 'Z.B. Mathematik, Wirtschaft oder Englisch. Du kannst später mehr hinzufügen.',
+      step2title: 'Erfasse deinen ersten Lernmoment', step2sub: 'Was hast du heute gelernt? Gib ihm einen Titel und ein Fach.',
+      step3title: 'Verfolge deinen Fortschritt', step3sub: 'Nach einigen Momenten siehst du Diagramme, Streaks und dein Lieblingsfach.',
+      step: 'Schritt', of: 'von', next: 'Weiter →', prev: '← Zurück', done: 'Loslegen! →', skip: 'Überspringen',
     },
     agenda: {
       title: 'Agenda', subtitle: 'Dein Lernkalender',
@@ -680,6 +728,7 @@ const t = {
       s4label: 'Månedsoversigt', s4sub: 'Din månedlige oversigt',
       welcome: 'Velkommen til Knowl!', welcomeSub: 'Tilføj dit første læringsøjeblik og begynd at følge din vækst.',
       step1: 'Opret fag', step2: 'Tilføj et moment', step3: 'Se din vækst',
+      greeting: 'Hej, {name}', greetingSub: 'Velkommen tilbage til Knowl. Her er dit overblik.',
       shields: 'Skjolde', shieldsInfo: 'Reserve-beskyttelse til din streak',
     },
     wrapped: {
@@ -710,6 +759,13 @@ const t = {
       birthdate: 'Fødselsdato', postcode: 'Postnummer', city: 'By',
       save: 'Gem', saving: 'Gemmer...', saved: 'Profil gemt.',
       error: 'Kunne ikke gemme profil. Prøv igen.',
+    },
+    onboarding: {
+      welcome: 'Velkommen til Knowl! 👋', welcomeSub: 'Hurtig opsætning — tager mindre end et minut.',
+      step1title: 'Opret dit første fag', step1sub: 'F.eks. Matematik, Økonomi eller Engelsk. Du kan tilføje flere senere.',
+      step2title: 'Log dit første læringsøjeblik', step2sub: 'Hvad lærte du i dag? Giv det en titel og et fag.',
+      step3title: 'Følg dine fremskridt', step3sub: 'Efter et par øjeblikke kan du se grafer, streaks og dit topfag.',
+      step: 'Trin', of: 'af', next: 'Næste →', prev: '← Tilbage', done: 'Kom i gang! →', skip: 'Spring over',
     },
     agenda: {
       title: 'Agenda', subtitle: 'Din studiekalender',
@@ -782,6 +838,7 @@ const t = {
       s4label: 'Månadsöversikt', s4sub: 'Din månadssammanfattning',
       welcome: 'Välkommen till Knowl!', welcomeSub: 'Lägg till ditt första inlärningstillfälle och börja följa dina framsteg.',
       step1: 'Skapa ämnen', step2: 'Lägg till ett moment', step3: 'Se dina framsteg',
+      greeting: 'Hej, {name}', greetingSub: 'Välkommen tillbaka till Knowl. Här är din översikt.',
       shields: 'Sköldar', shieldsInfo: 'Reserveskydd för din streak',
     },
     wrapped: {
@@ -812,6 +869,13 @@ const t = {
       birthdate: 'Födelsedatum', postcode: 'Postnummer', city: 'Stad',
       save: 'Spara', saving: 'Sparar...', saved: 'Profil sparad.',
       error: 'Kunde inte spara profilen. Försök igen.',
+    },
+    onboarding: {
+      welcome: 'Välkommen till Knowl! 👋', welcomeSub: 'Snabb installation — tar mindre än en minut.',
+      step1title: 'Skapa ditt första ämne', step1sub: 'T.ex. Matematik, Ekonomi eller Engelska. Du kan lägga till fler senare.',
+      step2title: 'Logga din första lärstund', step2sub: 'Vad lärde du dig idag? Ge det en titel och ett ämne.',
+      step3title: 'Följ dina framsteg', step3sub: 'Efter några tillfällen ser du diagram, streaks och ditt toppämne.',
+      step: 'Steg', of: 'av', next: 'Nästa →', prev: '← Tillbaka', done: 'Sätt igång! →', skip: 'Hoppa över',
     },
     agenda: {
       title: 'Agenda', subtitle: 'Din studiekalender',
@@ -884,6 +948,7 @@ const t = {
       s4label: 'Månedsoversikt', s4sub: 'Din månedlige oversikt',
       welcome: 'Velkommen til Knowl!', welcomeSub: 'Legg til ditt første læringsøyeblikk og begynn å følge din vekst.',
       step1: 'Opprett fag', step2: 'Legg til et moment', step3: 'Se din vekst',
+      greeting: 'Hei, {name}', greetingSub: 'Velkommen tilbake til Knowl. Her er din oversikt.',
       shields: 'Skjold', shieldsInfo: 'Reservebeskyttelse for din streak',
     },
     wrapped: {
@@ -914,6 +979,13 @@ const t = {
       birthdate: 'Fødselsdato', postcode: 'Postnummer', city: 'By',
       save: 'Lagre', saving: 'Lagrer...', saved: 'Profil lagret.',
       error: 'Kunne ikke lagre profil. Prøv igjen.',
+    },
+    onboarding: {
+      welcome: 'Velkommen til Knowl! 👋', welcomeSub: 'Rask oppsett — tar mindre enn ett minutt.',
+      step1title: 'Opprett ditt første fag', step1sub: 'F.eks. Matematikk, Økonomi eller Engelsk. Du kan legge til flere senere.',
+      step2title: 'Logg ditt første læringsøyeblikk', step2sub: 'Hva lærte du i dag? Gi det en tittel og et fag.',
+      step3title: 'Følg fremgangen din', step3sub: 'Etter noen øyeblikk ser du grafer, streaks og ditt toppfag.',
+      step: 'Trinn', of: 'av', next: 'Neste →', prev: '← Tilbake', done: 'Kom i gang! →', skip: 'Hopp over',
     },
     agenda: {
       title: 'Agenda', subtitle: 'Din studiekalender',

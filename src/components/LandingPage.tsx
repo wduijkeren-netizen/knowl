@@ -180,6 +180,56 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Over Knowl */}
+      <section className="max-w-4xl mx-auto px-4 py-16">
+        <div className="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-3xl p-8 md:p-12">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <span className="text-xs font-semibold text-indigo-500 uppercase tracking-widest">Over Knowl</span>
+              <h2 className="text-2xl md:text-3xl font-bold text-indigo-900 mt-2 leading-tight">
+                Gemaakt door een student,<br />voor studenten
+              </h2>
+              <p className="text-indigo-600 mt-4 leading-relaxed text-sm md:text-base">
+                Knowl is ontstaan uit een simpel probleem: je werkt hard, maar weet aan het einde van de week niet meer wat je eigenlijk hebt geleerd. En je hebt geen idee of je genoeg doet voor dat ene vak.
+              </p>
+              <p className="text-indigo-500 mt-3 leading-relaxed text-sm md:text-base">
+                Knowl geeft je inzicht — niet meer, niet minder. Geen fancy AI, geen abonnement, geen reclame. Gewoon een helder overzicht van wat je leert en hoe je groeit.
+              </p>
+              <div className="flex gap-4 mt-6 flex-wrap">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-indigo-700">100%</p>
+                  <p className="text-xs text-indigo-400">Gratis</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-indigo-700">9</p>
+                  <p className="text-xs text-indigo-400">Talen</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-indigo-700">0</p>
+                  <p className="text-xs text-indigo-400">Reclame</p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {[
+                { emoji: '🎯', title: 'Doelgericht', desc: 'Stel doelen per vak en zie dagelijks hoe dichtbij je bent.' },
+                { emoji: '📊', title: 'Inzichtelijk', desc: 'Grafieken, streaks en weekoverzichten laten je exacte leerpatroon zien.' },
+                { emoji: '🛡️', title: 'Motiverend', desc: 'Streakschilden, beoordelingen en mijlpalen houden je gemotiveerd.' },
+                { emoji: '🔒', title: 'Jouw data', desc: 'Alles staat op jouw account. Exporteer wanneer je wilt.' },
+              ].map(item => (
+                <div key={item.title} className="flex gap-4 bg-white rounded-2xl p-4 shadow-sm">
+                  <span className="text-2xl shrink-0">{item.emoji}</span>
+                  <div>
+                    <p className="font-semibold text-indigo-900 text-sm">{item.title}</p>
+                    <p className="text-xs text-indigo-400 mt-0.5">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Stats */}
       <section className="bg-gradient-to-r from-indigo-600 to-violet-600 py-12">
         <div className="max-w-4xl mx-auto px-4 grid grid-cols-3 gap-4 text-center text-white">

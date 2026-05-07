@@ -290,19 +290,19 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
         )}
 
         {/* Statistieken */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-4">
             <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{d.momentsCount}</p>
-            <p className="text-4xl font-bold text-indigo-700 mt-2">{moments.length}</p>
+            <p className="text-3xl md:text-4xl font-bold text-indigo-700 mt-2">{moments.length}</p>
           </div>
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-4">
             <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{d.minutesLearned}</p>
-            <p className="text-4xl font-bold text-indigo-700 mt-2">{totalMinutes}</p>
+            <p className="text-3xl md:text-4xl font-bold text-indigo-700 mt-2">{totalMinutes}</p>
           </div>
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-4">
             <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{d.inHours}</p>
-            <p className="text-4xl font-bold text-indigo-700 mt-2">
-              {totalHours}<span className="text-xl font-medium text-indigo-300">u {remainingMinutes}m</span>
+            <p className="text-3xl md:text-4xl font-bold text-indigo-700 mt-2">
+              {totalHours}<span className="text-lg md:text-xl font-medium text-indigo-300">u {remainingMinutes}m</span>
             </p>
           </div>
         </div>
@@ -347,7 +347,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-sm font-medium text-gray-600 mb-1">{d.subject}</label>
                 {subjects.length > 0 ? (

@@ -222,6 +222,15 @@ export default function Agenda({ sessions, subjects }: Props) {
           </div>
         </div>
 
+        {/* Lege staat hint als er nog geen studiedata is */}
+        {sessions.length === 0 && events.length === 0 && (
+          <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-8 text-center">
+            <p className="text-3xl mb-3">📅</p>
+            <p className="text-sm font-medium text-indigo-700">{a.selectDay}</p>
+            <p className="text-xs text-indigo-400 mt-1">Voeg een toets of leermoment toe via de knop rechtsboven.</p>
+          </div>
+        )}
+
         {/* Day detail */}
         {selectedDay && (
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6 space-y-4">

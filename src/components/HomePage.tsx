@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useState, useMemo, useEffect } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import OnboardingWizard from '@/components/OnboardingWizard'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
@@ -122,16 +123,17 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
       <Nav />
+      <OnboardingWizard isNewUser={allMoments.length === 0} />
 
       <main className="max-w-3xl mx-auto px-4 py-10 space-y-8">
 
         <div>
-          <h1 className="text-3xl font-bold text-indigo-900">Hoi, {firstName}</h1>
-          <p className="text-indigo-400 mt-1">Welkom terug bij Knowl. Hier is je overzicht.</p>
+          <h1 className="text-3xl font-bold text-indigo-900">{h.greeting?.replace('{name}', firstName) ?? `Hoi, ${firstName}`}</h1>
+          <p className="text-indigo-400 mt-1">{h.greetingSub ?? 'Welkom terug bij Knowl. Hier is je overzicht.'}</p>
         </div>
 
         {/* Statistieken */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
             <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.totalHours}</p>
             <p className="text-4xl font-bold text-indigo-700 mt-2">{totalHours}<span className="text-xl text-indigo-300">u</span></p>
@@ -246,7 +248,7 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
                       <span className="font-medium text-indigo-800">{subject.name}</span>
                       <div className="flex gap-2 items-center">
                         {days !== null && (
-                          <span className={`text-xs ${days < 7 ? 'text-red-400' : 'text-indigo-300'}`}>nog {days}d</span>
+                          <span className={`text-xs ${days < 7 ? 'text-red-400' : 'text-indigo-300'}`}>{days}d</span>
                         )}
                         <span className="text-xs font-bold text-indigo-600">{progress}%</span>
                       </div>
