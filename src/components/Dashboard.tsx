@@ -241,21 +241,23 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
               <p className="text-emerald-500 font-semibold py-4">{r.saved} ✓</p>
             ) : (
               <>
-                <div className="flex justify-center gap-2 py-2">
+                <div
+                  className="flex justify-center gap-1 py-2 px-2"
+                  onMouseLeave={() => setRatingHover(0)}
+                >
                   {[1, 2, 3, 4, 5].map(star => (
                     <button
                       key={star}
                       onMouseEnter={() => setRatingHover(star)}
-                      onMouseLeave={() => setRatingHover(0)}
                       onClick={() => handleRate(star)}
-                      className="text-4xl transition-transform hover:scale-125 focus:outline-none"
+                      className="text-4xl px-1 transition-transform hover:scale-125 focus:outline-none leading-none"
                     >
                       {star <= ratingHover ? '⭐' : '☆'}
                     </button>
                   ))}
                 </div>
                 {ratingHover > 0 && (
-                  <p className="text-xs text-indigo-400 -mt-2">{starLabels[ratingHover - 1]}</p>
+                  <p className="text-xs text-indigo-400 -mt-2 text-center">{starLabels[ratingHover - 1]}</p>
                 )}
                 <button
                   onClick={() => setRatingMomentId(null)}
