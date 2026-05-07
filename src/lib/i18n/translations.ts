@@ -26,6 +26,8 @@ const t = {
       saveError: 'Kon leermoment niet opslaan: ', deleteError: 'Kon niet verwijderen: ',
       recent: 'Recente leermomenten', total: 'totaal', empty: 'Nog geen leermomenten. Voeg je eerste toe!',
       edit: 'Wijzigen', delete: 'Verwijderen', save: 'Opslaan', cancel: 'Annuleren', noSubject: 'Geen vak', photo: 'Foto', search: 'Zoeken...', lastFive: 'De laatste 5 — alle momenten staan per vak onder Vakken', setGoal: 'Doel instellen',
+      duplicate: 'Dupliceren', duplicateNote: '✓ Gegevens ingevuld — pas de datum aan en sla op.', share: 'Delen', shared: 'Gedeeld ✓', linkCopied: 'Link gekopieerd!', confirmYes: 'Ja', confirmNo: 'Nee',
+      spacedTitle: 'Weet je het nog?', spacedSub: 'Je leerde dit op',
     },
     results: {
       title: 'Jouw resultaten', subtitle: 'Zie hoe je de tijd hebt verdeeld over je vakken',
@@ -119,6 +121,8 @@ const t = {
       saveError: 'Could not save: ', deleteError: 'Could not delete: ',
       recent: 'Recent learning moments', total: 'total', empty: 'No learning moments yet. Add your first!',
       edit: 'Edit', delete: 'Delete', save: 'Save', cancel: 'Cancel', noSubject: 'No subject', photo: 'Photo', search: 'Search...', lastFive: 'Last 5 — all moments are listed per subject under Subjects', setGoal: 'Set goal',
+      duplicate: 'Duplicate', duplicateNote: '✓ Details filled in — adjust the date and save.', share: 'Share', shared: 'Shared ✓', linkCopied: 'Link copied!', confirmYes: 'Yes', confirmNo: 'No',
+      spacedTitle: 'Do you still remember?', spacedSub: 'You learned this on',
     },
     results: {
       title: 'Your results', subtitle: 'See how you distributed your time across subjects',
@@ -212,6 +216,8 @@ const t = {
       saveError: 'No se pudo guardar: ', deleteError: 'No se pudo eliminar: ',
       recent: 'Momentos recientes', total: 'total', empty: 'Sin momentos aún. ¡Añade el primero!',
       edit: 'Editar', delete: 'Eliminar', save: 'Guardar', cancel: 'Cancelar', noSubject: 'Sin asignatura', photo: 'Foto', search: 'Buscar...', lastFive: 'Los últimos 5 — todos los momentos están por asignatura', setGoal: 'Establecer objetivo',
+      duplicate: 'Duplicar', duplicateNote: '✓ Datos rellenados — ajusta la fecha y guarda.', share: 'Compartir', shared: 'Compartido ✓', linkCopied: '¡Enlace copiado!', confirmYes: 'Sí', confirmNo: 'No',
+      spacedTitle: '¿Lo recuerdas?', spacedSub: 'Aprendiste esto el',
     },
     results: {
       title: 'Tus resultados', subtitle: 'Ve cómo distribuiste el tiempo por asignatura',
@@ -305,6 +311,8 @@ const t = {
       saveError: 'Não foi possível salvar: ', deleteError: 'Não foi possível excluir: ',
       recent: 'Momentos recentes', total: 'total', empty: 'Nenhum momento ainda. Adicione o primeiro!',
       edit: 'Editar', delete: 'Excluir', save: 'Salvar', cancel: 'Cancelar', noSubject: 'Sem disciplina', photo: 'Foto', search: 'Pesquisar...', lastFive: 'Os últimos 5 — todos os momentos estão por disciplina', setGoal: 'Definir meta',
+      duplicate: 'Duplicar', duplicateNote: '✓ Dados preenchidos — ajuste a data e salve.', share: 'Compartilhar', shared: 'Compartilhado ✓', linkCopied: 'Link copiado!', confirmYes: 'Sim', confirmNo: 'Não',
+      spacedTitle: 'Você ainda lembra?', spacedSub: 'Você aprendeu isso em',
     },
     results: {
       title: 'Seus resultados', subtitle: 'Veja como distribuiu o tempo por disciplina',
@@ -398,6 +406,8 @@ const t = {
       saveError: "Impossible d'enregistrer : ", deleteError: 'Impossible de supprimer : ',
       recent: 'Moments récents', total: 'total', empty: 'Aucun moment. Ajoutez le premier !',
       edit: 'Modifier', delete: 'Supprimer', save: 'Enregistrer', cancel: 'Annuler', noSubject: 'Sans matière', photo: 'Photo', search: 'Rechercher...', lastFive: 'Les 5 derniers — tous les moments sont par matière', setGoal: 'Définir un objectif',
+      duplicate: 'Dupliquer', duplicateNote: '✓ Données remplies — ajustez la date et enregistrez.', share: 'Partager', shared: 'Partagé ✓', linkCopied: 'Lien copié !', confirmYes: 'Oui', confirmNo: 'Non',
+      spacedTitle: 'Vous en souvenez-vous encore ?', spacedSub: 'Vous avez appris ceci le',
     },
     results: {
       title: 'Vos résultats', subtitle: 'Voyez comment vous avez réparti votre temps',
@@ -491,6 +501,8 @@ const t = {
       saveError: 'Konnte nicht gespeichert werden: ', deleteError: 'Konnte nicht gelöscht werden: ',
       recent: 'Letzte Lernmomente', total: 'gesamt', empty: 'Noch keine Lernmomente. Füge deinen ersten hinzu!',
       edit: 'Bearbeiten', delete: 'Löschen', save: 'Speichern', cancel: 'Abbrechen', noSubject: 'Kein Fach', photo: 'Foto', search: 'Suchen...', lastFive: 'Die letzten 5 — alle Momente stehen pro Fach', setGoal: 'Ziel setzen',
+      duplicate: 'Duplizieren', duplicateNote: '✓ Daten ausgefüllt — Datum anpassen und speichern.', share: 'Teilen', shared: 'Geteilt ✓', linkCopied: 'Link kopiert!', confirmYes: 'Ja', confirmNo: 'Nein',
+      spacedTitle: 'Erinnerst du dich noch?', spacedSub: 'Du hast das gelernt am',
     },
     results: {
       title: 'Deine Ergebnisse', subtitle: 'Sieh, wie du deine Zeit auf die Fächer verteilt hast',
@@ -584,6 +596,8 @@ const t = {
       saveError: 'Kunne ikke gemme: ', deleteError: 'Kunne ikke slette: ',
       recent: 'Seneste læringsøjeblikke', total: 'i alt', empty: 'Ingen læringsøjeblikke endnu.',
       edit: 'Rediger', delete: 'Slet', save: 'Gem', cancel: 'Annuller', noSubject: 'Intet fag', photo: 'Foto', search: 'Søg...', lastFive: 'De sidste 5 — alle øjeblikke er pr. fag', setGoal: 'Sæt mål',
+      duplicate: 'Dupliker', duplicateNote: '✓ Data udfyldt — juster datoen og gem.', share: 'Del', shared: 'Delt ✓', linkCopied: 'Link kopieret!', confirmYes: 'Ja', confirmNo: 'Nej',
+      spacedTitle: 'Husker du det stadig?', spacedSub: 'Du lærte dette den',
     },
     results: {
       title: 'Dine resultater', subtitle: 'Se hvordan du har fordelt din tid på fag',
@@ -677,6 +691,8 @@ const t = {
       saveError: 'Kunde inte spara: ', deleteError: 'Kunde inte radera: ',
       recent: 'Senaste lärstunder', total: 'totalt', empty: 'Inga lärstunder än. Lägg till din första!',
       edit: 'Redigera', delete: 'Radera', save: 'Spara', cancel: 'Avbryt', noSubject: 'Inget ämne', photo: 'Foto', search: 'Sök...', lastFive: 'De senaste 5 — alla tillfällen finns per ämne', setGoal: 'Sätt mål',
+      duplicate: 'Duplicera', duplicateNote: '✓ Uppgifter ifyllda — justera datumet och spara.', share: 'Dela', shared: 'Delat ✓', linkCopied: 'Länk kopierad!', confirmYes: 'Ja', confirmNo: 'Nej',
+      spacedTitle: 'Kommer du ihåg det?', spacedSub: 'Du lärde dig detta den',
     },
     results: {
       title: 'Dina resultat', subtitle: 'Se hur du fördelat din tid på ämnen',
@@ -770,6 +786,8 @@ const t = {
       saveError: 'Kunne ikke lagre: ', deleteError: 'Kunne ikke slette: ',
       recent: 'Siste læringsøyeblikk', total: 'totalt', empty: 'Ingen læringsøyeblikk ennå.',
       edit: 'Rediger', delete: 'Slett', save: 'Lagre', cancel: 'Avbryt', noSubject: 'Ingen fag', photo: 'Foto', search: 'Søk...', lastFive: 'De siste 5 — alle øyeblikk er per fag', setGoal: 'Sett mål',
+      duplicate: 'Dupliser', duplicateNote: '✓ Data fylt inn — juster datoen og lagre.', share: 'Del', shared: 'Delt ✓', linkCopied: 'Lenke kopiert!', confirmYes: 'Ja', confirmNo: 'Nei',
+      spacedTitle: 'Husker du det fortsatt?', spacedSub: 'Du lærte dette den',
     },
     results: {
       title: 'Dine resultater', subtitle: 'Se hvordan du har fordelt tiden på fag',

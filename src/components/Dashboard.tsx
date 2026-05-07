@@ -45,6 +45,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editData, setEditData] = useState<Partial<Moment>>({})
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [duplicateSuccess, setDuplicateSuccess] = useState(false)
   const [showSpaced, setShowSpaced] = useState(true)
   const [search, setSearch] = useState('')
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
@@ -138,6 +139,17 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
     }
   }
 
+  function duplicateMoment(moment: Moment) {
+    setTitle(moment.title)
+    setDescription(moment.description ?? '')
+    setCategory(moment.category ?? '')
+    setDuration(moment.duration_minutes ? String(moment.duration_minutes) : '')
+    setLearnedAt(new Date().toISOString().split('T')[0])
+    setDuplicateSuccess(true)
+    setTimeout(() => setDuplicateSuccess(false), 3000)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   async function handleShare(moment: Moment) {
     const isPublic = !moment.is_public
     const { data } = await supabase
@@ -173,8 +185,8 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
           <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-5">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-xs font-semibold text-amber-600 uppercase tracking-wide mb-1">Weet je het nog?</p>
-                <p className="text-sm font-medium text-amber-900">Je leerde dit op {spacedMoment.learned_at}:</p>
+                <p className="text-xs font-semibold text-amber-600 uppercase tracking-wide mb-1">{d.spacedTitle}</p>
+                <p className="text-sm font-medium text-amber-900">{d.spacedSub} {spacedMoment.learned_at}:</p>
                 <p className="font-bold text-amber-800 mt-1">{spacedMoment.title}</p>
                 {spacedMoment.description && (
                   <p className="text-sm text-amber-700 mt-2 line-clamp-2">{spacedMoment.description}</p>
@@ -280,6 +292,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
               </div>
             </div>
 
+            {duplicateSuccess && <div className="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3"><p className="text-sm text-indigo-600 font-medium">{d.duplicateNote}</p></div>}
             {error && <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3"><p className="text-sm text-red-600">{error}</p></div>}
             {success && <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3"><p className="text-sm text-emerald-600 font-medium">{d.saved}</p></div>}
 
@@ -389,15 +402,18 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
                       <div className="flex gap-2 shrink-0 items-center">
                         <span className="text-xs text-indigo-300">{moment.learned_at}</span>
                         <button onClick={() => startEdit(moment)} className="text-xs text-gray-300 hover:text-indigo-500 transition-colors">{d.edit}</button>
+                        <button onClick={() => duplicateMoment(moment)} className="text-xs text-gray-300 hover:text-indigo-500 transition-colors">
+                          {d.duplicate}
+                        </button>
                         <button onClick={() => handleShare(moment)}
                           className={`text-xs transition-colors ${moment.is_public ? 'text-emerald-500 hover:text-emerald-700' : 'text-gray-300 hover:text-indigo-500'}`}>
-                          {copiedId === moment.id ? 'Link gekopieerd!' : moment.is_public ? 'Gedeeld ✓' : 'Delen'}
+                          {copiedId === moment.id ? d.linkCopied : moment.is_public ? d.shared : d.share}
                         </button>
                         {confirmDeleteId === moment.id ? (
                           <span className="flex items-center gap-1">
-                            <button onClick={() => handleDelete(moment.id)} className="text-xs text-red-500 hover:text-red-700 font-medium">Ja</button>
+                            <button onClick={() => handleDelete(moment.id)} className="text-xs text-red-500 hover:text-red-700 font-medium">{d.confirmYes}</button>
                             <span className="text-xs text-gray-300">·</span>
-                            <button onClick={() => setConfirmDeleteId(null)} className="text-xs text-gray-400 hover:text-gray-600">Nee</button>
+                            <button onClick={() => setConfirmDeleteId(null)} className="text-xs text-gray-400 hover:text-gray-600">{d.confirmNo}</button>
                           </span>
                         ) : (
                           <button onClick={() => setConfirmDeleteId(moment.id)} className="text-xs text-gray-300 hover:text-red-400 transition-colors">{d.delete}</button>
