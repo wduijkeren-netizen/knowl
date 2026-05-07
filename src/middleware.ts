@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const AUTH_ONLY = ['/home']
+const AUTH_ONLY = ['/home', '/profiel', '/week']
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })

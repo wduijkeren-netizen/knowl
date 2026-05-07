@@ -14,7 +14,7 @@ export type LangCode = typeof languages[number]['code']
 
 const t = {
   nl: {
-    nav: { moments: 'Leermomenten', results: 'Resultaten', subjects: 'Vakken', logout: 'Uitloggen', more: 'Meer', monthly: 'Maandoverzicht', profile: 'Profiel', home: 'Home' },
+    nav: { moments: 'Leermomenten', results: 'Resultaten', subjects: 'Vakken', logout: 'Uitloggen', more: 'Meer', monthly: 'Maandoverzicht', profile: 'Profiel', home: 'Home', loginBtn: 'Inloggen', timer: 'Timer', week: 'Weekoverzicht' },
     dashboard: {
       momentsCount: 'Leermomenten', minutesLearned: 'Minuten geleerd', inHours: 'In uren',
       newMoment: 'Nieuw leermoment', newMomentSub: 'Wat heb je vandaag geleerd?',
@@ -25,7 +25,7 @@ const t = {
       add: '+ Leermoment toevoegen', saving: 'Opslaan...', saved: 'Leermoment opgeslagen!',
       saveError: 'Kon leermoment niet opslaan: ', deleteError: 'Kon niet verwijderen: ',
       recent: 'Recente leermomenten', total: 'totaal', empty: 'Nog geen leermomenten. Voeg je eerste toe!',
-      edit: 'Wijzigen', delete: 'Verwijderen', save: 'Opslaan', cancel: 'Annuleren', noSubject: 'Geen vak',
+      edit: 'Wijzigen', delete: 'Verwijderen', save: 'Opslaan', cancel: 'Annuleren', noSubject: 'Geen vak', photo: 'Foto', search: 'Zoeken...', lastFive: 'De laatste 5 — alle momenten staan per vak onder Vakken', setGoal: 'Doel instellen',
     },
     results: {
       title: 'Jouw resultaten', subtitle: 'Zie hoe je de tijd hebt verdeeld over je vakken',
@@ -39,7 +39,7 @@ const t = {
       title: 'Vakken', subtitle: 'Klik op een vak om alle leermomenten te zien',
       addTitle: 'Nieuw vak toevoegen', placeholder: 'bijv. Vennootschapsbelasting',
       addBtn: 'Toevoegen', yourSubjects: 'Jouw vakken', subjects: 'vakken',
-      moment: 'moment', moments: 'momenten', empty: 'Nog geen vakken. Voeg er een toe!', delete: 'Verwijderen',
+      moment: 'moment', moments: 'momenten', empty: 'Nog geen vakken. Voeg er een toe!', delete: 'Verwijderen', setGoal: 'Doel instellen', notes: 'Notities', notesPlaceholder: 'Schrijf hier notities voor dit vak...', notesSaved: 'Notities opgeslagen',
     },
     detail: {
       back: '← Vakken', momentsCount: 'Leermomenten', minutesSpent: 'Minuten besteed',
@@ -72,8 +72,8 @@ const t = {
       topSubject: 'Topvak', busiestDay: 'Drukste dag', streak: 'Streak', daysInRow: 'dagen op rij',
       distribution: 'Verdeling per vak', allMoments: 'Alle leermomenten deze maand',
       vsLastMonth: 'vs vorige maand', noMoments: 'Nog geen leermomenten deze maand.',
-      addMoments: 'Voeg leermomenten toe om je maandoverzicht te zien.', goTo: 'Naar leermomenten →',
-      timesLogged: 'x gelogd', min: 'min', logged: 'gelogd',
+      addMoments: 'Voeg leermomenten toe om je maandoverzicht te zien.', goTo: 'Naar leermomenten →', weekTitle: 'Weekoverzicht', thisWeek: 'Deze week', noWeekMoments: 'Nog geen leermomenten deze week.',
+      timesLogged: 'x gelogd', min: 'min', logged: 'gelogd', weekdays: ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'],
     },
     pomodoro: {
       focus: 'Focus', break: 'Pauze', subtitle: 'Focus in blokken, rust bewust',
@@ -92,7 +92,7 @@ const t = {
     },
   },
   en: {
-    nav: { moments: 'Learning moments', results: 'Results', subjects: 'Subjects', logout: 'Log out', more: 'More', monthly: 'Monthly overview', profile: 'Profile', home: 'Home' },
+    nav: { moments: 'Learning moments', results: 'Results', subjects: 'Subjects', logout: 'Log out', more: 'More', monthly: 'Monthly overview', profile: 'Profile', home: 'Home', loginBtn: 'Log in', timer: 'Timer', week: 'Weekly overview' },
     dashboard: {
       momentsCount: 'Learning moments', minutesLearned: 'Minutes learned', inHours: 'In hours',
       newMoment: 'New learning moment', newMomentSub: 'What did you learn today?',
@@ -103,7 +103,7 @@ const t = {
       add: '+ Add learning moment', saving: 'Saving...', saved: 'Learning moment saved!',
       saveError: 'Could not save: ', deleteError: 'Could not delete: ',
       recent: 'Recent learning moments', total: 'total', empty: 'No learning moments yet. Add your first!',
-      edit: 'Edit', delete: 'Delete', save: 'Save', cancel: 'Cancel', noSubject: 'No subject',
+      edit: 'Edit', delete: 'Delete', save: 'Save', cancel: 'Cancel', noSubject: 'No subject', photo: 'Photo', search: 'Search...', lastFive: 'Last 5 — all moments are listed per subject under Subjects', setGoal: 'Set goal',
     },
     results: {
       title: 'Your results', subtitle: 'See how you distributed your time across subjects',
@@ -117,7 +117,7 @@ const t = {
       title: 'Subjects', subtitle: 'Click a subject to see all learning moments',
       addTitle: 'Add new subject', placeholder: 'e.g. Corporate tax',
       addBtn: 'Add', yourSubjects: 'Your subjects', subjects: 'subjects',
-      moment: 'moment', moments: 'moments', empty: 'No subjects yet. Add one!', delete: 'Delete',
+      moment: 'moment', moments: 'moments', empty: 'No subjects yet. Add one!', delete: 'Delete', setGoal: 'Set goal', notes: 'Notes', notesPlaceholder: 'Write notes for this subject here...', notesSaved: 'Notes saved',
     },
     detail: {
       back: '← Subjects', momentsCount: 'Learning moments', minutesSpent: 'Minutes spent',
@@ -150,8 +150,8 @@ const t = {
       topSubject: 'Top subject', busiestDay: 'Busiest day', streak: 'Streak', daysInRow: 'days in a row',
       distribution: 'Distribution per subject', allMoments: 'All moments this month',
       vsLastMonth: 'vs last month', noMoments: 'No learning moments this month.',
-      addMoments: 'Add learning moments to see your monthly overview.', goTo: 'Go to moments →',
-      timesLogged: 'x logged', min: 'min', logged: 'logged',
+      addMoments: 'Add learning moments to see your monthly overview.', goTo: 'Go to moments →', weekTitle: 'Weekly overview', thisWeek: 'This week', noWeekMoments: 'No learning moments this week.',
+      timesLogged: 'x logged', min: 'min', logged: 'logged', weekdays: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
     },
     pomodoro: {
       focus: 'Focus', break: 'Break', subtitle: 'Focus in blocks, rest deliberately',
@@ -170,7 +170,7 @@ const t = {
     },
   },
   es: {
-    nav: { moments: 'Momentos de aprendizaje', results: 'Resultados', subjects: 'Asignaturas', logout: 'Cerrar sesión', more: 'Más', monthly: 'Resumen mensual', profile: 'Perfil', home: 'Inicio' },
+    nav: { moments: 'Momentos de aprendizaje', results: 'Resultados', subjects: 'Asignaturas', logout: 'Cerrar sesión', more: 'Más', monthly: 'Resumen mensual', profile: 'Perfil', home: 'Inicio', loginBtn: 'Iniciar sesión', timer: 'Temporizador', week: 'Resumen semanal' },
     dashboard: {
       momentsCount: 'Momentos', minutesLearned: 'Minutos aprendidos', inHours: 'En horas',
       newMoment: 'Nuevo momento de aprendizaje', newMomentSub: '¿Qué aprendiste hoy?',
@@ -181,7 +181,7 @@ const t = {
       add: '+ Añadir momento', saving: 'Guardando...', saved: '¡Momento guardado!',
       saveError: 'No se pudo guardar: ', deleteError: 'No se pudo eliminar: ',
       recent: 'Momentos recientes', total: 'total', empty: 'Sin momentos aún. ¡Añade el primero!',
-      edit: 'Editar', delete: 'Eliminar', save: 'Guardar', cancel: 'Cancelar', noSubject: 'Sin asignatura',
+      edit: 'Editar', delete: 'Eliminar', save: 'Guardar', cancel: 'Cancelar', noSubject: 'Sin asignatura', photo: 'Foto', search: 'Buscar...', lastFive: 'Los últimos 5 — todos los momentos están por asignatura', setGoal: 'Establecer objetivo',
     },
     results: {
       title: 'Tus resultados', subtitle: 'Ve cómo distribuiste el tiempo por asignatura',
@@ -228,8 +228,8 @@ const t = {
       topSubject: 'Mejor asignatura', busiestDay: 'Día más activo', streak: 'Racha', daysInRow: 'días seguidos',
       distribution: 'Distribución por asignatura', allMoments: 'Todos los momentos este mes',
       vsLastMonth: 'vs mes anterior', noMoments: 'Sin momentos de aprendizaje este mes.',
-      addMoments: 'Añade momentos para ver tu resumen mensual.', goTo: 'Ir a momentos →',
-      timesLogged: 'x registrado', min: 'min', logged: 'registrados',
+      addMoments: 'Añade momentos para ver tu resumen mensual.', goTo: 'Ir a momentos →', weekTitle: 'Resumen semanal', thisWeek: 'Esta semana', noWeekMoments: 'Sin momentos esta semana.',
+      timesLogged: 'x registrado', min: 'min', logged: 'registrados', weekdays: ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'],
     },
     pomodoro: {
       focus: 'Enfoque', break: 'Descanso', subtitle: 'Enfócate en bloques, descansa conscientemente',
@@ -248,7 +248,7 @@ const t = {
     },
   },
   pt: {
-    nav: { moments: 'Momentos de aprendizado', results: 'Resultados', subjects: 'Disciplinas', logout: 'Sair', more: 'Mais', monthly: 'Resumo mensal', profile: 'Perfil', home: 'Início' },
+    nav: { moments: 'Momentos de aprendizado', results: 'Resultados', subjects: 'Disciplinas', logout: 'Sair', more: 'Mais', monthly: 'Resumo mensal', profile: 'Perfil', home: 'Início', loginBtn: 'Entrar', timer: 'Temporizador', week: 'Resumo semanal' },
     dashboard: {
       momentsCount: 'Momentos', minutesLearned: 'Minutos aprendidos', inHours: 'Em horas',
       newMoment: 'Novo momento de aprendizado', newMomentSub: 'O que você aprendeu hoje?',
@@ -259,7 +259,7 @@ const t = {
       add: '+ Adicionar momento', saving: 'Salvando...', saved: 'Momento salvo!',
       saveError: 'Não foi possível salvar: ', deleteError: 'Não foi possível excluir: ',
       recent: 'Momentos recentes', total: 'total', empty: 'Nenhum momento ainda. Adicione o primeiro!',
-      edit: 'Editar', delete: 'Excluir', save: 'Salvar', cancel: 'Cancelar', noSubject: 'Sem disciplina',
+      edit: 'Editar', delete: 'Excluir', save: 'Salvar', cancel: 'Cancelar', noSubject: 'Sem disciplina', photo: 'Foto', search: 'Pesquisar...', lastFive: 'Os últimos 5 — todos os momentos estão por disciplina', setGoal: 'Definir meta',
     },
     results: {
       title: 'Seus resultados', subtitle: 'Veja como distribuiu o tempo por disciplina',
@@ -273,7 +273,7 @@ const t = {
       title: 'Disciplinas', subtitle: 'Clique numa disciplina para ver todos os momentos',
       addTitle: 'Adicionar disciplina', placeholder: 'ex. Direito tributário',
       addBtn: 'Adicionar', yourSubjects: 'Suas disciplinas', subjects: 'disciplinas',
-      moment: 'momento', moments: 'momentos', empty: 'Nenhuma disciplina ainda. Adicione uma!', delete: 'Excluir',
+      moment: 'momento', moments: 'momentos', empty: 'Nenhuma disciplina ainda. Adicione uma!', delete: 'Excluir', setGoal: 'Definir meta', notes: 'Notas', notesPlaceholder: 'Escreva notas para esta disciplina...', notesSaved: 'Notas salvas',
     },
     detail: {
       back: '← Disciplinas', momentsCount: 'Momentos', minutesSpent: 'Minutos dedicados',
@@ -306,8 +306,8 @@ const t = {
       topSubject: 'Melhor disciplina', busiestDay: 'Dia mais ativo', streak: 'Sequência', daysInRow: 'dias seguidos',
       distribution: 'Distribuição por disciplina', allMoments: 'Todos os momentos deste mês',
       vsLastMonth: 'vs mês anterior', noMoments: 'Sem momentos de aprendizado este mês.',
-      addMoments: 'Adicione momentos para ver seu resumo mensal.', goTo: 'Ir para momentos →',
-      timesLogged: 'x registrado', min: 'min', logged: 'registrados',
+      addMoments: 'Adicione momentos para ver seu resumo mensal.', goTo: 'Ir para momentos →', weekTitle: 'Resumo semanal', thisWeek: 'Esta semana', noWeekMoments: 'Sem momentos esta semana.',
+      timesLogged: 'x registrado', min: 'min', logged: 'registrados', weekdays: ['domingo','segunda','terça','quarta','quinta','sexta','sábado'],
     },
     pomodoro: {
       focus: 'Foco', break: 'Pausa', subtitle: 'Foque em blocos, descanse intencionalmente',
@@ -326,7 +326,7 @@ const t = {
     },
   },
   fr: {
-    nav: { moments: "Moments d'apprentissage", results: 'Résultats', subjects: 'Matières', logout: 'Se déconnecter', more: 'Plus', monthly: 'Bilan mensuel', profile: 'Profil', home: 'Accueil' },
+    nav: { moments: "Moments d'apprentissage", results: 'Résultats', subjects: 'Matières', logout: 'Se déconnecter', more: 'Plus', monthly: 'Bilan mensuel', profile: 'Profil', home: 'Accueil', loginBtn: 'Se connecter', timer: 'Minuterie', week: 'Bilan hebdomadaire' },
     dashboard: {
       momentsCount: 'Moments', minutesLearned: 'Minutes apprises', inHours: 'En heures',
       newMoment: "Nouveau moment d'apprentissage", newMomentSub: "Qu'avez-vous appris aujourd'hui ?",
@@ -337,7 +337,7 @@ const t = {
       add: '+ Ajouter un moment', saving: 'Enregistrement...', saved: 'Moment enregistré !',
       saveError: "Impossible d'enregistrer : ", deleteError: 'Impossible de supprimer : ',
       recent: 'Moments récents', total: 'total', empty: 'Aucun moment. Ajoutez le premier !',
-      edit: 'Modifier', delete: 'Supprimer', save: 'Enregistrer', cancel: 'Annuler', noSubject: 'Sans matière',
+      edit: 'Modifier', delete: 'Supprimer', save: 'Enregistrer', cancel: 'Annuler', noSubject: 'Sans matière', photo: 'Photo', search: 'Rechercher...', lastFive: 'Les 5 derniers — tous les moments sont par matière', setGoal: 'Définir un objectif',
     },
     results: {
       title: 'Vos résultats', subtitle: 'Voyez comment vous avez réparti votre temps',
@@ -384,8 +384,8 @@ const t = {
       topSubject: 'Meilleure matière', busiestDay: 'Jour le plus actif', streak: 'Série', daysInRow: 'jours consécutifs',
       distribution: 'Répartition par matière', allMoments: 'Tous les moments ce mois',
       vsLastMonth: 'vs mois précédent', noMoments: "Aucun moment d'apprentissage ce mois.",
-      addMoments: 'Ajoutez des moments pour voir votre bilan mensuel.', goTo: 'Aller aux moments →',
-      timesLogged: 'x enregistré', min: 'min', logged: 'enregistrés',
+      addMoments: 'Ajoutez des moments pour voir votre bilan mensuel.', goTo: 'Aller aux moments →', weekTitle: 'Bilan hebdomadaire', thisWeek: 'Cette semaine', noWeekMoments: 'Aucun moment cette semaine.',
+      timesLogged: 'x enregistré', min: 'min', logged: 'enregistrés', weekdays: ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'],
     },
     pomodoro: {
       focus: 'Concentration', break: 'Pause', subtitle: 'Concentrez-vous par blocs, reposez-vous intentionnellement',
@@ -404,7 +404,7 @@ const t = {
     },
   },
   de: {
-    nav: { moments: 'Lernmomente', results: 'Ergebnisse', subjects: 'Fächer', logout: 'Abmelden', more: 'Mehr', monthly: 'Monatsübersicht', profile: 'Profil', home: 'Start' },
+    nav: { moments: 'Lernmomente', results: 'Ergebnisse', subjects: 'Fächer', logout: 'Abmelden', more: 'Mehr', monthly: 'Monatsübersicht', profile: 'Profil', home: 'Start', loginBtn: 'Anmelden', timer: 'Timer', week: 'Wochenübersicht' },
     dashboard: {
       momentsCount: 'Lernmomente', minutesLearned: 'Gelernte Minuten', inHours: 'In Stunden',
       newMoment: 'Neuer Lernmoment', newMomentSub: 'Was hast du heute gelernt?',
@@ -415,7 +415,7 @@ const t = {
       add: '+ Lernmoment hinzufügen', saving: 'Speichern...', saved: 'Lernmoment gespeichert!',
       saveError: 'Konnte nicht gespeichert werden: ', deleteError: 'Konnte nicht gelöscht werden: ',
       recent: 'Letzte Lernmomente', total: 'gesamt', empty: 'Noch keine Lernmomente. Füge deinen ersten hinzu!',
-      edit: 'Bearbeiten', delete: 'Löschen', save: 'Speichern', cancel: 'Abbrechen', noSubject: 'Kein Fach',
+      edit: 'Bearbeiten', delete: 'Löschen', save: 'Speichern', cancel: 'Abbrechen', noSubject: 'Kein Fach', photo: 'Foto', search: 'Suchen...', lastFive: 'Die letzten 5 — alle Momente stehen pro Fach', setGoal: 'Ziel setzen',
     },
     results: {
       title: 'Deine Ergebnisse', subtitle: 'Sieh, wie du deine Zeit auf die Fächer verteilt hast',
@@ -429,7 +429,7 @@ const t = {
       title: 'Fächer', subtitle: 'Klicke auf ein Fach, um alle Lernmomente zu sehen',
       addTitle: 'Neues Fach hinzufügen', placeholder: 'z.B. Steuerrecht',
       addBtn: 'Hinzufügen', yourSubjects: 'Deine Fächer', subjects: 'Fächer',
-      moment: 'Moment', moments: 'Momente', empty: 'Noch keine Fächer. Füge eines hinzu!', delete: 'Löschen',
+      moment: 'Moment', moments: 'Momente', empty: 'Noch keine Fächer. Füge eines hinzu!', delete: 'Löschen', setGoal: 'Ziel setzen', notes: 'Notizen', notesPlaceholder: 'Schreibe hier Notizen für dieses Fach...', notesSaved: 'Notizen gespeichert',
     },
     detail: {
       back: '← Fächer', momentsCount: 'Lernmomente', minutesSpent: 'Aufgewendete Minuten',
@@ -462,8 +462,8 @@ const t = {
       topSubject: 'Bestes Fach', busiestDay: 'Aktivster Tag', streak: 'Streak', daysInRow: 'Tage in Folge',
       distribution: 'Verteilung nach Fach', allMoments: 'Alle Momente diesen Monat',
       vsLastMonth: 'vs letzten Monat', noMoments: 'Noch keine Lernmomente diesen Monat.',
-      addMoments: 'Füge Lernmomente hinzu um deine Monatsübersicht zu sehen.', goTo: 'Zu den Momenten →',
-      timesLogged: 'x eingetragen', min: 'Min', logged: 'eingetragen',
+      addMoments: 'Füge Lernmomente hinzu um deine Monatsübersicht zu sehen.', goTo: 'Zu den Momenten →', weekTitle: 'Wochenübersicht', thisWeek: 'Diese Woche', noWeekMoments: 'Keine Lernmomente diese Woche.',
+      timesLogged: 'x eingetragen', min: 'Min', logged: 'eingetragen', weekdays: ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'],
     },
     pomodoro: {
       focus: 'Fokus', break: 'Pause', subtitle: 'Konzentriere dich in Blöcken, ruh dich bewusst aus',
@@ -482,7 +482,7 @@ const t = {
     },
   },
   da: {
-    nav: { moments: 'Læringsøjeblikke', results: 'Resultater', subjects: 'Fag', logout: 'Log ud', more: 'Mere', monthly: 'Månedsoversigt', profile: 'Profil', home: 'Hjem' },
+    nav: { moments: 'Læringsøjeblikke', results: 'Resultater', subjects: 'Fag', logout: 'Log ud', more: 'Mere', monthly: 'Månedsoversigt', profile: 'Profil', home: 'Hjem', loginBtn: 'Log ind', timer: 'Timer', week: 'Ugeoversigt' },
     dashboard: {
       momentsCount: 'Læringsøjeblikke', minutesLearned: 'Minutter lært', inHours: 'I timer',
       newMoment: 'Nyt læringsøjeblik', newMomentSub: 'Hvad lærte du i dag?',
@@ -493,7 +493,7 @@ const t = {
       add: '+ Tilføj læringsøjeblik', saving: 'Gemmer...', saved: 'Læringsøjeblik gemt!',
       saveError: 'Kunne ikke gemme: ', deleteError: 'Kunne ikke slette: ',
       recent: 'Seneste læringsøjeblikke', total: 'i alt', empty: 'Ingen læringsøjeblikke endnu.',
-      edit: 'Rediger', delete: 'Slet', save: 'Gem', cancel: 'Annuller', noSubject: 'Intet fag',
+      edit: 'Rediger', delete: 'Slet', save: 'Gem', cancel: 'Annuller', noSubject: 'Intet fag', photo: 'Foto', search: 'Søg...', lastFive: 'De sidste 5 — alle øjeblikke er pr. fag', setGoal: 'Sæt mål',
     },
     results: {
       title: 'Dine resultater', subtitle: 'Se hvordan du har fordelt din tid på fag',
@@ -507,7 +507,7 @@ const t = {
       title: 'Fag', subtitle: 'Klik på et fag for at se alle læringsøjeblikke',
       addTitle: 'Tilføj nyt fag', placeholder: 'f.eks. Skatteret',
       addBtn: 'Tilføj', yourSubjects: 'Dine fag', subjects: 'fag',
-      moment: 'øjeblik', moments: 'øjeblikke', empty: 'Ingen fag endnu. Tilføj et!', delete: 'Slet',
+      moment: 'øjeblik', moments: 'øjeblikke', empty: 'Ingen fag endnu. Tilføj et!', delete: 'Slet', setGoal: 'Sæt mål', notes: 'Noter', notesPlaceholder: 'Skriv noter til dette fag her...', notesSaved: 'Noter gemt',
     },
     detail: {
       back: '← Fag', momentsCount: 'Læringsøjeblikke', minutesSpent: 'Minutter brugt',
@@ -540,8 +540,8 @@ const t = {
       topSubject: 'Topfag', busiestDay: 'Travleste dag', streak: 'Streak', daysInRow: 'dage i træk',
       distribution: 'Fordeling pr. fag', allMoments: 'Alle øjeblikke denne måned',
       vsLastMonth: 'vs forrige måned', noMoments: 'Ingen læringsøjeblikke denne måned.',
-      addMoments: 'Tilføj læringsøjeblikke for at se din månedsoversigt.', goTo: 'Gå til øjeblikke →',
-      timesLogged: 'x logget', min: 'min', logged: 'logget',
+      addMoments: 'Tilføj læringsøjeblikke for at se din månedsoversigt.', goTo: 'Gå til øjeblikke →', weekTitle: 'Ugeoversigt', thisWeek: 'Denne uge', noWeekMoments: 'Ingen øjeblikke denne uge.',
+      timesLogged: 'x logget', min: 'min', logged: 'logget', weekdays: ['søndag','mandag','tirsdag','onsdag','torsdag','fredag','lørdag'],
     },
     pomodoro: {
       focus: 'Fokus', break: 'Pause', subtitle: 'Fokuser i blokke, hvil bevidst',
@@ -560,7 +560,7 @@ const t = {
     },
   },
   sv: {
-    nav: { moments: 'Lärstunder', results: 'Resultat', subjects: 'Ämnen', logout: 'Logga ut', more: 'Mer', monthly: 'Månadsöversikt', profile: 'Profil', home: 'Hem' },
+    nav: { moments: 'Lärstunder', results: 'Resultat', subjects: 'Ämnen', logout: 'Logga ut', more: 'Mer', monthly: 'Månadsöversikt', profile: 'Profil', home: 'Hem', loginBtn: 'Logga in', timer: 'Timer', week: 'Veckosöversikt' },
     dashboard: {
       momentsCount: 'Lärstunder', minutesLearned: 'Minuter lärt', inHours: 'I timmar',
       newMoment: 'Ny lärstund', newMomentSub: 'Vad lärde du dig idag?',
@@ -571,7 +571,7 @@ const t = {
       add: '+ Lägg till lärstund', saving: 'Sparar...', saved: 'Lärstund sparad!',
       saveError: 'Kunde inte spara: ', deleteError: 'Kunde inte radera: ',
       recent: 'Senaste lärstunder', total: 'totalt', empty: 'Inga lärstunder än. Lägg till din första!',
-      edit: 'Redigera', delete: 'Radera', save: 'Spara', cancel: 'Avbryt', noSubject: 'Inget ämne',
+      edit: 'Redigera', delete: 'Radera', save: 'Spara', cancel: 'Avbryt', noSubject: 'Inget ämne', photo: 'Foto', search: 'Sök...', lastFive: 'De senaste 5 — alla tillfällen finns per ämne', setGoal: 'Sätt mål',
     },
     results: {
       title: 'Dina resultat', subtitle: 'Se hur du fördelat din tid på ämnen',
@@ -618,8 +618,8 @@ const t = {
       topSubject: 'Toppämne', busiestDay: 'Aktivaste dag', streak: 'Streak', daysInRow: 'dagar i rad',
       distribution: 'Fördelning per ämne', allMoments: 'Alla tillfällen denna månad',
       vsLastMonth: 'vs förra månaden', noMoments: 'Inga lärstunder denna månad.',
-      addMoments: 'Lägg till lärstunder för att se din månadsöversikt.', goTo: 'Gå till tillfällen →',
-      timesLogged: 'x loggat', min: 'min', logged: 'loggade',
+      addMoments: 'Lägg till lärstunder för att se din månadsöversikt.', goTo: 'Gå till tillfällen →', weekTitle: 'Veckosöversikt', thisWeek: 'Denna vecka', noWeekMoments: 'Inga tillfällen denna vecka.',
+      timesLogged: 'x loggat', min: 'min', logged: 'loggade', weekdays: ['söndag','måndag','tisdag','onsdag','torsdag','fredag','lördag'],
     },
     pomodoro: {
       focus: 'Fokus', break: 'Paus', subtitle: 'Fokusera i block, vila medvetet',
@@ -638,7 +638,7 @@ const t = {
     },
   },
   no: {
-    nav: { moments: 'Læringsøyeblikk', results: 'Resultater', subjects: 'Fag', logout: 'Logg ut', more: 'Mer', monthly: 'Månedsoversikt', profile: 'Profil', home: 'Hjem' },
+    nav: { moments: 'Læringsøyeblikk', results: 'Resultater', subjects: 'Fag', logout: 'Logg ut', more: 'Mer', monthly: 'Månedsoversikt', profile: 'Profil', home: 'Hjem', loginBtn: 'Logg inn', timer: 'Timer', week: 'Ukeoversikt' },
     dashboard: {
       momentsCount: 'Læringsøyeblikk', minutesLearned: 'Minutter lært', inHours: 'I timer',
       newMoment: 'Nytt læringsøyeblikk', newMomentSub: 'Hva lærte du i dag?',
@@ -649,7 +649,7 @@ const t = {
       add: '+ Legg til læringsøyeblikk', saving: 'Lagrer...', saved: 'Læringsøyeblikk lagret!',
       saveError: 'Kunne ikke lagre: ', deleteError: 'Kunne ikke slette: ',
       recent: 'Siste læringsøyeblikk', total: 'totalt', empty: 'Ingen læringsøyeblikk ennå.',
-      edit: 'Rediger', delete: 'Slett', save: 'Lagre', cancel: 'Avbryt', noSubject: 'Ingen fag',
+      edit: 'Rediger', delete: 'Slett', save: 'Lagre', cancel: 'Avbryt', noSubject: 'Ingen fag', photo: 'Foto', search: 'Søk...', lastFive: 'De siste 5 — alle øyeblikk er per fag', setGoal: 'Sett mål',
     },
     results: {
       title: 'Dine resultater', subtitle: 'Se hvordan du har fordelt tiden på fag',
@@ -663,7 +663,7 @@ const t = {
       title: 'Fag', subtitle: 'Klikk på et fag for å se alle læringsøyeblikk',
       addTitle: 'Legg til nytt fag', placeholder: 'f.eks. Skatterett',
       addBtn: 'Legg til', yourSubjects: 'Dine fag', subjects: 'fag',
-      moment: 'øyeblikk', moments: 'øyeblikk', empty: 'Ingen fag ennå. Legg til et!', delete: 'Slett',
+      moment: 'øyeblikk', moments: 'øyeblikk', empty: 'Ingen fag ennå. Legg til et!', delete: 'Slett', setGoal: 'Sett mål', notes: 'Notater', notesPlaceholder: 'Skriv notater for dette faget her...', notesSaved: 'Notater lagret',
     },
     detail: {
       back: '← Fag', momentsCount: 'Læringsøyeblikk', minutesSpent: 'Minutter brukt',
@@ -696,8 +696,8 @@ const t = {
       topSubject: 'Toppfag', busiestDay: 'Travleste dag', streak: 'Streak', daysInRow: 'dager på rad',
       distribution: 'Fordeling per fag', allMoments: 'Alle øyeblikk denne måneden',
       vsLastMonth: 'vs forrige måned', noMoments: 'Ingen læringsøyeblikk denne måneden.',
-      addMoments: 'Legg til læringsøyeblikk for å se din månedsoversikt.', goTo: 'Gå til øyeblikk →',
-      timesLogged: 'x logget', min: 'min', logged: 'logget',
+      addMoments: 'Legg til læringsøyeblikk for å se din månedsoversikt.', goTo: 'Gå til øyeblikk →', weekTitle: 'Ukeoversikt', thisWeek: 'Denne uken', noWeekMoments: 'Ingen øyeblikk denne uken.',
+      timesLogged: 'x logget', min: 'min', logged: 'logget', weekdays: ['søndag','mandag','tirsdag','onsdag','torsdag','fredag','lørdag'],
     },
     pomodoro: {
       focus: 'Fokus', break: 'Pause', subtitle: 'Fokuser i blokker, hvil bevisst',

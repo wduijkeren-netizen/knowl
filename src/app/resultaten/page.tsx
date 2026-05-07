@@ -9,7 +9,7 @@ export default async function ResultatenPage() {
 
   const { data: moments } = await supabase
     .from('learning_moments')
-    .select('category, duration_minutes')
+    .select('category, duration_minutes, learned_at')
 
   return <Resultaten moments={moments ?? []} />
 }

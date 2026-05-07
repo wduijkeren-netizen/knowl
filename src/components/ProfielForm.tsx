@@ -183,7 +183,7 @@ export default function ProfielForm({ user, profile }: Props) {
           )}
           {saved && (
             <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
-              <p className="text-sm text-emerald-600">Profiel opgeslagen.</p>
+              <p className="text-sm text-emerald-600">{p.saved}</p>
             </div>
           )}
 
@@ -192,7 +192,7 @@ export default function ProfielForm({ user, profile }: Props) {
             disabled={saving || !voornaam.trim()}
             className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl py-3 text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 disabled:opacity-50 transition-all shadow-sm shadow-indigo-200"
           >
-            {saving ? 'Opslaan...' : 'Opslaan'}
+            {saving ? p.saving : p.save}
           </button>
         </form>
       </main>

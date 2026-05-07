@@ -12,9 +12,15 @@ const COLORS = [
   '#3b82f6', '#ef4444', '#14b8a6', '#f97316', '#84cc16',
 ]
 
+const LOCALE_MAP: Record<string, string> = {
+  nl: 'nl-NL', en: 'en-GB', es: 'es-ES', pt: 'pt-PT',
+  fr: 'fr-FR', de: 'de-DE', da: 'da-DK', sv: 'sv-SE', no: 'nb-NO',
+}
+
 type Moment = {
   category: string | null
   duration_minutes: number | null
+  learned_at?: string
 }
 
 type Props = {
@@ -31,8 +37,23 @@ const DEMO_MOMENTS = [
 ]
 
 export default function Resultaten({ moments, isGuest }: Props) {
-  const { tr } = useLanguage()
+  const { lang, tr } = useLanguage()
   const r = tr.results
+  const locale = LOCALE_MAP[lang] ?? 'nl-NL'
+
+  // Dag-van-de-week data (Ma=0 … Zo=6)
+  const perWeekday: number[] = Array(7).fill(0)
+  for (const m of moments) {
+    if (!m.learned_at) continue
+    const d = new Date(m.learned_at + 'T12:00:00').getDay()
+    const idx = d === 0 ? 6 : d - 1
+    perWeekday[idx] += m.duration_minutes ?? 0
+  }
+  const weekdayData = perWeekday.map((min, i) => {
+    const refDate = new Date('2024-01-01T12:00:00') // Monday
+    refDate.setDate(refDate.getDate() + i)
+    return { dag: refDate.toLocaleString(locale, { weekday: 'short' }), minuten: min }
+  })
 
   const sourceMoments = isGuest && moments.length === 0 ? DEMO_MOMENTS : moments
 
@@ -144,6 +165,33 @@ export default function Resultaten({ moments, isGuest }: Props) {
                 </ResponsiveContainer>
               </div>
             </div>
+            {/* Dag-van-de-week */}
+            {perWeekday.some(m => m > 0) && (
+              <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
+                <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-4">
+                  <h2 className="font-semibold text-white">{tr.wrapped.thisWeek.replace('week', 'weekdag')}</h2>
+                  <p className="text-emerald-100 text-sm mt-0.5">Minuten per dag van de week</p>
+                </div>
+                <div className="p-6">
+                  <ResponsiveContainer width="100%" height={200}>
+                    <BarChart data={weekdayData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
+                      <XAxis dataKey="dag" tick={{ fontSize: 12, fill: '#818cf8' }} />
+                      <YAxis tick={{ fontSize: 12, fill: '#818cf8' }} unit=" min" />
+                      <Tooltip
+                        formatter={(v) => [`${v} min`, r.time]}
+                        contentStyle={{ borderRadius: '12px', border: '1px solid #e0e7ff', fontSize: '13px' }}
+                      />
+                      <Bar dataKey="minuten" radius={[6, 6, 0, 0]}>
+                        {weekdayData.map((_, i) => (
+                          <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
           </>
         )}
       </main>

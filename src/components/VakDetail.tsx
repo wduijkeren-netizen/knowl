@@ -2,6 +2,7 @@
 
 import Nav from '@/components/Nav'
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Moment = {
@@ -22,6 +23,20 @@ type Props = {
 export default function VakDetail({ vakNaam, moments, goalMinutes, goalDate }: Props) {
   const { tr } = useLanguage()
   const d = tr.detail
+  const s = tr.subjects
+  const [notes, setNotes] = useState('')
+  const [notesSaved, setNotesSaved] = useState(false)
+  const notesKey = `knowl_notes_${vakNaam}`
+
+  useEffect(() => {
+    try { setNotes(localStorage.getItem(notesKey) ?? '') } catch {}
+  }, [notesKey])
+
+  function saveNotes() {
+    try { localStorage.setItem(notesKey, notes) } catch {}
+    setNotesSaved(true)
+    setTimeout(() => setNotesSaved(false), 2000)
+  }
   const totalMinuten = moments.reduce((sum, m) => sum + (m.duration_minutes ?? 0), 0)
   const progress = goalMinutes ? Math.min(100, Math.round((totalMinuten / goalMinutes) * 100)) : null
   const daysLeft = goalDate ? Math.ceil((new Date(goalDate).getTime() - Date.now()) / 86400000) : null
@@ -86,6 +101,25 @@ export default function VakDetail({ vakNaam, moments, goalMinutes, goalDate }: P
 
           </div>
         )}
+
+        {/* Notities */}
+        <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="font-semibold text-indigo-900">{s.notes}</h2>
+            {notesSaved && <span className="text-xs text-emerald-500">{s.notesSaved}</span>}
+          </div>
+          <textarea
+            value={notes}
+            onChange={e => setNotes(e.target.value)}
+            placeholder={s.notesPlaceholder}
+            rows={4}
+            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none transition-all"
+          />
+          <button onClick={saveNotes}
+            className="mt-2 text-sm bg-indigo-600 text-white px-4 py-2 rounded-xl hover:bg-indigo-700 transition-colors font-medium">
+            {tr.dashboard.save}
+          </button>
+        </div>
 
         <div className="space-y-4">
           {moments.map((moment) => (

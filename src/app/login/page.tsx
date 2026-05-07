@@ -42,7 +42,7 @@ function LoginForm() {
     e.preventDefault()
     if (!forgotEmail) return
     await supabase.auth.resetPasswordForEmail(forgotEmail, {
-      redirectTo: 'https://knowl-omega.vercel.app/login',
+      redirectTo: `${window.location.origin}/login`,
     })
     setForgotSent(true)
   }

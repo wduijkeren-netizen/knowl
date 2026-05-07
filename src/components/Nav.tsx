@@ -27,14 +27,15 @@ export default function Nav() {
     { href: '/home', label: tr.nav.home },
     { href: '/leermomenten', label: tr.nav.moments },
     { href: '/resultaten', label: tr.nav.results },
-    { href: '/pomodoro', label: 'Timer' },
+    { href: '/pomodoro', label: tr.nav.timer },
     { href: '/vakken', label: tr.nav.subjects },
     { href: '/wrapped', label: tr.nav.monthly },
+    { href: '/week', label: tr.nav.week },
     { href: '/profiel', label: tr.nav.profile },
   ] : [
     { href: '/leermomenten', label: tr.nav.moments },
     { href: '/resultaten', label: tr.nav.results },
-    { href: '/pomodoro', label: 'Timer' },
+    { href: '/pomodoro', label: tr.nav.timer },
   ]
 
   const desktopLinks = allLinks.slice(0, 3)
@@ -121,7 +122,7 @@ export default function Nav() {
             </button>
           ) : (
             <Link href="/login" className="hidden md:block text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
-              Log in
+              {tr.nav.loginBtn}
             </Link>
           )}
 

@@ -45,8 +45,8 @@ export default function MonthlyWrapped({ thisMonth, lastMonth, isGuest }: Props)
   }
   const topDay = Object.entries(perDay).sort((a, b) => b[1] - a[1])[0]
 
-  const dayNames: Record<number, string> = { 0: 'zondag', 1: 'maandag', 2: 'dinsdag', 3: 'woensdag', 4: 'donderdag', 5: 'vrijdag', 6: 'zaterdag' }
-  const topDayName = topDay ? dayNames[new Date(topDay[0]).getDay()] : null
+  const locale = LOCALE_MAP[lang] ?? 'nl-NL'
+  const topDayName = topDay ? new Date(topDay[0] + 'T12:00:00').toLocaleString(locale, { weekday: 'long' }) : null
 
   const streak = (() => {
     const days = Array.from(new Set(thisMonth.map(m => m.learned_at))).sort().reverse()

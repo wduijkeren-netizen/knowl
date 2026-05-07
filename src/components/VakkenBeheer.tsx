@@ -190,7 +190,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
                         onClick={(e) => startGoalEdit(subject, e)}
                         className="text-xs text-indigo-400 hover:text-indigo-600 transition-colors underline underline-offset-2"
                       >
-                        Doel instellen
+                        {s.setGoal}
                       </button>
                       {confirmDeleteId === subject.id ? (
                         <span className="flex items-center gap-1">

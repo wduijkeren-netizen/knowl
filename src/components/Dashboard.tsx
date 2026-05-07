@@ -234,7 +234,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Foto <span className="text-gray-400 font-normal">(optioneel)</span></label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">{d.photo} <span className="text-gray-400 font-normal">{d.summaryOptional}</span></label>
               <input
                 type="file"
                 accept="image/*"
@@ -327,13 +327,13 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Zoeken in leermomenten..."
+              placeholder={d.search}
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all"
             />
           )}
 
           {!search && moments.length > 0 && (
-            <p className="text-xs text-indigo-300">De laatste 5 — alle momenten staan per vak onder Vakken</p>
+            <p className="text-xs text-indigo-300">{d.lastFive}</p>
           )}
 
           {moments.length === 0 && (
