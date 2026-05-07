@@ -31,6 +31,7 @@ export default function Nav() {
     { href: '/vakken', label: tr.nav.subjects },
     { href: '/wrapped', label: tr.nav.monthly },
     { href: '/week', label: tr.nav.week },
+    { href: '/agenda', label: tr.nav.agenda },
     { href: '/profiel', label: tr.nav.profile },
   ] : [
     { href: '/leermomenten', label: tr.nav.moments },
