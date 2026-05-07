@@ -22,10 +22,12 @@ type AgendaEvent = {
   type: 'exam' | 'planned'
   title: string
   subject: string
+  time: string
 }
 
 type Props = {
   sessions: StudySession[]
+  subjects: string[]
 }
 
 const STORAGE_KEY = 'knowl_agenda_events'
@@ -33,7 +35,7 @@ const STORAGE_KEY = 'knowl_agenda_events'
 function pad(n: number) { return String(n).padStart(2, '0') }
 function toDateStr(d: Date) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` }
 
-export default function Agenda({ sessions }: Props) {
+export default function Agenda({ sessions, subjects }: Props) {
   const { lang, tr } = useLanguage()
   const a = tr.agenda
   const locale = LOCALE_MAP[lang] ?? 'nl-NL'
@@ -47,6 +49,12 @@ export default function Agenda({ sessions }: Props) {
   const [formTitle, setFormTitle] = useState('')
   const [formType, setFormType] = useState<'exam' | 'planned'>('exam')
   const [formSubject, setFormSubject] = useState('')
+  const [formTime, setFormTime] = useState('')
+
+  // Copy/paste state
+  const [copySource, setCopySource] = useState<StudySession | null>(null)
+  const [showCopyModal, setShowCopyModal] = useState(false)
+  const [copyTargetDate, setCopyTargetDate] = useState(today)
 
   useEffect(() => {
     try {
@@ -68,10 +76,12 @@ export default function Agenda({ sessions }: Props) {
       type: formType,
       title: formTitle.trim(),
       subject: formSubject.trim(),
+      time: formTime,
     }
     saveEvents([...events, ev])
     setFormTitle('')
     setFormSubject('')
+    setFormTime('')
     setShowForm(false)
     setSelectedDay(formDate)
   }
@@ -80,13 +90,35 @@ export default function Agenda({ sessions }: Props) {
     saveEvents(events.filter(e => e.id !== id))
   }
 
+  function openCopyModal(session: StudySession) {
+    setCopySource(session)
+    setCopyTargetDate(today)
+    setShowCopyModal(true)
+  }
+
+  function confirmCopy() {
+    if (!copySource) return
+    const ev: AgendaEvent = {
+      id: Date.now().toString(),
+      date: copyTargetDate,
+      type: 'planned',
+      title: copySource.title,
+      subject: copySource.category ?? '',
+      time: '',
+    }
+    saveEvents([...events, ev])
+    setShowCopyModal(false)
+    setCopySource(null)
+    setSelectedDay(copyTargetDate)
+  }
+
   // Build study data map: date -> { minutes, sessions[] }
-  const studyMap: Record<string, { minutes: number; titles: string[] }> = {}
+  const studyMap: Record<string, { minutes: number; sessions: StudySession[] }> = {}
   for (const s of sessions) {
     const d = s.learned_at
-    if (!studyMap[d]) studyMap[d] = { minutes: 0, titles: [] }
+    if (!studyMap[d]) studyMap[d] = { minutes: 0, sessions: [] }
     studyMap[d].minutes += s.duration_minutes ?? 0
-    studyMap[d].titles.push(s.title)
+    studyMap[d].sessions.push(s)
   }
 
   // Calendar grid
@@ -94,7 +126,6 @@ export default function Agenda({ sessions }: Props) {
   const month = viewDate.getMonth()
   const firstDay = new Date(year, month, 1)
   const lastDay = new Date(year, month + 1, 0)
-  // Monday-first: offset
   const startOffset = (firstDay.getDay() + 6) % 7
 
   const days: (string | null)[] = Array(startOffset).fill(null)
@@ -113,12 +144,8 @@ export default function Agenda({ sessions }: Props) {
   const eventsOnSelected = selectedDay ? events.filter(e => e.date === selectedDay) : []
   const studyOnSelected = selectedDay ? studyMap[selectedDay] : undefined
 
-  function prevMonth() {
-    setViewDate(d => new Date(d.getFullYear(), d.getMonth() - 1, 1))
-  }
-  function nextMonth() {
-    setViewDate(d => new Date(d.getFullYear(), d.getMonth() + 1, 1))
-  }
+  function prevMonth() { setViewDate(d => new Date(d.getFullYear(), d.getMonth() - 1, 1)) }
+  function nextMonth() { setViewDate(d => new Date(d.getFullYear(), d.getMonth() + 1, 1)) }
 
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
@@ -145,22 +172,20 @@ export default function Agenda({ sessions }: Props) {
           </div>
 
           <div className="p-4">
-            {/* Weekday headers */}
             <div className="grid grid-cols-7 mb-2">
               {weekdayLabels.map(w => (
                 <div key={w} className="text-center text-xs font-medium text-indigo-400 py-1">{w}</div>
               ))}
             </div>
 
-            {/* Day cells */}
             <div className="grid grid-cols-7 gap-1">
               {days.map((day, i) => {
                 if (!day) return <div key={i} />
                 const isToday = day === today
                 const isSelected = day === selectedDay
                 const hasStudy = !!studyMap[day]
-                const hasEvent = events.some(e => e.date === day)
                 const hasExam = events.some(e => e.date === day && e.type === 'exam')
+                const hasPlanned = events.some(e => e.date === day && e.type === 'planned')
 
                 return (
                   <button
@@ -173,14 +198,13 @@ export default function Agenda({ sessions }: Props) {
                     <div className="flex gap-0.5 mt-0.5">
                       {hasStudy && <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-emerald-400'}`} />}
                       {hasExam && <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-red-400'}`} />}
-                      {hasEvent && !hasExam && <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-violet-400'}`} />}
+                      {hasPlanned && <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-violet-400'}`} />}
                     </div>
                   </button>
                 )
               })}
             </div>
 
-            {/* Legend */}
             <div className="flex gap-4 mt-4 pt-3 border-t border-indigo-50">
               <div className="flex items-center gap-1.5 text-xs text-gray-500">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block" />
@@ -215,36 +239,53 @@ export default function Agenda({ sessions }: Props) {
               </button>
             </div>
 
-            {/* Study sessions */}
+            {/* Study sessions with copy button */}
             {studyOnSelected && (
               <div className="bg-emerald-50 rounded-xl p-4">
                 <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-2">{a.studied}</p>
-                <p className="text-sm font-bold text-emerald-800">{studyOnSelected.minutes} {a.minutesStudied} · {studyOnSelected.titles.length} {a.sessions}</p>
-                <ul className="mt-2 space-y-1">
-                  {studyOnSelected.titles.map((t, i) => (
-                    <li key={i} className="text-xs text-emerald-700">· {t}</li>
+                <p className="text-sm font-bold text-emerald-800 mb-3">
+                  {studyOnSelected.minutes} {a.minutesStudied} · {studyOnSelected.sessions.length} {a.sessions}
+                </p>
+                <div className="space-y-2">
+                  {studyOnSelected.sessions.map((s, i) => (
+                    <div key={i} className="flex items-center justify-between bg-white rounded-lg px-3 py-2">
+                      <div>
+                        <p className="text-xs font-medium text-emerald-800">{s.title}</p>
+                        {s.category && <p className="text-xs text-emerald-500">{s.category}</p>}
+                        {s.duration_minutes && <p className="text-xs text-emerald-400">{s.duration_minutes} min</p>}
+                      </div>
+                      <button
+                        onClick={() => openCopyModal(s)}
+                        title={a.copyTo}
+                        className="text-xs text-indigo-400 hover:text-indigo-600 border border-indigo-200 rounded-lg px-2 py-1 transition-colors whitespace-nowrap">
+                        {a.copyTo} →
+                      </button>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
 
             {/* Planned events */}
             {eventsOnSelected.length > 0 ? (
               <div className="space-y-2">
-                {eventsOnSelected.map(ev => (
-                  <div key={ev.id} className={`flex justify-between items-start rounded-xl p-3 ${ev.type === 'exam' ? 'bg-red-50' : 'bg-violet-50'}`}>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ev.type === 'exam' ? 'bg-red-100 text-red-600' : 'bg-violet-100 text-violet-600'}`}>
-                          {ev.type === 'exam' ? a.exam : a.planned}
-                        </span>
-                        {ev.subject && <span className="text-xs text-gray-400">{ev.subject}</span>}
+                {eventsOnSelected
+                  .sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'))
+                  .map(ev => (
+                    <div key={ev.id} className={`flex justify-between items-start rounded-xl p-3 ${ev.type === 'exam' ? 'bg-red-50' : 'bg-violet-50'}`}>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ev.type === 'exam' ? 'bg-red-100 text-red-600' : 'bg-violet-100 text-violet-600'}`}>
+                            {ev.type === 'exam' ? a.exam : a.planned}
+                          </span>
+                          {ev.time && <span className="text-xs font-medium text-gray-500">🕐 {ev.time}</span>}
+                          {ev.subject && <span className="text-xs text-gray-400">{ev.subject}</span>}
+                        </div>
+                        <p className="text-sm font-medium text-gray-800 mt-1">{ev.title}</p>
                       </div>
-                      <p className="text-sm font-medium text-gray-800 mt-1">{ev.title}</p>
+                      <button onClick={() => deleteEvent(ev.id)} className="text-gray-300 hover:text-red-400 transition-colors text-lg leading-none ml-2">×</button>
                     </div>
-                    <button onClick={() => deleteEvent(ev.id)} className="text-gray-300 hover:text-red-400 transition-colors text-lg leading-none">×</button>
-                  </div>
-                ))}
+                  ))}
               </div>
             ) : !studyOnSelected ? (
               <p className="text-sm text-indigo-300 text-center py-4">{a.noEvents}</p>
@@ -252,16 +293,23 @@ export default function Agenda({ sessions }: Props) {
           </div>
         )}
 
-        {/* Add event form */}
+        {/* Add event form modal */}
         {showForm && (
           <div className="fixed inset-0 bg-black/30 z-50 flex items-end sm:items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
               <h3 className="font-bold text-indigo-900 text-lg">{a.addEventTitle}</h3>
 
-              <div>
-                <label className="text-xs font-medium text-indigo-400 uppercase tracking-wide block mb-1">{a.date}</label>
-                <input type="date" value={formDate} onChange={e => setFormDate(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-indigo-400 uppercase tracking-wide block mb-1">{a.date}</label>
+                  <input type="date" value={formDate} onChange={e => setFormDate(e.target.value)}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-indigo-400 uppercase tracking-wide block mb-1">{a.time}</label>
+                  <input type="time" value={formTime} onChange={e => setFormTime(e.target.value)}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                </div>
               </div>
 
               <div>
@@ -287,9 +335,17 @@ export default function Agenda({ sessions }: Props) {
 
               <div>
                 <label className="text-xs font-medium text-indigo-400 uppercase tracking-wide block mb-1">{a.subject}</label>
-                <input type="text" value={formSubject} onChange={e => setFormSubject(e.target.value)}
-                  placeholder={a.subjectPlaceholder}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                {subjects.length > 0 ? (
+                  <select value={formSubject} onChange={e => setFormSubject(e.target.value)}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
+                    <option value="">— {a.subjectPlaceholder} —</option>
+                    {subjects.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                ) : (
+                  <input type="text" value={formSubject} onChange={e => setFormSubject(e.target.value)}
+                    placeholder={a.subjectPlaceholder}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                )}
               </div>
 
               <div className="flex gap-3 pt-2">
@@ -300,6 +356,36 @@ export default function Agenda({ sessions }: Props) {
                 <button onClick={addEvent}
                   className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors">
                   {a.save}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Copy to other day modal */}
+        {showCopyModal && copySource && (
+          <div className="fixed inset-0 bg-black/30 z-50 flex items-end sm:items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+              <h3 className="font-bold text-indigo-900 text-lg">{a.copyTitle}</h3>
+              <div className="bg-indigo-50 rounded-xl p-3">
+                <p className="text-sm font-medium text-indigo-800">{copySource.title}</p>
+                {copySource.category && <p className="text-xs text-indigo-400 mt-0.5">{copySource.category}</p>}
+                {copySource.duration_minutes && <p className="text-xs text-indigo-400">{copySource.duration_minutes} min</p>}
+              </div>
+              <div>
+                <label className="text-xs font-medium text-indigo-400 uppercase tracking-wide block mb-1">{a.copyToDate}</label>
+                <input type="date" value={copyTargetDate} onChange={e => setCopyTargetDate(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+              </div>
+              <p className="text-xs text-indigo-400">{a.copyNote}</p>
+              <div className="flex gap-3">
+                <button onClick={() => setShowCopyModal(false)}
+                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                  {a.cancel}
+                </button>
+                <button onClick={confirmCopy}
+                  className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors">
+                  {a.copyConfirm}
                 </button>
               </div>
             </div>
