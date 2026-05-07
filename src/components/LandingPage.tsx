@@ -258,8 +258,17 @@ export default function LandingPage() {
         </Link>
       </section>
 
-      <footer className="border-t border-indigo-100 py-6 text-center">
-        <p className="text-sm text-indigo-300">© 2025 Knowl · Gemaakt voor studenten</p>
+      <footer className="border-t border-indigo-100 py-8">
+        <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+          <p className="text-sm text-indigo-300">© 2025 Knowl · Gemaakt voor studenten</p>
+          <div className="flex gap-4 text-xs text-indigo-300">
+            <Link href="/privacy" className="hover:text-indigo-500 transition-colors">Privacybeleid</Link>
+            <span>·</span>
+            <Link href="/voorwaarden" className="hover:text-indigo-500 transition-colors">Gebruiksvoorwaarden</Link>
+            <span>·</span>
+            <a href="mailto:info@knowl.app" className="hover:text-indigo-500 transition-colors">Contact</a>
+          </div>
+        </div>
       </footer>
     </div>
   )

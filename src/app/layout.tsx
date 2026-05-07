@@ -4,6 +4,7 @@ import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 import { GuestProvider } from "@/lib/GuestContext";
 import { ThemeProvider } from "@/lib/ThemeContext";
+import CookieBanner from "@/components/CookieBanner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -14,6 +15,10 @@ const geistSans = localFont({
 export const metadata: Metadata = {
   title: "Knowl — Jouw leertracker",
   description: "Houd bij wat je leert, wanneer je leert en hoe je groeit.",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/favicon.png",
+  },
   openGraph: {
     type: "website",
     locale: "nl_NL",
@@ -23,9 +28,9 @@ export const metadata: Metadata = {
     description: "Houd bij wat je leert, wanneer je leert en hoe je groeit.",
     images: [
       {
-        url: "https://knowl.app/og-image.png",
-        width: 1200,
-        height: 630,
+        url: "/og-image.png",
+        width: 800,
+        height: 800,
         alt: "Knowl — Jouw persoonlijke leertracker",
       },
     ],
@@ -34,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Knowl — Jouw leertracker",
     description: "Houd bij wat je leert, wanneer je leert en hoe je groeit.",
-    images: ["https://knowl.app/og-image.png"],
+    images: ["/og-image.png"],
   },
 };
 
@@ -46,6 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <LanguageProvider>
             <GuestProvider>
               {children}
+              <CookieBanner />
             </GuestProvider>
           </LanguageProvider>
         </ThemeProvider>

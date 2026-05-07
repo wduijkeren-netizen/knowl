@@ -42,7 +42,7 @@ function LoginForm() {
     e.preventDefault()
     if (!forgotEmail) return
     await supabase.auth.resetPasswordForEmail(forgotEmail, {
-      redirectTo: `${window.location.origin}/login`,
+      redirectTo: `${window.location.origin}/reset-wachtwoord`,
     })
     setForgotSent(true)
   }
