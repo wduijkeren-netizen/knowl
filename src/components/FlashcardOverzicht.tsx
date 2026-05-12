@@ -4,22 +4,59 @@ import Link from 'next/link'
 import Nav from '@/components/Nav'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 
-type Set = { id: string; title: string; vak: string | null; created_at: string }
+type Set = { id: string; title: string; vak: string | null; created_at: string; share_token: string; is_public: boolean }
 
 type Props = {
   sets: Set[]
   countMap: Record<string, number>
 }
 
-export default function FlashcardOverzicht({ sets, countMap }: Props) {
+function getProgress(setId: string): number {
+  try {
+    const raw = localStorage.getItem(`knowl_fc_progress_${setId}`)
+    if (!raw) return -1
+    const { known, total } = JSON.parse(raw)
+    return total > 0 ? Math.round((known / total) * 100) : 0
+  } catch { return -1 }
+}
+
+export default function FlashcardOverzicht({ sets: initialSets, countMap }: Props) {
   const router = useRouter()
   const supabase = createClient()
+  const [sets, setSets] = useState(initialSets)
+  const [progress, setProgress] = useState<Record<string, number>>({})
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const map: Record<string, number> = {}
+    for (const s of initialSets) map[s.id] = getProgress(s.id)
+    setProgress(map)
+  }, [initialSets])
 
   async function handleDelete(id: string) {
     if (!confirm('Set verwijderen? Dit kan niet ongedaan worden.')) return
     await supabase.from('flashcard_sets').delete().eq('id', id)
     router.refresh()
+  }
+
+  async function handleShare(set: Set) {
+    const isPublic = !set.is_public
+    const { data } = await supabase
+      .from('flashcard_sets')
+      .update({ is_public: isPublic })
+      .eq('id', set.id)
+      .select()
+      .single()
+    if (!data) return
+    setSets(s => s.map(x => x.id === set.id ? { ...x, is_public: isPublic } : x))
+    if (isPublic) {
+      const url = `${window.location.origin}/flashcards/deel/${set.share_token}`
+      await navigator.clipboard.writeText(url)
+      setCopiedId(set.id)
+      setTimeout(() => setCopiedId(null), 3000)
+    }
   }
 
   return (
@@ -49,37 +86,64 @@ export default function FlashcardOverzicht({ sets, countMap }: Props) {
           </div>
         ) : (
           <div className="grid gap-3">
-            {sets.map(set => (
-              <div key={set.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all p-5">
-                <div className="flex justify-between items-start gap-4">
-                  <div>
-                    <h2 className="font-semibold text-indigo-900">{set.title}</h2>
-                    <div className="flex gap-2 mt-1.5">
-                      {set.vak && <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-0.5 font-medium">{set.vak}</span>}
-                      <span className="text-xs bg-violet-50 text-violet-500 rounded-full px-2.5 py-0.5 font-medium">
-                        {countMap[set.id] ?? 0} kaarten
-                      </span>
+            {sets.map(set => {
+              const pct = progress[set.id] ?? -1
+              return (
+                <div key={set.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all p-5">
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h2 className="font-semibold text-indigo-900">{set.title}</h2>
+                      <div className="flex gap-2 mt-1.5 flex-wrap">
+                        {set.vak && <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-0.5 font-medium">{set.vak}</span>}
+                        <span className="text-xs bg-violet-50 text-violet-500 rounded-full px-2.5 py-0.5 font-medium">
+                          {countMap[set.id] ?? 0} kaarten
+                        </span>
+                        {set.is_public && (
+                          <span className="text-xs bg-emerald-50 text-emerald-600 rounded-full px-2.5 py-0.5 font-medium">Gedeeld</span>
+                        )}
+                      </div>
+
+                      {/* Voortgangsbalk */}
+                      {pct >= 0 && (
+                        <div className="mt-3">
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-xs text-indigo-400">Voortgang</span>
+                            <span className="text-xs font-semibold text-indigo-600">{pct}%</span>
+                          </div>
+                          <div className="w-full bg-indigo-100 rounded-full h-1.5">
+                            <div
+                              className="bg-gradient-to-r from-indigo-500 to-violet-500 h-1.5 rounded-full transition-all"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex gap-2 shrink-0 flex-wrap justify-end">
+                      <Link href={`/flashcards/${set.id}`}
+                        className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+                        Studeren
+                      </Link>
+                      {(countMap[set.id] ?? 0) >= 2 && (
+                        <Link href={`/flashcards/${set.id}/quiz`}
+                          className="text-sm bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg font-medium hover:bg-violet-200 transition-colors">
+                          Quiz
+                        </Link>
+                      )}
+                      <button onClick={() => handleShare(set)}
+                        className={`text-sm px-3 py-1.5 rounded-lg font-medium transition-colors ${set.is_public ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
+                        {copiedId === set.id ? 'Link gekopieerd!' : set.is_public ? 'Gedeeld ✓' : 'Delen'}
+                      </button>
+                      <button onClick={() => handleDelete(set.id)}
+                        className="text-sm text-gray-300 hover:text-red-400 transition-colors px-1">
+                        ✕
+                      </button>
                     </div>
                   </div>
-                  <div className="flex gap-2 shrink-0">
-                    <Link href={`/flashcards/${set.id}`}
-                      className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
-                      Studeren
-                    </Link>
-                    {(countMap[set.id] ?? 0) >= 2 && (
-                      <Link href={`/flashcards/${set.id}/quiz`}
-                        className="text-sm bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg font-medium hover:bg-violet-200 transition-colors">
-                        Quiz
-                      </Link>
-                    )}
-                    <button onClick={() => handleDelete(set.id)}
-                      className="text-sm text-gray-300 hover:text-red-400 transition-colors px-1">
-                      ✕
-                    </button>
-                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </main>

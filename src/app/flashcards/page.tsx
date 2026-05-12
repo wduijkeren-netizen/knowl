@@ -10,7 +10,7 @@ export default async function FlashcardsPage() {
 
   const { data: sets } = await supabase
     .from('flashcard_sets')
-    .select('id, title, vak, created_at')
+    .select('id, title, vak, created_at, is_public, share_token')
     .order('created_at', { ascending: false })
 
   const { data: counts } = await supabase

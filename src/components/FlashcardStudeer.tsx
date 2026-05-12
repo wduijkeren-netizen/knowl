@@ -1,12 +1,25 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
 
 type Card = { id: string; front: string; back: string }
 type Set = { id: string; title: string; vak: string | null }
 type Props = { set: Set; cards: Card[] }
+
+function getProgress(setId: string): number {
+  try {
+    const raw = localStorage.getItem(`knowl_fc_progress_${setId}`)
+    if (!raw) return -1
+    const { known, total } = JSON.parse(raw)
+    return total > 0 ? Math.round((known / total) * 100) : 0
+  } catch { return -1 }
+}
+
+function saveProgress(setId: string, known: number, total: number) {
+  try { localStorage.setItem(`knowl_fc_progress_${setId}`, JSON.stringify({ known, total })) } catch {}
+}
 
 export default function FlashcardStudeer({ set, cards: initialCards }: Props) {
   const [cards] = useState(() => [...initialCards].sort(() => Math.random() - 0.5))
@@ -15,15 +28,20 @@ export default function FlashcardStudeer({ set, cards: initialCards }: Props) {
   const [known, setKnown] = useState<string[]>([])
   const [unknown, setUnknown] = useState<string[]>([])
   const [done, setDone] = useState(false)
+  const [prevPct, setPrevPct] = useState(-1)
+
+  useEffect(() => { setPrevPct(getProgress(set.id)) }, [set.id])
 
   const card = cards[index]
 
   function next(didKnow: boolean) {
-    if (didKnow) setKnown(k => [...k, card.id])
+    const newKnown = didKnow ? [...known, card.id] : known
+    if (didKnow) setKnown(newKnown)
     else setUnknown(u => [...u, card.id])
 
     setFlipped(false)
     if (index + 1 >= cards.length) {
+      saveProgress(set.id, newKnown.length, cards.length)
       setDone(true)
     } else {
       setIndex(i => i + 1)
@@ -79,6 +97,11 @@ export default function FlashcardStudeer({ set, cards: initialCards }: Props) {
                 <p className="text-xs text-gray-400 mt-0.5">Nog oefenen</p>
               </div>
             </div>
+            {prevPct >= 0 && (
+              <p className="text-xs text-indigo-400">
+                Vorige keer: {prevPct}% → Nu: {Math.round((known.length / cards.length) * 100)}%
+              </p>
+            )}
             <div className="flex gap-3 justify-center pt-2">
               <button onClick={restart}
                 className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">
