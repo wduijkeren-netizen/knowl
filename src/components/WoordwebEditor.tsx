@@ -200,19 +200,19 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
       )}
 
       {/* Toolbar */}
-      <div className="bg-white border-b border-indigo-100 px-4 py-3 flex items-center gap-3 flex-wrap">
+      <div className="bg-white border-b border-indigo-100 px-4 py-3 flex flex-wrap items-center gap-2">
         <Link href="/woordweb" className="text-indigo-400 hover:text-indigo-600 text-sm transition-colors shrink-0">← Terug</Link>
         <input
           value={title} onChange={e => setTitle(e.target.value)}
           placeholder="Naam van het web"
-          className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-44"
+          className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 min-w-0 flex-1 sm:w-44 sm:flex-none"
         />
         <select value={vak} onChange={e => setVak(e.target.value)}
           className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
           <option value="">Geen vak</option>
           {subjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
         </select>
-        <div className="flex gap-2 ml-auto">
+        <div className="flex gap-2 ml-auto flex-wrap">
           {web && (
             <button onClick={() => setConfirmDelete(true)}
               className="bg-red-50 text-red-500 px-3 py-1.5 rounded-xl text-sm font-medium hover:bg-red-100 transition-all">

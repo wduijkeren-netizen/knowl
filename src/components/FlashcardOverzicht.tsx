@@ -74,8 +74,8 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
   function renderSet(set: Set) {
     const pct = progress[set.id] ?? -1
     return (
-      <div key={set.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all p-5">
-        <div className="flex justify-between items-start gap-4">
+      <div key={set.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
           <div className="flex-1 min-w-0">
             <h2 className="font-semibold text-indigo-900">{set.title}</h2>
             <div className="flex gap-2 mt-1.5 flex-wrap">
@@ -99,7 +99,7 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
               </div>
             )}
           </div>
-          <div className="flex gap-2 shrink-0 flex-wrap justify-end">
+          <div className="flex gap-2 flex-wrap">
             {(dueMap[set.id] ?? 0) > 0 && (
               <Link href={`/flashcards/${set.id}/herhalen`} className="text-sm bg-amber-500 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-amber-600 transition-colors">
                 Herhalen

@@ -146,7 +146,7 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
         </div>
 
         {/* Statistieken */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
             <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.totalHours}</p>
             <p className="text-4xl font-bold text-indigo-700 mt-2">{totalHours}<span className="text-xl text-indigo-300">u</span></p>

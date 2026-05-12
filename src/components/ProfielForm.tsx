@@ -123,7 +123,7 @@ export default function ProfielForm({ user, profile }: Props) {
               <h2 className="font-semibold text-white">{p.personalInfo}</h2>
             </div>
             <div className="p-6 space-y-5">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label={p.firstName} required>
                   <input
                     value={voornaam}
@@ -170,7 +170,7 @@ export default function ProfielForm({ user, profile }: Props) {
               <h2 className="font-semibold text-white">{p.address}</h2>
             </div>
             <div className="p-6 space-y-5">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label={p.postcode}>
                   <input
                     value={postcode}

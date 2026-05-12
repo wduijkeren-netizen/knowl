@@ -191,14 +191,14 @@ export default function FlashcardNieuw({ subjects, userId }: Props) {
               <button onClick={addCard} className="text-sm text-indigo-500 hover:text-indigo-700 transition-colors">+ Kaart toevoegen</button>
             </div>
             {parsed.map((card, i) => (
-              <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
+              <div key={i} className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
                 <input value={card.front} onChange={e => updateCard(i, 'front', e.target.value)}
                   placeholder="Voorkant (vraag)"
-                  className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all" />
+                  className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all" />
                 <input value={card.back} onChange={e => updateCard(i, 'back', e.target.value)}
                   placeholder="Achterkant (antwoord)"
-                  className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all" />
-                <button onClick={() => removeCard(i)} className="text-gray-300 hover:text-red-400 transition-colors text-lg leading-none px-1">✕</button>
+                  className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all" />
+                <button onClick={() => removeCard(i)} className="self-end sm:self-auto text-gray-300 hover:text-red-400 transition-colors p-2 min-w-[44px] min-h-[44px] flex items-center justify-center">✕</button>
               </div>
             ))}
           </div>

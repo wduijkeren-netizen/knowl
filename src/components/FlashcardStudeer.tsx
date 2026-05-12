@@ -189,12 +189,12 @@ export default function FlashcardStudeer({ set, cards: initialCards, srMap }: Pr
             {flipped ? (
               <div className="grid grid-cols-2 gap-3">
                 <button onClick={() => next(false)}
-                  className="bg-red-50 text-red-500 rounded-2xl py-4 text-sm font-semibold hover:bg-red-100 transition-colors border border-red-100">
-                  ✕ Wist ik niet
+                  className="bg-red-50 text-red-500 rounded-2xl py-5 text-sm font-semibold hover:bg-red-100 active:bg-red-100 transition-colors border border-red-100">
+                  Wist ik niet
                 </button>
                 <button onClick={() => next(true)}
-                  className="bg-emerald-50 text-emerald-600 rounded-2xl py-4 text-sm font-semibold hover:bg-emerald-100 transition-colors border border-emerald-100">
-                  ✓ Wist ik het
+                  className="bg-emerald-50 text-emerald-600 rounded-2xl py-5 text-sm font-semibold hover:bg-emerald-100 active:bg-emerald-100 transition-colors border border-emerald-100">
+                  Wist ik het
                 </button>
               </div>
             ) : (

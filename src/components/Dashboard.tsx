@@ -221,7 +221,6 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
 
   const totalMinutes = moments.reduce((sum, m) => sum + (m.duration_minutes ?? 0), 0)
   const totalHours = Math.floor(totalMinutes / 60)
-  const remainingMinutes = totalMinutes % 60
 
   const starLabels = r.labels
 
@@ -290,19 +289,19 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
         )}
 
         {/* Statistieken */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-4">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{d.momentsCount}</p>
-            <p className="text-3xl md:text-4xl font-bold text-indigo-700 mt-2">{moments.length}</p>
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4">
+            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide leading-tight">{d.momentsCount}</p>
+            <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-indigo-700 mt-1">{moments.length}</p>
           </div>
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-4">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{d.minutesLearned}</p>
-            <p className="text-3xl md:text-4xl font-bold text-indigo-700 mt-2">{totalMinutes}</p>
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4">
+            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide leading-tight">{d.minutesLearned}</p>
+            <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-indigo-700 mt-1">{totalMinutes}</p>
           </div>
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-4">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{d.inHours}</p>
-            <p className="text-3xl md:text-4xl font-bold text-indigo-700 mt-2">
-              {totalHours}<span className="text-lg md:text-xl font-medium text-indigo-300">u {remainingMinutes}m</span>
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4">
+            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide leading-tight">{d.inHours}</p>
+            <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-indigo-700 mt-1">
+              {totalHours}<span className="text-base sm:text-lg font-medium text-indigo-300">u</span>
             </p>
           </div>
         </div>

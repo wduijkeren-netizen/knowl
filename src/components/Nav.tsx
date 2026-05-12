@@ -79,7 +79,7 @@ export default function Nav() {
               {showMoreMenu && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setShowMoreMenu(false)} />
-                  <div className="absolute left-0 top-full mt-2 bg-white rounded-2xl border border-indigo-100 shadow-xl py-2 z-20 min-w-[180px]">
+                  <div className="absolute left-0 top-full mt-2 bg-white rounded-2xl border border-indigo-100 shadow-xl py-2 z-20 min-w-[180px] max-w-[90vw]">
                     {moreLinks.map(link => (
                       <Link key={link.href} href={link.href} onClick={() => setShowMoreMenu(false)}
                         className={`block px-4 py-2 text-sm hover:bg-indigo-50 transition-colors ${isActive(link.href) ? 'text-indigo-700 font-semibold' : 'text-gray-600'}`}>
@@ -105,7 +105,7 @@ export default function Nav() {
             {showLangMenu && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowLangMenu(false)} />
-                <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl border border-indigo-100 shadow-xl py-2 z-20 min-w-[170px]">
+                <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl border border-indigo-100 shadow-xl py-2 z-20 min-w-[170px] max-w-[90vw]">
                   {languages.map(l => (
                     <button key={l.code} onClick={() => { setLang(l.code as LangCode); setShowLangMenu(false) }}
                       className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-indigo-50 transition-colors ${lang === l.code ? 'text-indigo-700 font-semibold' : 'text-gray-600'}`}>

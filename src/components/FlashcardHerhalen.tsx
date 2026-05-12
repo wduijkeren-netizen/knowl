@@ -154,11 +154,11 @@ export default function FlashcardHerhalen({ set, cards, srMap, userId, totalCard
             {flipped ? (
               <div className="grid grid-cols-2 gap-3">
                 <button onClick={() => handleAnswer(false)}
-                  className="bg-red-50 text-red-500 rounded-2xl py-4 text-sm font-semibold hover:bg-red-100 transition-colors border border-red-100">
+                  className="bg-red-50 text-red-500 rounded-2xl py-5 text-sm font-semibold hover:bg-red-100 active:bg-red-100 transition-colors border border-red-100">
                   Nog niet gekend
                 </button>
                 <button onClick={() => handleAnswer(true)}
-                  className="bg-emerald-50 text-emerald-600 rounded-2xl py-4 text-sm font-semibold hover:bg-emerald-100 transition-colors border border-emerald-100">
+                  className="bg-emerald-50 text-emerald-600 rounded-2xl py-5 text-sm font-semibold hover:bg-emerald-100 active:bg-emerald-100 transition-colors border border-emerald-100">
                   Correct gekend
                 </button>
               </div>
