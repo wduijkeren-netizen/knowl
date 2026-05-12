@@ -50,9 +50,39 @@ export default function FlashcardNieuw({ subjects, userId }: Props) {
     setParsed(cards)
   }
 
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+
+    const ext = file.name.split('.').pop()?.toLowerCase()
+
+    if (ext === 'docx') {
+      const mammoth = (await import('mammoth')).default
+      const buffer = await file.arrayBuffer()
+      const result = await mammoth.extractRawText({ arrayBuffer: buffer })
+      setImportText(result.value)
+      setParsed(parseImport(result.value))
+      return
+    }
+
+    if (ext === 'pdf') {
+      const pdfjsLib = await import('pdfjs-dist')
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`
+      const buffer = await file.arrayBuffer()
+      const pdf = await pdfjsLib.getDocument({ data: buffer }).promise
+      let fullText = ''
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i)
+        const content = await page.getTextContent()
+        const pageText = content.items.map((item: { str?: string }) => item.str ?? '').join(' ')
+        fullText += pageText + '\n'
+      }
+      setImportText(fullText)
+      setParsed(parseImport(fullText))
+      return
+    }
+
+    // .txt, .csv en andere tekstbestanden
     const reader = new FileReader()
     reader.onload = ev => {
       const text = ev.target?.result as string
@@ -135,8 +165,8 @@ export default function FlashcardNieuw({ subjects, userId }: Props) {
             </p>
             <label className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-indigo-200 rounded-xl px-4 py-3 text-sm text-indigo-400 hover:border-indigo-400 hover:text-indigo-600 transition-colors cursor-pointer mb-3">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Bestand uploaden (.txt of .csv)
-              <input type="file" accept=".txt,.csv" onChange={handleFile} className="hidden" />
+              Bestand uploaden (.txt, .csv, .docx, .pdf)
+              <input type="file" accept=".txt,.csv,.docx,.pdf" onChange={handleFile} className="hidden" />
             </label>
             <textarea
               value={importText}
