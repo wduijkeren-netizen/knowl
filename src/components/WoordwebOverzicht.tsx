@@ -13,10 +13,11 @@ export default function WoordwebOverzicht({ webs }: Props) {
   const router = useRouter()
   const supabase = createClient()
   const [search, setSearch] = useState('')
+  const [confirmId, setConfirmId] = useState<string | null>(null)
 
   async function handleDelete(id: string) {
-    if (!confirm('Woordweb verwijderen?')) return
     await supabase.from('word_webs').delete().eq('id', id)
+    setConfirmId(null)
     router.refresh()
   }
 
@@ -36,6 +37,25 @@ export default function WoordwebOverzicht({ webs }: Props) {
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
       <Nav />
+
+      {confirmId && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center space-y-4">
+            <h2 className="text-lg font-bold text-indigo-900">Woordweb verwijderen?</h2>
+            <p className="text-sm text-gray-400">Dit kan niet ongedaan worden gemaakt.</p>
+            <div className="flex gap-3 justify-center pt-2">
+              <button onClick={() => setConfirmId(null)}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors">
+                Annuleren
+              </button>
+              <button onClick={() => handleDelete(confirmId)}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors">
+                Ja, verwijderen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -76,7 +96,7 @@ export default function WoordwebOverzicht({ webs }: Props) {
                         <h2 className="font-semibold text-indigo-900">{web.title}</h2>
                         <div className="flex gap-2 shrink-0">
                           <Link href={`/woordweb/${web.id}`} className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">Openen</Link>
-                          <button onClick={() => handleDelete(web.id)} className="text-sm text-gray-300 hover:text-red-400 transition-colors px-1">✕</button>
+                          <button onClick={() => setConfirmId(web.id)} className="text-sm text-gray-300 hover:text-red-400 transition-colors px-1">✕</button>
                         </div>
                       </div>
                     </div>

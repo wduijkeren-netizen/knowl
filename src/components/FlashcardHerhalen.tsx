@@ -83,9 +83,8 @@ export default function FlashcardHerhalen({ set, cards, srMap, userId, totalCard
       <div className="min-h-screen bg-[#f8f7ff]">
         <Nav />
         <main className="max-w-2xl mx-auto px-4 py-8 text-center space-y-4">
-          <p className="text-5xl">✅</p>
-          <h2 className="text-xl font-bold text-indigo-900">Alles bijgewerkt!</h2>
-          <p className="text-sm text-indigo-400">Je hebt vandaag alle kaarten al herhaald. Kom morgen terug.</p>
+          <h2 className="text-xl font-bold text-indigo-900">Alles herhaald voor vandaag</h2>
+          <p className="text-sm text-indigo-400">Je hebt alle kaarten die aan de beurt waren doorgenomen. Kom morgen terug voor de volgende herhaling.</p>
           <Link href={`/flashcards/${set.id}`} className="inline-block mt-2 text-sm text-indigo-600 hover:underline">← Terug naar de set</Link>
         </main>
       </div>
@@ -102,23 +101,22 @@ export default function FlashcardHerhalen({ set, cards, srMap, userId, totalCard
             <h1 className="text-xl font-bold text-indigo-900 mt-1">Herhalen — {set.title}</h1>
           </div>
           <span className="text-xs bg-amber-50 text-amber-600 border border-amber-200 rounded-full px-3 py-1 font-medium">
-            {cards.length} van {totalCards} kaarten vandaag
+            {cards.length} van {totalCards} kaarten te herhalen
           </span>
         </div>
 
         {done ? (
           <div className="bg-white rounded-3xl border border-indigo-100 shadow-sm p-8 text-center space-y-4">
-            <p className="text-5xl">🎉</p>
-            <h2 className="text-xl font-bold text-indigo-900">Sessie klaar!</h2>
-            <p className="text-sm text-indigo-400">De app onthoudt je scores en toont moeilijke kaarten vaker.</p>
+            <h2 className="text-xl font-bold text-indigo-900">Herhaling voltooid</h2>
+            <p className="text-sm text-indigo-400">Knowl onthoudt welke kaarten je moeilijk vindt en toont die de volgende keer eerder.</p>
             <div className="flex justify-center gap-6 py-2">
               <div className="text-center">
                 <p className="text-3xl font-bold text-emerald-500">{correct}</p>
-                <p className="text-xs text-gray-400 mt-0.5">Goed</p>
+                <p className="text-xs text-gray-400 mt-0.5">Correct</p>
               </div>
               <div className="text-center">
                 <p className="text-3xl font-bold text-red-400">{cards.length - correct}</p>
-                <p className="text-xs text-gray-400 mt-0.5">Herhaald</p>
+                <p className="text-xs text-gray-400 mt-0.5">Nog te leren</p>
               </div>
             </div>
             <Link href="/flashcards" className="inline-block bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">
@@ -156,17 +154,17 @@ export default function FlashcardHerhalen({ set, cards, srMap, userId, totalCard
               <div className="grid grid-cols-2 gap-3">
                 <button onClick={() => handleAnswer(false)}
                   className="bg-red-50 text-red-500 rounded-2xl py-4 text-sm font-semibold hover:bg-red-100 transition-colors border border-red-100">
-                  ✕ Nog niet
+                  Nog niet gekend
                 </button>
                 <button onClick={() => handleAnswer(true)}
                   className="bg-emerald-50 text-emerald-600 rounded-2xl py-4 text-sm font-semibold hover:bg-emerald-100 transition-colors border border-emerald-100">
-                  ✓ Geweten
+                  Correct gekend
                 </button>
               </div>
             ) : (
               <button onClick={() => setFlipped(true)}
                 className="w-full bg-amber-100 text-amber-700 rounded-2xl py-4 text-sm font-semibold hover:bg-amber-200 transition-colors">
-                Omdraaien
+                Toon antwoord
               </button>
             )}
           </>
