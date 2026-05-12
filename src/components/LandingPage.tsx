@@ -5,22 +5,24 @@ import { useState } from 'react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { languages, type LangCode } from '@/lib/i18n/translations'
 
-const features = [
-  { title: 'Leermomenten bijhouden', desc: 'Log in seconden wat je hebt geleerd — met vak, minuten en een samenvatting.' },
-  { title: 'Voortgang per vak', desc: 'Grafieken laten zien hoe je de tijd verdeelt over je vakken.' },
-  { title: 'Pomodoro timer', desc: 'Focus in blokken van 25 minuten. Rust bewust, werk geconcentreerd.' },
-  { title: 'Doelen stellen', desc: 'Stel een deadline en doelminuten per vak in. Knowl houdt je voortgang bij.' },
-  { title: 'Gespreide herhaling', desc: 'Knowl herinnert je aan oude leermomenten zodat je de stof écht onthoudt.' },
-  { title: 'Maandoverzicht', desc: 'Aan het einde van elke maand een overzicht van je topvak, streak en uren.' },
+const primaryFeatures = [
+  {
+    title: 'Doelen stellen en halen',
+    desc: 'Stel een deadline en doelminuten per vak in. Knowl berekent hoeveel je nog per dag moet studeren om op tijd klaar te zijn.',
+    color: 'bg-gradient-to-br from-indigo-500 to-violet-600',
+  },
+  {
+    title: 'Voortgang per vak',
+    desc: 'Grafieken en weekoverzichten laten precies zien hoe je de tijd verdeelt. Je ziet in één oogopslag waar je achterloopt.',
+    color: 'bg-gradient-to-br from-violet-500 to-purple-600',
+  },
 ]
 
-const colors = [
-  'bg-gradient-to-br from-indigo-500 to-violet-600',
-  'bg-gradient-to-br from-violet-500 to-purple-600',
-  'bg-gradient-to-br from-blue-500 to-indigo-600',
-  'bg-gradient-to-br from-emerald-500 to-teal-600',
-  'bg-gradient-to-br from-amber-500 to-orange-500',
-  'bg-gradient-to-br from-pink-500 to-rose-600',
+const secondaryFeatures = [
+  { title: 'Flashcards & quizzen', desc: 'Maak sets, importeer woorden en leer ze met spaced repetition.' },
+  { title: 'Woordwebben', desc: 'Verbind begrippen visueel en exporteer als afbeelding.' },
+  { title: 'Pomodoro-timer', desc: 'Studeer in blokken van 25 minuten, rust bewust.' },
+  { title: 'Maandoverzicht', desc: 'Aan het einde van elke maand een overzicht van je topvak en streak.' },
 ]
 
 export default function LandingPage() {
@@ -35,7 +37,6 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
           <span className="text-xl font-bold text-indigo-700 tracking-tight">Knowl</span>
           <div className="flex gap-2 items-center">
-            {/* Taalswitch */}
             <div className="relative">
               <button onClick={() => setShowLang(s => !s)}
                 className="flex items-center gap-1 text-sm text-indigo-400 hover:text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg px-2.5 py-1.5 transition-colors">
@@ -46,7 +47,7 @@ export default function LandingPage() {
               {showLang && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setShowLang(false)} />
-                  <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl border border-indigo-100 shadow-xl py-2 z-20 min-w-[170px]">
+                  <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl border border-indigo-100 shadow-xl py-2 z-20 min-w-[170px] max-w-[90vw]">
                     {languages.map(l => (
                       <button key={l.code} onClick={() => { setLang(l.code as LangCode); setShowLang(false) }}
                         className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-indigo-50 transition-colors ${lang === l.code ? 'text-indigo-700 font-semibold' : 'text-gray-600'}`}>
@@ -58,7 +59,7 @@ export default function LandingPage() {
                 </>
               )}
             </div>
-            <Link href="/login" className="text-sm text-indigo-500 hover:text-indigo-700 font-medium transition-colors px-3 py-1.5">
+            <Link href="/login" className="hidden sm:block text-sm text-indigo-500 hover:text-indigo-700 font-medium transition-colors px-3 py-1.5">
               Inloggen
             </Link>
             <Link href="/leermomenten" className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-indigo-700 transition-colors shadow-sm">
@@ -69,13 +70,14 @@ export default function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="relative pt-20 pb-16 px-4 overflow-hidden bg-gradient-to-b from-indigo-50 via-white to-white">
+      <section className="relative pt-24 pb-16 px-4 overflow-hidden bg-gradient-to-b from-indigo-50 via-white to-white">
         <div className="absolute top-10 left-1/4 w-72 h-72 bg-indigo-200 rounded-full blur-3xl opacity-30 pointer-events-none" />
         <div className="absolute top-20 right-1/4 w-64 h-64 bg-violet-200 rounded-full blur-3xl opacity-25 pointer-events-none" />
 
         <div className="relative max-w-3xl mx-auto text-center">
-          <div className="inline-block bg-white text-indigo-600 text-xs font-semibold px-4 py-2 rounded-full mb-6 border border-indigo-100 shadow-sm">
-            Gratis te gebruiken · Geen account nodig
+          {/* Urgentie-badge */}
+          <div className="inline-block bg-amber-50 text-amber-700 text-xs font-semibold px-4 py-2 rounded-full mb-6 border border-amber-200 shadow-sm">
+            Tentamen over 3 weken? Start nu — je eerste leermoment in 30 seconden opgeslagen.
           </div>
 
           <h1 className="text-4xl md:text-6xl font-bold text-indigo-900 leading-tight">
@@ -90,23 +92,25 @@ export default function LandingPage() {
             Knowl houdt bij wat je leert, hoe lang je studeert en of je je doelen haalt — per vak, per dag, per maand.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
+          {/* Social proof */}
+          <p className="text-xs text-indigo-400 mt-4 font-medium">
+            Gratis te gebruiken · Geen account nodig · Data bewaard na aanmelden
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
             <Link href="/leermomenten"
               className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-8 py-3.5 rounded-2xl font-bold text-base hover:from-indigo-700 hover:to-violet-700 transition-all shadow-lg shadow-indigo-200 text-center">
               Start gratis →
             </Link>
             <Link href="/login"
               className="bg-white text-indigo-600 px-8 py-3.5 rounded-2xl font-bold text-base hover:bg-indigo-50 transition-colors border border-indigo-200 shadow-sm text-center">
-              Inloggen
+              Ik heb al een account
             </Link>
           </div>
-          <p className="text-xs text-indigo-300 mt-3">Geen account nodig · Data bewaard na aanmelden</p>
         </div>
 
         {/* Preview kaarten */}
-        <div className="relative max-w-4xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4 px-0">
-
-          {/* Kaart 1 — leermoment na college */}
+        <div className="relative max-w-4xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-lg p-5">
             <div className="flex justify-between items-start mb-3">
               <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">Na het college</span>
@@ -120,7 +124,6 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Kaart 2 — tentamen countdown met doel */}
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-lg p-5">
             <div className="flex justify-between items-start mb-1">
               <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">Tentamen over</span>
@@ -143,7 +146,6 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Kaart 3 — streak */}
           <div className="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl shadow-lg p-5 text-white">
             <span className="text-xs font-semibold text-indigo-200 uppercase tracking-wide">Studeerstreak</span>
             <p className="text-5xl font-bold mt-2">12</p>
@@ -160,21 +162,33 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features */}
+      {/* Features — hiërarchisch */}
       <section className="max-w-5xl mx-auto px-4 py-16">
         <div className="text-center mb-10">
           <h2 className="text-2xl md:text-3xl font-bold text-indigo-900">Alles wat je nodig hebt om bij te houden wat je leert</h2>
           <p className="text-indigo-400 mt-2 text-sm md:text-base">Gemaakt voor studenten die serieus zijn over hun ontwikkeling.</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-          {features.map((f, i) => (
-            <div key={f.title} className="rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-indigo-100">
-              <div className={`h-24 flex items-end px-5 pb-4 ${colors[i % colors.length]}`}>
-                <h3 className="text-base font-bold text-white leading-tight">{f.title}</h3>
+
+        {/* Twee grote kernfeatures */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+          {primaryFeatures.map(f => (
+            <div key={f.title} className="rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all border border-indigo-100">
+              <div className={`h-32 flex items-end px-6 pb-5 ${f.color}`}>
+                <h3 className="text-lg font-bold text-white leading-tight">{f.title}</h3>
               </div>
-              <div className="bg-white px-5 py-4">
-                <p className="text-sm text-indigo-400 leading-relaxed">{f.desc}</p>
+              <div className="bg-white px-6 py-5">
+                <p className="text-sm text-indigo-500 leading-relaxed">{f.desc}</p>
               </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Vier kleinere features */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {secondaryFeatures.map(f => (
+            <div key={f.title} className="bg-white rounded-2xl border border-indigo-100 p-4 shadow-sm hover:shadow-md transition-all">
+              <h3 className="text-sm font-semibold text-indigo-900">{f.title}</h3>
+              <p className="text-xs text-indigo-400 mt-1.5 leading-relaxed">{f.desc}</p>
             </div>
           ))}
         </div>
@@ -193,36 +207,36 @@ export default function LandingPage() {
                 Knowl is ontstaan uit een simpel probleem: je werkt hard, maar weet aan het einde van de week niet meer wat je eigenlijk hebt geleerd. En je hebt geen idee of je genoeg doet voor dat ene vak.
               </p>
               <p className="text-indigo-500 mt-3 leading-relaxed text-sm md:text-base">
-                Knowl geeft je inzicht — niet meer, niet minder. Geen fancy AI, geen abonnement, geen reclame. Gewoon een helder overzicht van wat je leert en hoe je groeit.
+                Knowl geeft je inzicht — niet meer, niet minder. Geen abonnement, geen reclame. Gewoon een helder overzicht van wat je leert en hoe je groeit.
               </p>
-              <div className="flex gap-4 mt-6 flex-wrap">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-indigo-700">100%</p>
-                  <p className="text-xs text-indigo-400">Gratis</p>
+
+              {/* Eerlijke feiten */}
+              <div className="flex gap-6 mt-6 flex-wrap">
+                <div>
+                  <p className="text-2xl font-bold text-indigo-700">Gratis</p>
+                  <p className="text-xs text-indigo-400">voor altijd</p>
                 </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-indigo-700">9</p>
-                  <p className="text-xs text-indigo-400">Talen</p>
-                </div>
-                <div className="text-center">
+                <div>
                   <p className="text-2xl font-bold text-indigo-700">0</p>
-                  <p className="text-xs text-indigo-400">Reclame</p>
+                  <p className="text-xs text-indigo-400">reclame</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-indigo-700">Jouw</p>
+                  <p className="text-xs text-indigo-400">data, altijd exporteerbaar</p>
                 </div>
               </div>
             </div>
+
             <div className="space-y-3">
               {[
-                { emoji: '🎯', title: 'Doelgericht', desc: 'Stel doelen per vak en zie dagelijks hoe dichtbij je bent.' },
-                { emoji: '📊', title: 'Inzichtelijk', desc: 'Grafieken, streaks en weekoverzichten laten je exacte leerpatroon zien.' },
-                { emoji: '🛡️', title: 'Motiverend', desc: 'Streakschilden, beoordelingen en mijlpalen houden je gemotiveerd.' },
-                { emoji: '🔒', title: 'Jouw data', desc: 'Alles staat op jouw account. Exporteer wanneer je wilt.' },
+                { title: 'Doelgericht', desc: 'Stel doelen per vak en zie dagelijks hoe dichtbij je bent.' },
+                { title: 'Inzichtelijk', desc: 'Grafieken, streaks en weekoverzichten laten je exacte leerpatroon zien.' },
+                { title: 'Motiverend', desc: 'Streakschilden en mijlpalen houden je gemotiveerd om door te gaan.' },
+                { title: 'Jouw data', desc: 'Alles staat op jouw account. Exporteer wanneer je wilt als CSV.' },
               ].map(item => (
-                <div key={item.title} className="flex gap-4 bg-white rounded-2xl p-4 shadow-sm">
-                  <span className="text-2xl shrink-0">{item.emoji}</span>
-                  <div>
-                    <p className="font-semibold text-indigo-900 text-sm">{item.title}</p>
-                    <p className="text-xs text-indigo-400 mt-0.5">{item.desc}</p>
-                  </div>
+                <div key={item.title} className="bg-white rounded-2xl p-4 shadow-sm">
+                  <p className="font-semibold text-indigo-900 text-sm">{item.title}</p>
+                  <p className="text-xs text-indigo-400 mt-0.5">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -230,32 +244,20 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="bg-gradient-to-r from-indigo-600 to-violet-600 py-12">
-        <div className="max-w-4xl mx-auto px-4 grid grid-cols-3 gap-4 text-center text-white">
-          <div>
-            <p className="text-3xl md:text-4xl font-bold">9</p>
-            <p className="text-indigo-200 text-xs md:text-sm mt-1">Talen</p>
-          </div>
-          <div>
-            <p className="text-3xl md:text-4xl font-bold">∞</p>
-            <p className="text-indigo-200 text-xs md:text-sm mt-1">Momenten</p>
-          </div>
-          <div>
-            <p className="text-3xl md:text-4xl font-bold">100%</p>
-            <p className="text-indigo-200 text-xs md:text-sm mt-1">Gratis</p>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
+      {/* CTA — sterke afsluiting */}
       <section className="max-w-3xl mx-auto px-4 py-20 text-center">
-        <h2 className="text-2xl md:text-3xl font-bold text-indigo-900">Klaar om te beginnen?</h2>
-        <p className="text-indigo-400 mt-3 mb-8 text-sm md:text-base">Probeer Knowl gratis — geen account nodig.</p>
+        <h2 className="text-2xl md:text-3xl font-bold text-indigo-900">
+          Zet je eerste leermoment neer in 30 seconden.
+        </h2>
+        <p className="text-indigo-400 mt-3 mb-2 text-sm md:text-base">
+          Geen account nodig om te starten. Je verliest niets als je het probeert.
+        </p>
+        <p className="text-xs text-indigo-300 mb-8">Data wordt bewaard zodra je een account aanmaakt.</p>
         <Link href="/leermomenten"
           className="inline-block bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-10 py-4 rounded-2xl font-bold text-base hover:from-indigo-700 hover:to-violet-700 transition-all shadow-lg shadow-indigo-200">
-          Start gratis →
+          Probeer Knowl gratis →
         </Link>
+        <p className="text-xs text-indigo-300 mt-4">Geen creditcard · Geen abonnement · Altijd gratis</p>
       </section>
 
       <footer className="border-t border-indigo-100 py-8">
