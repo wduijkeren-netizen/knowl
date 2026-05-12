@@ -95,10 +95,20 @@ export default function FlashcardStudeer({ set, cards: initialCards, srMap }: Pr
             <Link href="/flashcards" className="text-indigo-400 hover:text-indigo-600 transition-colors text-sm">← Terug</Link>
             <h1 className="text-xl font-bold text-indigo-900 mt-1">{set.title}</h1>
           </div>
-          <Link href={`/flashcards/${set.id}/quiz`}
-            className="text-sm bg-violet-100 text-violet-700 px-3 py-2 rounded-xl font-medium hover:bg-violet-200 transition-colors">
-            Quiz starten →
-          </Link>
+          <div className="flex gap-2 flex-wrap justify-end">
+            <Link href={`/flashcards/${set.id}/bewerken`}
+              className="text-sm bg-gray-100 text-gray-500 px-3 py-2 rounded-xl font-medium hover:bg-gray-200 transition-colors">
+              Bewerken
+            </Link>
+            <Link href={`/flashcards/${set.id}/invuloefening`}
+              className="text-sm bg-indigo-50 text-indigo-600 px-3 py-2 rounded-xl font-medium hover:bg-indigo-100 transition-colors">
+              Invuloefening
+            </Link>
+            <Link href={`/flashcards/${set.id}/quiz`}
+              className="text-sm bg-violet-100 text-violet-700 px-3 py-2 rounded-xl font-medium hover:bg-violet-200 transition-colors">
+              Quiz
+            </Link>
+          </div>
         </div>
 
         {done ? (
@@ -120,15 +130,19 @@ export default function FlashcardStudeer({ set, cards: initialCards, srMap }: Pr
                 Vorige keer: {prevPct}% → Nu: {Math.round((known.length / cards.length) * 100)}%
               </p>
             )}
-            <div className="flex gap-3 justify-center pt-2">
+            <div className="flex gap-3 justify-center pt-2 flex-wrap">
               <button onClick={restart}
                 className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">
                 Opnieuw
               </button>
               <Link href={`/flashcards/${set.id}/quiz`}
                 className="bg-violet-100 text-violet-700 px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-violet-200 transition-colors">
-                Quiz proberen
+                Quiz
               </Link>
+              <button onClick={() => { saveProgress(set.id, 0, 0); restart() }}
+                className="bg-gray-100 text-gray-500 px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-200 transition-colors">
+                Voortgang wissen
+              </button>
             </div>
           </div>
         ) : (

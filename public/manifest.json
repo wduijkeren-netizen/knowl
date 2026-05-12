@@ -1,0 +1,22 @@
+{
+  "name": "Knowl — Leertracker",
+  "short_name": "Knowl",
+  "description": "Log leermomenten, stel doelen per vak en volg je voortgang.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f7ff",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

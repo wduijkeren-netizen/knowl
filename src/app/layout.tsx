@@ -13,6 +13,7 @@ const geistSans = localFont({
 });
 
 export const metadata: Metadata = {
+  manifest: '/manifest.json',
   title: "Knowl — Leertracker voor studenten",
   description: "Log leermomenten, stel doelen per vak en volg je voortgang. Gratis leertracker voor studenten — geen account nodig om te starten.",
   icons: {

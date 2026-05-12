@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import Nav from '@/components/Nav'
 import type { User } from '@supabase/supabase-js'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import DagelijkseHerinnering from '@/components/DagelijkseHerinnering'
 
 type Profile = {
   voornaam?: string | null
@@ -210,6 +211,8 @@ export default function ProfielForm({ user, profile }: Props) {
             {saving ? p.saving : p.save}
           </button>
         </form>
+
+        <DagelijkseHerinnering />
 
         {/* Account verwijderen */}
         <div className="bg-white rounded-2xl border border-red-100 shadow-sm p-6 space-y-3">

@@ -41,6 +41,23 @@ export default function VakDetail({ vakNaam, moments, goalMinutes, goalDate }: P
   const progress = goalMinutes ? Math.min(100, Math.round((totalMinuten / goalMinutes) * 100)) : null
   const daysLeft = goalDate ? Math.ceil((new Date(goalDate).getTime() - Date.now()) / 86400000) : null
 
+  // Streak per vak
+  const vakStreak = (() => {
+    const dagen = [...new Set(moments.map(m => m.learned_at))].sort()
+    if (!dagen.length) return 0
+    const vandaag = new Date().toISOString().split('T')[0]
+    const gisteren = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+    const rev = [...dagen].reverse()
+    if (rev[0] !== vandaag && rev[0] !== gisteren) return 0
+    let count = 1
+    for (let i = 1; i < rev.length; i++) {
+      const diff = (new Date(rev[i-1]).getTime() - new Date(rev[i]).getTime()) / 86400000
+      if (diff === 1) count++
+      else break
+    }
+    return count
+  })()
+
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
       <Nav />
@@ -52,7 +69,7 @@ export default function VakDetail({ vakNaam, moments, goalMinutes, goalDate }: P
 
         <div className="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl p-6 text-white">
           <h1 className="text-2xl font-bold">{vakNaam}</h1>
-          <div className="flex gap-6 mt-3">
+          <div className="flex gap-6 mt-3 flex-wrap">
             <div>
               <p className="text-indigo-200 text-xs uppercase tracking-wide">{d.momentsCount}</p>
               <p className="text-3xl font-bold mt-0.5">{moments.length}</p>
@@ -61,6 +78,12 @@ export default function VakDetail({ vakNaam, moments, goalMinutes, goalDate }: P
               <p className="text-indigo-200 text-xs uppercase tracking-wide">{d.minutesSpent}</p>
               <p className="text-3xl font-bold mt-0.5">{totalMinuten}</p>
             </div>
+            {vakStreak > 0 && (
+              <div>
+                <p className="text-indigo-200 text-xs uppercase tracking-wide">Streak</p>
+                <p className="text-3xl font-bold mt-0.5">{vakStreak}d</p>
+              </div>
+            )}
             {goalMinutes && (
               <div>
                 <p className="text-indigo-200 text-xs uppercase tracking-wide">Doel</p>
