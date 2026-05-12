@@ -28,6 +28,7 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap }: Prop
   const [sets, setSets] = useState(initialSets)
   const [progress, setProgress] = useState<Record<string, number>>({})
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     const map: Record<string, number> = {}
@@ -43,20 +44,67 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap }: Prop
 
   async function handleShare(set: Set) {
     const isPublic = !set.is_public
-    const { data } = await supabase
-      .from('flashcard_sets')
-      .update({ is_public: isPublic })
-      .eq('id', set.id)
-      .select()
-      .single()
+    const { data } = await supabase.from('flashcard_sets').update({ is_public: isPublic }).eq('id', set.id).select().single()
     if (!data) return
     setSets(s => s.map(x => x.id === set.id ? { ...x, is_public: isPublic } : x))
     if (isPublic) {
-      const url = `${window.location.origin}/flashcards/deel/${set.share_token}`
-      await navigator.clipboard.writeText(url)
+      await navigator.clipboard.writeText(`${window.location.origin}/flashcards/deel/${set.share_token}`)
       setCopiedId(set.id)
       setTimeout(() => setCopiedId(null), 3000)
     }
+  }
+
+  const filtered = sets.filter(s =>
+    s.title.toLowerCase().includes(search.toLowerCase()) ||
+    (s.vak ?? '').toLowerCase().includes(search.toLowerCase())
+  )
+
+  // Groepeer per vak
+  const groups: Record<string, Set[]> = {}
+  for (const s of filtered) {
+    const key = s.vak ?? '— Geen vak'
+    if (!groups[key]) groups[key] = []
+    groups[key].push(s)
+  }
+  const groupKeys = Object.keys(groups).sort((a, b) => a === '— Geen vak' ? 1 : b === '— Geen vak' ? -1 : a.localeCompare(b))
+
+  function renderSet(set: Set) {
+    const pct = progress[set.id] ?? -1
+    return (
+      <div key={set.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all p-5">
+        <div className="flex justify-between items-start gap-4">
+          <div className="flex-1 min-w-0">
+            <h2 className="font-semibold text-indigo-900">{set.title}</h2>
+            <div className="flex gap-2 mt-1.5 flex-wrap">
+              <span className="text-xs bg-violet-50 text-violet-500 rounded-full px-2.5 py-0.5 font-medium">{countMap[set.id] ?? 0} kaarten</span>
+              {set.is_public && <span className="text-xs bg-emerald-50 text-emerald-600 rounded-full px-2.5 py-0.5 font-medium">Gedeeld</span>}
+            </div>
+            {pct >= 0 && (
+              <div className="mt-3">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-xs text-indigo-400">Voortgang</span>
+                  <span className="text-xs font-semibold text-indigo-600">{pct}%</span>
+                </div>
+                <div className="w-full bg-indigo-100 rounded-full h-1.5">
+                  <div className="bg-gradient-to-r from-indigo-500 to-violet-500 h-1.5 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="flex gap-2 shrink-0 flex-wrap justify-end">
+            <Link href={`/flashcards/${set.id}`} className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">Studeren</Link>
+            {(countMap[set.id] ?? 0) >= 2 && (
+              <Link href={`/flashcards/${set.id}/quiz`} className="text-sm bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg font-medium hover:bg-violet-200 transition-colors">Quiz</Link>
+            )}
+            <button onClick={() => handleShare(set)}
+              className={`text-sm px-3 py-1.5 rounded-lg font-medium transition-colors ${set.is_public ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
+              {copiedId === set.id ? 'Gekopieerd!' : set.is_public ? 'Gedeeld ✓' : 'Delen'}
+            </button>
+            <button onClick={() => handleDelete(set.id)} className="text-sm text-gray-300 hover:text-red-400 transition-colors px-1">✕</button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -74,76 +122,30 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap }: Prop
           </Link>
         </div>
 
+        {sets.length > 0 && (
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Zoek op naam of vak..."
+            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all" />
+        )}
+
         {sets.length === 0 ? (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-12 text-center">
             <p className="text-4xl mb-3">🃏</p>
             <p className="font-semibold text-indigo-900 mb-1">Nog geen flashcard-sets</p>
             <p className="text-sm text-indigo-400 mb-5">Maak je eerste set aan en importeer woorden of begrippen.</p>
-            <Link href="/flashcards/nieuw"
-              className="inline-block bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">
-              Eerste set aanmaken
-            </Link>
+            <Link href="/flashcards/nieuw" className="inline-block bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">Eerste set aanmaken</Link>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-8 text-center">
+            <p className="text-indigo-300 text-sm">Geen sets gevonden voor &ldquo;{search}&rdquo;</p>
           </div>
         ) : (
-          <div className="grid gap-3">
-            {sets.map(set => {
-              const pct = progress[set.id] ?? -1
-              return (
-                <div key={set.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all p-5">
-                  <div className="flex justify-between items-start gap-4">
-                    <div className="flex-1 min-w-0">
-                      <h2 className="font-semibold text-indigo-900">{set.title}</h2>
-                      <div className="flex gap-2 mt-1.5 flex-wrap">
-                        {set.vak && <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-0.5 font-medium">{set.vak}</span>}
-                        <span className="text-xs bg-violet-50 text-violet-500 rounded-full px-2.5 py-0.5 font-medium">
-                          {countMap[set.id] ?? 0} kaarten
-                        </span>
-                        {set.is_public && (
-                          <span className="text-xs bg-emerald-50 text-emerald-600 rounded-full px-2.5 py-0.5 font-medium">Gedeeld</span>
-                        )}
-                      </div>
-
-                      {/* Voortgangsbalk */}
-                      {pct >= 0 && (
-                        <div className="mt-3">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-xs text-indigo-400">Voortgang</span>
-                            <span className="text-xs font-semibold text-indigo-600">{pct}%</span>
-                          </div>
-                          <div className="w-full bg-indigo-100 rounded-full h-1.5">
-                            <div
-                              className="bg-gradient-to-r from-indigo-500 to-violet-500 h-1.5 rounded-full transition-all"
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex gap-2 shrink-0 flex-wrap justify-end">
-                      <Link href={`/flashcards/${set.id}`}
-                        className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
-                        Studeren
-                      </Link>
-                      {(countMap[set.id] ?? 0) >= 2 && (
-                        <Link href={`/flashcards/${set.id}/quiz`}
-                          className="text-sm bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg font-medium hover:bg-violet-200 transition-colors">
-                          Quiz
-                        </Link>
-                      )}
-                      <button onClick={() => handleShare(set)}
-                        className={`text-sm px-3 py-1.5 rounded-lg font-medium transition-colors ${set.is_public ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
-                        {copiedId === set.id ? 'Link gekopieerd!' : set.is_public ? 'Gedeeld ✓' : 'Delen'}
-                      </button>
-                      <button onClick={() => handleDelete(set.id)}
-                        className="text-sm text-gray-300 hover:text-red-400 transition-colors px-1">
-                        ✕
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
+          <div className="space-y-6">
+            {groupKeys.map(key => (
+              <div key={key}>
+                <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-2 px-1">{key}</p>
+                <div className="grid gap-3">{groups[key].map(renderSet)}</div>
+              </div>
+            ))}
           </div>
         )}
       </main>

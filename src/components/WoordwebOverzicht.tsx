@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Nav from '@/components/Nav'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 type Web = { id: string; title: string; vak: string | null; created_at: string }
 type Props = { webs: Web[] }
@@ -11,12 +12,26 @@ type Props = { webs: Web[] }
 export default function WoordwebOverzicht({ webs }: Props) {
   const router = useRouter()
   const supabase = createClient()
+  const [search, setSearch] = useState('')
 
   async function handleDelete(id: string) {
     if (!confirm('Woordweb verwijderen?')) return
     await supabase.from('word_webs').delete().eq('id', id)
     router.refresh()
   }
+
+  const filtered = webs.filter(w =>
+    w.title.toLowerCase().includes(search.toLowerCase()) ||
+    (w.vak ?? '').toLowerCase().includes(search.toLowerCase())
+  )
+
+  const groups: Record<string, Web[]> = {}
+  for (const w of filtered) {
+    const key = w.vak ?? '— Geen vak'
+    if (!groups[key]) groups[key] = []
+    groups[key].push(w)
+  }
+  const groupKeys = Object.keys(groups).sort((a, b) => a === '— Geen vak' ? 1 : b === '— Geen vak' ? -1 : a.localeCompare(b))
 
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
@@ -33,35 +48,39 @@ export default function WoordwebOverzicht({ webs }: Props) {
           </Link>
         </div>
 
+        {webs.length > 0 && (
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Zoek op naam of vak..."
+            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all" />
+        )}
+
         {webs.length === 0 ? (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-12 text-center">
             <p className="text-4xl mb-3">🕸️</p>
             <p className="font-semibold text-indigo-900 mb-1">Nog geen woordwebben</p>
             <p className="text-sm text-indigo-400 mb-5">Maak een woordweb om begrippen visueel te verbinden.</p>
-            <Link href="/woordweb/nieuw"
-              className="inline-block bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">
-              Eerste web aanmaken
-            </Link>
+            <Link href="/woordweb/nieuw" className="inline-block bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">Eerste web aanmaken</Link>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-8 text-center">
+            <p className="text-indigo-300 text-sm">Geen webben gevonden voor &ldquo;{search}&rdquo;</p>
           </div>
         ) : (
-          <div className="grid gap-3">
-            {webs.map(web => (
-              <div key={web.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all p-5">
-                <div className="flex justify-between items-center gap-4">
-                  <div>
-                    <h2 className="font-semibold text-indigo-900">{web.title}</h2>
-                    {web.vak && <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-0.5 font-medium mt-1.5 inline-block">{web.vak}</span>}
-                  </div>
-                  <div className="flex gap-2 shrink-0">
-                    <Link href={`/woordweb/${web.id}`}
-                      className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
-                      Openen
-                    </Link>
-                    <button onClick={() => handleDelete(web.id)}
-                      className="text-sm text-gray-300 hover:text-red-400 transition-colors px-1">
-                      ✕
-                    </button>
-                  </div>
+          <div className="space-y-6">
+            {groupKeys.map(key => (
+              <div key={key}>
+                <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-2 px-1">{key}</p>
+                <div className="grid gap-3">
+                  {groups[key].map(web => (
+                    <div key={web.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all p-5">
+                      <div className="flex justify-between items-center gap-4">
+                        <h2 className="font-semibold text-indigo-900">{web.title}</h2>
+                        <div className="flex gap-2 shrink-0">
+                          <Link href={`/woordweb/${web.id}`} className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">Openen</Link>
+                          <button onClick={() => handleDelete(web.id)} className="text-sm text-gray-300 hover:text-red-400 transition-colors px-1">✕</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
