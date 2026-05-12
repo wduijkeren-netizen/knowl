@@ -32,6 +32,8 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [inviteCopiedId, setInviteCopiedId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [confirmLeaveId, setConfirmLeaveId] = useState<string | null>(null)
 
   useEffect(() => {
     const map: Record<string, number> = {}
@@ -40,17 +42,17 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
   }, [initialSets])
 
   async function handleDelete(id: string) {
-    if (!confirm('Set verwijderen? Dit kan niet ongedaan worden.')) return
     await supabase.from('flashcard_sets').delete().eq('id', id)
     setSets(s => s.filter(x => x.id !== id))
+    setConfirmDeleteId(null)
   }
 
   async function handleLeave(setId: string) {
-    if (!confirm('Wil je deze set verlaten?')) return
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
     await supabase.from('flashcard_set_members').delete().eq('set_id', setId).eq('user_id', user.id)
     setSharedSets(s => s.filter(x => x.id !== setId))
+    setConfirmLeaveId(null)
   }
 
   async function handleShare(set: Set) {
@@ -132,7 +134,7 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
                 {inviteCopiedId === set.id ? 'Link gekopieerd!' : 'Uitnodigen'}
               </button>
             )}
-            <button onClick={() => handleDelete(set.id)} className="text-sm text-gray-300 hover:text-red-400 transition-colors px-1">✕</button>
+            <button onClick={() => setConfirmDeleteId(set.id)} className="text-sm text-gray-300 hover:text-red-400 transition-colors px-2 py-1.5">✕</button>
           </div>
         </div>
       </div>
@@ -142,6 +144,45 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
       <Nav />
+
+      {confirmDeleteId && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center space-y-4">
+            <h2 className="text-lg font-bold text-indigo-900">Set verwijderen?</h2>
+            <p className="text-sm text-gray-400">Alle kaarten worden ook verwijderd. Dit kan niet ongedaan worden gemaakt.</p>
+            <div className="flex gap-3 justify-center pt-2">
+              <button onClick={() => setConfirmDeleteId(null)}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors">
+                Annuleren
+              </button>
+              <button onClick={() => handleDelete(confirmDeleteId)}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors">
+                Ja, verwijderen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmLeaveId && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center space-y-4">
+            <h2 className="text-lg font-bold text-indigo-900">Set verlaten?</h2>
+            <p className="text-sm text-gray-400">Je verliest toegang tot deze gedeelde set.</p>
+            <div className="flex gap-3 justify-center pt-2">
+              <button onClick={() => setConfirmLeaveId(null)}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors">
+                Annuleren
+              </button>
+              <button onClick={() => handleLeave(confirmLeaveId)}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors">
+                Ja, verlaten
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -200,8 +241,8 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
                           Quiz
                         </Link>
                       )}
-                      <button onClick={() => handleLeave(set.id)}
-                        className="text-sm text-gray-300 hover:text-red-400 transition-colors px-1">
+                      <button onClick={() => setConfirmLeaveId(set.id)}
+                        className="text-sm text-gray-300 hover:text-red-400 transition-colors px-2 py-1.5">
                         Verlaten
                       </button>
                     </div>
