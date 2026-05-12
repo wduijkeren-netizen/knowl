@@ -100,7 +100,7 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
           <div className="flex gap-2 shrink-0 flex-wrap justify-end">
             {(dueMap[set.id] ?? 0) > 0 && (
               <Link href={`/flashcards/${set.id}/herhalen`} className="text-sm bg-amber-500 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-amber-600 transition-colors">
-                Herhalen 🔁
+                Herhalen
               </Link>
             )}
             <Link href={`/flashcards/${set.id}`} className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">Studeren</Link>

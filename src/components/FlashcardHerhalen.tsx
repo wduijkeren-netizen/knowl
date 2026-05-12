@@ -97,7 +97,7 @@ export default function FlashcardHerhalen({ set, cards, srMap, userId, totalCard
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <Link href={`/flashcards/${set.id}`} className="text-indigo-400 hover:text-indigo-600 transition-colors text-sm">← Terug</Link>
+            <Link href="/flashcards" className="text-indigo-400 hover:text-indigo-600 transition-colors text-sm">← Terug</Link>
             <h1 className="text-xl font-bold text-indigo-900 mt-1">Herhalen — {set.title}</h1>
           </div>
           <span className="text-xs bg-amber-50 text-amber-600 border border-amber-200 rounded-full px-3 py-1 font-medium">
