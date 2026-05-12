@@ -26,14 +26,20 @@ function LoginForm() {
     setInfo('')
     setLoading(true)
 
+    const redirect = searchParams.get('redirect') ?? '/home'
+
     if (isSignUp) {
-      const { error } = await supabase.auth.signUp({ email, password })
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: `${window.location.origin}${redirect}` },
+      })
       if (error) setError(vertaalFout(error.message))
-      else setInfo('Bekijk je inbox voor een bevestigingslink.')
+      else setInfo('Bekijk je inbox voor een bevestigingslink. Na bevestiging word je automatisch doorgestuurd.')
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) setError(vertaalFout(error.message))
-      else router.push(searchParams.get('redirect') ?? '/home')
+      else router.push(redirect)
     }
 
     setLoading(false)
