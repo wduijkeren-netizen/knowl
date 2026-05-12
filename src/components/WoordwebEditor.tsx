@@ -35,6 +35,7 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   useStudyTimer('woordweb', web?.title ?? 'Nieuw web')
 
   function addNode(e: React.MouseEvent<HTMLDivElement>) {
@@ -43,10 +44,10 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
     const color = COLORS[nodes.length % COLORS.length]
-    const newNode = { id: uid(), label: 'Nieuw', x, y, color }
+    const newNode = { id: uid(), label: '', x, y, color }
     setNodes(n => [...n, newNode])
     setEditingNodeId(newNode.id)
-    setEditNodeLabel('Nieuw')
+    setEditNodeLabel('')
   }
 
   function startDrag(e: React.MouseEvent, id: string) {
@@ -82,7 +83,10 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
   }
 
   function saveNodeEdit() {
-    setNodes(ns => ns.map(n => n.id === editingNodeId ? { ...n, label: editNodeLabel.trim() || n.label } : n))
+    setNodes(ns => ns.map(n => n.id === editingNodeId
+      ? { ...n, label: editNodeLabel.trim() || 'Knoop' }
+      : n
+    ))
     setEditingNodeId(null)
   }
 
@@ -110,17 +114,30 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
 
   async function handleExport() {
     setExporting(true)
+    // Verberg knoopjes tijdelijk voor de export
+    const btns = canvasRef.current!.querySelectorAll<HTMLElement>('.node-btns')
+    btns.forEach(b => { b.style.display = 'none' })
+
     const html2canvas = (await import('html2canvas')).default
     const canvas = await html2canvas(canvasRef.current!, {
-      backgroundColor: '#f8f7ff',
+      backgroundColor: '#ffffff',
       scale: 2,
       useCORS: true,
     })
+
+    btns.forEach(b => { b.style.display = '' })
+
     const link = document.createElement('a')
     link.download = `${title || 'woordweb'}.png`
     link.href = canvas.toDataURL('image/png')
     link.click()
     setExporting(false)
+  }
+
+  async function handleDelete() {
+    if (!web) return
+    await supabase.from('word_webs').delete().eq('id', web.id)
+    router.push('/woordweb')
   }
 
   async function handleSave() {
@@ -144,6 +161,27 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
     <div className="min-h-screen bg-[#f8f7ff] flex flex-col">
       <Nav />
 
+      {/* Eigen bevestigingsdialoog */}
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center space-y-4">
+            <p className="text-4xl">🗑️</p>
+            <h2 className="text-lg font-bold text-indigo-900">Web verwijderen?</h2>
+            <p className="text-sm text-gray-400">Dit kan niet ongedaan worden gemaakt.</p>
+            <div className="flex gap-3 justify-center pt-2">
+              <button onClick={() => setConfirmDelete(false)}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors">
+                Annuleren
+              </button>
+              <button onClick={handleDelete}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors">
+                Ja, verwijderen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Toolbar */}
       <div className="bg-white border-b border-indigo-100 px-4 py-3 flex items-center gap-3 flex-wrap">
         <Link href="/woordweb" className="text-indigo-400 hover:text-indigo-600 text-sm transition-colors shrink-0">← Terug</Link>
@@ -158,6 +196,12 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
           {subjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
         </select>
         <div className="flex gap-2 ml-auto">
+          {web && (
+            <button onClick={() => setConfirmDelete(true)}
+              className="bg-red-50 text-red-500 px-3 py-1.5 rounded-xl text-sm font-medium hover:bg-red-100 transition-all">
+              Verwijderen
+            </button>
+          )}
           <button onClick={handleExport} disabled={exporting || nodes.length === 0}
             className="bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-xl text-sm font-medium hover:bg-indigo-200 disabled:opacity-40 transition-all">
             {exporting ? 'Exporteren...' : '↓ Exporteer als afbeelding'}
@@ -256,12 +300,12 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
               </div>
             ) : (
               <div
-                className={`relative flex items-center gap-1 px-4 py-2 rounded-2xl shadow-md text-white text-sm font-semibold cursor-grab active:cursor-grabbing transition-all ${connecting === node.id ? 'ring-4 ring-offset-2 ring-violet-400' : ''}`}
+                className={`relative flex items-center justify-center px-4 py-2 rounded-2xl shadow-md text-white text-sm font-semibold cursor-grab active:cursor-grabbing transition-all ${connecting === node.id ? 'ring-4 ring-offset-2 ring-violet-400' : ''}`}
                 onDoubleClick={e => startEditNode(e, node)}
                 style={{ background: node.color, minWidth: '80px', textAlign: 'center' }}
               >
                 <span className="flex-1">{node.label}</span>
-                <div className="absolute -top-2 -right-2 flex gap-0.5" style={{ opacity: 1 }}>
+                <div className="node-btns absolute -top-2 -right-2 flex gap-0.5" style={{ opacity: 1 }}>
                   <button onMouseDown={e => e.stopPropagation()} onClick={e => startEditNode(e, node)}
                     className="w-5 h-5 bg-white rounded-full text-gray-500 hover:text-indigo-600 text-xs flex items-center justify-center shadow border border-gray-200 transition-colors" title="Bewerken">✎</button>
                   <button onMouseDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); setConnecting(connecting === node.id ? null : node.id) }}

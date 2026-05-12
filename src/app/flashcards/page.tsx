@@ -27,7 +27,6 @@ export default async function FlashcardsPage() {
     cardToSet[c.id] = c.set_id
   }
 
-  const seenCards = new Set((srData ?? []).map(s => s.card_id))
   const dueMap: Record<string, number> = {}
   for (const c of counts ?? []) {
     const sr = (srData ?? []).find(s => s.card_id === c.id)

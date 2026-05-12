@@ -34,6 +34,15 @@ export default function FlashcardStudeer({ set, cards: initialCards }: Props) {
   useStudyTimer('flashcards', set.title)
   useEffect(() => { setPrevPct(getProgress(set.id)) }, [set.id])
 
+  // Sla voortgang op bij navigeren weg (halverwege stoppen)
+  useEffect(() => {
+    return () => {
+      if (known.length > 0 || unknown.length > 0) {
+        saveProgress(set.id, known.length, known.length + unknown.length)
+      }
+    }
+  }, [known, unknown, set.id])
+
   const card = cards[index]
 
   function next(didKnow: boolean) {
