@@ -33,7 +33,7 @@ function LoginForm() {
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) setError(vertaalFout(error.message))
-      else router.push('/home')
+      else router.push(searchParams.get('redirect') ?? '/home')
     }
 
     setLoading(false)

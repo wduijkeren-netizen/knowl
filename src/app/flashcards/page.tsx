@@ -8,10 +8,16 @@ export default async function FlashcardsPage() {
 
   if (!user) redirect('/login')
 
-  const { data: sets } = await supabase
-    .from('flashcard_sets')
-    .select('id, title, vak, created_at, is_public, share_token')
-    .order('created_at', { ascending: false })
+  const [{ data: sets }, { data: memberRows }] = await Promise.all([
+    supabase.from('flashcard_sets').select('id, title, vak, created_at, is_public, share_token, edit_token').order('created_at', { ascending: false }),
+    supabase.from('flashcard_set_members').select('set_id').eq('user_id', user.id),
+  ])
+
+  // Sets van anderen waar de gebruiker lid van is
+  const memberSetIds = (memberRows ?? []).map(r => r.set_id)
+  const { data: memberSets } = memberSetIds.length > 0
+    ? await supabase.from('flashcard_sets').select('id, title, vak, created_at, is_public, share_token, edit_token').in('id', memberSetIds)
+    : { data: [] }
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -35,5 +41,5 @@ export default async function FlashcardsPage() {
     }
   }
 
-  return <FlashcardOverzicht sets={sets ?? []} countMap={countMap} dueMap={dueMap} />
+  return <FlashcardOverzicht sets={sets ?? []} countMap={countMap} dueMap={dueMap} memberSets={memberSets ?? []} />
 }

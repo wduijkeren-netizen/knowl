@@ -6,12 +6,13 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
-type Set = { id: string; title: string; vak: string | null; created_at: string; share_token: string; is_public: boolean }
+type Set = { id: string; title: string; vak: string | null; created_at: string; share_token: string; is_public: boolean; edit_token?: string }
 
 type Props = {
   sets: Set[]
   countMap: Record<string, number>
   dueMap: Record<string, number>
+  memberSets: Set[]
 }
 
 function getProgress(setId: string): number {
@@ -23,12 +24,13 @@ function getProgress(setId: string): number {
   } catch { return -1 }
 }
 
-export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap }: Props) {
+export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap, memberSets }: Props) {
   const router = useRouter()
   const supabase = createClient()
   const [sets, setSets] = useState(initialSets)
   const [progress, setProgress] = useState<Record<string, number>>({})
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [inviteCopiedId, setInviteCopiedId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
 
   useEffect(() => {
@@ -111,6 +113,17 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
               className={`text-sm px-3 py-1.5 rounded-lg font-medium transition-colors ${set.is_public ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
               {copiedId === set.id ? 'Gekopieerd!' : set.is_public ? 'Gedeeld ✓' : 'Delen'}
             </button>
+            {set.edit_token && (
+              <button
+                onClick={async () => {
+                  await navigator.clipboard.writeText(`${window.location.origin}/flashcards/lid-worden/${set.edit_token}`)
+                  setInviteCopiedId(set.id)
+                  setTimeout(() => setInviteCopiedId(null), 3000)
+                }}
+                className="text-sm bg-indigo-50 text-indigo-500 px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-100 transition-colors">
+                {inviteCopiedId === set.id ? 'Link gekopieerd!' : 'Uitnodigen'}
+              </button>
+            )}
             <button onClick={() => handleDelete(set.id)} className="text-sm text-gray-300 hover:text-red-400 transition-colors px-1">✕</button>
           </div>
         </div>
@@ -157,6 +170,35 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
                 <div className="grid gap-3">{groups[key].map(renderSet)}</div>
               </div>
             ))}
+          </div>
+        )}
+        {memberSets.length > 0 && (
+          <div className="space-y-3">
+            <div>
+              <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-2 px-1">Gedeeld met mij</p>
+              <div className="grid gap-3">
+                {memberSets.map(set => (
+                  <div key={set.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm p-5">
+                    <div className="flex justify-between items-center gap-4">
+                      <div>
+                        <h2 className="font-semibold text-indigo-900">{set.title}</h2>
+                        {set.vak && <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-0.5 font-medium mt-1.5 inline-block">{set.vak}</span>}
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <Link href={`/flashcards/${set.id}`} className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+                          Studeren
+                        </Link>
+                        {(countMap[set.id] ?? 0) >= 2 && (
+                          <Link href={`/flashcards/${set.id}/quiz`} className="text-sm bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg font-medium hover:bg-violet-200 transition-colors">
+                            Quiz
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </main>
