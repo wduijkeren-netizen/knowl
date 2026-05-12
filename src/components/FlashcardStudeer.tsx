@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
+import { useStudyTimer } from '@/lib/useStudyTimer'
 
 type Card = { id: string; front: string; back: string }
 type Set = { id: string; title: string; vak: string | null }
@@ -30,6 +31,7 @@ export default function FlashcardStudeer({ set, cards: initialCards }: Props) {
   const [done, setDone] = useState(false)
   const [prevPct, setPrevPct] = useState(-1)
 
+  useStudyTimer('flashcards', set.title)
   useEffect(() => { setPrevPct(getProgress(set.id)) }, [set.id])
 
   const card = cards[index]

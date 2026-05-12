@@ -11,6 +11,7 @@ type Set = { id: string; title: string; vak: string | null; created_at: string; 
 type Props = {
   sets: Set[]
   countMap: Record<string, number>
+  dueMap: Record<string, number>
 }
 
 function getProgress(setId: string): number {
@@ -22,7 +23,7 @@ function getProgress(setId: string): number {
   } catch { return -1 }
 }
 
-export default function FlashcardOverzicht({ sets: initialSets, countMap }: Props) {
+export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap }: Props) {
   const router = useRouter()
   const supabase = createClient()
   const [sets, setSets] = useState(initialSets)
@@ -77,6 +78,11 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap }: Prop
             <h2 className="font-semibold text-indigo-900">{set.title}</h2>
             <div className="flex gap-2 mt-1.5 flex-wrap">
               <span className="text-xs bg-violet-50 text-violet-500 rounded-full px-2.5 py-0.5 font-medium">{countMap[set.id] ?? 0} kaarten</span>
+              {(dueMap[set.id] ?? 0) > 0 && (
+                <span className="text-xs bg-amber-50 text-amber-600 border border-amber-200 rounded-full px-2.5 py-0.5 font-medium">
+                  {dueMap[set.id]} te herhalen
+                </span>
+              )}
               {set.is_public && <span className="text-xs bg-emerald-50 text-emerald-600 rounded-full px-2.5 py-0.5 font-medium">Gedeeld</span>}
             </div>
             {pct >= 0 && (
@@ -92,6 +98,11 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap }: Prop
             )}
           </div>
           <div className="flex gap-2 shrink-0 flex-wrap justify-end">
+            {(dueMap[set.id] ?? 0) > 0 && (
+              <Link href={`/flashcards/${set.id}/herhalen`} className="text-sm bg-amber-500 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-amber-600 transition-colors">
+                Herhalen 🔁
+              </Link>
+            )}
             <Link href={`/flashcards/${set.id}`} className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">Studeren</Link>
             {(countMap[set.id] ?? 0) >= 2 && (
               <Link href={`/flashcards/${set.id}/quiz`} className="text-sm bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg font-medium hover:bg-violet-200 transition-colors">Quiz</Link>

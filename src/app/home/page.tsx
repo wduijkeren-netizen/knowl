@@ -10,12 +10,15 @@ export default async function Home() {
   const now = new Date()
   const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
 
-  const [{ data: allMoments }, { data: thisMonth }, { data: subjects }, { data: profile }] = await Promise.all([
+  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString()
+
+  const [{ data: allMoments }, { data: thisMonth }, { data: subjects }, { data: profile }, { data: studySessions }] = await Promise.all([
     supabase.from('learning_moments').select('duration_minutes, learned_at, category').order('learned_at', { ascending: false }),
     supabase.from('learning_moments').select('category, duration_minutes').gte('learned_at', firstOfMonth),
     supabase.from('subjects').select('name, goal_minutes, goal_date, recurring_type, recurring_goal_minutes'),
     supabase.from('profiles').select('voornaam').eq('id', user.id).single(),
+    supabase.from('study_sessions').select('activity, duration_seconds, created_at').gte('created_at', weekAgo),
   ])
 
-  return <HomePage user={user} allMoments={allMoments ?? []} thisMonth={thisMonth ?? []} subjects={subjects ?? []} displayName={profile?.voornaam ?? null} />
+  return <HomePage user={user} allMoments={allMoments ?? []} thisMonth={thisMonth ?? []} subjects={subjects ?? []} displayName={profile?.voornaam ?? null} studySessions={studySessions ?? []} />
 }

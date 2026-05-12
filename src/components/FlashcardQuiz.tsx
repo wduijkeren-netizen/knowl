@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
+import { useStudyTimer } from '@/lib/useStudyTimer'
 
 type Card = { id: string; front: string; back: string }
 type Set = { id: string; title: string; vak: string | null }
@@ -28,6 +29,7 @@ function buildQuestions(cards: Card[]): Question[] {
 }
 
 export default function FlashcardQuiz({ set, cards }: Props) {
+  useStudyTimer('quiz', set.title)
   const questions = useMemo(() => buildQuestions(cards), [cards])
   const [index, setIndex] = useState(0)
   const [selected, setSelected] = useState<string | null>(null)

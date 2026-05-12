@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Nav from '@/components/Nav'
 import Link from 'next/link'
+import { useStudyTimer } from '@/lib/useStudyTimer'
 
 type Node = { id: string; label: string; x: number; y: number; color: string }
 type Edge = { id: string; from: string; to: string; label?: string }
@@ -34,6 +35,7 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [exporting, setExporting] = useState(false)
+  useStudyTimer('woordweb', web?.title ?? 'Nieuw web')
 
   function addNode(e: React.MouseEvent<HTMLDivElement>) {
     if ((e.target as HTMLElement).closest('.node')) return

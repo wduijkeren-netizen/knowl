@@ -10,17 +10,20 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
 
+type StudySession = { activity: string; duration_seconds: number; created_at: string }
+
 type Props = {
   user: User
   allMoments: { duration_minutes: number | null; learned_at: string; category?: string | null }[]
   thisMonth: { category: string | null; duration_minutes: number | null }[]
   subjects: { name: string; goal_minutes: number | null; goal_date: string | null; recurring_type: string | null; recurring_goal_minutes: number | null }[]
   displayName: string | null
+  studySessions: StudySession[]
 }
 
 const TIMEFRAME_DAYS = [7, 30, 90, null]
 
-export default function HomePage({ user, allMoments, thisMonth, subjects, displayName }: Props) {
+export default function HomePage({ user, allMoments, thisMonth, subjects, displayName, studySessions }: Props) {
   const { tr } = useLanguage()
   const h = tr.home
   const [timeframe, setTimeframe] = useState<number | null>(30)
@@ -111,6 +114,16 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
 
   const firstName = displayName ?? user.email?.split('@')[0] ?? 'daar'
 
+  const studyMinutesThisWeek = Math.round(
+    studySessions.reduce((s, x) => s + x.duration_seconds, 0) / 60
+  )
+  const activityLabels: Record<string, string> = {
+    'flashcards': 'Flashcards',
+    'flashcards-sr': 'Herhalen',
+    'quiz': 'Quiz',
+    'woordweb': 'Woordweb',
+  }
+
   const shortcuts = [
     { href: '/leermomenten', label: h.s1label, sub: h.s1sub, gradient: true },
     { href: '/pomodoro', label: h.s2label, sub: h.s2sub, gradient: false },
@@ -154,6 +167,34 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
             <p className="text-lg font-bold text-indigo-700 mt-2 truncate">{topVak?.[0] ?? '—'}</p>
           </div>
         </div>
+
+        {/* Studietijd deze week */}
+        {studySessions.length > 0 && (
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
+            <div className="flex justify-between items-center mb-3">
+              <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">Studietijd deze week</p>
+              <span className="text-sm font-bold text-indigo-700">{studyMinutesThisWeek} min</span>
+            </div>
+            <div className="space-y-2">
+              {Object.entries(
+                studySessions.reduce((acc, s) => {
+                  const key = activityLabels[s.activity] ?? s.activity
+                  acc[key] = (acc[key] ?? 0) + s.duration_seconds
+                  return acc
+                }, {} as Record<string, number>)
+              ).sort((a, b) => b[1] - a[1]).map(([label, secs]) => (
+                <div key={label} className="flex items-center gap-3">
+                  <span className="text-xs text-gray-500 w-24 shrink-0">{label}</span>
+                  <div className="flex-1 bg-indigo-50 rounded-full h-2">
+                    <div className="bg-gradient-to-r from-indigo-400 to-violet-400 h-2 rounded-full"
+                      style={{ width: `${Math.round((secs / studySessions.reduce((s, x) => s + x.duration_seconds, 0)) * 100)}%` }} />
+                  </div>
+                  <span className="text-xs text-indigo-400 w-10 text-right">{Math.round(secs / 60)}m</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Cumulatieve grafiek */}
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
