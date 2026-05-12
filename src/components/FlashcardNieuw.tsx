@@ -17,11 +17,16 @@ function parseImport(text: string): ParsedCard[] {
     .map(line => line.trim())
     .filter(line => line.length > 0)
     .map(line => {
-      // Tab first (Quizlet), then dash, then colon
+      // Tab (Quizlet-export)
       const tab = line.indexOf('\t')
       if (tab !== -1) return { front: line.slice(0, tab).trim(), back: line.slice(tab + 1).trim() }
-      const dash = line.indexOf(' - ')
-      if (dash !== -1) return { front: line.slice(0, dash).trim(), back: line.slice(dash + 3).trim() }
+      // Dash met spatie op minstens één kant: "huis - house", "huis- house", "huis -house"
+      const dashMatch = line.match(/^(.+?)\s*[-–]\s+(.+)$/) ?? line.match(/^(.+?)\s+[-–]\s*(.+)$/)
+      if (dashMatch) return { front: dashMatch[1].trim(), back: dashMatch[2].trim() }
+      // Komma-gescheiden CSV: "huis,house"
+      const comma = line.indexOf(',')
+      if (comma !== -1) return { front: line.slice(0, comma).trim(), back: line.slice(comma + 1).trim() }
+      // Dubbele punt: "huis: house"
       const colon = line.indexOf(': ')
       if (colon !== -1) return { front: line.slice(0, colon).trim(), back: line.slice(colon + 2).trim() }
       return null
@@ -43,6 +48,18 @@ export default function FlashcardNieuw({ subjects, userId }: Props) {
   function handleImport() {
     const cards = parseImport(importText)
     setParsed(cards)
+  }
+
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = ev => {
+      const text = ev.target?.result as string
+      setImportText(text)
+      setParsed(parseImport(text))
+    }
+    reader.readAsText(file)
   }
 
   function updateCard(i: number, field: 'front' | 'back', value: string) {
@@ -114,8 +131,13 @@ export default function FlashcardNieuw({ subjects, userId }: Props) {
           <div>
             <h2 className="font-semibold text-indigo-900 mb-0.5">Importeren</h2>
             <p className="text-sm text-indigo-400 mb-3">
-              Plak woorden in het formaat <span className="font-mono bg-indigo-50 px-1.5 py-0.5 rounded text-indigo-600 text-xs">woord - betekenis</span>, gebruik ook <span className="font-mono bg-indigo-50 px-1.5 py-0.5 rounded text-indigo-600 text-xs">woord: betekenis</span> of tab (Quizlet). Één paar per regel.
+              Plak woorden of upload een bestand. Ondersteunde formaten: <span className="font-mono bg-indigo-50 px-1.5 py-0.5 rounded text-indigo-600 text-xs">huis - house</span>, <span className="font-mono bg-indigo-50 px-1.5 py-0.5 rounded text-indigo-600 text-xs">huis- house</span>, <span className="font-mono bg-indigo-50 px-1.5 py-0.5 rounded text-indigo-600 text-xs">huis,house</span>, tab (Quizlet). Één paar per regel.
             </p>
+            <label className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-indigo-200 rounded-xl px-4 py-3 text-sm text-indigo-400 hover:border-indigo-400 hover:text-indigo-600 transition-colors cursor-pointer mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Bestand uploaden (.txt of .csv)
+              <input type="file" accept=".txt,.csv" onChange={handleFile} className="hidden" />
+            </label>
             <textarea
               value={importText}
               onChange={e => setImportText(e.target.value)}
