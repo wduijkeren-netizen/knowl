@@ -25,9 +25,9 @@ function getProgress(setId: string): number {
 }
 
 export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap, memberSets }: Props) {
-  const router = useRouter()
   const supabase = createClient()
   const [sets, setSets] = useState(initialSets)
+  const [sharedSets, setSharedSets] = useState(memberSets)
   const [progress, setProgress] = useState<Record<string, number>>({})
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [inviteCopiedId, setInviteCopiedId] = useState<string | null>(null)
@@ -42,7 +42,15 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
   async function handleDelete(id: string) {
     if (!confirm('Set verwijderen? Dit kan niet ongedaan worden.')) return
     await supabase.from('flashcard_sets').delete().eq('id', id)
-    router.refresh()
+    setSets(s => s.filter(x => x.id !== id))
+  }
+
+  async function handleLeave(setId: string) {
+    if (!confirm('Wil je deze set verlaten?')) return
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    await supabase.from('flashcard_set_members').delete().eq('set_id', setId).eq('user_id', user.id)
+    setSharedSets(s => s.filter(x => x.id !== setId))
   }
 
   async function handleShare(set: Set) {
@@ -172,32 +180,34 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
             ))}
           </div>
         )}
-        {memberSets.length > 0 && (
+        {sharedSets.length > 0 && (
           <div className="space-y-3">
-            <div>
-              <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-2 px-1">Gedeeld met mij</p>
-              <div className="grid gap-3">
-                {memberSets.map(set => (
-                  <div key={set.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm p-5">
-                    <div className="flex justify-between items-center gap-4">
-                      <div>
-                        <h2 className="font-semibold text-indigo-900">{set.title}</h2>
-                        {set.vak && <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-0.5 font-medium mt-1.5 inline-block">{set.vak}</span>}
-                      </div>
-                      <div className="flex gap-2 shrink-0">
-                        <Link href={`/flashcards/${set.id}`} className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
-                          Studeren
+            <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-2 px-1">Gedeeld met mij</p>
+            <div className="grid gap-3">
+              {sharedSets.map(set => (
+                <div key={set.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm p-4 sm:p-5">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                    <div>
+                      <h2 className="font-semibold text-indigo-900">{set.title}</h2>
+                      {set.vak && <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-0.5 font-medium mt-1.5 inline-block">{set.vak}</span>}
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
+                      <Link href={`/flashcards/${set.id}`} className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+                        Studeren
+                      </Link>
+                      {(countMap[set.id] ?? 0) >= 2 && (
+                        <Link href={`/flashcards/${set.id}/quiz`} className="text-sm bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg font-medium hover:bg-violet-200 transition-colors">
+                          Quiz
                         </Link>
-                        {(countMap[set.id] ?? 0) >= 2 && (
-                          <Link href={`/flashcards/${set.id}/quiz`} className="text-sm bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg font-medium hover:bg-violet-200 transition-colors">
-                            Quiz
-                          </Link>
-                        )}
-                      </div>
+                      )}
+                      <button onClick={() => handleLeave(set.id)}
+                        className="text-sm text-gray-300 hover:text-red-400 transition-colors px-1">
+                        Verlaten
+                      </button>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
