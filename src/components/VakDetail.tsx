@@ -43,7 +43,7 @@ export default function VakDetail({ vakNaam, moments, goalMinutes, goalDate }: P
 
   // Streak per vak
   const vakStreak = (() => {
-    const dagen = [...new Set(moments.map(m => m.learned_at))].sort()
+    const dagen = Array.from(new Set(moments.map(m => m.learned_at))).sort()
     if (!dagen.length) return 0
     const vandaag = new Date().toISOString().split('T')[0]
     const gisteren = new Date(Date.now() - 86400000).toISOString().split('T')[0]
