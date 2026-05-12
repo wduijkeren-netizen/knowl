@@ -33,7 +33,7 @@ export function useStudyTimer(activity: string, title: string) {
   useEffect(() => {
     startRef.current = Date.now()
     savedRef.current = false
-    return () => { save() }
+    return () => { void save() }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

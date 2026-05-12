@@ -166,10 +166,12 @@ export default function FlashcardStudeer({ set, cards: initialCards, srMap }: Pr
                   <p className="text-xs font-semibold text-indigo-300 uppercase tracking-wide mb-4">Vraag</p>
                   <p className="text-2xl font-bold text-indigo-900">{card.front}</p>
                   <p className="text-xs text-indigo-300 mt-6">Klik om te draaien</p>
-                  <div className="absolute top-4 right-4 flex items-center gap-1.5">
-                    <span className={`w-2 h-2 rounded-full ${sterkte(srMap[card.id]).kleur}`} />
-                    <span className="text-xs text-indigo-300">{sterkte(srMap[card.id]).label}</span>
-                  </div>
+                  {(() => { const s = sterkte(srMap[card.id]); return (
+                    <div className="absolute top-4 right-4 flex items-center gap-1.5">
+                      <span className={`w-2 h-2 rounded-full ${s.kleur}`} />
+                      <span className="text-xs text-indigo-300">{s.label}</span>
+                    </div>
+                  ) })()}
                 </div>
 
                 {/* Achterkant */}

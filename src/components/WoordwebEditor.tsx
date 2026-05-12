@@ -59,7 +59,8 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
       setConnecting(null)
       return
     }
-    const node = nodes.find(n => n.id === id)!
+    const node = nodes.find(n => n.id === id)
+    if (!node) return
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
     setDragging({ id, ox: clientX - node.x, oy: clientY - node.y })

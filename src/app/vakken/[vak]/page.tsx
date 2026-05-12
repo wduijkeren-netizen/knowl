@@ -13,7 +13,7 @@ export default async function VakDetailPage({ params }: { params: { vak: string 
 
   const [{ data: moments }, { data: subject }] = await Promise.all([
     supabase.from('learning_moments').select('*').eq('category', vakNaam).order('learned_at', { ascending: false }),
-    supabase.from('subjects').select('goal_minutes, goal_date').eq('name', vakNaam).single(),
+    supabase.from('subjects').select('goal_minutes, goal_date').eq('name', vakNaam).maybeSingle(),
   ])
 
   return (

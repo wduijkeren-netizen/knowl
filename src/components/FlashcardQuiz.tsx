@@ -39,7 +39,7 @@ export default function FlashcardQuiz({ set, cards }: Props) {
   const q = questions[index]
 
   function handleAnswer(option: string) {
-    if (selected !== null) return
+    if (selected !== null || !q) return
     setSelected(option)
     if (option === q.correct) setScore(s => s + 1)
 

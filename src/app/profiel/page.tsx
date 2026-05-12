@@ -11,7 +11,7 @@ export default async function ProfielPage() {
     .from('profiles')
     .select('voornaam, achternaam, telefoonnummer, geboortedatum, postcode, stad')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   return <ProfielForm user={user} profile={profile ?? {}} />
 }

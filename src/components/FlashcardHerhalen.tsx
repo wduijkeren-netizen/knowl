@@ -53,6 +53,7 @@ export default function FlashcardHerhalen({ set, cards, srMap, userId, totalCard
   const card = queue[index]
 
   async function handleAnswer(didKnow: boolean) {
+    if (!card) return
     const sr = srMap[card.id]
     const newSR = nextSR(sr, didKnow)
 
