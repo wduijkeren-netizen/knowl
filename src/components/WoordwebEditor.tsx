@@ -50,7 +50,7 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
     setEditNodeLabel('')
   }
 
-  function startDrag(e: React.MouseEvent, id: string) {
+  function startDrag(e: React.MouseEvent | React.TouchEvent, id: string) {
     e.stopPropagation()
     if (connecting) {
       if (connecting === id) { setConnecting(null); return }
@@ -60,7 +60,9 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
       return
     }
     const node = nodes.find(n => n.id === id)!
-    setDragging({ id, ox: e.clientX - node.x, oy: e.clientY - node.y })
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+    setDragging({ id, ox: clientX - node.x, oy: clientY - node.y })
   }
 
   const onMouseMove = useCallback((e: MouseEvent) => {
@@ -70,11 +72,25 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
 
   const onMouseUp = useCallback(() => setDragging(null), [])
 
+  const onTouchMove = useCallback((e: TouchEvent) => {
+    if (!dragging) return
+    e.preventDefault()
+    const t = e.touches[0]
+    setNodes(ns => ns.map(n => n.id === dragging.id ? { ...n, x: t.clientX - dragging.ox, y: t.clientY - dragging.oy } : n))
+  }, [dragging])
+
   useEffect(() => {
     window.addEventListener('mousemove', onMouseMove)
     window.addEventListener('mouseup', onMouseUp)
-    return () => { window.removeEventListener('mousemove', onMouseMove); window.removeEventListener('mouseup', onMouseUp) }
-  }, [onMouseMove, onMouseUp])
+    window.addEventListener('touchmove', onTouchMove, { passive: false })
+    window.addEventListener('touchend', onMouseUp)
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+      window.removeEventListener('touchmove', onTouchMove)
+      window.removeEventListener('touchend', onMouseUp)
+    }
+  }, [onMouseMove, onMouseUp, onTouchMove])
 
   function startEditNode(e: React.MouseEvent, node: Node) {
     e.stopPropagation()
@@ -283,6 +299,7 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
             className="node absolute"
             style={{ left: node.x, top: node.y, transform: 'translate(-50%, -50%)', zIndex: 10 }}
             onMouseDown={e => startDrag(e, node.id)}
+            onTouchStart={e => startDrag(e, node.id)}
           >
             {editingNodeId === node.id ? (
               <div className="bg-white rounded-2xl shadow-lg border-2 p-2 flex gap-1" style={{ borderColor: node.color }}

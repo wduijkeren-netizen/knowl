@@ -7,7 +7,14 @@ import { useStudyTimer } from '@/lib/useStudyTimer'
 
 type Card = { id: string; front: string; back: string }
 type Set = { id: string; title: string; vak: string | null }
-type Props = { set: Set; cards: Card[] }
+type Props = { set: Set; cards: Card[]; srMap: Record<string, number> }
+
+function sterkte(interval: number | undefined): { label: string; kleur: string } {
+  if (interval === undefined) return { label: 'Nieuw', kleur: 'bg-gray-300' }
+  if (interval < 4) return { label: 'Aan het leren', kleur: 'bg-amber-400' }
+  if (interval < 14) return { label: 'Redelijk', kleur: 'bg-blue-400' }
+  return { label: 'Goed gekend', kleur: 'bg-emerald-400' }
+}
 
 function getProgress(setId: string): number {
   try {
@@ -22,7 +29,7 @@ function saveProgress(setId: string, known: number, total: number) {
   try { localStorage.setItem(`knowl_fc_progress_${setId}`, JSON.stringify({ known, total })) } catch {}
 }
 
-export default function FlashcardStudeer({ set, cards: initialCards }: Props) {
+export default function FlashcardStudeer({ set, cards: initialCards, srMap }: Props) {
   const [cards] = useState(() => [...initialCards].sort(() => Math.random() - 0.5))
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -158,7 +165,11 @@ export default function FlashcardStudeer({ set, cards: initialCards }: Props) {
                 >
                   <p className="text-xs font-semibold text-indigo-300 uppercase tracking-wide mb-4">Vraag</p>
                   <p className="text-2xl font-bold text-indigo-900">{card.front}</p>
-                  <p className="text-xs text-indigo-300 mt-6">Klik om om te draaien</p>
+                  <p className="text-xs text-indigo-300 mt-6">Klik om te draaien</p>
+                  <div className="absolute top-4 right-4 flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full ${sterkte(srMap[card.id]).kleur}`} />
+                    <span className="text-xs text-indigo-300">{sterkte(srMap[card.id]).label}</span>
+                  </div>
                 </div>
 
                 {/* Achterkant */}

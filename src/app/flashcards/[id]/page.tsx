@@ -15,11 +15,13 @@ export default async function StudeerPage({ params }: { params: { id: string } }
 
   if (!set) notFound()
 
-  const { data: cards } = await supabase
-    .from('flashcards')
-    .select('id, front, back')
-    .eq('set_id', params.id)
-    .order('created_at')
+  const [{ data: cards }, { data: srData }] = await Promise.all([
+    supabase.from('flashcards').select('id, front, back').eq('set_id', params.id).order('created_at'),
+    supabase.from('flashcard_sr').select('card_id, interval_days').eq('user_id', user.id),
+  ])
 
-  return <FlashcardStudeer set={set} cards={cards ?? []} />
+  const srMap: Record<string, number> = {}
+  for (const s of srData ?? []) srMap[s.card_id] = s.interval_days
+
+  return <FlashcardStudeer set={set} cards={cards ?? []} srMap={srMap} />
 }

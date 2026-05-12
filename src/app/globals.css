@@ -136,3 +136,48 @@ body {
 .dark .shadow-xl {
   box-shadow: 0 20px 25px rgba(0, 0, 0, 0.5) !important;
 }
+
+.dark .bg-violet-50 { background-color: #1e1b4b !important; }
+.dark .bg-violet-100 { background-color: #2e1b5a !important; }
+.dark .bg-amber-100 { background-color: #2d1f0a !important; }
+.dark .bg-amber-200 { background-color: #3d2a0a !important; }
+.dark .bg-emerald-100 { background-color: #052e16 !important; }
+.dark .bg-red-100 { background-color: #3d0a0a !important; }
+.dark .bg-indigo-100 { background-color: #1e1b4b !important; }
+.dark .bg-indigo-200 { background-color: #2d2b5a !important; }
+.dark .bg-gray-100 { background-color: #1f2937 !important; }
+.dark .bg-gray-200 { background-color: #374151 !important; }
+
+.dark .text-gray-500 { color: #818cf8 !important; }
+.dark .text-gray-700 { color: #c7d2fe !important; }
+.dark .text-indigo-700 { color: #a5b4fc !important; }
+.dark .text-violet-500 { color: #c4b5fd !important; }
+.dark .text-violet-700 { color: #ddd6fe !important; }
+.dark .text-amber-600 { color: #fcd34d !important; }
+.dark .text-amber-700 { color: #fde68a !important; }
+.dark .text-emerald-600 { color: #6ee7b7 !important; }
+.dark .text-red-500 { color: #fca5a5 !important; }
+
+.dark .border-violet-100 { border-color: #2e1b5a !important; }
+.dark .border-amber-100 { border-color: #3d2a0a !important; }
+.dark .border-amber-200 { border-color: #4d3510 !important; }
+.dark .border-emerald-100 { border-color: #052e16 !important; }
+.dark .border-red-100 { border-color: #3d0a0a !important; }
+
+/* Woordweb canvas */
+.dark .cursor-crosshair {
+  background-image: radial-gradient(circle, #2d2b5a 1px, transparent 1px) !important;
+  background-color: #0d0d1a !important;
+}
+
+/* Modals en overlays */
+.dark .rounded-3xl.bg-white,
+.dark .rounded-2xl.bg-white {
+  background-color: #1a1a2e !important;
+}
+
+/* Gradient kaarten */
+.dark .from-indigo-50 { --tw-gradient-from: #1e1b4b !important; }
+.dark .to-violet-50 { --tw-gradient-to: #1e1b4b !important; }
+.dark .from-amber-50 { --tw-gradient-from: #292010 !important; }
+.dark .to-orange-50 { --tw-gradient-to: #292010 !important; }

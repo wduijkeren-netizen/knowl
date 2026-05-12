@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AuroraHero } from '@/components/AuroraHero'
+import { vertaalFout } from '@/lib/foutmelding'
 
 function LoginForm() {
   const searchParams = useSearchParams()
@@ -27,11 +28,11 @@ function LoginForm() {
 
     if (isSignUp) {
       const { error } = await supabase.auth.signUp({ email, password })
-      if (error) setError(error.message)
-      else setInfo('Check je e-mail voor een bevestigingslink.')
+      if (error) setError(vertaalFout(error.message))
+      else setInfo('Bekijk je inbox voor een bevestigingslink.')
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) setError(error.message)
+      if (error) setError(vertaalFout(error.message))
       else router.push('/home')
     }
 

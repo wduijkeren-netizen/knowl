@@ -20,5 +20,5 @@ export default async function DeelPage({ params }: { params: { token: string } }
     .eq('set_id', set.id)
     .order('created_at')
 
-  return <FlashcardStudeer set={set} cards={cards ?? []} />
+  return <FlashcardStudeer set={set} cards={cards ?? []} srMap={{}} />
 }

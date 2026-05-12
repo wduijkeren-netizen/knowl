@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Nav from '@/components/Nav'
 import Link from 'next/link'
+import { vertaalFout } from '@/lib/foutmelding'
 
 type Subject = { id: string; name: string }
 type Props = { subjects: Subject[]; userId: string }
@@ -119,13 +120,13 @@ export default function FlashcardNieuw({ subjects, userId }: Props) {
       .select('id')
       .single()
 
-    if (setErr || !set) { setError('Opslaan mislukt: ' + setErr?.message); setLoading(false); return }
+    if (setErr || !set) { setError(vertaalFout(setErr?.message)); setLoading(false); return }
 
     const { error: cardsErr } = await supabase.from('flashcards').insert(
       parsed.map(c => ({ set_id: set.id, user_id: userId, front: c.front.trim(), back: c.back.trim() }))
     )
 
-    if (cardsErr) { setError('Kaarten opslaan mislukt: ' + cardsErr.message); setLoading(false); return }
+    if (cardsErr) { setError(vertaalFout(cardsErr.message)); setLoading(false); return }
 
     router.push(`/flashcards/${set.id}`)
   }
