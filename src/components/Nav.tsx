@@ -130,7 +130,7 @@ export default function Nav() {
           )}
 
           {/* Feedback */}
-          <a href="mailto:hallo@knowl.app?subject=Feedback Knowl"
+          <a href="mailto:myknowl@hotmail.com?subject=Feedback Knowl"
             className="hidden md:flex items-center justify-center w-8 h-8 rounded-lg text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
             title="Stuur feedback">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -179,7 +179,7 @@ export default function Nav() {
               className="text-sm text-indigo-500 bg-indigo-50 rounded-lg px-2 py-1.5 border-0 focus:outline-none">
               {languages.map(l => <option key={l.code} value={l.code}>{l.flag} {l.label}</option>)}
             </select>
-            <a href="mailto:hallo@knowl.app?subject=Feedback Knowl"
+            <a href="mailto:myknowl@hotmail.com?subject=Feedback Knowl"
               className="text-sm text-indigo-400 hover:text-indigo-600 px-3 py-1.5">
               Feedback
             </a>

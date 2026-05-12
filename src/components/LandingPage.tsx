@@ -268,7 +268,7 @@ export default function LandingPage() {
             <span>·</span>
             <Link href="/voorwaarden" className="hover:text-indigo-500 transition-colors">Gebruiksvoorwaarden</Link>
             <span>·</span>
-            <a href="mailto:info@knowl.app" className="hover:text-indigo-500 transition-colors">Contact</a>
+            <a href="mailto:myknowl@hotmail.com" className="hover:text-indigo-500 transition-colors">Contact</a>
           </div>
         </div>
       </footer>
