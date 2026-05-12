@@ -187,6 +187,7 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
             ) : (
               <div
                 className={`relative flex items-center gap-1 px-4 py-2 rounded-2xl shadow-md text-white text-sm font-semibold cursor-grab active:cursor-grabbing transition-all ${connecting === node.id ? 'ring-4 ring-offset-2 ring-violet-400' : ''}`}
+                onDoubleClick={e => startEdit(e, node)}
                 style={{ background: node.color, minWidth: '80px', textAlign: 'center' }}
               >
                 <span className="flex-1">{node.label}</span>
