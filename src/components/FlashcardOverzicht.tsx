@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import Nav from '@/components/Nav'
 import { createClient } from '@/lib/supabase/client'
-
 import { useState, useEffect } from 'react'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Set = { id: string; title: string; vak: string | null; created_at: string; share_token: string; is_public: boolean; edit_token?: string }
 
@@ -25,6 +25,8 @@ function getProgress(setId: string): number {
 }
 
 export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap, memberSets }: Props) {
+  const { tr } = useLanguage()
+  const fc = tr.flashcards
   const supabase = createClient()
   const [sets, setSets] = useState(initialSets)
   const [sharedSets, setSharedSets] = useState(memberSets)
@@ -89,18 +91,18 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
           <div className="flex-1 min-w-0">
             <h2 className="font-semibold text-indigo-900">{set.title}</h2>
             <div className="flex gap-2 mt-1.5 flex-wrap">
-              <span className="text-xs bg-violet-50 text-violet-500 rounded-full px-2.5 py-0.5 font-medium">{countMap[set.id] ?? 0} kaarten</span>
+              <span className="text-xs bg-violet-50 text-violet-500 rounded-full px-2.5 py-0.5 font-medium">{countMap[set.id] ?? 0} {fc.cards}</span>
               {(dueMap[set.id] ?? 0) > 0 && (
                 <span className="text-xs bg-amber-50 text-amber-600 border border-amber-200 rounded-full px-2.5 py-0.5 font-medium">
-                  {dueMap[set.id]} te herhalen
+                  {dueMap[set.id]} {fc.toRepeat}
                 </span>
               )}
-              {set.is_public && <span className="text-xs bg-emerald-50 text-emerald-600 rounded-full px-2.5 py-0.5 font-medium">Gedeeld</span>}
+              {set.is_public && <span className="text-xs bg-emerald-50 text-emerald-600 rounded-full px-2.5 py-0.5 font-medium">{fc.shared}</span>}
             </div>
             {pct >= 0 && (
               <div className="mt-3">
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs text-indigo-400">Voortgang</span>
+                  <span className="text-xs text-indigo-400">{fc.progress}</span>
                   <span className="text-xs font-semibold text-indigo-600">{pct}%</span>
                 </div>
                 <div className="w-full bg-indigo-100 rounded-full h-1.5">
@@ -112,16 +114,16 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
           <div className="flex gap-2 flex-wrap">
             {(dueMap[set.id] ?? 0) > 0 && (
               <Link href={`/flashcards/${set.id}/herhalen`} className="text-sm bg-amber-500 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-amber-600 transition-colors">
-                Herhalen
+                {fc.repeat}
               </Link>
             )}
-            <Link href={`/flashcards/${set.id}`} className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">Studeren</Link>
+            <Link href={`/flashcards/${set.id}`} className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">{fc.study}</Link>
             {(countMap[set.id] ?? 0) >= 2 && (
-              <Link href={`/flashcards/${set.id}/quiz`} className="text-sm bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg font-medium hover:bg-violet-200 transition-colors">Quiz</Link>
+              <Link href={`/flashcards/${set.id}/quiz`} className="text-sm bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg font-medium hover:bg-violet-200 transition-colors">{fc.quiz}</Link>
             )}
             <button onClick={() => handleShare(set)}
               className={`text-sm px-3 py-1.5 rounded-lg font-medium transition-colors ${set.is_public ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
-              {copiedId === set.id ? 'Gekopieerd!' : set.is_public ? 'Gedeeld ✓' : 'Delen'}
+              {copiedId === set.id ? fc.copied : set.is_public ? fc.shared : fc.share}
             </button>
             {set.edit_token && (
               <button
@@ -131,7 +133,7 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
                   setTimeout(() => setInviteCopiedId(null), 3000)
                 }}
                 className="text-sm bg-indigo-50 text-indigo-500 px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-100 transition-colors">
-                {inviteCopiedId === set.id ? 'Link gekopieerd!' : 'Uitnodigen'}
+                {inviteCopiedId === set.id ? fc.linkCopied : fc.invite}
               </button>
             )}
             <button onClick={() => setConfirmDeleteId(set.id)} className="text-sm text-gray-300 hover:text-red-400 transition-colors px-2 py-1.5">✕</button>
@@ -148,16 +150,16 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
       {confirmDeleteId && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center space-y-4">
-            <h2 className="text-lg font-bold text-indigo-900">Set verwijderen?</h2>
-            <p className="text-sm text-gray-400">Alle kaarten worden ook verwijderd. Dit kan niet ongedaan worden gemaakt.</p>
+            <h2 className="text-lg font-bold text-indigo-900">{fc.deleteTitle}</h2>
+            <p className="text-sm text-gray-400">{fc.deleteBody}</p>
             <div className="flex gap-3 justify-center pt-2">
               <button onClick={() => setConfirmDeleteId(null)}
                 className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors">
-                Annuleren
+                {fc.cancel}
               </button>
               <button onClick={() => handleDelete(confirmDeleteId)}
                 className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors">
-                Ja, verwijderen
+                {fc.confirm}
               </button>
             </div>
           </div>
@@ -167,16 +169,16 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
       {confirmLeaveId && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center space-y-4">
-            <h2 className="text-lg font-bold text-indigo-900">Set verlaten?</h2>
-            <p className="text-sm text-gray-400">Je verliest toegang tot deze gedeelde set.</p>
+            <h2 className="text-lg font-bold text-indigo-900">{fc.leaveTitle}</h2>
+            <p className="text-sm text-gray-400">{fc.leaveBody}</p>
             <div className="flex gap-3 justify-center pt-2">
               <button onClick={() => setConfirmLeaveId(null)}
                 className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors">
-                Annuleren
+                {fc.cancel}
               </button>
               <button onClick={() => handleLeave(confirmLeaveId)}
                 className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors">
-                Ja, verlaten
+                {fc.confirmLeave}
               </button>
             </div>
           </div>
@@ -186,26 +188,26 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-indigo-900">Flashcards</h1>
-            <p className="text-sm text-indigo-400 mt-0.5">Leer woorden, begrippen en meer</p>
+            <h1 className="text-2xl font-bold text-indigo-900">{fc.title}</h1>
+            <p className="text-sm text-indigo-400 mt-0.5">{fc.subtitle}</p>
           </div>
           <Link href="/flashcards/nieuw"
             className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 transition-all shadow-sm shadow-indigo-200">
-            + Nieuwe set
+            {fc.newSet}
           </Link>
         </div>
 
         {sets.length > 0 && (
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Zoek op naam of vak..."
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder={fc.searchPlaceholder}
             className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all" />
         )}
 
         {sets.length === 0 ? (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-12 text-center">
             <p className="text-4xl mb-3">🃏</p>
-            <p className="font-semibold text-indigo-900 mb-1">Nog geen flashcard-sets</p>
-            <p className="text-sm text-indigo-400 mb-5">Maak je eerste set aan en importeer woorden of begrippen.</p>
-            <Link href="/flashcards/nieuw" className="inline-block bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">Eerste set aanmaken</Link>
+            <p className="font-semibold text-indigo-900 mb-1">{fc.emptyTitle}</p>
+            <p className="text-sm text-indigo-400 mb-5">{fc.emptyBody}</p>
+            <Link href="/flashcards/nieuw" className="inline-block bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">{fc.emptyBtn}</Link>
           </div>
         ) : filtered.length === 0 ? (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-8 text-center">
@@ -223,7 +225,7 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
         )}
         {sharedSets.length > 0 && (
           <div className="space-y-3">
-            <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-2 px-1">Gedeeld met mij</p>
+            <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-2 px-1">{fc.sharedWithMe}</p>
             <div className="grid gap-3">
               {sharedSets.map(set => (
                 <div key={set.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm p-4 sm:p-5">
@@ -234,16 +236,16 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
                     </div>
                     <div className="flex gap-2 flex-wrap">
                       <Link href={`/flashcards/${set.id}`} className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
-                        Studeren
+                        {fc.study}
                       </Link>
                       {(countMap[set.id] ?? 0) >= 2 && (
                         <Link href={`/flashcards/${set.id}/quiz`} className="text-sm bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg font-medium hover:bg-violet-200 transition-colors">
-                          Quiz
+                          {fc.quiz}
                         </Link>
                       )}
                       <button onClick={() => setConfirmLeaveId(set.id)}
                         className="text-sm text-gray-300 hover:text-red-400 transition-colors px-2 py-1.5">
-                        Verlaten
+                        {fc.leave}
                       </button>
                     </div>
                   </div>
