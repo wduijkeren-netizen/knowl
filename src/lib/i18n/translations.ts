@@ -188,6 +188,7 @@ const t = {
       ctaNote: 'Data wordt bewaard zodra je een account aanmaakt.',
       ctaBtn: 'Probeer Knowl gratis →', ctaFooter: 'Geen creditcard · Geen abonnement · Altijd gratis',
       footerCopy: '© 2025 Knowl · Gemaakt voor studenten', contact: 'Contact',
+      card1tag: 'Na het college', card1today: 'vandaag', card1title: 'Statistiek H6 — normale verdeling', card1body: 'Eindelijk snap ik het verschil tussen z-score en t-toets. Geoefend met tentamenvragen...', card1sub1: 'Statistiek', card1sub2: '50 min', card2tag: 'Tentamen over', card2days: '8 dagen', card2title: 'Bedrijfseconomie', card2progress: '620 / 1000 minuten — 62% van doel', card2stat1val: '14', card2stat1lab: 'sessies', card2stat2val: '48', card2stat2lab: 'min nodig/dag', card3tag: 'Studeerstreak', card3days: 'dagen op rij gestudeerd', card3sub: 'Beste week: 9u 40min · Topvak: Marketing',
     },
   },
   en: {
@@ -365,6 +366,7 @@ const t = {
       ctaNote: 'Data is saved as soon as you create an account.',
       ctaBtn: 'Try Knowl for free →', ctaFooter: 'No credit card · No subscription · Always free',
       footerCopy: '© 2025 Knowl · Made for students', contact: 'Contact',
+      card1tag: 'After class', card1today: 'today', card1title: 'Statistics Ch6 — normal distribution', card1body: 'Finally I understand the difference between z-score and t-test. Practiced with exam questions...', card1sub1: 'Statistics', card1sub2: '50 min', card2tag: 'Exam in', card2days: '8 days', card2title: 'Business Economics', card2progress: '620 / 1000 minutes — 62% of goal', card2stat1val: '14', card2stat1lab: 'sessions', card2stat2val: '48', card2stat2lab: 'min needed/day', card3tag: 'Study streak', card3days: 'days in a row', card3sub: 'Best week: 9h 40min · Top subject: Marketing',
     },
   },
   es: {
@@ -542,6 +544,7 @@ const t = {
       ctaNote: 'Los datos se guardan cuando creas una cuenta.',
       ctaBtn: 'Prueba Knowl gratis →', ctaFooter: 'Sin tarjeta · Sin suscripción · Siempre gratis',
       footerCopy: '© 2025 Knowl · Hecho para estudiantes', contact: 'Contacto',
+      card1tag: 'Después de clase', card1today: 'hoy', card1title: 'Estadística T6 — distribución normal', card1body: 'Por fin entiendo la diferencia entre puntuación z y t. Practiqué con preguntas de examen...', card1sub1: 'Estadística', card1sub2: '50 min', card2tag: 'Examen en', card2days: '8 días', card2title: 'Economía empresarial', card2progress: '620 / 1000 minutos — 62% del objetivo', card2stat1val: '14', card2stat1lab: 'sesiones', card2stat2val: '48', card2stat2lab: 'min necesarios/día', card3tag: 'Racha de estudio', card3days: 'días seguidos', card3sub: 'Mejor semana: 9h 40min · Top: Marketing',
     },
   },
   pt: {
@@ -719,6 +722,7 @@ const t = {
       ctaNote: 'Os dados são salvos quando você cria uma conta.',
       ctaBtn: 'Experimente o Knowl grátis →', ctaFooter: 'Sem cartão · Sem assinatura · Sempre grátis',
       footerCopy: '© 2025 Knowl · Feito para estudantes', contact: 'Contato',
+      card1tag: 'Após a aula', card1today: 'hoje', card1title: 'Estatística Cap6 — distribuição normal', card1body: 'Finalmente entendo a diferença entre z-score e t-teste. Pratiquei com questões de exame...', card1sub1: 'Estatística', card1sub2: '50 min', card2tag: 'Exame em', card2days: '8 dias', card2title: 'Economia Empresarial', card2progress: '620 / 1000 minutos — 62% da meta', card2stat1val: '14', card2stat1lab: 'sessões', card2stat2val: '48', card2stat2lab: 'min necessários/dia', card3tag: 'Sequência de estudo', card3days: 'dias consecutivos', card3sub: 'Melhor semana: 9h 40min · Top: Marketing',
     },
   },
   fr: {
@@ -896,6 +900,7 @@ const t = {
       ctaNote: 'Les données sont sauvegardées dès que vous créez un compte.',
       ctaBtn: 'Essayer Knowl gratuitement →', ctaFooter: 'Sans carte · Sans abonnement · Toujours gratuit',
       footerCopy: '© 2025 Knowl · Conçu pour les étudiants', contact: 'Contact',
+      card1tag: "Après le cours", card1today: "aujourd'hui", card1title: "Statistiques Ch6 — loi normale", card1body: "Je comprends enfin la différence entre z-score et t-test. Pratiqué avec des questions d'examen...", card1sub1: "Statistiques", card1sub2: "50 min", card2tag: "Examen dans", card2days: "8 jours", card2title: "Économie d'entreprise", card2progress: "620 / 1000 minutes — 62% de l'objectif", card2stat1val: "14", card2stat1lab: "séances", card2stat2val: "48", card2stat2lab: "min requis/jour", card3tag: "Série d'étude", card3days: "jours de suite", card3sub: "Meilleure semaine: 9h 40min · Top: Marketing",
     },
   },
   de: {
@@ -1073,6 +1078,7 @@ const t = {
       ctaNote: 'Daten werden gespeichert, sobald du ein Konto erstellst.',
       ctaBtn: 'Knowl kostenlos ausprobieren →', ctaFooter: 'Keine Kreditkarte · Kein Abo · Immer kostenlos',
       footerCopy: '© 2025 Knowl · Für Studenten gemacht', contact: 'Kontakt',
+      card1tag: 'Nach der Vorlesung', card1today: 'heute', card1title: 'Statistik K6 — Normalverteilung', card1body: 'Endlich verstehe ich den Unterschied zwischen z-Score und t-Test. Mit Prüfungsfragen geübt...', card1sub1: 'Statistik', card1sub2: '50 Min', card2tag: 'Prüfung in', card2days: '8 Tagen', card2title: 'Betriebswirtschaft', card2progress: '620 / 1000 Minuten — 62% des Ziels', card2stat1val: '14', card2stat1lab: 'Einheiten', card2stat2val: '48', card2stat2lab: 'Min nötig/Tag', card3tag: 'Lernserie', card3days: 'Tage am Stück', card3sub: 'Beste Woche: 9h 40min · Top: Marketing',
     },
   },
   da: {
@@ -1250,6 +1256,7 @@ const t = {
       ctaNote: 'Data gemmes, når du opretter en konto.',
       ctaBtn: 'Prøv Knowl gratis →', ctaFooter: 'Intet kreditkort · Intet abonnement · Altid gratis',
       footerCopy: '© 2025 Knowl · Lavet for studerende', contact: 'Kontakt',
+      card1tag: 'Efter forelæsning', card1today: 'i dag', card1title: 'Statistik K6 — normalfordeling', card1body: 'Endelig forstår jeg forskellen mellem z-score og t-test. Øvede med eksamensopgaver...', card1sub1: 'Statistik', card1sub2: '50 min', card2tag: 'Eksamen om', card2days: '8 dage', card2title: 'Erhvervsøkonomi', card2progress: '620 / 1000 minutter — 62% af mål', card2stat1val: '14', card2stat1lab: 'sessioner', card2stat2val: '48', card2stat2lab: 'min behov/dag', card3tag: 'Studieserie', card3days: 'dage i træk', card3sub: 'Bedste uge: 9t 40min · Top: Marketing',
     },
   },
   sv: {
@@ -1427,6 +1434,7 @@ const t = {
       ctaNote: 'Data sparas när du skapar ett konto.',
       ctaBtn: 'Prova Knowl gratis →', ctaFooter: 'Inget kort · Ingen prenumeration · Alltid gratis',
       footerCopy: '© 2025 Knowl · Gjort för studenter', contact: 'Kontakt',
+      card1tag: 'Efter föreläsning', card1today: 'idag', card1title: 'Statistik K6 — normalfördelning', card1body: 'Äntligen förstår jag skillnaden mellan z-score och t-test. Övade med tentafrågor...', card1sub1: 'Statistik', card1sub2: '50 min', card2tag: 'Tenta om', card2days: '8 dagar', card2title: 'Företagsekonomi', card2progress: '620 / 1000 minuter — 62% av mål', card2stat1val: '14', card2stat1lab: 'sessioner', card2stat2val: '48', card2stat2lab: 'min behövs/dag', card3tag: 'Studieserie', card3days: 'dagar i rad', card3sub: 'Bästa vecka: 9t 40min · Toppämne: Marketing',
     },
   },
   no: {
@@ -1604,6 +1612,7 @@ const t = {
       ctaNote: 'Data lagres når du oppretter en konto.',
       ctaBtn: 'Prøv Knowl gratis →', ctaFooter: 'Ingen kort · Ingen abonnement · Alltid gratis',
       footerCopy: '© 2025 Knowl · Laget for studenter', contact: 'Kontakt',
+      card1tag: 'Etter forelesning', card1today: 'i dag', card1title: 'Statistikk K6 — normalfordeling', card1body: 'Endelig forstår jeg forskjellen mellom z-score og t-test. Øvde med eksamensoppgaver...', card1sub1: 'Statistikk', card1sub2: '50 min', card2tag: 'Eksamen om', card2days: '8 dager', card2title: 'Bedriftsøkonomi', card2progress: '620 / 1000 minutter — 62% av mål', card2stat1val: '14', card2stat1lab: 'økter', card2stat2val: '48', card2stat2lab: 'min behov/dag', card3tag: 'Studieserie', card3days: 'dager på rad', card3sub: 'Beste uke: 9t 40min · Toppfag: Marketing',
     },
   },
 } as const
