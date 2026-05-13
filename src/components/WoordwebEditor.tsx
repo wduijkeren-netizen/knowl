@@ -219,7 +219,7 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
           {web && (
             <button onClick={() => setConfirmDelete(true)}
               className="bg-red-50 text-red-500 px-3 py-1.5 rounded-xl text-sm font-medium hover:bg-red-100 transition-all">
-              Verwijderen
+              {ww.deleteWebBtn}
             </button>
           )}
           <button onClick={handleExport} disabled={exporting || nodes.length === 0}
@@ -352,8 +352,8 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
 
         {connecting && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-violet-600 text-white text-sm px-4 py-2 rounded-xl shadow-lg z-20">
-            Klik nu op een andere knoop om te verbinden ·{' '}
-            <button onClick={() => setConnecting(null)} className="underline">Annuleren</button>
+            {ww.connectMode} ·{' '}
+            <button onClick={() => setConnecting(null)} className="underline">{ww.cancelConnect}</button>
           </div>
         )}
       </div>
