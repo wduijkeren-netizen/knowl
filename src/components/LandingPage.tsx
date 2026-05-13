@@ -5,30 +5,30 @@ import { useState } from 'react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { languages, type LangCode } from '@/lib/i18n/translations'
 
-const primaryFeatures = [
-  {
-    title: 'Doelen stellen en halen',
-    desc: 'Stel een deadline en doelminuten per vak in. Knowl berekent hoeveel je nog per dag moet studeren om op tijd klaar te zijn.',
-    color: 'bg-gradient-to-br from-indigo-500 to-violet-600',
-  },
-  {
-    title: 'Voortgang per vak',
-    desc: 'Grafieken en weekoverzichten laten precies zien hoe je de tijd verdeelt. Je ziet in één oogopslag waar je achterloopt.',
-    color: 'bg-gradient-to-br from-violet-500 to-purple-600',
-  },
-]
-
-const secondaryFeatures = [
-  { title: 'Flashcards & quizzen', desc: 'Maak sets, importeer woorden en leer ze met spaced repetition.' },
-  { title: 'Woordwebben', desc: 'Verbind begrippen visueel en exporteer als afbeelding.' },
-  { title: 'Pomodoro-timer', desc: 'Studeer in blokken van 25 minuten, rust bewust.' },
-  { title: 'Maandoverzicht', desc: 'Aan het einde van elke maand een overzicht van je topvak en streak.' },
-]
-
 export default function LandingPage() {
-  const { lang, setLang } = useLanguage()
+  const { lang, setLang, tr } = useLanguage()
   const [showLang, setShowLang] = useState(false)
   const currentLang = languages.find(l => l.code === lang)
+  const l = tr.landing
+
+  const primaryFeatures = [
+    { title: l.feat1title, desc: l.feat1desc, color: 'bg-gradient-to-br from-indigo-500 to-violet-600' },
+    { title: l.feat2title, desc: l.feat2desc, color: 'bg-gradient-to-br from-violet-500 to-purple-600' },
+  ]
+
+  const secondaryFeatures = [
+    { title: l.feat3title, desc: l.feat3desc },
+    { title: l.feat4title, desc: l.feat4desc },
+    { title: l.feat5title, desc: l.feat5desc },
+    { title: l.feat6title, desc: l.feat6desc },
+  ]
+
+  const usps = [
+    { title: l.usp1title, desc: l.usp1desc },
+    { title: l.usp2title, desc: l.usp2desc },
+    { title: l.usp3title, desc: l.usp3desc },
+    { title: l.usp4title, desc: l.usp4desc },
+  ]
 
   return (
     <div className="min-h-screen bg-white">
@@ -48,11 +48,11 @@ export default function LandingPage() {
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setShowLang(false)} />
                   <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl border border-indigo-100 shadow-xl py-2 z-20 min-w-[170px] max-w-[90vw]">
-                    {languages.map(l => (
-                      <button key={l.code} onClick={() => { setLang(l.code as LangCode); setShowLang(false) }}
-                        className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-indigo-50 transition-colors ${lang === l.code ? 'text-indigo-700 font-semibold' : 'text-gray-600'}`}>
-                        <span>{l.flag}</span><span>{l.label}</span>
-                        {lang === l.code && <span className="ml-auto text-indigo-400">✓</span>}
+                    {languages.map(lg => (
+                      <button key={lg.code} onClick={() => { setLang(lg.code as LangCode); setShowLang(false) }}
+                        className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-indigo-50 transition-colors ${lang === lg.code ? 'text-indigo-700 font-semibold' : 'text-gray-600'}`}>
+                        <span>{lg.flag}</span><span>{lg.label}</span>
+                        {lang === lg.code && <span className="ml-auto text-indigo-400">✓</span>}
                       </button>
                     ))}
                   </div>
@@ -60,10 +60,10 @@ export default function LandingPage() {
               )}
             </div>
             <Link href="/login" className="hidden sm:block text-sm text-indigo-500 hover:text-indigo-700 font-medium transition-colors px-3 py-1.5">
-              Inloggen
+              {l.login}
             </Link>
             <Link href="/leermomenten" className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-indigo-700 transition-colors shadow-sm">
-              Start gratis →
+              {l.cta}
             </Link>
           </div>
         </div>
@@ -75,36 +75,34 @@ export default function LandingPage() {
         <div className="absolute top-20 right-1/4 w-64 h-64 bg-violet-200 rounded-full blur-3xl opacity-25 pointer-events-none" />
 
         <div className="relative max-w-3xl mx-auto text-center">
-          {/* Urgentie-badge */}
           <div className="inline-block bg-amber-50 text-amber-700 text-xs font-semibold px-4 py-2 rounded-full mb-6 border border-amber-200 shadow-sm">
-            Tentamen over 3 weken? Start nu — je eerste leermoment in 30 seconden opgeslagen.
+            {l.badge}
           </div>
 
           <h1 className="text-4xl md:text-6xl font-bold text-indigo-900 leading-tight">
-            Zie wat je écht leert.
+            {l.h1a}
             <br />
             <span className="bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">
-              Niet alleen wat je opschrijft.
+              {l.h1b}
             </span>
           </h1>
 
           <p className="text-base md:text-lg text-indigo-500 mt-5 leading-relaxed max-w-lg mx-auto">
-            Knowl houdt bij wat je leert, hoe lang je studeert en of je je doelen haalt — per vak, per dag, per maand.
+            {l.sub}
           </p>
 
-          {/* Social proof */}
           <p className="text-xs text-indigo-400 mt-4 font-medium">
-            Gratis te gebruiken · Geen account nodig · Data bewaard na aanmelden
+            {l.proof}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
             <Link href="/leermomenten"
               className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-8 py-3.5 rounded-2xl font-bold text-base hover:from-indigo-700 hover:to-violet-700 transition-all shadow-lg shadow-indigo-200 text-center">
-              Start gratis →
+              {l.cta}
             </Link>
             <Link href="/login"
               className="bg-white text-indigo-600 px-8 py-3.5 rounded-2xl font-bold text-base hover:bg-indigo-50 transition-colors border border-indigo-200 shadow-sm text-center">
-              Ik heb al een account
+              {l.login}
             </Link>
           </div>
         </div>
@@ -162,14 +160,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features — hiërarchisch */}
+      {/* Features */}
       <section className="max-w-5xl mx-auto px-4 py-16">
         <div className="text-center mb-10">
-          <h2 className="text-2xl md:text-3xl font-bold text-indigo-900">Alles wat je nodig hebt om bij te houden wat je leert</h2>
-          <p className="text-indigo-400 mt-2 text-sm md:text-base">Gemaakt voor studenten die serieus zijn over hun ontwikkeling.</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-indigo-900">{l.featTitle}</h2>
+          <p className="text-indigo-400 mt-2 text-sm md:text-base">{l.featSub}</p>
         </div>
 
-        {/* Twee grote kernfeatures */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
           {primaryFeatures.map(f => (
             <div key={f.title} className="rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all border border-indigo-100">
@@ -183,7 +180,6 @@ export default function LandingPage() {
           ))}
         </div>
 
-        {/* Vier kleinere features */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {secondaryFeatures.map(f => (
             <div key={f.title} className="bg-white rounded-2xl border border-indigo-100 p-4 shadow-sm hover:shadow-md transition-all">
@@ -199,41 +195,31 @@ export default function LandingPage() {
         <div className="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-3xl p-8 md:p-12">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
-              <span className="text-xs font-semibold text-indigo-500 uppercase tracking-widest">Over Knowl</span>
-              <h2 className="text-2xl md:text-3xl font-bold text-indigo-900 mt-2 leading-tight">
-                Gemaakt door een student,<br />voor studenten
+              <span className="text-xs font-semibold text-indigo-500 uppercase tracking-widest">{l.aboutTag}</span>
+              <h2 className="text-2xl md:text-3xl font-bold text-indigo-900 mt-2 leading-tight whitespace-pre-line">
+                {l.aboutTitle}
               </h2>
-              <p className="text-indigo-600 mt-4 leading-relaxed text-sm md:text-base">
-                Knowl is ontstaan uit een simpel probleem: je werkt hard, maar weet aan het einde van de week niet meer wat je eigenlijk hebt geleerd. En je hebt geen idee of je genoeg doet voor dat ene vak.
-              </p>
-              <p className="text-indigo-500 mt-3 leading-relaxed text-sm md:text-base">
-                Knowl geeft je inzicht — niet meer, niet minder. Geen abonnement, geen reclame. Gewoon een helder overzicht van wat je leert en hoe je groeit.
-              </p>
+              <p className="text-indigo-600 mt-4 leading-relaxed text-sm md:text-base">{l.aboutP1}</p>
+              <p className="text-indigo-500 mt-3 leading-relaxed text-sm md:text-base">{l.aboutP2}</p>
 
-              {/* Eerlijke feiten */}
               <div className="flex gap-6 mt-6 flex-wrap">
                 <div>
-                  <p className="text-2xl font-bold text-indigo-700">Gratis</p>
-                  <p className="text-xs text-indigo-400">voor altijd</p>
+                  <p className="text-2xl font-bold text-indigo-700">{l.stat1val}</p>
+                  <p className="text-xs text-indigo-400">{l.stat1lab}</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-indigo-700">0</p>
-                  <p className="text-xs text-indigo-400">reclame</p>
+                  <p className="text-2xl font-bold text-indigo-700">{l.stat2val}</p>
+                  <p className="text-xs text-indigo-400">{l.stat2lab}</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-indigo-700">Jouw</p>
-                  <p className="text-xs text-indigo-400">data, altijd exporteerbaar</p>
+                  <p className="text-2xl font-bold text-indigo-700">{l.stat3val}</p>
+                  <p className="text-xs text-indigo-400">{l.stat3lab}</p>
                 </div>
               </div>
             </div>
 
             <div className="space-y-3">
-              {[
-                { title: 'Doelgericht', desc: 'Stel doelen per vak en zie dagelijks hoe dichtbij je bent.' },
-                { title: 'Inzichtelijk', desc: 'Grafieken, streaks en weekoverzichten laten je exacte leerpatroon zien.' },
-                { title: 'Motiverend', desc: 'Streakschilden en mijlpalen houden je gemotiveerd om door te gaan.' },
-                { title: 'Jouw data', desc: 'Alles staat op jouw account. Exporteer wanneer je wilt als CSV.' },
-              ].map(item => (
+              {usps.map(item => (
                 <div key={item.title} className="bg-white rounded-2xl p-4 shadow-sm">
                   <p className="font-semibold text-indigo-900 text-sm">{item.title}</p>
                   <p className="text-xs text-indigo-400 mt-0.5">{item.desc}</p>
@@ -244,31 +230,27 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA — sterke afsluiting */}
+      {/* CTA */}
       <section className="max-w-3xl mx-auto px-4 py-20 text-center">
-        <h2 className="text-2xl md:text-3xl font-bold text-indigo-900">
-          Zet je eerste leermoment neer in 30 seconden.
-        </h2>
-        <p className="text-indigo-400 mt-3 mb-2 text-sm md:text-base">
-          Geen account nodig om te starten. Je verliest niets als je het probeert.
-        </p>
-        <p className="text-xs text-indigo-300 mb-8">Data wordt bewaard zodra je een account aanmaakt.</p>
+        <h2 className="text-2xl md:text-3xl font-bold text-indigo-900">{l.ctaTitle}</h2>
+        <p className="text-indigo-400 mt-3 mb-2 text-sm md:text-base">{l.ctaSub}</p>
+        <p className="text-xs text-indigo-300 mb-8">{l.ctaNote}</p>
         <Link href="/leermomenten"
           className="inline-block bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-10 py-4 rounded-2xl font-bold text-base hover:from-indigo-700 hover:to-violet-700 transition-all shadow-lg shadow-indigo-200">
-          Probeer Knowl gratis →
+          {l.ctaBtn}
         </Link>
-        <p className="text-xs text-indigo-300 mt-4">Geen creditcard · Geen abonnement · Altijd gratis</p>
+        <p className="text-xs text-indigo-300 mt-4">{l.ctaFooter}</p>
       </section>
 
       <footer className="border-t border-indigo-100 py-8">
         <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <p className="text-sm text-indigo-300">© 2025 Knowl · Gemaakt voor studenten</p>
+          <p className="text-sm text-indigo-300">{l.footerCopy}</p>
           <div className="flex gap-4 text-xs text-indigo-300">
             <Link href="/privacy" className="hover:text-indigo-500 transition-colors">Privacybeleid</Link>
             <span>·</span>
             <Link href="/voorwaarden" className="hover:text-indigo-500 transition-colors">Gebruiksvoorwaarden</Link>
             <span>·</span>
-            <a href="mailto:myknowl@hotmail.com" className="hover:text-indigo-500 transition-colors">Contact</a>
+            <a href="mailto:myknowl@hotmail.com" className="hover:text-indigo-500 transition-colors">{l.contact}</a>
           </div>
         </div>
       </footer>

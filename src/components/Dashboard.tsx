@@ -77,7 +77,12 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editData, setEditData] = useState<Partial<Moment>>({})
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [showSpaced, setShowSpaced] = useState(true)
+  const spacedKey = spacedMoment ? `knowl_spaced_dismissed_${spacedMoment.id}` : null
+  const [showSpaced, setShowSpaced] = useState(false)
+  useState(() => {
+    if (!spacedKey) return
+    try { if (!localStorage.getItem(spacedKey)) setShowSpaced(true) } catch {}
+  })
   const [search, setSearch] = useState('')
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [duplicateSuccess, setDuplicateSuccess] = useState(false)
@@ -283,7 +288,10 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
                   <p className="text-sm text-amber-700 mt-2 line-clamp-2">{spacedMoment.description}</p>
                 )}
               </div>
-              <button onClick={() => setShowSpaced(false)} className="text-amber-400 hover:text-amber-600 text-lg ml-4">×</button>
+              <button onClick={() => {
+                setShowSpaced(false)
+                if (spacedKey) try { localStorage.setItem(spacedKey, '1') } catch {}
+              }} className="text-amber-400 hover:text-amber-600 text-lg ml-4">×</button>
             </div>
           </div>
         )}
