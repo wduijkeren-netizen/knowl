@@ -14,8 +14,14 @@ const geistSans = localFont({
 
 export const metadata: Metadata = {
   manifest: '/manifest.json',
-  title: "Knowl — Leertracker voor studenten",
+  title: { default: 'Knowl — Gratis leertracker voor studenten', template: '%s | Knowl' },
   description: "Log leermomenten, stel doelen per vak en volg je voortgang. Gratis leertracker voor studenten — geen account nodig om te starten.",
+  keywords: ['leertracker', 'studenten', 'leermomenten', 'studieplanner', 'knowl', 'myknowl', 'gratis', 'vakken bijhouden', 'studieapp'],
+  authors: [{ name: 'Knowl' }],
+  creator: 'Knowl',
+  metadataBase: new URL('https://myknowl.com'),
+  alternates: { canonical: 'https://myknowl.com' },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
   icons: {
     icon: "/favicon.png",
     apple: "/favicon.png",

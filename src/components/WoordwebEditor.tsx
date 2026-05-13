@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Nav from '@/components/Nav'
 import Link from 'next/link'
 import { useStudyTimer } from '@/lib/useStudyTimer'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Node = { id: string; label: string; x: number; y: number; color: string }
 type Edge = { id: string; from: string; to: string; label?: string }
@@ -32,11 +33,13 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
   const [editNodeLabel, setEditNodeLabel] = useState('')
   const [editingEdgeId, setEditingEdgeId] = useState<string | null>(null)
   const [editEdgeLabel, setEditEdgeLabel] = useState('')
+  const { tr } = useLanguage()
+  const ww = tr.woordweb
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  useStudyTimer('woordweb', web?.title ?? 'Nieuw web')
+  useStudyTimer('woordweb', web?.title ?? ww.newWeb)
 
   function addNode(e: React.MouseEvent<HTMLDivElement>) {
     if ((e.target as HTMLElement).closest('.node')) return
@@ -183,16 +186,16 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center space-y-4">
             <p className="text-4xl">🗑️</p>
-            <h2 className="text-lg font-bold text-indigo-900">Web verwijderen?</h2>
-            <p className="text-sm text-gray-400">Dit kan niet ongedaan worden gemaakt.</p>
+            <h2 className="text-lg font-bold text-indigo-900">{ww.deleteTitle}</h2>
+            <p className="text-sm text-gray-400">{ww.deleteBody}</p>
             <div className="flex gap-3 justify-center pt-2">
               <button onClick={() => setConfirmDelete(false)}
                 className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors">
-                Annuleren
+                {ww.cancel}
               </button>
               <button onClick={handleDelete}
                 className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors">
-                Ja, verwijderen
+                {ww.confirm}
               </button>
             </div>
           </div>
@@ -201,15 +204,15 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
 
       {/* Toolbar */}
       <div className="bg-white border-b border-indigo-100 px-4 py-3 flex flex-wrap items-center gap-2">
-        <Link href="/woordweb" className="text-indigo-400 hover:text-indigo-600 text-sm transition-colors shrink-0">← Terug</Link>
+        <Link href="/woordweb" className="text-indigo-400 hover:text-indigo-600 text-sm transition-colors shrink-0">{ww.back}</Link>
         <input
           value={title} onChange={e => setTitle(e.target.value)}
-          placeholder="Naam van het web"
+          placeholder={ww.webName}
           className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 min-w-0 flex-1 sm:w-44 sm:flex-none"
         />
         <select value={vak} onChange={e => setVak(e.target.value)}
           className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
-          <option value="">Geen vak</option>
+          <option value="">{ww.noSubject}</option>
           {subjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
         </select>
         <div className="flex gap-2 ml-auto flex-wrap">
@@ -221,11 +224,11 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
           )}
           <button onClick={handleExport} disabled={exporting || nodes.length === 0}
             className="bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-xl text-sm font-medium hover:bg-indigo-200 disabled:opacity-40 transition-all">
-            {exporting ? 'Exporteren...' : '↓ Exporteer als afbeelding'}
+            {exporting ? ww.exporting : ww.exportBtn}
           </button>
           <button onClick={handleSave} disabled={saving || !title.trim()}
             className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-4 py-1.5 rounded-xl text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 disabled:opacity-50 transition-all">
-            {saving ? 'Opslaan...' : saved ? 'Opgeslagen ✓' : 'Opslaan'}
+            {saving ? ww.saving : saved ? ww.saved : ww.save}
           </button>
         </div>
       </div>
@@ -341,8 +344,8 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="text-center">
               <p className="text-4xl mb-2">🕸️</p>
-              <p className="text-indigo-300 font-medium">Klik ergens op het canvas om een knoop toe te voegen</p>
-              <p className="text-xs text-indigo-200 mt-1">Dubbelklik op een knoop om de tekst te bewerken · Klik op + op een lijn om een label toe te voegen</p>
+              <p className="text-indigo-300 font-medium">{ww.emptyCanvas}</p>
+              <p className="text-xs text-indigo-200 mt-1">{ww.hint}</p>
             </div>
           </div>
         )}

@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
 import { useStudyTimer } from '@/lib/useStudyTimer'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Card = { id: string; front: string; back: string }
 type Set = { id: string; title: string; vak: string | null }
@@ -30,6 +31,8 @@ function buildQuestions(cards: Card[]): Question[] {
 
 export default function FlashcardQuiz({ set, cards }: Props) {
   useStudyTimer('quiz', set.title)
+  const { tr } = useLanguage()
+  const fc = tr.flashcards
   const questions = useMemo(() => buildQuestions(cards), [cards])
   const [index, setIndex] = useState(0)
   const [selected, setSelected] = useState<string | null>(null)
@@ -68,27 +71,27 @@ export default function FlashcardQuiz({ set, cards }: Props) {
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <Link href={`/flashcards/${set.id}`} className="text-indigo-400 hover:text-indigo-600 transition-colors text-sm">← Studeren</Link>
-            <h1 className="text-xl font-bold text-indigo-900 mt-1">Quiz — {set.title}</h1>
+            <Link href={`/flashcards/${set.id}`} className="text-indigo-400 hover:text-indigo-600 transition-colors text-sm">← {fc.study}</Link>
+            <h1 className="text-xl font-bold text-indigo-900 mt-1">{fc.quiz} — {set.title}</h1>
           </div>
         </div>
 
         {done ? (
           <div className="bg-white rounded-3xl border border-indigo-100 shadow-sm p-8 text-center space-y-4">
             <p className="text-5xl">{pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '📚'}</p>
-            <h2 className="text-xl font-bold text-indigo-900">Quiz afgerond!</h2>
+            <h2 className="text-xl font-bold text-indigo-900">{fc.done}</h2>
             <div>
               <p className="text-5xl font-bold text-indigo-700">{pct}%</p>
-              <p className="text-sm text-indigo-400 mt-1">{score} van de {questions.length} goed</p>
+              <p className="text-sm text-indigo-400 mt-1">{score} / {questions.length} {fc.correct}</p>
             </div>
             <div className="flex gap-3 justify-center pt-2">
               <button onClick={restart}
                 className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">
-                Opnieuw
+                {fc.study}
               </button>
               <Link href={`/flashcards/${set.id}`}
                 className="bg-indigo-100 text-indigo-700 px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-200 transition-colors">
-                Terug naar studeren
+                ← {fc.study}
               </Link>
             </div>
           </div>
@@ -107,7 +110,7 @@ export default function FlashcardQuiz({ set, cards }: Props) {
 
             {/* Vraag */}
             <div className="bg-white rounded-3xl border border-indigo-100 shadow-sm p-8 text-center">
-              <p className="text-xs font-semibold text-indigo-300 uppercase tracking-wide mb-3">Wat is de betekenis van?</p>
+              <p className="text-xs font-semibold text-indigo-300 uppercase tracking-wide mb-3">{fc.question}</p>
               <p className="text-2xl font-bold text-indigo-900">{q.card.front}</p>
             </div>
 
