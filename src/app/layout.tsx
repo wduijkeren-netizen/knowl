@@ -22,10 +22,6 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://myknowl.com'),
   alternates: { canonical: 'https://myknowl.com' },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
-  icons: {
-    icon: "/favicon.png",
-    apple: "/favicon.png",
-  },
   openGraph: {
     type: "website",
     locale: "nl_NL",
