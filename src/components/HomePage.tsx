@@ -14,7 +14,7 @@ type StudySession = { activity: string; duration_seconds: number; created_at: st
 
 type Props = {
   user: User
-  allMoments: { duration_minutes: number | null; learned_at: string; category?: string | null }[]
+  allMoments: { id?: string; title?: string; duration_minutes: number | null; learned_at: string; category?: string | null }[]
   thisMonth: { category: string | null; duration_minutes: number | null }[]
   subjects: { name: string; goal_minutes: number | null; goal_date: string | null; recurring_type: string | null; recurring_goal_minutes: number | null }[]
   displayName: string | null
@@ -27,6 +27,8 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
   const { tr } = useLanguage()
   const h = tr.home
   const [timeframe, setTimeframe] = useState<number | null>(30)
+  const [search, setSearch] = useState('')
+  const searchResults = search.trim() ? allMoments.filter(m => (m.title ?? '').toLowerCase().includes(search.toLowerCase()) || (m.category ?? '').toLowerCase().includes(search.toLowerCase())).slice(0, 8) : []
 
   const totalMinutes = allMoments.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
   const totalHours = Math.floor(totalMinutes / 60)
@@ -144,6 +146,41 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
           <h1 className="text-3xl font-bold text-indigo-900">{h.greeting?.replace('{name}', firstName) ?? `Hoi, ${firstName}`}</h1>
           <p className="text-indigo-400 mt-1">{h.greetingSub ?? 'Welkom terug bij Knowl. Hier is je overzicht.'}</p>
         </div>
+
+        {/* Zoekbalk */}
+        <div className="relative">
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Zoek leermomenten..."
+            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 pl-9 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all bg-white"
+          />
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-300 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          {search && <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors text-lg leading-none">✕</button>}
+        </div>
+
+        {/* Zoekresultaten */}
+        {search.trim() && (
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
+            {searchResults.length === 0 ? (
+              <p className="text-sm text-indigo-300 text-center py-6">Geen momenten gevonden voor &ldquo;{search}&rdquo;</p>
+            ) : (
+              <div className="divide-y divide-indigo-50">
+                {searchResults.map((m, i) => (
+                  <div key={m.id ?? i} className="flex items-center justify-between px-4 py-3 gap-3 hover:bg-indigo-50/50 transition-colors">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-indigo-900 truncate">{m.title ?? '—'}</p>
+                      <p className="text-xs text-indigo-400 mt-0.5">{m.learned_at}{m.category ? ` · ${m.category}` : ''}</p>
+                    </div>
+                    {m.duration_minutes && <span className="text-xs bg-violet-50 text-violet-500 rounded-full px-2 py-0.5 font-medium shrink-0">{m.duration_minutes} min</span>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Statistieken */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">

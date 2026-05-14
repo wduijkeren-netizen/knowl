@@ -8,7 +8,8 @@ import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Card = { id: string; front: string; back: string }
 type Set = { id: string; title: string; vak: string | null }
-type Props = { set: Set; cards: Card[]; srMap: Record<string, number> }
+type Member = { user_id: string; name: string | null }
+type Props = { set: Set; cards: Card[]; srMap: Record<string, number>; members?: Member[]; ownerId?: string }
 
 function getProgress(setId: string): number {
   try {
@@ -23,7 +24,7 @@ function saveProgress(setId: string, known: number, total: number) {
   try { localStorage.setItem(`knowl_fc_progress_${setId}`, JSON.stringify({ known, total })) } catch {}
 }
 
-export default function FlashcardStudeer({ set, cards: initialCards, srMap }: Props) {
+export default function FlashcardStudeer({ set, cards: initialCards, srMap, members = [], ownerId }: Props) {
   const { tr } = useLanguage()
   const fc = tr.flashcards
 
@@ -114,6 +115,19 @@ export default function FlashcardStudeer({ set, cards: initialCards, srMap }: Pr
             </Link>
           </div>
         </div>
+
+        {members.length > 0 && (
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm px-5 py-3 flex items-center gap-3 flex-wrap">
+            <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wide shrink-0">Leden</span>
+            <div className="flex gap-2 flex-wrap">
+              {members.map(m => (
+                <span key={m.user_id} className={`text-xs rounded-full px-2.5 py-1 font-medium ${m.user_id === ownerId ? 'bg-indigo-600 text-white' : 'bg-indigo-50 text-indigo-600'}`}>
+                  {m.name ?? 'Student'}{m.user_id === ownerId ? ' (jij)' : ''}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         {done ? (
           <div className="bg-white rounded-3xl border border-indigo-100 shadow-sm p-8 text-center space-y-4">

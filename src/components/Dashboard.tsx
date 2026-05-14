@@ -85,6 +85,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
   }, [spacedKey])
   const [search, setSearch] = useState('')
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [detailMoment, setDetailMoment] = useState<Moment | null>(null)
   const [duplicateSuccess, setDuplicateSuccess] = useState(false)
 
   // Rating modal state
@@ -232,6 +233,44 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
       <Nav />
+
+      {/* Detail modal */}
+      {detailMoment && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setDetailMoment(null)}>
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-8 space-y-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-start gap-4">
+              <h2 className="text-lg font-bold text-indigo-900 leading-tight">{detailMoment.title}</h2>
+              <button onClick={() => setDetailMoment(null)} className="text-gray-300 hover:text-gray-500 transition-colors shrink-0 text-xl leading-none">✕</button>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {detailMoment.category && <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-1 font-medium">{detailMoment.category}</span>}
+              {detailMoment.duration_minutes && <span className="text-xs bg-violet-50 text-violet-600 rounded-full px-2.5 py-1 font-medium">{detailMoment.duration_minutes} min</span>}
+              <span className="text-xs bg-gray-50 text-gray-400 rounded-full px-2.5 py-1">{detailMoment.learned_at}</span>
+            </div>
+            {detailMoment.photo_url && (
+              <img src={detailMoment.photo_url} alt="" className="w-full max-h-64 object-cover rounded-2xl" />
+            )}
+            {detailMoment.description ? (
+              <div className="bg-indigo-50 rounded-2xl p-4">
+                <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-2">{d.summary}</p>
+                <p className="text-sm text-indigo-800 leading-relaxed whitespace-pre-wrap">{detailMoment.description}</p>
+              </div>
+            ) : (
+              <p className="text-sm text-indigo-300 italic">Geen samenvatting toegevoegd.</p>
+            )}
+            <div className="flex gap-3 pt-2">
+              <button onClick={() => { startEdit(detailMoment); setDetailMoment(null) }}
+                className="flex-1 bg-indigo-600 text-white rounded-xl py-2.5 text-sm font-semibold hover:bg-indigo-700 transition-colors">
+                {d.edit}
+              </button>
+              <button onClick={() => setDetailMoment(null)}
+                className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 transition-colors">
+                {d.cancel}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Rating modal */}
       {ratingMomentId && (
@@ -512,7 +551,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
                   <>
                     <div className="flex justify-between items-start gap-4">
                       <div>
-                        <h3 className="font-semibold text-indigo-900">{moment.title}</h3>
+                        <button onClick={() => setDetailMoment(moment)} className="font-semibold text-indigo-900 hover:text-indigo-600 transition-colors text-left">{moment.title}</button>
                         {ratings[moment.id] && (
                           <span className="text-xs text-amber-400">{'⭐'.repeat(ratings[moment.id])}</span>
                         )}

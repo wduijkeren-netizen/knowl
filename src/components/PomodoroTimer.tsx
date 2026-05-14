@@ -27,6 +27,33 @@ export default function PomodoroTimer({ user, subjects }: Props) {
   const [showSettings, setShowSettings] = useState(false)
   const [sessionMode, setSessionMode] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const [hydrated, setHydrated] = useState(false)
+
+  // Herstel timer staat uit localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('knowl_pomodoro')
+      if (saved) {
+        const s = JSON.parse(saved)
+        if (s.mode) setMode(s.mode)
+        if (s.customWork) setCustomWork(s.customWork)
+        if (s.customBreak) setCustomBreak(s.customBreak)
+        if (s.completed) setCompleted(s.completed)
+        if (s.sessionMode !== undefined) setSessionMode(s.sessionMode)
+        // Bereken resterende tijd (timer loopt niet door bij refresh)
+        if (s.seconds !== undefined) setSeconds(s.seconds)
+      }
+    } catch {}
+    setHydrated(true)
+  }, [])
+
+  // Sla timer staat op bij wijziging
+  useEffect(() => {
+    if (!hydrated) return
+    try {
+      localStorage.setItem('knowl_pomodoro', JSON.stringify({ mode, customWork, customBreak, seconds, completed, sessionMode }))
+    } catch {}
+  }, [mode, customWork, customBreak, seconds, completed, sessionMode, hydrated])
 
   // Post-session form state
   const [showSessionForm, setShowSessionForm] = useState(false)
