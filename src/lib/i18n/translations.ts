@@ -28,6 +28,7 @@ const t = {
       edit: 'Wijzigen', delete: 'Verwijderen', save: 'Opslaan', cancel: 'Annuleren', noSubject: 'Geen vak', photo: 'Foto', search: 'Zoeken...', lastFive: 'De laatste 5 — alle momenten staan per vak onder Vakken', setGoal: 'Doel instellen',
       duplicate: 'Dupliceren', duplicateNote: '✓ Gegevens ingevuld — pas de datum aan en sla op.', share: 'Delen', shared: 'Gedeeld ✓', linkCopied: 'Link gekopieerd!', confirmYes: 'Ja', confirmNo: 'Nee',
       spacedTitle: 'Weet je het nog?', spacedSub: 'Je leerde dit op',
+      guestBanner: 'Je bekijkt een voorbeeld van Knowl. Maak een gratis account aan om je data te bewaren en alle functies te gebruiken.', guestBannerBtn: 'Gratis account aanmaken', guestBannerSub: 'Je huidige momenten worden meegenomen.',
     },
     results: {
       title: 'Jouw resultaten', subtitle: 'Zie hoe je de tijd hebt verdeeld over je vakken',
@@ -35,6 +36,7 @@ const t = {
       barTitle: 'Minuten per vak', barSub: 'Zo zie je hoe homogeen je de tijd hebt verdeeld',
       radarTitle: 'Verdeling over vakken', radarSub: 'Hoe evenwichtig is je aandacht verdeeld?',
       empty: 'Voeg eerst leermomenten toe met een vak en minuten om je resultaten te zien.',
+      demoNote: 'Dit zijn voorbeeldresultaten — maak een account aan voor jouw eigen data.', demoBtn: 'Gratis account aanmaken', addLink: 'Voeg een leermoment toe →',
       time: 'Tijd', minutesSuffix: ' minuten',
     },
     subjects: {
@@ -213,6 +215,7 @@ const t = {
       edit: 'Edit', delete: 'Delete', save: 'Save', cancel: 'Cancel', noSubject: 'No subject', photo: 'Photo', search: 'Search...', lastFive: 'Last 5 — all moments are listed per subject under Subjects', setGoal: 'Set goal',
       duplicate: 'Duplicate', duplicateNote: '✓ Details filled in — adjust the date and save.', share: 'Share', shared: 'Shared ✓', linkCopied: 'Link copied!', confirmYes: 'Yes', confirmNo: 'No',
       spacedTitle: 'Do you still remember?', spacedSub: 'You learned this on',
+      guestBanner: 'You\'re viewing a preview of Knowl. Create a free account to save your data and use all features.', guestBannerBtn: 'Create free account', guestBannerSub: 'Your current moments will be carried over.',
     },
     results: {
       title: 'Your results', subtitle: 'See how you distributed your time across subjects',
@@ -220,6 +223,7 @@ const t = {
       barTitle: 'Minutes per subject', barSub: 'See how evenly you distributed your time',
       radarTitle: 'Distribution across subjects', radarSub: 'How balanced is your attention?',
       empty: 'Add learning moments with a subject and minutes to see your results.',
+      demoNote: 'These are example results — create an account for your own data.', demoBtn: 'Create free account', addLink: 'Add a learning moment →',
       time: 'Time', minutesSuffix: ' minutes',
     },
     subjects: {
@@ -398,6 +402,7 @@ const t = {
       edit: 'Editar', delete: 'Eliminar', save: 'Guardar', cancel: 'Cancelar', noSubject: 'Sin asignatura', photo: 'Foto', search: 'Buscar...', lastFive: 'Los últimos 5 — todos los momentos están por asignatura', setGoal: 'Establecer objetivo',
       duplicate: 'Duplicar', duplicateNote: '✓ Datos rellenados — ajusta la fecha y guarda.', share: 'Compartir', shared: 'Compartido ✓', linkCopied: '¡Enlace copiado!', confirmYes: 'Sí', confirmNo: 'No',
       spacedTitle: '¿Lo recuerdas?', spacedSub: 'Aprendiste esto el',
+      guestBanner: 'Estás viendo una vista previa de Knowl. Crea una cuenta gratuita para guardar tus datos y usar todas las funciones.', guestBannerBtn: 'Crear cuenta gratuita', guestBannerSub: 'Tus momentos actuales se transferirán.',
     },
     results: {
       title: 'Tus resultados', subtitle: 'Ve cómo distribuiste el tiempo por asignatura',
@@ -405,6 +410,7 @@ const t = {
       barTitle: 'Minutos por asignatura', barSub: 'Ve qué tan uniforme fue tu distribución',
       radarTitle: 'Distribución por asignaturas', radarSub: '¿Qué tan equilibrada es tu atención?',
       empty: 'Añade momentos con asignatura y minutos para ver resultados.',
+      demoNote: 'Estos son resultados de ejemplo — crea una cuenta para ver tus propios datos.', demoBtn: 'Crear cuenta gratuita', addLink: 'Añadir un momento →',
       time: 'Tiempo', minutesSuffix: ' minutos',
     },
     subjects: {
@@ -582,6 +588,7 @@ const t = {
       edit: 'Editar', delete: 'Excluir', save: 'Salvar', cancel: 'Cancelar', noSubject: 'Sem disciplina', photo: 'Foto', search: 'Pesquisar...', lastFive: 'Os últimos 5 — todos os momentos estão por disciplina', setGoal: 'Definir meta',
       duplicate: 'Duplicar', duplicateNote: '✓ Dados preenchidos — ajuste a data e salve.', share: 'Compartilhar', shared: 'Compartilhado ✓', linkCopied: 'Link copiado!', confirmYes: 'Sim', confirmNo: 'Não',
       spacedTitle: 'Você ainda lembra?', spacedSub: 'Você aprendeu isso em',
+      guestBanner: 'Está a ver uma pré-visualização do Knowl. Crie uma conta gratuita para guardar os seus dados e usar todas as funcionalidades.', guestBannerBtn: 'Criar conta gratuita', guestBannerSub: 'Os seus momentos atuais serão transferidos.',
     },
     results: {
       title: 'Seus resultados', subtitle: 'Veja como distribuiu o tempo por disciplina',
@@ -589,6 +596,7 @@ const t = {
       barTitle: 'Minutos por disciplina', barSub: 'Veja como foi sua distribuição de tempo',
       radarTitle: 'Distribuição por disciplinas', radarSub: 'Quão equilibrada é sua atenção?',
       empty: 'Adicione momentos com disciplina e minutos para ver resultados.',
+      demoNote: 'Estes são resultados de exemplo — crie uma conta para os seus próprios dados.', demoBtn: 'Criar conta gratuita', addLink: 'Adicionar um momento →',
       time: 'Tempo', minutesSuffix: ' minutos',
     },
     subjects: {
@@ -767,6 +775,7 @@ const t = {
       edit: 'Modifier', delete: 'Supprimer', save: 'Enregistrer', cancel: 'Annuler', noSubject: 'Sans matière', photo: 'Photo', search: 'Rechercher...', lastFive: 'Les 5 derniers — tous les moments sont par matière', setGoal: 'Définir un objectif',
       duplicate: 'Dupliquer', duplicateNote: '✓ Données remplies — ajustez la date et enregistrez.', share: 'Partager', shared: 'Partagé ✓', linkCopied: 'Lien copié !', confirmYes: 'Oui', confirmNo: 'Non',
       spacedTitle: 'Vous en souvenez-vous encore ?', spacedSub: 'Vous avez appris ceci le',
+      guestBanner: 'Vous consultez un aperçu de Knowl. Créez un compte gratuit pour sauvegarder vos données et utiliser toutes les fonctionnalités.', guestBannerBtn: 'Créer un compte gratuit', guestBannerSub: 'Vos moments actuels seront conservés.',
     },
     results: {
       title: 'Vos résultats', subtitle: 'Voyez comment vous avez réparti votre temps',
@@ -774,6 +783,7 @@ const t = {
       barTitle: 'Minutes par matière', barSub: 'Voyez la répartition de votre temps',
       radarTitle: 'Répartition par matières', radarSub: 'Votre attention est-elle équilibrée ?',
       empty: 'Ajoutez des moments avec matière et minutes pour voir vos résultats.',
+      demoNote: "Ce sont des résultats d'exemple — créez un compte pour vos propres données.", demoBtn: 'Créer un compte gratuit', addLink: 'Ajouter un moment →',
       time: 'Temps', minutesSuffix: ' minutes',
     },
     subjects: {
@@ -952,6 +962,7 @@ const t = {
       edit: 'Bearbeiten', delete: 'Löschen', save: 'Speichern', cancel: 'Abbrechen', noSubject: 'Kein Fach', photo: 'Foto', search: 'Suchen...', lastFive: 'Die letzten 5 — alle Momente stehen pro Fach', setGoal: 'Ziel setzen',
       duplicate: 'Duplizieren', duplicateNote: '✓ Daten ausgefüllt — Datum anpassen und speichern.', share: 'Teilen', shared: 'Geteilt ✓', linkCopied: 'Link kopiert!', confirmYes: 'Ja', confirmNo: 'Nein',
       spacedTitle: 'Erinnerst du dich noch?', spacedSub: 'Du hast das gelernt am',
+      guestBanner: 'Du siehst eine Vorschau von Knowl. Erstelle ein kostenloses Konto, um deine Daten zu speichern und alle Funktionen zu nutzen.', guestBannerBtn: 'Kostenloses Konto erstellen', guestBannerSub: 'Deine aktuellen Momente werden übernommen.',
     },
     results: {
       title: 'Deine Ergebnisse', subtitle: 'Sieh, wie du deine Zeit auf die Fächer verteilt hast',
@@ -959,6 +970,7 @@ const t = {
       barTitle: 'Minuten pro Fach', barSub: 'Sieh, wie gleichmäßig du deine Zeit verteilt hast',
       radarTitle: 'Verteilung auf Fächer', radarSub: 'Wie ausgewogen ist deine Aufmerksamkeit?',
       empty: 'Füge Lernmomente mit Fach und Minuten hinzu, um Ergebnisse zu sehen.',
+      demoNote: 'Dies sind Beispielergebnisse — erstelle ein Konto für deine eigenen Daten.', demoBtn: 'Kostenloses Konto erstellen', addLink: 'Lernmoment hinzufügen →',
       time: 'Zeit', minutesSuffix: ' Minuten',
     },
     subjects: {
@@ -1137,6 +1149,7 @@ const t = {
       edit: 'Rediger', delete: 'Slet', save: 'Gem', cancel: 'Annuller', noSubject: 'Intet fag', photo: 'Foto', search: 'Søg...', lastFive: 'De sidste 5 — alle øjeblikke er pr. fag', setGoal: 'Sæt mål',
       duplicate: 'Dupliker', duplicateNote: '✓ Data udfyldt — juster datoen og gem.', share: 'Del', shared: 'Delt ✓', linkCopied: 'Link kopieret!', confirmYes: 'Ja', confirmNo: 'Nej',
       spacedTitle: 'Husker du det stadig?', spacedSub: 'Du lærte dette den',
+      guestBanner: 'Du ser en forhåndsvisning af Knowl. Opret en gratis konto for at gemme dine data og bruge alle funktioner.', guestBannerBtn: 'Opret gratis konto', guestBannerSub: 'Dine nuværende øjeblikke overføres.',
     },
     results: {
       title: 'Dine resultater', subtitle: 'Se hvordan du har fordelt din tid på fag',
@@ -1144,6 +1157,7 @@ const t = {
       barTitle: 'Minutter pr. fag', barSub: 'Se hvor jævnt du har fordelt din tid',
       radarTitle: 'Fordeling på fag', radarSub: 'Hvor afbalanceret er din opmærksomhed?',
       empty: 'Tilføj læringsøjeblikke med fag og minutter for at se resultater.',
+      demoNote: 'Dette er eksempelresultater — opret en konto for dine egne data.', demoBtn: 'Opret gratis konto', addLink: 'Tilføj et øjeblik →',
       time: 'Tid', minutesSuffix: ' minutter',
     },
     subjects: {
@@ -1322,6 +1336,7 @@ const t = {
       edit: 'Redigera', delete: 'Radera', save: 'Spara', cancel: 'Avbryt', noSubject: 'Inget ämne', photo: 'Foto', search: 'Sök...', lastFive: 'De senaste 5 — alla tillfällen finns per ämne', setGoal: 'Sätt mål',
       duplicate: 'Duplicera', duplicateNote: '✓ Uppgifter ifyllda — justera datumet och spara.', share: 'Dela', shared: 'Delat ✓', linkCopied: 'Länk kopierad!', confirmYes: 'Ja', confirmNo: 'Nej',
       spacedTitle: 'Kommer du ihåg det?', spacedSub: 'Du lärde dig detta den',
+      guestBanner: 'Du ser en förhandsgranskning av Knowl. Skapa ett gratis konto för att spara dina data och använda alla funktioner.', guestBannerBtn: 'Skapa gratis konto', guestBannerSub: 'Dina nuvarande moment överförs.',
     },
     results: {
       title: 'Dina resultat', subtitle: 'Se hur du fördelat din tid på ämnen',
@@ -1329,6 +1344,7 @@ const t = {
       barTitle: 'Minuter per ämne', barSub: 'Se hur jämnt du fördelat din tid',
       radarTitle: 'Fördelning per ämne', radarSub: 'Hur balanserad är din uppmärksamhet?',
       empty: 'Lägg till lärstunder med ämne och minuter för att se resultat.',
+      demoNote: 'Detta är exempelresultat — skapa ett konto för dina egna data.', demoBtn: 'Skapa gratis konto', addLink: 'Lägg till ett lärmoment →',
       time: 'Tid', minutesSuffix: ' minuter',
     },
     subjects: {
@@ -1507,6 +1523,7 @@ const t = {
       edit: 'Rediger', delete: 'Slett', save: 'Lagre', cancel: 'Avbryt', noSubject: 'Ingen fag', photo: 'Foto', search: 'Søk...', lastFive: 'De siste 5 — alle øyeblikk er per fag', setGoal: 'Sett mål',
       duplicate: 'Dupliser', duplicateNote: '✓ Data fylt inn — juster datoen og lagre.', share: 'Del', shared: 'Delt ✓', linkCopied: 'Lenke kopiert!', confirmYes: 'Ja', confirmNo: 'Nei',
       spacedTitle: 'Husker du det fortsatt?', spacedSub: 'Du lærte dette den',
+      guestBanner: 'Du ser en forhåndsvisning av Knowl. Opprett en gratis konto for å lagre dataene dine og bruke alle funksjoner.', guestBannerBtn: 'Opprett gratis konto', guestBannerSub: 'Dine nåværende øyeblikk overføres.',
     },
     results: {
       title: 'Dine resultater', subtitle: 'Se hvordan du har fordelt tiden på fag',
@@ -1514,6 +1531,7 @@ const t = {
       barTitle: 'Minutter per fag', barSub: 'Se hvor jevnt du har fordelt tiden',
       radarTitle: 'Fordeling på fag', radarSub: 'Hvor balansert er oppmerksomheten din?',
       empty: 'Legg til læringsøyeblikk med fag og minutter for å se resultater.',
+      demoNote: 'Dette er eksempelresultater — opprett en konto for dine egne data.', demoBtn: 'Opprett gratis konto', addLink: 'Legg til et øyeblikk →',
       time: 'Tid', minutesSuffix: ' minutter',
     },
     subjects: {

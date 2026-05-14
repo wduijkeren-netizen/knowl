@@ -31,8 +31,8 @@ export default function GuestDashboard() {
   const [editData, setEditData] = useState<Partial<Moment>>({})
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [success, setSuccess] = useState(false)
 
-  // Load from localStorage on mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY)
@@ -41,29 +41,24 @@ export default function GuestDashboard() {
     setLoaded(true)
   }, [])
 
-  // Save to localStorage on change
   useEffect(() => {
     if (!loaded) return
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(moments))
-    } catch {}
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(moments)) } catch {}
   }, [moments, loaded])
 
   function handleAdd(e: React.FormEvent) {
     e.preventDefault()
     setMoments(prev => [{
       id: crypto.randomUUID(),
-      title,
-      description: description || null,
+      title, description: description || null,
       category: category || null,
       learned_at: learnedAt,
       duration_minutes: duration ? parseInt(duration) : null,
     }, ...prev])
-    setTitle('')
-    setDescription('')
-    setCategory('')
-    setDuration('')
+    setTitle(''); setDescription(''); setCategory(''); setDuration('')
     setLearnedAt(new Date().toISOString().split('T')[0])
+    setSuccess(true)
+    setTimeout(() => setSuccess(false), 2500)
   }
 
   function handleDelete(id: string) {
@@ -82,42 +77,64 @@ export default function GuestDashboard() {
   }
 
   const totalMinutes = moments.reduce((sum, m) => sum + (m.duration_minutes ?? 0), 0)
+  const totalHours = Math.floor(totalMinutes / 60)
   const filtered = search
-    ? moments.filter(m => m.title.toLowerCase().includes(search.toLowerCase()) || m.description?.toLowerCase().includes(search.toLowerCase()))
+    ? moments.filter(m => m.title.toLowerCase().includes(search.toLowerCase()) || (m.description ?? '').toLowerCase().includes(search.toLowerCase()))
     : moments
 
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
       <Nav />
 
+      {/* Preview banner — altijd zichtbaar */}
+      <div className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white">
+        <div className="max-w-3xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="bg-white/20 text-white text-xs font-bold px-2.5 py-1 rounded-full shrink-0">VOORBEELD</span>
+            <p className="text-sm text-indigo-100">{d.guestBanner}</p>
+          </div>
+          <Link href="/login?signup=true"
+            className="shrink-0 bg-white text-indigo-700 px-4 py-1.5 rounded-xl text-sm font-bold hover:bg-indigo-50 active:scale-95 transition-all whitespace-nowrap">
+            {d.guestBannerBtn}
+          </Link>
+        </div>
+      </div>
+
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
 
-        {/* Account-prompt — alleen tonen als ze al iets hebben ingevuld */}
-        {moments.length > 0 && (
-          <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-5 py-4 flex justify-between items-center gap-4">
-            <p className="text-sm text-indigo-600">
-              Je hebt {moments.length} {moments.length === 1 ? 'moment' : 'momenten'} opgeslagen in je browser.{' '}
-              <Link href="/login?signup=true" className="font-semibold underline hover:text-indigo-800">
-                Maak een gratis account aan
-              </Link>{' '}
-              om ze permanent te bewaren.
-            </p>
-          </div>
-        )}
-
-        {/* Statistieken */}
-        <div className="grid grid-cols-2 gap-4">
+        {/* Statistieken — zelfde als echte dashboard */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
             <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{d.momentsCount}</p>
             <p className="text-4xl font-bold text-indigo-700 mt-2">{moments.length}</p>
           </div>
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
             <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{d.minutesLearned}</p>
-            <p className="text-4xl font-bold text-indigo-700 mt-2">{totalMinutes}</p>
+            <p className="text-4xl font-bold text-indigo-700 mt-2">{totalMinutes}<span className="text-xl text-indigo-300">m</span></p>
+          </div>
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 col-span-2 md:col-span-1">
+            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{d.inHours}</p>
+            <p className="text-4xl font-bold text-indigo-700 mt-2">{totalHours}<span className="text-xl text-indigo-300">u</span></p>
           </div>
         </div>
 
-        {/* Formulier */}
+        {/* Snelkoppelingen — zelfde sfeer als echte HomePage */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { href: '/resultaten', label: tr.nav.results, icon: '📊' },
+            { href: '/pomodoro', label: tr.nav.timer, icon: '🍅' },
+            { href: '/flashcards', label: tr.nav.flashcards ?? 'Flashcards', icon: '🃏' },
+            { href: '/login?signup=true', label: tr.nav.loginBtn, icon: '👤' },
+          ].map(item => (
+            <Link key={item.href} href={item.href}
+              className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-4 flex flex-col items-center gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all text-center">
+              <span className="text-2xl">{item.icon}</span>
+              <span className="text-xs font-semibold text-indigo-700">{item.label}</span>
+            </Link>
+          ))}
+        </div>
+
+        {/* Formulier — identiek aan echte dashboard */}
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
           <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-4">
             <h2 className="font-semibold text-white">{d.newMoment}</h2>
@@ -128,7 +145,7 @@ export default function GuestDashboard() {
               <label className="block text-sm font-medium text-gray-600 mb-1">{d.title}</label>
               <input value={title} onChange={e => setTitle(e.target.value)} required
                 placeholder={d.titlePlaceholder}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent" />
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">{d.summary} <span className="text-gray-400 font-normal">{d.summaryOptional}</span></label>
@@ -140,13 +157,13 @@ export default function GuestDashboard() {
               <div>
                 <label className="block text-sm font-medium text-gray-600 mb-1">{d.subject}</label>
                 <input value={category} onChange={e => setCategory(e.target.value)}
-                  placeholder={d.minutesPlaceholder}
+                  placeholder={d.chooseSubject}
                   className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600 mb-1">{d.minutes}</label>
                 <input type="number" min="1" value={duration} onChange={e => setDuration(e.target.value)}
-                  placeholder="bijv. 45"
+                  placeholder={d.minutesPlaceholder}
                   className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
               </div>
               <div>
@@ -155,8 +172,16 @@ export default function GuestDashboard() {
                   className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
               </div>
             </div>
+
+            {success && (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-center gap-3">
+                <span className="text-emerald-500 text-lg shrink-0">✓</span>
+                <p className="text-sm text-emerald-700 font-medium">{d.saved}</p>
+              </div>
+            )}
+
             <button type="submit"
-              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl py-3 text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 transition-all shadow-sm shadow-indigo-200">
+              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl py-3 text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 active:scale-95 transition-all shadow-sm shadow-indigo-200">
               {d.add}
             </button>
           </form>
@@ -165,24 +190,30 @@ export default function GuestDashboard() {
         {/* Lijst */}
         <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <h2 className="font-semibold text-indigo-900">Leermomenten ({moments.length})</h2>
+            <h2 className="font-semibold text-indigo-900">{d.recent} ({moments.length})</h2>
           </div>
 
           {moments.length > 0 && (
-            <input value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Zoeken..."
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all" />
+            <div className="relative">
+              <input value={search} onChange={e => setSearch(e.target.value)}
+                placeholder={d.search}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 pl-9 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all" />
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-300 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
           )}
 
           {moments.length === 0 && (
             <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-10 text-center">
-              <p className="text-indigo-300 text-sm">{d.empty}</p>
-              <p className="text-indigo-200 text-xs mt-2">Je data wordt opgeslagen in je browser — ook na vernieuwen.</p>
+              <p className="text-4xl mb-3">📝</p>
+              <p className="text-indigo-900 font-semibold mb-1">{d.empty}</p>
+              <p className="text-indigo-300 text-xs mt-2">{d.guestBannerSub}</p>
             </div>
           )}
 
           {filtered.map(moment => (
-            <div key={moment.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm p-5">
+            <div key={moment.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 hover:-translate-y-0.5 transition-all p-5">
               {editingId === moment.id ? (
                 <div className="space-y-3">
                   <input value={editData.title ?? ''} onChange={e => setEditData({ ...editData, title: e.target.value })}
@@ -191,8 +222,8 @@ export default function GuestDashboard() {
                     rows={2} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none" />
                   <div className="grid grid-cols-3 gap-2">
                     <input value={editData.category ?? ''} onChange={e => setEditData({ ...editData, category: e.target.value })}
-                      placeholder="Vak" className="border border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-                    <input type="number" value={editData.duration_minutes ?? ''} placeholder="Min"
+                      placeholder={d.subject} className="border border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                    <input type="number" value={editData.duration_minutes ?? ''} placeholder={d.minutes}
                       onChange={e => setEditData({ ...editData, duration_minutes: parseInt(e.target.value) || null })}
                       className="border border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
                     <input type="date" value={editData.learned_at ?? ''}
@@ -231,12 +262,24 @@ export default function GuestDashboard() {
                   )}
                   <div className="flex gap-2 mt-3">
                     {moment.category && <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-0.5 font-medium">{moment.category}</span>}
-                    {moment.duration_minutes && <span className="text-xs bg-violet-50 text-violet-500 rounded-full px-2.5 py-0.5 font-medium">{moment.duration_minutes} min</span>}
+                    {moment.duration_minutes && <span className="text-xs bg-violet-50 text-violet-600 rounded-full px-2.5 py-0.5 font-medium">{moment.duration_minutes} min</span>}
                   </div>
                 </>
               )}
             </div>
           ))}
+
+          {/* Onderaan CTA als ze al momenten hebben */}
+          {moments.length >= 2 && (
+            <div className="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-5 text-white text-center">
+              <p className="font-bold text-base">{d.guestBannerBtn} →</p>
+              <p className="text-indigo-200 text-xs mt-1 mb-4">{d.guestBannerSub}</p>
+              <Link href="/login?signup=true"
+                className="inline-block bg-white text-indigo-700 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-50 active:scale-95 transition-all">
+                {d.guestBannerBtn}
+              </Link>
+            </div>
+          )}
         </div>
       </main>
     </div>

@@ -83,12 +83,15 @@ export default function Resultaten({ moments, isGuest }: Props) {
         </div>
 
         {isDemo && (
-          <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-5 py-3 flex justify-between items-center gap-4">
-            <p className="text-sm text-indigo-600">
-              Dit zijn voorbeeldresultaten.{' '}
-              <a href="/login?signup=true" className="font-semibold underline hover:text-indigo-800">Maak een account aan</a>{' '}
-              om jouw eigen data te zien.
+          <div className="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl px-5 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <p className="text-sm text-white">
+              <span className="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded-full mr-2">VOORBEELD</span>
+              {r.demoNote ?? 'Dit zijn voorbeeldresultaten — maak een account aan voor jouw eigen data.'}
             </p>
+            <a href="/login?signup=true"
+              className="shrink-0 bg-white text-indigo-700 px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-indigo-50 transition-colors whitespace-nowrap">
+              {r.demoBtn ?? 'Gratis account aanmaken'}
+            </a>
           </div>
         )}
 
@@ -96,7 +99,7 @@ export default function Resultaten({ moments, isGuest }: Props) {
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-16 text-center">
             <p className="text-indigo-300 text-sm">{r.empty}</p>
             <a href="/leermomenten" className="mt-4 inline-block text-sm bg-indigo-600 text-white px-5 py-2 rounded-xl font-medium hover:bg-indigo-700 transition-colors">
-              Voeg een leermoment toe →
+              {r.addLink ?? 'Voeg een leermoment toe →'}
             </a>
           </div>
         ) : (
