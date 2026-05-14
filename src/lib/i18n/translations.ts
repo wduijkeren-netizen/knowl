@@ -57,6 +57,7 @@ const t = {
       signupBtn: 'Account aanmaken', loginBtn: 'Inloggen', loading: 'Laden...',
       toLogin: 'Al een account? Inloggen →', toSignup: 'Nog geen account? Aanmelden →',
       confirmEmail: 'Check je e-mail voor een bevestigingslink.',
+      emailLabel: 'E-mailadres', passwordLabel: 'Wachtwoord', loginBtn2: 'Inloggen', forgotPw: 'Wachtwoord vergeten?', sendReset: 'Stuur herstelmail', resetSent: 'Check je e-mail voor een herstellink.',
     },
     home: {
       totalHours: 'Totaal uren', thisMonth: 'Deze maand', streak: 'Streak', topSubject: 'Topvak',
@@ -145,6 +146,7 @@ const t = {
       notKnown: 'Nog niet gekend', knownCorrect: 'Correct gekend', showAnswer: 'Toon antwoord',
       strengthNew: 'Nieuw', strengthLearning: 'Aan het leren', strengthOk: 'Redelijk', strengthGood: 'Goed gekend', back: '← Terug',
       'noCards': 'Deze set heeft nog geen kaarten.', 'backToOverview': '← Terug naar overzicht', 'noCardsEdit': 'Geen kaarten — voeg er een toe.', 'noCardsNew': 'Nog geen kaarten — importeer hierboven of voeg handmatig toe.', 'addCard': '+ Kaart toevoegen', 'saveSet': 'Set opslaan', 'searchNoResults': 'Geen sets gevonden voor', 'searchNoResultsMoments': 'Geen resultaten voor', 'noSubjectGroup': '— Geen vak', 'frontPlaceholder': 'Voorkant (vraag)', 'backPlaceholder': 'Achterkant (antwoord)', 'setNameLabel': 'Naam van de set', 'setNamePlaceholder': 'bijv. Frans hoofdstuk 3', 'vakLabel': 'Vak', 'vakOptional': '(optioneel)', 'noVakOption': 'Geen vak', 'importTitle': 'Importeren', 'uploadBtn': 'Bestand uploaden (.txt, .csv, .docx, .pdf)', 'newSetTitle': 'Nieuwe set', 'saving': 'Opslaan...',
+      importDesc: 'Plak woorden of upload een bestand.', importBtn: 'Importeer', cardsCount: 'kaarten', saveChanges: 'Wijzigingen opslaan', errorName: 'Geef de set een naam.', errorMinCard: 'Voeg minimaal één kaart toe.', errorCardComplete: 'Alle kaarten moeten een voor- en achterkant hebben.',
     },
     woordweb: {
       title: 'Woordwebben', subtitle: 'Verbind begrippen visueel met elkaar',
@@ -152,7 +154,7 @@ const t = {
       deleteTitle: 'Woordweb verwijderen?', deleteBody: 'Dit kan niet ongedaan worden gemaakt.',
       confirm: 'Ja, verwijderen', cancel: 'Annuleren',
       emptyTitle: 'Nog geen woordwebben', emptyBody: 'Maak een woordweb om begrippen visueel te verbinden.',
-      emptyBtn: 'Eerste web aanmaken', searchPlaceholder: 'Zoek op naam of vak...',
+      emptyBtn: 'Eerste web aanmaken', searchPlaceholder: 'Zoek op naam of vak...', searchNoResults: 'Geen webben gevonden voor',
       noVak: '— Geen vak', back: '← Terug',
       webName: 'Naam van het web', noSubject: 'Geen vak',
       save: 'Opslaan', saving: 'Opslaan...', saved: 'Opgeslagen ✓',
@@ -240,6 +242,7 @@ const t = {
       signupBtn: 'Create account', loginBtn: 'Log in', loading: 'Loading...',
       toLogin: 'Already have an account? Log in →', toSignup: 'No account yet? Sign up →',
       confirmEmail: 'Check your email for a confirmation link.',
+      emailLabel: 'Email address', passwordLabel: 'Password', loginBtn2: 'Log in', forgotPw: 'Forgot password?', sendReset: 'Send reset email', resetSent: 'Check your email for a reset link.',
     },
     home: {
       totalHours: 'Total hours', thisMonth: 'This month', streak: 'Streak', topSubject: 'Top subject',
@@ -328,6 +331,7 @@ const t = {
       notKnown: 'Not yet', knownCorrect: 'Got it', showAnswer: 'Show answer',
       strengthNew: 'New', strengthLearning: 'Learning', strengthOk: 'Getting there', strengthGood: 'Mastered', back: '← Back',
       'noCards': 'This set has no cards yet.', 'backToOverview': '← Back to overview', 'noCardsEdit': 'No cards — add one.', 'noCardsNew': 'No cards yet — import above or add manually.', 'addCard': '+ Add card', 'saveSet': 'Save set', 'searchNoResults': 'No sets found for', 'searchNoResultsMoments': 'No results for', 'noSubjectGroup': '— No subject', 'frontPlaceholder': 'Front (question)', 'backPlaceholder': 'Back (answer)', 'setNameLabel': 'Set name', 'setNamePlaceholder': 'e.g. French chapter 3', 'vakLabel': 'Subject', 'vakOptional': '(optional)', 'noVakOption': 'No subject', 'importTitle': 'Import', 'uploadBtn': 'Upload file (.txt, .csv, .docx, .pdf)', 'newSetTitle': 'New set', 'saving': 'Saving...',
+      importDesc: 'Paste words or upload a file.', importBtn: 'Import', cardsCount: 'cards', saveChanges: 'Save changes', errorName: 'Give the set a name.', errorMinCard: 'Add at least one card.', errorCardComplete: 'All cards must have a front and back.',
     },
     woordweb: {
       title: 'Word maps', subtitle: 'Connect concepts visually',
@@ -335,7 +339,7 @@ const t = {
       deleteTitle: 'Delete word map?', deleteBody: 'This cannot be undone.',
       confirm: 'Yes, delete', cancel: 'Cancel',
       emptyTitle: 'No word maps yet', emptyBody: 'Create a word map to connect concepts visually.',
-      emptyBtn: 'Create first map', searchPlaceholder: 'Search by name or subject...',
+      emptyBtn: 'Create first map', searchPlaceholder: 'Search by name or subject...', searchNoResults: 'No maps found for',
       noVak: '— No subject', back: '← Back',
       webName: 'Map name', noSubject: 'No subject',
       save: 'Save', saving: 'Saving...', saved: 'Saved ✓',
@@ -423,6 +427,7 @@ const t = {
       signupBtn: 'Crear cuenta', loginBtn: 'Iniciar sesión', loading: 'Cargando...',
       toLogin: '¿Ya tienes cuenta? Inicia sesión →', toSignup: '¿Sin cuenta? Regístrate →',
       confirmEmail: 'Revisa tu correo para confirmar.',
+      emailLabel: 'Correo electrónico', passwordLabel: 'Contraseña', loginBtn2: 'Iniciar sesión', forgotPw: '¿Olvidaste tu contraseña?', sendReset: 'Enviar correo de recuperación', resetSent: 'Revisa tu correo para el enlace de recuperación.',
     },
     home: {
       totalHours: 'Horas totales', thisMonth: 'Este mes', streak: 'Racha', topSubject: 'Mejor asignatura',
@@ -510,6 +515,7 @@ const t = {
       repeatEmptyBody: 'Vuelve mañana para más tarjetas.',
       notKnown: 'Aún no', knownCorrect: 'Correcto', showAnswer: 'Mostrar respuesta',
       strengthNew: 'Nueva', strengthLearning: 'Aprendiendo', strengthOk: 'Casi', strengthGood: 'Dominada', back: '← Volver',
+      noCards: 'Este conjunto no tiene tarjetas aún.', backToOverview: '← Volver al resumen', noCardsEdit: 'Sin tarjetas — añade una.', noCardsNew: 'Sin tarjetas aún — importa arriba o añade manualmente.', addCard: '+ Añadir tarjeta', saveSet: 'Guardar conjunto', searchNoResults: 'Sin conjuntos encontrados para', searchNoResultsMoments: 'Sin resultados para', noSubjectGroup: '— Sin asignatura', frontPlaceholder: 'Frente (pregunta)', backPlaceholder: 'Atrás (respuesta)', setNameLabel: 'Nombre del conjunto', setNamePlaceholder: 'ej. Francés capítulo 3', vakLabel: 'Asignatura', vakOptional: '(opcional)', noVakOption: 'Sin asignatura', importTitle: 'Importar', uploadBtn: 'Subir archivo (.txt, .csv, .docx, .pdf)', newSetTitle: 'Nuevo conjunto', saving: 'Guardando...', importDesc: 'Pega palabras o sube un archivo.', importBtn: 'Importar', cardsCount: 'tarjetas', saveChanges: 'Guardar cambios', errorName: 'Dale un nombre al conjunto.', errorMinCard: 'Añade al menos una tarjeta.', errorCardComplete: 'Todas las tarjetas deben tener frente y reverso.',
     },
     woordweb: {
       title: 'Mapas conceptuales', subtitle: 'Conecta conceptos visualmente',
@@ -517,7 +523,7 @@ const t = {
       deleteTitle: '¿Eliminar mapa?', deleteBody: 'Esta acción no se puede deshacer.',
       confirm: 'Sí, eliminar', cancel: 'Cancelar',
       emptyTitle: 'Sin mapas aún', emptyBody: 'Crea un mapa para conectar conceptos visualmente.',
-      emptyBtn: 'Crear primer mapa', searchPlaceholder: 'Buscar por nombre o asignatura...',
+      emptyBtn: 'Crear primer mapa', searchPlaceholder: 'Buscar por nombre o asignatura...', searchNoResults: 'No se encontraron mapas para',
       noVak: '— Sin asignatura', back: '← Atrás',
       webName: 'Nombre del mapa', noSubject: 'Sin asignatura',
       save: 'Guardar', saving: 'Guardando...', saved: 'Guardado ✓',
@@ -605,6 +611,7 @@ const t = {
       signupBtn: 'Criar conta', loginBtn: 'Entrar', loading: 'Carregando...',
       toLogin: 'Já tem conta? Entre →', toSignup: 'Sem conta? Cadastre-se →',
       confirmEmail: 'Verifique seu e-mail para confirmar.',
+      emailLabel: 'Endereço de e-mail', passwordLabel: 'Palavra-passe', loginBtn2: 'Entrar', forgotPw: 'Esqueceu a palavra-passe?', sendReset: 'Enviar e-mail de recuperação', resetSent: 'Verifique o seu e-mail para o link de recuperação.',
     },
     home: {
       totalHours: 'Horas totais', thisMonth: 'Este mês', streak: 'Sequência', topSubject: 'Melhor disciplina',
@@ -693,6 +700,7 @@ const t = {
       notKnown: 'Ainda não', knownCorrect: 'Correto', showAnswer: 'Mostrar resposta',
       strengthNew: 'Novo', strengthLearning: 'Aprendendo', strengthOk: 'Quase', strengthGood: 'Dominado', back: '← Voltar',
       'noCards': 'Este conjunto ainda não tem cartões.', 'backToOverview': '← Voltar ao resumo', 'noCardsEdit': 'Sem cartões — adicione um.', 'noCardsNew': 'Sem cartões ainda — importe acima ou adicione manualmente.', 'addCard': '+ Adicionar cartão', 'saveSet': 'Guardar conjunto', 'searchNoResults': 'Nenhum conjunto encontrado para', 'searchNoResultsMoments': 'Sem resultados para', 'noSubjectGroup': '— Sem disciplina', 'frontPlaceholder': 'Frente (pergunta)', 'backPlaceholder': 'Atrás (resposta)', 'setNameLabel': 'Nome do conjunto', 'setNamePlaceholder': 'ex. Francês capítulo 3', 'vakLabel': 'Disciplina', 'vakOptional': '(opcional)', 'noVakOption': 'Sem disciplina', 'importTitle': 'Importar', 'uploadBtn': 'Carregar arquivo (.txt, .csv, .docx, .pdf)', 'newSetTitle': 'Novo conjunto', 'saving': 'Guardando...',
+      importDesc: 'Cole palavras ou carregue um ficheiro.', importBtn: 'Importar', cardsCount: 'cartões', saveChanges: 'Guardar alterações', errorName: 'Dê um nome ao conjunto.', errorMinCard: 'Adicione pelo menos um cartão.', errorCardComplete: 'Todos os cartões devem ter frente e verso.',
     },
     woordweb: {
       title: 'Mapas conceituais', subtitle: 'Conecte conceitos visualmente',
@@ -700,7 +708,7 @@ const t = {
       deleteTitle: 'Excluir mapa?', deleteBody: 'Esta ação não pode ser desfeita.',
       confirm: 'Sim, excluir', cancel: 'Cancelar',
       emptyTitle: 'Sem mapas ainda', emptyBody: 'Crie um mapa para conectar conceitos visualmente.',
-      emptyBtn: 'Criar primeiro mapa', searchPlaceholder: 'Buscar por nome ou disciplina...',
+      emptyBtn: 'Criar primeiro mapa', searchPlaceholder: 'Buscar por nome ou disciplina...', searchNoResults: 'Nenhum mapa encontrado para',
       noVak: '— Sem disciplina', back: '← Voltar',
       webName: 'Nome do mapa', noSubject: 'Sem disciplina',
       save: 'Salvar', saving: 'Salvando...', saved: 'Salvo ✓',
@@ -788,6 +796,7 @@ const t = {
       signupBtn: 'Créer un compte', loginBtn: 'Se connecter', loading: 'Chargement...',
       toLogin: 'Déjà un compte ? Connectez-vous →', toSignup: 'Pas de compte ? Inscrivez-vous →',
       confirmEmail: 'Vérifiez votre e-mail pour confirmer.',
+      emailLabel: 'Adresse e-mail', passwordLabel: 'Mot de passe', loginBtn2: 'Se connecter', forgotPw: 'Mot de passe oublié ?', sendReset: "Envoyer l'e-mail de récupération", resetSent: 'Vérifiez votre e-mail pour le lien de récupération.',
     },
     home: {
       totalHours: 'Heures totales', thisMonth: 'Ce mois', streak: 'Série', topSubject: 'Meilleure matière',
@@ -876,6 +885,7 @@ const t = {
       notKnown: 'Pas encore', knownCorrect: 'Correct', showAnswer: 'Afficher la réponse',
       strengthNew: 'Nouveau', strengthLearning: 'En cours', strengthOk: 'Presque', strengthGood: 'Maîtrisé', back: '← Retour',
       'noCards': 'Ce set n\'a pas encore de cartes.', 'backToOverview': '← Retour au résumé', 'noCardsEdit': 'Aucune carte — ajoutez-en une.', 'noCardsNew': 'Pas encore de cartes — importez ci-dessus ou ajoutez manuellement.', 'addCard': '+ Ajouter une carte', 'saveSet': 'Enregistrer le set', 'searchNoResults': 'Aucun set trouvé pour', 'searchNoResultsMoments': 'Aucun résultat pour', 'noSubjectGroup': '— Sans matière', 'frontPlaceholder': 'Recto (question)', 'backPlaceholder': 'Verso (réponse)', 'setNameLabel': 'Nom du set', 'setNamePlaceholder': 'ex. Français chapitre 3', 'vakLabel': 'Matière', 'vakOptional': '(optionnel)', 'noVakOption': 'Sans matière', 'importTitle': 'Importer', 'uploadBtn': 'Télécharger un fichier (.txt, .csv, .docx, .pdf)', 'newSetTitle': 'Nouveau set', 'saving': 'Enregistrement...',
+      importDesc: 'Collez des mots ou téléchargez un fichier.', importBtn: 'Importer', cardsCount: 'cartes', saveChanges: 'Enregistrer les modifications', errorName: 'Donnez un nom au set.', errorMinCard: 'Ajoutez au moins une carte.', errorCardComplete: 'Toutes les cartes doivent avoir un recto et un verso.',
     },
     woordweb: {
       title: 'Cartes conceptuelles', subtitle: 'Connectez des concepts visuellement',
@@ -883,7 +893,7 @@ const t = {
       deleteTitle: 'Supprimer la carte ?', deleteBody: 'Cette action est irréversible.',
       confirm: 'Oui, supprimer', cancel: 'Annuler',
       emptyTitle: 'Aucune carte encore', emptyBody: 'Créez une carte pour connecter des concepts.',
-      emptyBtn: 'Créer première carte', searchPlaceholder: 'Rechercher par nom ou matière...',
+      emptyBtn: 'Créer première carte', searchPlaceholder: 'Rechercher par nom ou matière...', searchNoResults: 'Aucune carte trouvée pour',
       noVak: '— Sans matière', back: '← Retour',
       webName: 'Nom de la carte', noSubject: 'Sans matière',
       save: 'Enregistrer', saving: 'Enregistrement...', saved: 'Enregistré ✓',
@@ -971,6 +981,7 @@ const t = {
       signupBtn: 'Konto erstellen', loginBtn: 'Anmelden', loading: 'Laden...',
       toLogin: 'Bereits ein Konto? Anmelden →', toSignup: 'Noch kein Konto? Registrieren →',
       confirmEmail: 'Prüfe deine E-Mail zur Bestätigung.',
+      emailLabel: 'E-Mail-Adresse', passwordLabel: 'Passwort', loginBtn2: 'Anmelden', forgotPw: 'Passwort vergessen?', sendReset: 'Reset-E-Mail senden', resetSent: 'Prüfe deine E-Mail für den Reset-Link.',
     },
     home: {
       totalHours: 'Gesamtstunden', thisMonth: 'Dieser Monat', streak: 'Streak', topSubject: 'Bestes Fach',
@@ -1059,6 +1070,7 @@ const t = {
       notKnown: 'Noch nicht', knownCorrect: 'Richtig', showAnswer: 'Antwort anzeigen',
       strengthNew: 'Neu', strengthLearning: 'Lernend', strengthOk: 'Fast', strengthGood: 'Gemeistert', back: '← Zurück',
       'noCards': 'Dieses Set hat noch keine Karten.', 'backToOverview': '← Zurück zur Übersicht', 'noCardsEdit': 'Keine Karten — füge eine hinzu.', 'noCardsNew': 'Noch keine Karten — importiere oben oder füge manuell hinzu.', 'addCard': '+ Karte hinzufügen', 'saveSet': 'Set speichern', 'searchNoResults': 'Keine Sets gefunden für', 'searchNoResultsMoments': 'Keine Ergebnisse für', 'noSubjectGroup': '— Kein Fach', 'frontPlaceholder': 'Vorderseite (Frage)', 'backPlaceholder': 'Rückseite (Antwort)', 'setNameLabel': 'Name des Sets', 'setNamePlaceholder': 'z.B. Französisch Kapitel 3', 'vakLabel': 'Fach', 'vakOptional': '(optional)', 'noVakOption': 'Kein Fach', 'importTitle': 'Importieren', 'uploadBtn': 'Datei hochladen (.txt, .csv, .docx, .pdf)', 'newSetTitle': 'Neues Set', 'saving': 'Speichern...',
+      importDesc: 'Füge Wörter ein oder lade eine Datei hoch.', importBtn: 'Importieren', cardsCount: 'Karten', saveChanges: 'Änderungen speichern', errorName: 'Gib dem Set einen Namen.', errorMinCard: 'Füge mindestens eine Karte hinzu.', errorCardComplete: 'Alle Karten müssen eine Vorder- und Rückseite haben.',
     },
     woordweb: {
       title: 'Begriffsnetze', subtitle: 'Verbinde Konzepte visuell',
@@ -1066,7 +1078,7 @@ const t = {
       deleteTitle: 'Begriffsnetz löschen?', deleteBody: 'Diese Aktion kann nicht rückgängig gemacht werden.',
       confirm: 'Ja, löschen', cancel: 'Abbrechen',
       emptyTitle: 'Noch keine Netze', emptyBody: 'Erstelle ein Netz um Konzepte visuell zu verbinden.',
-      emptyBtn: 'Erstes Netz erstellen', searchPlaceholder: 'Nach Name oder Fach suchen...',
+      emptyBtn: 'Erstes Netz erstellen', searchPlaceholder: 'Nach Name oder Fach suchen...', searchNoResults: 'Keine Karten gefunden für',
       noVak: '— Kein Fach', back: '← Zurück',
       webName: 'Name des Netzes', noSubject: 'Kein Fach',
       save: 'Speichern', saving: 'Speichern...', saved: 'Gespeichert ✓',
@@ -1154,6 +1166,7 @@ const t = {
       signupBtn: 'Opret konto', loginBtn: 'Log ind', loading: 'Indlæser...',
       toLogin: 'Har du allerede en konto? Log ind →', toSignup: 'Ingen konto? Tilmeld dig →',
       confirmEmail: 'Tjek din e-mail for bekræftelse.',
+      emailLabel: 'E-mailadresse', passwordLabel: 'Adgangskode', loginBtn2: 'Log ind', forgotPw: 'Glemt adgangskode?', sendReset: 'Send nulstillings-e-mail', resetSent: 'Tjek din e-mail for et nulstillingslink.',
     },
     home: {
       totalHours: 'Samlede timer', thisMonth: 'Denne måned', streak: 'Streak', topSubject: 'Topfag',
@@ -1242,6 +1255,7 @@ const t = {
       notKnown: 'Endnu ikke', knownCorrect: 'Korrekt', showAnswer: 'Vis svar',
       strengthNew: 'Ny', strengthLearning: 'Lærer', strengthOk: 'Næsten', strengthGood: 'Mestret', back: '← Tilbage',
       'noCards': 'Dette sæt har ingen kort endnu.', 'backToOverview': '← Tilbage til oversigt', 'noCardsEdit': 'Ingen kort — tilføj et.', 'noCardsNew': 'Ingen kort endnu — importer ovenfor eller tilføj manuelt.', 'addCard': '+ Tilføj kort', 'saveSet': 'Gem sæt', 'searchNoResults': 'Ingen sæt fundet for', 'searchNoResultsMoments': 'Ingen resultater for', 'noSubjectGroup': '— Intet fag', 'frontPlaceholder': 'Forside (spørgsmål)', 'backPlaceholder': 'Bagside (svar)', 'setNameLabel': 'Sættets navn', 'setNamePlaceholder': 'f.eks. Fransk kapitel 3', 'vakLabel': 'Fag', 'vakOptional': '(valgfri)', 'noVakOption': 'Intet fag', 'importTitle': 'Importer', 'uploadBtn': 'Upload fil (.txt, .csv, .docx, .pdf)', 'newSetTitle': 'Nyt sæt', 'saving': 'Gemmer...',
+      importDesc: 'Indsæt ord eller upload en fil.', importBtn: 'Importer', cardsCount: 'kort', saveChanges: 'Gem ændringer', errorName: 'Giv sættet et navn.', errorMinCard: 'Tilføj mindst et kort.', errorCardComplete: 'Alle kort skal have en for- og bagside.',
     },
     woordweb: {
       title: 'Begrebskort', subtitle: 'Forbind begreber visuelt',
@@ -1249,7 +1263,7 @@ const t = {
       deleteTitle: 'Slet begrebskort?', deleteBody: 'Dette kan ikke fortrydes.',
       confirm: 'Ja, slet', cancel: 'Annuller',
       emptyTitle: 'Ingen kort endnu', emptyBody: 'Opret et kort for at forbinde begreber visuelt.',
-      emptyBtn: 'Opret første kort', searchPlaceholder: 'Søg efter navn eller fag...',
+      emptyBtn: 'Opret første kort', searchPlaceholder: 'Søg efter navn eller fag...', searchNoResults: 'Ingen kort fundet for',
       noVak: '— Intet fag', back: '← Tilbage',
       webName: 'Kortets navn', noSubject: 'Intet fag',
       save: 'Gem', saving: 'Gemmer...', saved: 'Gemt ✓',
@@ -1337,6 +1351,7 @@ const t = {
       signupBtn: 'Skapa konto', loginBtn: 'Logga in', loading: 'Laddar...',
       toLogin: 'Har du redan ett konto? Logga in →', toSignup: 'Inget konto? Registrera dig →',
       confirmEmail: 'Kontrollera din e-post för bekräftelse.',
+      emailLabel: 'E-postadress', passwordLabel: 'Lösenord', loginBtn2: 'Logga in', forgotPw: 'Glömt lösenord?', sendReset: 'Skicka återställningsmail', resetSent: 'Kontrollera din e-post för återställningslänken.',
     },
     home: {
       totalHours: 'Totalt antal timmar', thisMonth: 'Denna månad', streak: 'Streak', topSubject: 'Toppämne',
@@ -1425,6 +1440,7 @@ const t = {
       notKnown: 'Inte än', knownCorrect: 'Rätt', showAnswer: 'Visa svar',
       strengthNew: 'Ny', strengthLearning: 'Lär sig', strengthOk: 'Nästan', strengthGood: 'Behärskat', back: '← Tillbaka',
       'noCards': 'Det här setet har inga kort ännu.', 'backToOverview': '← Tillbaka till översikt', 'noCardsEdit': 'Inga kort — lägg till ett.', 'noCardsNew': 'Inga kort ännu — importera ovan eller lägg till manuellt.', 'addCard': '+ Lägg till kort', 'saveSet': 'Spara set', 'searchNoResults': 'Inga set hittades för', 'searchNoResultsMoments': 'Inga resultat för', 'noSubjectGroup': '— Inget ämne', 'frontPlaceholder': 'Framsida (fråga)', 'backPlaceholder': 'Baksida (svar)', 'setNameLabel': 'Setets namn', 'setNamePlaceholder': 't.ex. Franska kapitel 3', 'vakLabel': 'Ämne', 'vakOptional': '(valfri)', 'noVakOption': 'Inget ämne', 'importTitle': 'Importera', 'uploadBtn': 'Ladda upp fil (.txt, .csv, .docx, .pdf)', 'newSetTitle': 'Nytt set', 'saving': 'Sparar...',
+      importDesc: 'Klistra in ord eller ladda upp en fil.', importBtn: 'Importera', cardsCount: 'kort', saveChanges: 'Spara ändringar', errorName: 'Ge setet ett namn.', errorMinCard: 'Lägg till minst ett kort.', errorCardComplete: 'Alla kort måste ha en fram- och baksida.',
     },
     woordweb: {
       title: 'Begreppskartor', subtitle: 'Koppla ihop begrepp visuellt',
@@ -1432,7 +1448,7 @@ const t = {
       deleteTitle: 'Radera begreppskarta?', deleteBody: 'Detta kan inte ångras.',
       confirm: 'Ja, radera', cancel: 'Avbryt',
       emptyTitle: 'Inga kartor ännu', emptyBody: 'Skapa en karta för att koppla ihop begrepp visuellt.',
-      emptyBtn: 'Skapa första karta', searchPlaceholder: 'Sök på namn eller ämne...',
+      emptyBtn: 'Skapa första karta', searchPlaceholder: 'Sök på namn eller ämne...', searchNoResults: 'Inga kartor hittades för',
       noVak: '— Inget ämne', back: '← Tillbaka',
       webName: 'Kartans namn', noSubject: 'Inget ämne',
       save: 'Spara', saving: 'Sparar...', saved: 'Sparat ✓',
@@ -1520,6 +1536,7 @@ const t = {
       signupBtn: 'Opprett konto', loginBtn: 'Logg inn', loading: 'Laster...',
       toLogin: 'Har du allerede en konto? Logg inn →', toSignup: 'Ingen konto? Registrer deg →',
       confirmEmail: 'Sjekk e-posten din for bekreftelse.',
+      emailLabel: 'E-postadresse', passwordLabel: 'Passord', loginBtn2: 'Logg inn', forgotPw: 'Glemt passord?', sendReset: 'Send tilbakestillings-e-post', resetSent: 'Sjekk e-posten din for en tilbakestillingslenke.',
     },
     home: {
       totalHours: 'Totalt antall timer', thisMonth: 'Denne måneden', streak: 'Streak', topSubject: 'Toppfag',
@@ -1607,7 +1624,8 @@ const t = {
       repeatEmptyBody: 'Kom tilbake i morgen for flere kort.',
       notKnown: 'Ikke ennå', knownCorrect: 'Riktig', showAnswer: 'Vis svar',
       strengthNew: 'Ny', strengthLearning: 'Lærer', strengthOk: 'Nesten', strengthGood: 'Behärskat', back: '← Tilbake',
-      noCards: 'Dette settet har ingen kort ennå.', backToOverview: '← Tilbake til oversikt', noCardsEdit: 'Ingen kort — legg til et.', noCardsNew: 'Ingen kort ennå — importer ovenfor eller legg til manuelt.', addCard: '+ Legg til kort', saveSet: 'Lagre sett', searchNoResults: 'Ingen sett funnet for', searchNoResultsMoments: 'Ingen resultater for', noSubjectGroup: '— Ingen fag', frontPlaceholder: 'Forside (spørsmål)', backPlaceholder: 'Bakside (svar)', setNameLabel: 'Settets navn', setNamePlaceholder: 'f.eks. Fransk kapittel 3', vakLabel: 'Fag', vakOptional: '(valgfri)', noVakOption: 'Ingen fag', importTitle: 'Importer', uploadBtn: 'Last opp fil (.txt, .csv, .docx, .pdf)', newSetTitle: 'Nytt sett', saving: 'Lagrer...',
+      noCards: 'Dette settet har ingen kort ennå.', backToOverview: '← Tilbake til oversikt', noCardsEdit: 'Ingen kort — legg til et.', noCardsNew: 'Ingen kort ennå — importer ovenfor eller legg til manuelt.', addCard: '+ Legg til kort', saveSet: 'Lagre sett', searchNoResults: 'Ingen sett funnet for', searchNoResultsMoments: 'Ingen resultater for', noSubjectGroup: '— Ingen fag', frontPlaceholder: 'Forside (spørsmål)', backPlaceholder: 'Bakside (svar)', setNameLabel: 'Settets navn', setNamePlaceholder: 'f.eks. Fransk kapittel 3', vakLabel: 'Fag', vakOptional: '(valgfri)', noVakOption: 'Ingen fag', importTitle: 'Importer', uploadBtn: 'Last opp fil (.txt, .csv, .docx, .pdf)', newSetTitle: 'Nytt sett',
+      importDesc: 'Lim inn ord eller last opp en fil.', importBtn: 'Importer', cardsCount: 'kort', saveChanges: 'Lagre endringer', errorName: 'Gi settet et navn.', errorMinCard: 'Legg til minst ett kort.', errorCardComplete: 'Alle kort må ha en forside og bakside.',
     },
     woordweb: {
       title: 'Begreppskartor', subtitle: 'Koppla ihop begrepp visuellt',

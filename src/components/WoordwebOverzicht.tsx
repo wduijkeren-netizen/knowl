@@ -85,7 +85,7 @@ export default function WoordwebOverzicht({ webs }: Props) {
           </div>
         ) : filtered.length === 0 ? (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-8 text-center">
-            <p className="text-indigo-300 text-sm">Geen webben gevonden voor &ldquo;{search}&rdquo;</p>
+            <p className="text-indigo-300 text-sm">{ww.searchNoResults} &ldquo;{search}&rdquo;</p>
           </div>
         ) : (
           <div className="space-y-6">

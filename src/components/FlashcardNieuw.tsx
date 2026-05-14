@@ -109,10 +109,10 @@ export default function FlashcardNieuw({ subjects, userId }: Props) {
   }
 
   async function handleSave() {
-    if (!title.trim()) { setError('Geef de set een naam.'); return }
-    if (parsed.length === 0) { setError('Voeg minimaal één kaart toe.'); return }
+    if (!title.trim()) { setError(fc.errorName); return }
+    if (parsed.length === 0) { setError(fc.errorMinCard); return }
     const invalid = parsed.some(c => !c.front.trim() || !c.back.trim())
-    if (invalid) { setError('Alle kaarten moeten een voor- en achterkant hebben.'); return }
+    if (invalid) { setError(fc.errorCardComplete); return }
 
     setLoading(true)
     setError('')
@@ -139,22 +139,22 @@ export default function FlashcardNieuw({ subjects, userId }: Props) {
       <Nav />
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center gap-3">
-          <Link href="/flashcards" className="text-indigo-400 hover:text-indigo-600 transition-colors text-sm">← Terug</Link>
-          <h1 className="text-2xl font-bold text-indigo-900">Nieuwe set</h1>
+          <Link href="/flashcards" className="text-indigo-400 hover:text-indigo-600 transition-colors text-sm">{fc.back}</Link>
+          <h1 className="text-2xl font-bold text-indigo-900">{fc.newSetTitle}</h1>
         </div>
 
         {/* Set info */}
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1.5">Naam van de set</label>
-            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="bijv. Frans hoofdstuk 3"
+            <label className="block text-sm font-medium text-gray-600 mb-1.5">{fc.setNameLabel}</label>
+            <input value={title} onChange={e => setTitle(e.target.value)} placeholder={fc.setNamePlaceholder}
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1.5">Vak <span className="text-gray-400 font-normal">(optioneel)</span></label>
+            <label className="block text-sm font-medium text-gray-600 mb-1.5">{fc.vakLabel} <span className="text-gray-400 font-normal">({fc.vakOptional})</span></label>
             <select value={vak} onChange={e => setVak(e.target.value)}
               className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white transition-all">
-              <option value="">Geen vak</option>
+              <option value="">{fc.noVakOption}</option>
               {subjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
             </select>
           </div>
@@ -163,13 +163,13 @@ export default function FlashcardNieuw({ subjects, userId }: Props) {
         {/* Importeren */}
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6 space-y-4">
           <div>
-            <h2 className="font-semibold text-indigo-900 mb-0.5">Importeren</h2>
+            <h2 className="font-semibold text-indigo-900 mb-0.5">{fc.importTitle}</h2>
             <p className="text-sm text-indigo-400 mb-3">
               Plak woorden of upload een bestand. Ondersteunde formaten: <span className="font-mono bg-indigo-50 px-1.5 py-0.5 rounded text-indigo-600 text-xs">huis - house</span>, <span className="font-mono bg-indigo-50 px-1.5 py-0.5 rounded text-indigo-600 text-xs">huis- house</span>, <span className="font-mono bg-indigo-50 px-1.5 py-0.5 rounded text-indigo-600 text-xs">huis,house</span>, tab (Quizlet). Één paar per regel.
             </p>
             <label className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-indigo-200 rounded-xl px-4 py-3 text-sm text-indigo-400 hover:border-indigo-400 hover:text-indigo-600 transition-colors cursor-pointer mb-3">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Bestand uploaden (.txt, .csv, .docx, .pdf)
+              {fc.uploadBtn}
               <input type="file" accept=".txt,.csv,.docx,.pdf" onChange={handleFile} className="hidden" />
             </label>
             <textarea
@@ -182,7 +182,7 @@ export default function FlashcardNieuw({ subjects, userId }: Props) {
           </div>
           <button onClick={handleImport}
             className="bg-indigo-100 text-indigo-700 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-200 transition-colors">
-            Importeer {importText.trim() ? `(${parseImport(importText).length} kaarten herkend)` : ''}
+            {fc.importBtn}{importText.trim() ? ` (${parseImport(importText).length} ${fc.cardsCount})` : ''}
           </button>
         </div>
 
@@ -190,16 +190,16 @@ export default function FlashcardNieuw({ subjects, userId }: Props) {
         {parsed.length > 0 && (
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6 space-y-3">
             <div className="flex justify-between items-center mb-1">
-              <h2 className="font-semibold text-indigo-900">{parsed.length} kaarten</h2>
-              <button onClick={addCard} className="text-sm text-indigo-500 hover:text-indigo-700 transition-colors">+ Kaart toevoegen</button>
+              <h2 className="font-semibold text-indigo-900">{parsed.length} {fc.cardsCount}</h2>
+              <button onClick={addCard} className="text-sm text-indigo-500 hover:text-indigo-700 transition-colors">{fc.addCard}</button>
             </div>
             {parsed.map((card, i) => (
               <div key={i} className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
                 <input value={card.front} onChange={e => updateCard(i, 'front', e.target.value)}
-                  placeholder="Voorkant (vraag)"
+                  placeholder={fc.frontPlaceholder}
                   className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all" />
                 <input value={card.back} onChange={e => updateCard(i, 'back', e.target.value)}
-                  placeholder="Achterkant (antwoord)"
+                  placeholder={fc.backPlaceholder}
                   className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all" />
                 <button onClick={() => removeCard(i)} className="self-end sm:self-auto text-gray-300 hover:text-red-400 transition-colors p-2 min-w-[44px] min-h-[44px] flex items-center justify-center">✕</button>
               </div>
@@ -210,7 +210,7 @@ export default function FlashcardNieuw({ subjects, userId }: Props) {
         {parsed.length === 0 && (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-6 text-center">
             <p className="text-sm text-indigo-300">{fc.noCardsNew}</p>
-            <button onClick={addCard} className="mt-3 text-sm text-indigo-500 hover:text-indigo-700 transition-colors font-medium">+ Kaart toevoegen</button>
+            <button onClick={addCard} className="mt-3 text-sm text-indigo-500 hover:text-indigo-700 transition-colors font-medium">{fc.addCard}</button>
           </div>
         )}
 
