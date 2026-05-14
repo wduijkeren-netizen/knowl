@@ -14,7 +14,7 @@ export type LangCode = typeof languages[number]['code']
 
 const t = {
   nl: {
-    nav: { moments: 'Leermomenten', results: 'Resultaten', subjects: 'Vakken', logout: 'Uitloggen', more: 'Meer', monthly: 'Maandoverzicht', profile: 'Profiel', home: 'Home', loginBtn: 'Inloggen', timer: 'Timer', week: 'Weekoverzicht', agenda: 'Agenda' },
+    nav: { moments: 'Leermomenten', results: 'Resultaten', subjects: 'Vakken', logout: 'Uitloggen', more: 'Meer', monthly: 'Maandoverzicht', profile: 'Profiel', home: 'Home', loginBtn: 'Inloggen', timer: 'Timer', week: 'Weekoverzicht', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Woordweb', 'feedback': 'Feedback', 'loginLink': 'Inloggen' },
     dashboard: {
       momentsCount: 'Leermomenten', minutesLearned: 'Minuten geleerd', inHours: 'In uren',
       newMoment: 'Nieuw leermoment', newMomentSub: 'Wat heb je vandaag geleerd?',
@@ -144,6 +144,7 @@ const t = {
       repeatEmptyBody: 'Je hebt alle kaarten die aan de beurt waren doorgenomen. Kom morgen terug.',
       notKnown: 'Nog niet gekend', knownCorrect: 'Correct gekend', showAnswer: 'Toon antwoord',
       strengthNew: 'Nieuw', strengthLearning: 'Aan het leren', strengthOk: 'Redelijk', strengthGood: 'Goed gekend', back: '← Terug',
+      'noCards': 'Deze set heeft nog geen kaarten.', 'backToOverview': '← Terug naar overzicht', 'noCardsEdit': 'Geen kaarten — voeg er een toe.', 'noCardsNew': 'Nog geen kaarten — importeer hierboven of voeg handmatig toe.', 'addCard': '+ Kaart toevoegen', 'saveSet': 'Set opslaan', 'searchNoResults': 'Geen sets gevonden voor', 'searchNoResultsMoments': 'Geen resultaten voor', 'noSubjectGroup': '— Geen vak', 'frontPlaceholder': 'Voorkant (vraag)', 'backPlaceholder': 'Achterkant (antwoord)', 'setNameLabel': 'Naam van de set', 'setNamePlaceholder': 'bijv. Frans hoofdstuk 3', 'vakLabel': 'Vak', 'vakOptional': '(optioneel)', 'noVakOption': 'Geen vak', 'importTitle': 'Importeren', 'uploadBtn': 'Bestand uploaden (.txt, .csv, .docx, .pdf)', 'newSetTitle': 'Nieuwe set', 'saving': 'Opslaan...',
     },
     woordweb: {
       title: 'Woordwebben', subtitle: 'Verbind begrippen visueel met elkaar',
@@ -190,9 +191,13 @@ const t = {
       footerCopy: '© 2025 Knowl · Gemaakt voor studenten', contact: 'Contact',
       card1tag: 'Na het college', card1today: 'vandaag', card1title: 'Statistiek H6 — normale verdeling', card1body: 'Eindelijk snap ik het verschil tussen z-score en t-toets. Geoefend met tentamenvragen...', card1sub1: 'Statistiek', card1sub2: '50 min', card2tag: 'Tentamen over', card2days: '8 dagen', card2title: 'Bedrijfseconomie', card2progress: '620 / 1000 minuten — 62% van doel', card2stat1val: '14', card2stat1lab: 'sessies', card2stat2val: '48', card2stat2lab: 'min nodig/dag', card3tag: 'Studeerstreak', card3days: 'dagen op rij gestudeerd', card3sub: 'Beste week: 9u 40min · Topvak: Marketing',
     },
+    invite: { 'tagline': 'Jouw persoonlijke leertracker', 'invited': 'Je bent uitgenodigd', 'invitedBody': 'Je bent uitgenodigd om mee te werken aan de flashcard-set', 'invitedLogin': 'Log in of maak een account aan om toegang te krijgen tot deze set.', 'loginBtn': 'Inloggen om deel te nemen' },
+    reset: { 'title': 'Nieuw wachtwoord instellen', 'subtitle': 'Kies een nieuw wachtwoord voor je account.', 'newPassword': 'Nieuw wachtwoord', 'repeatPassword': 'Herhaal wachtwoord', 'saving': 'Opslaan...', 'saveBtn': 'Wachtwoord opslaan', 'successMsg': 'Wachtwoord succesvol gewijzigd!', 'successSub': 'Je wordt doorgestuurd naar Home…', 'mismatch': 'De wachtwoorden komen niet overeen.', 'tooShort': 'Wachtwoord moet minimaal 6 tekens zijn.' },
+    share: { 'tagline': 'Gedeeld leermoment', 'madeWith': 'Gemaakt met Knowl — jouw persoonlijke leertracker', 'summary': 'Samenvatting' },
+    guest: { 'save': 'Opslaan', 'cancel': 'Annuleren', 'delete': 'Verwijderen', 'summary': 'Samenvatting' },
   },
   en: {
-    nav: { moments: 'Learning moments', results: 'Results', subjects: 'Subjects', logout: 'Log out', more: 'More', monthly: 'Monthly overview', profile: 'Profile', home: 'Home', loginBtn: 'Log in', timer: 'Timer', week: 'Weekly overview', agenda: 'Agenda' },
+    nav: { moments: 'Learning moments', results: 'Results', subjects: 'Subjects', logout: 'Log out', more: 'More', monthly: 'Monthly overview', profile: 'Profile', home: 'Home', loginBtn: 'Log in', timer: 'Timer', week: 'Weekly overview', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Word map', 'feedback': 'Feedback', 'loginLink': 'Log in' },
     dashboard: {
       momentsCount: 'Learning moments', minutesLearned: 'Minutes learned', inHours: 'In hours',
       newMoment: 'New learning moment', newMomentSub: 'What did you learn today?',
@@ -322,6 +327,7 @@ const t = {
       repeatEmptyBody: 'You have reviewed all due cards. Come back tomorrow.',
       notKnown: 'Not yet', knownCorrect: 'Got it', showAnswer: 'Show answer',
       strengthNew: 'New', strengthLearning: 'Learning', strengthOk: 'Getting there', strengthGood: 'Mastered', back: '← Back',
+      'noCards': 'This set has no cards yet.', 'backToOverview': '← Back to overview', 'noCardsEdit': 'No cards — add one.', 'noCardsNew': 'No cards yet — import above or add manually.', 'addCard': '+ Add card', 'saveSet': 'Save set', 'searchNoResults': 'No sets found for', 'searchNoResultsMoments': 'No results for', 'noSubjectGroup': '— No subject', 'frontPlaceholder': 'Front (question)', 'backPlaceholder': 'Back (answer)', 'setNameLabel': 'Set name', 'setNamePlaceholder': 'e.g. French chapter 3', 'vakLabel': 'Subject', 'vakOptional': '(optional)', 'noVakOption': 'No subject', 'importTitle': 'Import', 'uploadBtn': 'Upload file (.txt, .csv, .docx, .pdf)', 'newSetTitle': 'New set', 'saving': 'Saving...',
     },
     woordweb: {
       title: 'Word maps', subtitle: 'Connect concepts visually',
@@ -368,9 +374,13 @@ const t = {
       footerCopy: '© 2025 Knowl · Made for students', contact: 'Contact',
       card1tag: 'After class', card1today: 'today', card1title: 'Statistics Ch6 — normal distribution', card1body: 'Finally I understand the difference between z-score and t-test. Practiced with exam questions...', card1sub1: 'Statistics', card1sub2: '50 min', card2tag: 'Exam in', card2days: '8 days', card2title: 'Business Economics', card2progress: '620 / 1000 minutes — 62% of goal', card2stat1val: '14', card2stat1lab: 'sessions', card2stat2val: '48', card2stat2lab: 'min needed/day', card3tag: 'Study streak', card3days: 'days in a row', card3sub: 'Best week: 9h 40min · Top subject: Marketing',
     },
+    invite: { 'tagline': 'Your personal learning tracker', 'invited': 'You\'ve been invited', 'invitedBody': 'You\'ve been invited to collaborate on the flashcard set', 'invitedLogin': 'Log in or create an account to access this set.', 'loginBtn': 'Log in to join' },
+    reset: { 'title': 'Set new password', 'subtitle': 'Choose a new password for your account.', 'newPassword': 'New password', 'repeatPassword': 'Repeat password', 'saving': 'Saving...', 'saveBtn': 'Save password', 'successMsg': 'Password changed successfully!', 'successSub': 'Redirecting to Home…', 'mismatch': 'The passwords do not match.', 'tooShort': 'Password must be at least 6 characters.' },
+    share: { 'tagline': 'Shared learning moment', 'madeWith': 'Made with Knowl — your personal learning tracker', 'summary': 'Summary' },
+    guest: { 'save': 'Save', 'cancel': 'Cancel', 'delete': 'Delete', 'summary': 'Summary' },
   },
   es: {
-    nav: { moments: 'Momentos de aprendizaje', results: 'Resultados', subjects: 'Asignaturas', logout: 'Cerrar sesión', more: 'Más', monthly: 'Resumen mensual', profile: 'Perfil', home: 'Inicio', loginBtn: 'Iniciar sesión', timer: 'Temporizador', week: 'Resumen semanal', agenda: 'Agenda' },
+    nav: { moments: 'Momentos de aprendizaje', results: 'Resultados', subjects: 'Asignaturas', logout: 'Cerrar sesión', more: 'Más', monthly: 'Resumen mensual', profile: 'Perfil', home: 'Inicio', loginBtn: 'Iniciar sesión', timer: 'Temporizador', week: 'Resumen semanal', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Mapa mental', 'feedback': 'Comentarios', 'loginLink': 'Iniciar sesión' },
     dashboard: {
       momentsCount: 'Momentos', minutesLearned: 'Minutos aprendidos', inHours: 'En horas',
       newMoment: 'Nuevo momento de aprendizaje', newMomentSub: '¿Qué aprendiste hoy?',
@@ -546,9 +556,13 @@ const t = {
       footerCopy: '© 2025 Knowl · Hecho para estudiantes', contact: 'Contacto',
       card1tag: 'Después de clase', card1today: 'hoy', card1title: 'Estadística T6 — distribución normal', card1body: 'Por fin entiendo la diferencia entre puntuación z y t. Practiqué con preguntas de examen...', card1sub1: 'Estadística', card1sub2: '50 min', card2tag: 'Examen en', card2days: '8 días', card2title: 'Economía empresarial', card2progress: '620 / 1000 minutos — 62% del objetivo', card2stat1val: '14', card2stat1lab: 'sesiones', card2stat2val: '48', card2stat2lab: 'min necesarios/día', card3tag: 'Racha de estudio', card3days: 'días seguidos', card3sub: 'Mejor semana: 9h 40min · Top: Marketing',
     },
+    invite: { 'tagline': 'Tu rastreador personal de aprendizaje', 'invited': 'Has sido invitado', 'invitedBody': 'Has sido invitado a colaborar en el conjunto de flashcards', 'invitedLogin': 'Inicia sesión o crea una cuenta para acceder a este conjunto.', 'loginBtn': 'Iniciar sesión para unirse' },
+    reset: { 'title': 'Establecer nueva contraseña', 'subtitle': 'Elige una nueva contraseña para tu cuenta.', 'newPassword': 'Nueva contraseña', 'repeatPassword': 'Repetir contraseña', 'saving': 'Guardando...', 'saveBtn': 'Guardar contraseña', 'successMsg': '¡Contraseña cambiada con éxito!', 'successSub': 'Redirigiendo a Inicio…', 'mismatch': 'Las contraseñas no coinciden.', 'tooShort': 'La contraseña debe tener al menos 6 caracteres.' },
+    share: { 'tagline': 'Momento de aprendizaje compartido', 'madeWith': 'Hecho con Knowl — tu rastreador personal de aprendizaje', 'summary': 'Resumen' },
+    guest: { 'save': 'Guardar', 'cancel': 'Cancelar', 'delete': 'Eliminar', 'summary': 'Resumen' },
   },
   pt: {
-    nav: { moments: 'Momentos de aprendizado', results: 'Resultados', subjects: 'Disciplinas', logout: 'Sair', more: 'Mais', monthly: 'Resumo mensal', profile: 'Perfil', home: 'Início', loginBtn: 'Entrar', timer: 'Temporizador', week: 'Resumo semanal', agenda: 'Agenda' },
+    nav: { moments: 'Momentos de aprendizado', results: 'Resultados', subjects: 'Disciplinas', logout: 'Sair', more: 'Mais', monthly: 'Resumo mensal', profile: 'Perfil', home: 'Início', loginBtn: 'Entrar', timer: 'Temporizador', week: 'Resumo semanal', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Mapa mental', 'feedback': 'Feedback', 'loginLink': 'Entrar' },
     dashboard: {
       momentsCount: 'Momentos', minutesLearned: 'Minutos aprendidos', inHours: 'Em horas',
       newMoment: 'Novo momento de aprendizado', newMomentSub: 'O que você aprendeu hoje?',
@@ -678,6 +692,7 @@ const t = {
       repeatEmptyBody: 'Volte amanhã para mais cartões.',
       notKnown: 'Ainda não', knownCorrect: 'Correto', showAnswer: 'Mostrar resposta',
       strengthNew: 'Novo', strengthLearning: 'Aprendendo', strengthOk: 'Quase', strengthGood: 'Dominado', back: '← Voltar',
+      'noCards': 'Este conjunto ainda não tem cartões.', 'backToOverview': '← Voltar ao resumo', 'noCardsEdit': 'Sem cartões — adicione um.', 'noCardsNew': 'Sem cartões ainda — importe acima ou adicione manualmente.', 'addCard': '+ Adicionar cartão', 'saveSet': 'Guardar conjunto', 'searchNoResults': 'Nenhum conjunto encontrado para', 'searchNoResultsMoments': 'Sem resultados para', 'noSubjectGroup': '— Sem disciplina', 'frontPlaceholder': 'Frente (pergunta)', 'backPlaceholder': 'Atrás (resposta)', 'setNameLabel': 'Nome do conjunto', 'setNamePlaceholder': 'ex. Francês capítulo 3', 'vakLabel': 'Disciplina', 'vakOptional': '(opcional)', 'noVakOption': 'Sem disciplina', 'importTitle': 'Importar', 'uploadBtn': 'Carregar arquivo (.txt, .csv, .docx, .pdf)', 'newSetTitle': 'Novo conjunto', 'saving': 'Guardando...',
     },
     woordweb: {
       title: 'Mapas conceituais', subtitle: 'Conecte conceitos visualmente',
@@ -724,9 +739,13 @@ const t = {
       footerCopy: '© 2025 Knowl · Feito para estudantes', contact: 'Contato',
       card1tag: 'Após a aula', card1today: 'hoje', card1title: 'Estatística Cap6 — distribuição normal', card1body: 'Finalmente entendo a diferença entre z-score e t-teste. Pratiquei com questões de exame...', card1sub1: 'Estatística', card1sub2: '50 min', card2tag: 'Exame em', card2days: '8 dias', card2title: 'Economia Empresarial', card2progress: '620 / 1000 minutos — 62% da meta', card2stat1val: '14', card2stat1lab: 'sessões', card2stat2val: '48', card2stat2lab: 'min necessários/dia', card3tag: 'Sequência de estudo', card3days: 'dias consecutivos', card3sub: 'Melhor semana: 9h 40min · Top: Marketing',
     },
+    invite: { 'tagline': 'O seu rastreador pessoal de aprendizagem', 'invited': 'Foi convidado', 'invitedBody': 'Foi convidado para colaborar no conjunto de flashcards', 'invitedLogin': 'Inicie sessão ou crie uma conta para aceder a este conjunto.', 'loginBtn': 'Iniciar sessão para participar' },
+    reset: { 'title': 'Definir nova palavra-passe', 'subtitle': 'Escolha uma nova palavra-passe para a sua conta.', 'newPassword': 'Nova palavra-passe', 'repeatPassword': 'Repetir palavra-passe', 'saving': 'A guardar...', 'saveBtn': 'Guardar palavra-passe', 'successMsg': 'Palavra-passe alterada com sucesso!', 'successSub': 'A redirecionar para Início…', 'mismatch': 'As palavras-passe não coincidem.', 'tooShort': 'A palavra-passe deve ter pelo menos 6 caracteres.' },
+    share: { 'tagline': 'Momento de aprendizagem partilhado', 'madeWith': 'Feito com Knowl — o seu rastreador pessoal de aprendizagem', 'summary': 'Resumo' },
+    guest: { 'save': 'Guardar', 'cancel': 'Cancelar', 'delete': 'Eliminar', 'summary': 'Resumo' },
   },
   fr: {
-    nav: { moments: "Moments d'apprentissage", results: 'Résultats', subjects: 'Matières', logout: 'Se déconnecter', more: 'Plus', monthly: 'Bilan mensuel', profile: 'Profil', home: 'Accueil', loginBtn: 'Se connecter', timer: 'Minuterie', week: 'Bilan hebdomadaire', agenda: 'Agenda' },
+    nav: { moments: "Moments d'apprentissage", results: 'Résultats', subjects: 'Matières', logout: 'Se déconnecter', more: 'Plus', monthly: 'Bilan mensuel', profile: 'Profil', home: 'Accueil', loginBtn: 'Se connecter', timer: 'Minuterie', week: 'Bilan hebdomadaire', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Carte mentale', 'feedback': 'Retour', 'loginLink': 'Connexion' },
     dashboard: {
       momentsCount: 'Moments', minutesLearned: 'Minutes apprises', inHours: 'En heures',
       newMoment: "Nouveau moment d'apprentissage", newMomentSub: "Qu'avez-vous appris aujourd'hui ?",
@@ -856,6 +875,7 @@ const t = {
       repeatEmptyBody: 'Revenez demain pour plus de cartes.',
       notKnown: 'Pas encore', knownCorrect: 'Correct', showAnswer: 'Afficher la réponse',
       strengthNew: 'Nouveau', strengthLearning: 'En cours', strengthOk: 'Presque', strengthGood: 'Maîtrisé', back: '← Retour',
+      'noCards': 'Ce set n\'a pas encore de cartes.', 'backToOverview': '← Retour au résumé', 'noCardsEdit': 'Aucune carte — ajoutez-en une.', 'noCardsNew': 'Pas encore de cartes — importez ci-dessus ou ajoutez manuellement.', 'addCard': '+ Ajouter une carte', 'saveSet': 'Enregistrer le set', 'searchNoResults': 'Aucun set trouvé pour', 'searchNoResultsMoments': 'Aucun résultat pour', 'noSubjectGroup': '— Sans matière', 'frontPlaceholder': 'Recto (question)', 'backPlaceholder': 'Verso (réponse)', 'setNameLabel': 'Nom du set', 'setNamePlaceholder': 'ex. Français chapitre 3', 'vakLabel': 'Matière', 'vakOptional': '(optionnel)', 'noVakOption': 'Sans matière', 'importTitle': 'Importer', 'uploadBtn': 'Télécharger un fichier (.txt, .csv, .docx, .pdf)', 'newSetTitle': 'Nouveau set', 'saving': 'Enregistrement...',
     },
     woordweb: {
       title: 'Cartes conceptuelles', subtitle: 'Connectez des concepts visuellement',
@@ -902,9 +922,13 @@ const t = {
       footerCopy: '© 2025 Knowl · Conçu pour les étudiants', contact: 'Contact',
       card1tag: "Après le cours", card1today: "aujourd'hui", card1title: "Statistiques Ch6 — loi normale", card1body: "Je comprends enfin la différence entre z-score et t-test. Pratiqué avec des questions d'examen...", card1sub1: "Statistiques", card1sub2: "50 min", card2tag: "Examen dans", card2days: "8 jours", card2title: "Économie d'entreprise", card2progress: "620 / 1000 minutes — 62% de l'objectif", card2stat1val: "14", card2stat1lab: "séances", card2stat2val: "48", card2stat2lab: "min requis/jour", card3tag: "Série d'étude", card3days: "jours de suite", card3sub: "Meilleure semaine: 9h 40min · Top: Marketing",
     },
+    invite: { 'tagline': 'Votre tracker d\'apprentissage personnel', 'invited': 'Vous êtes invité', 'invitedBody': 'Vous êtes invité à collaborer sur le set de flashcards', 'invitedLogin': 'Connectez-vous ou créez un compte pour accéder à ce set.', 'loginBtn': 'Se connecter pour rejoindre' },
+    reset: { 'title': 'Définir un nouveau mot de passe', 'subtitle': 'Choisissez un nouveau mot de passe pour votre compte.', 'newPassword': 'Nouveau mot de passe', 'repeatPassword': 'Répéter le mot de passe', 'saving': 'Enregistrement...', 'saveBtn': 'Enregistrer le mot de passe', 'successMsg': 'Mot de passe modifié avec succès !', 'successSub': 'Redirection vers Accueil…', 'mismatch': 'Les mots de passe ne correspondent pas.', 'tooShort': 'Le mot de passe doit comporter au moins 6 caractères.' },
+    share: { 'tagline': 'Moment d\'apprentissage partagé', 'madeWith': 'Fait avec Knowl — votre tracker d\'apprentissage personnel', 'summary': 'Résumé' },
+    guest: { 'save': 'Enregistrer', 'cancel': 'Annuler', 'delete': 'Supprimer', 'summary': 'Résumé' },
   },
   de: {
-    nav: { moments: 'Lernmomente', results: 'Ergebnisse', subjects: 'Fächer', logout: 'Abmelden', more: 'Mehr', monthly: 'Monatsübersicht', profile: 'Profil', home: 'Start', loginBtn: 'Anmelden', timer: 'Timer', week: 'Wochenübersicht', agenda: 'Agenda' },
+    nav: { moments: 'Lernmomente', results: 'Ergebnisse', subjects: 'Fächer', logout: 'Abmelden', more: 'Mehr', monthly: 'Monatsübersicht', profile: 'Profil', home: 'Start', loginBtn: 'Anmelden', timer: 'Timer', week: 'Wochenübersicht', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begriffsnetz', 'feedback': 'Feedback', 'loginLink': 'Anmelden' },
     dashboard: {
       momentsCount: 'Lernmomente', minutesLearned: 'Gelernte Minuten', inHours: 'In Stunden',
       newMoment: 'Neuer Lernmoment', newMomentSub: 'Was hast du heute gelernt?',
@@ -1034,6 +1058,7 @@ const t = {
       repeatEmptyBody: 'Komm morgen für mehr Karten zurück.',
       notKnown: 'Noch nicht', knownCorrect: 'Richtig', showAnswer: 'Antwort anzeigen',
       strengthNew: 'Neu', strengthLearning: 'Lernend', strengthOk: 'Fast', strengthGood: 'Gemeistert', back: '← Zurück',
+      'noCards': 'Dieses Set hat noch keine Karten.', 'backToOverview': '← Zurück zur Übersicht', 'noCardsEdit': 'Keine Karten — füge eine hinzu.', 'noCardsNew': 'Noch keine Karten — importiere oben oder füge manuell hinzu.', 'addCard': '+ Karte hinzufügen', 'saveSet': 'Set speichern', 'searchNoResults': 'Keine Sets gefunden für', 'searchNoResultsMoments': 'Keine Ergebnisse für', 'noSubjectGroup': '— Kein Fach', 'frontPlaceholder': 'Vorderseite (Frage)', 'backPlaceholder': 'Rückseite (Antwort)', 'setNameLabel': 'Name des Sets', 'setNamePlaceholder': 'z.B. Französisch Kapitel 3', 'vakLabel': 'Fach', 'vakOptional': '(optional)', 'noVakOption': 'Kein Fach', 'importTitle': 'Importieren', 'uploadBtn': 'Datei hochladen (.txt, .csv, .docx, .pdf)', 'newSetTitle': 'Neues Set', 'saving': 'Speichern...',
     },
     woordweb: {
       title: 'Begriffsnetze', subtitle: 'Verbinde Konzepte visuell',
@@ -1080,9 +1105,13 @@ const t = {
       footerCopy: '© 2025 Knowl · Für Studenten gemacht', contact: 'Kontakt',
       card1tag: 'Nach der Vorlesung', card1today: 'heute', card1title: 'Statistik K6 — Normalverteilung', card1body: 'Endlich verstehe ich den Unterschied zwischen z-Score und t-Test. Mit Prüfungsfragen geübt...', card1sub1: 'Statistik', card1sub2: '50 Min', card2tag: 'Prüfung in', card2days: '8 Tagen', card2title: 'Betriebswirtschaft', card2progress: '620 / 1000 Minuten — 62% des Ziels', card2stat1val: '14', card2stat1lab: 'Einheiten', card2stat2val: '48', card2stat2lab: 'Min nötig/Tag', card3tag: 'Lernserie', card3days: 'Tage am Stück', card3sub: 'Beste Woche: 9h 40min · Top: Marketing',
     },
+    invite: { 'tagline': 'Dein persönlicher Lerntracker', 'invited': 'Du wurdest eingeladen', 'invitedBody': 'Du wurdest eingeladen, am Flashcard-Set mitzuwirken', 'invitedLogin': 'Melde dich an oder erstelle ein Konto, um auf dieses Set zuzugreifen.', 'loginBtn': 'Anmelden um beizutreten' },
+    reset: { 'title': 'Neues Passwort festlegen', 'subtitle': 'Wähle ein neues Passwort für dein Konto.', 'newPassword': 'Neues Passwort', 'repeatPassword': 'Passwort wiederholen', 'saving': 'Speichern...', 'saveBtn': 'Passwort speichern', 'successMsg': 'Passwort erfolgreich geändert!', 'successSub': 'Du wirst zu Home weitergeleitet…', 'mismatch': 'Die Passwörter stimmen nicht überein.', 'tooShort': 'Passwort muss mindestens 6 Zeichen lang sein.' },
+    share: { 'tagline': 'Geteilter Lernmoment', 'madeWith': 'Erstellt mit Knowl — dein persönlicher Lerntracker', 'summary': 'Zusammenfassung' },
+    guest: { 'save': 'Speichern', 'cancel': 'Abbrechen', 'delete': 'Löschen', 'summary': 'Zusammenfassung' },
   },
   da: {
-    nav: { moments: 'Læringsøjeblikke', results: 'Resultater', subjects: 'Fag', logout: 'Log ud', more: 'Mere', monthly: 'Månedsoversigt', profile: 'Profil', home: 'Hjem', loginBtn: 'Log ind', timer: 'Timer', week: 'Ugeoversigt', agenda: 'Agenda' },
+    nav: { moments: 'Læringsøjeblikke', results: 'Resultater', subjects: 'Fag', logout: 'Log ud', more: 'Mere', monthly: 'Månedsoversigt', profile: 'Profil', home: 'Hjem', loginBtn: 'Log ind', timer: 'Timer', week: 'Ugeoversigt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begrebskort', 'feedback': 'Feedback', 'loginLink': 'Log ind' },
     dashboard: {
       momentsCount: 'Læringsøjeblikke', minutesLearned: 'Minutter lært', inHours: 'I timer',
       newMoment: 'Nyt læringsøjeblik', newMomentSub: 'Hvad lærte du i dag?',
@@ -1212,6 +1241,7 @@ const t = {
       repeatEmptyBody: 'Kom tilbage i morgen for flere kort.',
       notKnown: 'Endnu ikke', knownCorrect: 'Korrekt', showAnswer: 'Vis svar',
       strengthNew: 'Ny', strengthLearning: 'Lærer', strengthOk: 'Næsten', strengthGood: 'Mestret', back: '← Tilbage',
+      'noCards': 'Dette sæt har ingen kort endnu.', 'backToOverview': '← Tilbage til oversigt', 'noCardsEdit': 'Ingen kort — tilføj et.', 'noCardsNew': 'Ingen kort endnu — importer ovenfor eller tilføj manuelt.', 'addCard': '+ Tilføj kort', 'saveSet': 'Gem sæt', 'searchNoResults': 'Ingen sæt fundet for', 'searchNoResultsMoments': 'Ingen resultater for', 'noSubjectGroup': '— Intet fag', 'frontPlaceholder': 'Forside (spørgsmål)', 'backPlaceholder': 'Bagside (svar)', 'setNameLabel': 'Sættets navn', 'setNamePlaceholder': 'f.eks. Fransk kapitel 3', 'vakLabel': 'Fag', 'vakOptional': '(valgfri)', 'noVakOption': 'Intet fag', 'importTitle': 'Importer', 'uploadBtn': 'Upload fil (.txt, .csv, .docx, .pdf)', 'newSetTitle': 'Nyt sæt', 'saving': 'Gemmer...',
     },
     woordweb: {
       title: 'Begrebskort', subtitle: 'Forbind begreber visuelt',
@@ -1258,9 +1288,13 @@ const t = {
       footerCopy: '© 2025 Knowl · Lavet for studerende', contact: 'Kontakt',
       card1tag: 'Efter forelæsning', card1today: 'i dag', card1title: 'Statistik K6 — normalfordeling', card1body: 'Endelig forstår jeg forskellen mellem z-score og t-test. Øvede med eksamensopgaver...', card1sub1: 'Statistik', card1sub2: '50 min', card2tag: 'Eksamen om', card2days: '8 dage', card2title: 'Erhvervsøkonomi', card2progress: '620 / 1000 minutter — 62% af mål', card2stat1val: '14', card2stat1lab: 'sessioner', card2stat2val: '48', card2stat2lab: 'min behov/dag', card3tag: 'Studieserie', card3days: 'dage i træk', card3sub: 'Bedste uge: 9t 40min · Top: Marketing',
     },
+    invite: { 'tagline': 'Din personlige læringstracker', 'invited': 'Du er inviteret', 'invitedBody': 'Du er inviteret til at samarbejde om flashcard-sættet', 'invitedLogin': 'Log ind eller opret en konto for at få adgang til dette sæt.', 'loginBtn': 'Log ind for at deltage' },
+    reset: { 'title': 'Angiv nyt adgangskode', 'subtitle': 'Vælg et nyt adgangskode til din konto.', 'newPassword': 'Nyt adgangskode', 'repeatPassword': 'Gentag adgangskode', 'saving': 'Gemmer...', 'saveBtn': 'Gem adgangskode', 'successMsg': 'Adgangskode ændret!', 'successSub': 'Omdirigerer til Hjem…', 'mismatch': 'Adgangskoderne stemmer ikke overens.', 'tooShort': 'Adgangskode skal være mindst 6 tegn.' },
+    share: { 'tagline': 'Delt læringsøjeblik', 'madeWith': 'Lavet med Knowl — din personlige læringstracker', 'summary': 'Resumé' },
+    guest: { 'save': 'Gem', 'cancel': 'Annuller', 'delete': 'Slet', 'summary': 'Resumé' },
   },
   sv: {
-    nav: { moments: 'Lärstunder', results: 'Resultat', subjects: 'Ämnen', logout: 'Logga ut', more: 'Mer', monthly: 'Månadsöversikt', profile: 'Profil', home: 'Hem', loginBtn: 'Logga in', timer: 'Timer', week: 'Veckosöversikt', agenda: 'Agenda' },
+    nav: { moments: 'Lärstunder', results: 'Resultat', subjects: 'Ämnen', logout: 'Logga ut', more: 'Mer', monthly: 'Månadsöversikt', profile: 'Profil', home: 'Hem', loginBtn: 'Logga in', timer: 'Timer', week: 'Veckosöversikt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begreppskarta', 'feedback': 'Feedback', 'loginLink': 'Logga in' },
     dashboard: {
       momentsCount: 'Lärstunder', minutesLearned: 'Minuter lärt', inHours: 'I timmar',
       newMoment: 'Ny lärstund', newMomentSub: 'Vad lärde du dig idag?',
@@ -1390,6 +1424,7 @@ const t = {
       repeatEmptyBody: 'Kom tillbaka imorgon för fler kort.',
       notKnown: 'Inte än', knownCorrect: 'Rätt', showAnswer: 'Visa svar',
       strengthNew: 'Ny', strengthLearning: 'Lär sig', strengthOk: 'Nästan', strengthGood: 'Behärskat', back: '← Tillbaka',
+      'noCards': 'Det här setet har inga kort ännu.', 'backToOverview': '← Tillbaka till översikt', 'noCardsEdit': 'Inga kort — lägg till ett.', 'noCardsNew': 'Inga kort ännu — importera ovan eller lägg till manuellt.', 'addCard': '+ Lägg till kort', 'saveSet': 'Spara set', 'searchNoResults': 'Inga set hittades för', 'searchNoResultsMoments': 'Inga resultat för', 'noSubjectGroup': '— Inget ämne', 'frontPlaceholder': 'Framsida (fråga)', 'backPlaceholder': 'Baksida (svar)', 'setNameLabel': 'Setets namn', 'setNamePlaceholder': 't.ex. Franska kapitel 3', 'vakLabel': 'Ämne', 'vakOptional': '(valfri)', 'noVakOption': 'Inget ämne', 'importTitle': 'Importera', 'uploadBtn': 'Ladda upp fil (.txt, .csv, .docx, .pdf)', 'newSetTitle': 'Nytt set', 'saving': 'Sparar...',
     },
     woordweb: {
       title: 'Begreppskartor', subtitle: 'Koppla ihop begrepp visuellt',
@@ -1436,9 +1471,13 @@ const t = {
       footerCopy: '© 2025 Knowl · Gjort för studenter', contact: 'Kontakt',
       card1tag: 'Efter föreläsning', card1today: 'idag', card1title: 'Statistik K6 — normalfördelning', card1body: 'Äntligen förstår jag skillnaden mellan z-score och t-test. Övade med tentafrågor...', card1sub1: 'Statistik', card1sub2: '50 min', card2tag: 'Tenta om', card2days: '8 dagar', card2title: 'Företagsekonomi', card2progress: '620 / 1000 minuter — 62% av mål', card2stat1val: '14', card2stat1lab: 'sessioner', card2stat2val: '48', card2stat2lab: 'min behövs/dag', card3tag: 'Studieserie', card3days: 'dagar i rad', card3sub: 'Bästa vecka: 9t 40min · Toppämne: Marketing',
     },
+    invite: { 'tagline': 'Din personliga lärspårare', 'invited': 'Du är inbjuden', 'invitedBody': 'Du är inbjuden att samarbeta om flashcard-setet', 'invitedLogin': 'Logga in eller skapa ett konto för att komma åt detta set.', 'loginBtn': 'Logga in för att gå med' },
+    reset: { 'title': 'Ange nytt lösenord', 'subtitle': 'Välj ett nytt lösenord för ditt konto.', 'newPassword': 'Nytt lösenord', 'repeatPassword': 'Upprepa lösenord', 'saving': 'Sparar...', 'saveBtn': 'Spara lösenord', 'successMsg': 'Lösenord ändrat!', 'successSub': 'Omdirigerar till Hem…', 'mismatch': 'Lösenorden stämmer inte överens.', 'tooShort': 'Lösenordet måste vara minst 6 tecken.' },
+    share: { 'tagline': 'Delat lärmoment', 'madeWith': 'Gjort med Knowl — din personliga lärspårare', 'summary': 'Sammanfattning' },
+    guest: { 'save': 'Spara', 'cancel': 'Avbryt', 'delete': 'Radera', 'summary': 'Sammanfattning' },
   },
   no: {
-    nav: { moments: 'Læringsøyeblikk', results: 'Resultater', subjects: 'Fag', logout: 'Logg ut', more: 'Mer', monthly: 'Månedsoversikt', profile: 'Profil', home: 'Hjem', loginBtn: 'Logg inn', timer: 'Timer', week: 'Ukeoversikt', agenda: 'Agenda' },
+    nav: { moments: 'Læringsøyeblikk', results: 'Resultater', subjects: 'Fag', logout: 'Logg ut', more: 'Mer', monthly: 'Månedsoversikt', profile: 'Profil', home: 'Hjem', loginBtn: 'Logg inn', timer: 'Timer', week: 'Ukeoversikt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begrepskart', 'feedback': 'Tilbakemelding', 'loginLink': 'Logg inn' },
     dashboard: {
       momentsCount: 'Læringsøyeblikk', minutesLearned: 'Minutter lært', inHours: 'I timer',
       newMoment: 'Nytt læringsøyeblikk', newMomentSub: 'Hva lærte du i dag?',
@@ -1567,7 +1606,8 @@ const t = {
       repeatDone: 'Gjentakelse fullført', repeatEmpty: 'Alt er oppdatert for i dag',
       repeatEmptyBody: 'Kom tilbake i morgen for flere kort.',
       notKnown: 'Ikke ennå', knownCorrect: 'Riktig', showAnswer: 'Vis svar',
-      strengthNew: 'Ny', strengthLearning: 'Lærer', strengthOk: 'Nesten', strengthGood: 'Behärskat',
+      strengthNew: 'Ny', strengthLearning: 'Lærer', strengthOk: 'Nesten', strengthGood: 'Behärskat', back: '← Tilbake',
+      noCards: 'Dette settet har ingen kort ennå.', backToOverview: '← Tilbake til oversikt', noCardsEdit: 'Ingen kort — legg til et.', noCardsNew: 'Ingen kort ennå — importer ovenfor eller legg til manuelt.', addCard: '+ Legg til kort', saveSet: 'Lagre sett', searchNoResults: 'Ingen sett funnet for', searchNoResultsMoments: 'Ingen resultater for', noSubjectGroup: '— Ingen fag', frontPlaceholder: 'Forside (spørsmål)', backPlaceholder: 'Bakside (svar)', setNameLabel: 'Settets navn', setNamePlaceholder: 'f.eks. Fransk kapittel 3', vakLabel: 'Fag', vakOptional: '(valgfri)', noVakOption: 'Ingen fag', importTitle: 'Importer', uploadBtn: 'Last opp fil (.txt, .csv, .docx, .pdf)', newSetTitle: 'Nytt sett', saving: 'Lagrer...',
     },
     woordweb: {
       title: 'Begreppskartor', subtitle: 'Koppla ihop begrepp visuellt',
@@ -1614,6 +1654,10 @@ const t = {
       footerCopy: '© 2025 Knowl · Laget for studenter', contact: 'Kontakt',
       card1tag: 'Etter forelesning', card1today: 'i dag', card1title: 'Statistikk K6 — normalfordeling', card1body: 'Endelig forstår jeg forskjellen mellom z-score og t-test. Øvde med eksamensoppgaver...', card1sub1: 'Statistikk', card1sub2: '50 min', card2tag: 'Eksamen om', card2days: '8 dager', card2title: 'Bedriftsøkonomi', card2progress: '620 / 1000 minutter — 62% av mål', card2stat1val: '14', card2stat1lab: 'økter', card2stat2val: '48', card2stat2lab: 'min behov/dag', card3tag: 'Studieserie', card3days: 'dager på rad', card3sub: 'Beste uke: 9t 40min · Toppfag: Marketing',
     },
+    invite: { 'tagline': 'Din personlige læringssporer', 'invited': 'Du er invitert', 'invitedBody': 'Du er invitert til å samarbeide om flashcard-settet', 'invitedLogin': 'Logg inn eller opprett en konto for å få tilgang til dette settet.', 'loginBtn': 'Logg inn for å delta' },
+    reset: { 'title': 'Angi nytt passord', 'subtitle': 'Velg et nytt passord for kontoen din.', 'newPassword': 'Nytt passord', 'repeatPassword': 'Gjenta passord', 'saving': 'Lagrer...', 'saveBtn': 'Lagre passord', 'successMsg': 'Passord endret!', 'successSub': 'Omdirigerer til Hjem…', 'mismatch': 'Passordene stemmer ikke overens.', 'tooShort': 'Passordet må være minst 6 tegn.' },
+    share: { 'tagline': 'Delt læringsøyeblikk', 'madeWith': 'Laget med Knowl — din personlige læringssporer', 'summary': 'Sammendrag' },
+    guest: { 'save': 'Lagre', 'cancel': 'Avbryt', 'delete': 'Slett', 'summary': 'Sammendrag' },
   },
 } as const
 

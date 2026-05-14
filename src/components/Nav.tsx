@@ -26,8 +26,8 @@ export default function Nav() {
   const allLinks = isLoggedIn ? [
     { href: '/home', label: tr.nav.home },
     { href: '/leermomenten', label: tr.nav.moments },
-    { href: '/flashcards', label: 'Flashcards' },
-    { href: '/woordweb', label: 'Woordweb' },
+    { href: '/flashcards', label: tr.nav.flashcards },
+    { href: '/woordweb', label: tr.nav.woordweb },
     { href: '/resultaten', label: tr.nav.results },
     { href: '/pomodoro', label: tr.nav.timer },
     { href: '/vakken', label: tr.nav.subjects },
@@ -181,7 +181,7 @@ export default function Nav() {
             </select>
             <a href="mailto:myknowl@hotmail.com?subject=Feedback Knowl"
               className="text-sm text-indigo-400 hover:text-indigo-600 px-3 py-1.5">
-              Feedback
+              {tr.nav.feedback}
             </a>
             {isLoggedIn ? (
               <button onClick={handleLogout} className="text-sm text-red-400 hover:text-red-600 px-3 py-1.5">
@@ -190,7 +190,7 @@ export default function Nav() {
             ) : (
               <Link href="/login" onClick={() => setShowMobileMenu(false)}
                 className="text-sm bg-indigo-600 text-white px-4 py-1.5 rounded-lg font-medium">
-                Log in
+                {tr.nav.loginLink}
               </Link>
             )}
           </div>

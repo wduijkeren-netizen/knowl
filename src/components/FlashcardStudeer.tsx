@@ -83,8 +83,8 @@ export default function FlashcardStudeer({ set, cards: initialCards, srMap }: Pr
       <div className="min-h-screen bg-[#f8f7ff]">
         <Nav />
         <main className="max-w-3xl mx-auto px-4 py-8 text-center">
-          <p className="text-indigo-400">Deze set heeft nog geen kaarten.</p>
-          <Link href="/flashcards" className="mt-4 inline-block text-sm text-indigo-600 hover:underline">← Terug naar overzicht</Link>
+          <p className="text-indigo-400">{fc.noCards}</p>
+          <Link href="/flashcards" className="mt-4 inline-block text-sm text-indigo-600 hover:underline">{fc.backToOverview}</Link>
         </main>
       </div>
     )

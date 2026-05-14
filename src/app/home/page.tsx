@@ -16,7 +16,7 @@ export default async function Home() {
     supabase.from('learning_moments').select('duration_minutes, learned_at, category').order('learned_at', { ascending: false }),
     supabase.from('learning_moments').select('category, duration_minutes').gte('learned_at', firstOfMonth),
     supabase.from('subjects').select('name, goal_minutes, goal_date, recurring_type, recurring_goal_minutes'),
-    supabase.from('profiles').select('voornaam').eq('id', user.id).single(),
+    supabase.from('profiles').select('voornaam').eq('id', user.id).maybeSingle(),
     supabase.from('study_sessions').select('activity, duration_seconds, created_at').gte('created_at', weekAgo),
   ])
 

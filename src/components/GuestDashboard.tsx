@@ -18,6 +18,7 @@ const STORAGE_KEY = 'knowl_guest_moments'
 
 export default function GuestDashboard() {
   const { tr } = useLanguage()
+  const g = tr.guest
   const d = tr.dashboard
   const [moments, setMoments] = useState<Moment[]>([])
   const [loaded, setLoaded] = useState(false)
@@ -200,8 +201,8 @@ export default function GuestDashboard() {
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => handleSaveEdit(moment.id)}
-                      className="text-sm bg-indigo-600 text-white rounded-xl px-4 py-2 hover:bg-indigo-700 transition-colors font-medium">Opslaan</button>
-                    <button onClick={() => setEditingId(null)} className="text-sm text-gray-400 hover:text-gray-600 px-3 py-2">Annuleren</button>
+                      className="text-sm bg-indigo-600 text-white rounded-xl px-4 py-2 hover:bg-indigo-700 transition-colors font-medium">{g.save}</button>
+                    <button onClick={() => setEditingId(null)} className="text-sm text-gray-400 hover:text-gray-600 px-3 py-2">{g.cancel}</button>
                   </div>
                 </div>
               ) : (
@@ -218,13 +219,13 @@ export default function GuestDashboard() {
                           <button onClick={() => setConfirmDeleteId(null)} className="text-xs text-gray-400 hover:text-gray-600">Nee</button>
                         </span>
                       ) : (
-                        <button onClick={() => setConfirmDeleteId(moment.id)} className="text-xs text-gray-300 hover:text-red-400 transition-colors">Verwijderen</button>
+                        <button onClick={() => setConfirmDeleteId(moment.id)} className="text-xs text-gray-300 hover:text-red-400 transition-colors">{g.delete}</button>
                       )}
                     </div>
                   </div>
                   {moment.description && (
                     <div className="mt-3 bg-indigo-50 rounded-xl p-3">
-                      <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1">Samenvatting</p>
+                      <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1">{g.summary}</p>
                       <p className="text-sm text-indigo-800 leading-relaxed">{moment.description}</p>
                     </div>
                   )}

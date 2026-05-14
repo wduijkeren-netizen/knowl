@@ -22,7 +22,7 @@ export default async function LidWordenPage({ params }: { params: { token: strin
       .select('id')
       .eq('set_id', set.id)
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
     if (!existing) {
       await supabase.from('flashcard_set_members').insert({ set_id: set.id, user_id: user.id })

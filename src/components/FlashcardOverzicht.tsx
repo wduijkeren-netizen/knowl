@@ -77,11 +77,11 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
   // Groepeer per vak
   const groups: Record<string, Set[]> = {}
   for (const s of filtered) {
-    const key = s.vak ?? '— Geen vak'
+    const key = s.vak ?? fc.noSubjectGroup
     if (!groups[key]) groups[key] = []
     groups[key].push(s)
   }
-  const groupKeys = Object.keys(groups).sort((a, b) => a === '— Geen vak' ? 1 : b === '— Geen vak' ? -1 : a.localeCompare(b))
+  const groupKeys = Object.keys(groups).sort((a, b) => a === fc.noSubjectGroup ? 1 : b === fc.noSubjectGroup ? -1 : a.localeCompare(b))
 
   function renderSet(set: Set) {
     const pct = progress[set.id] ?? -1
@@ -211,7 +211,7 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
           </div>
         ) : filtered.length === 0 ? (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-8 text-center">
-            <p className="text-indigo-300 text-sm">Geen sets gevonden voor &ldquo;{search}&rdquo;</p>
+            <p className="text-indigo-300 text-sm">{fc.searchNoResults} &ldquo;{search}&rdquo;</p>
           </div>
         ) : (
           <div className="space-y-6">

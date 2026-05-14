@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Nav from '@/components/Nav'
 import Link from 'next/link'
 import { vertaalFout } from '@/lib/foutmelding'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Subject = { id: string; name: string }
 type Props = { subjects: Subject[]; userId: string }
@@ -36,6 +37,8 @@ function parseImport(text: string): ParsedCard[] {
 }
 
 export default function FlashcardNieuw({ subjects, userId }: Props) {
+  const { tr } = useLanguage()
+  const fc = tr.flashcards
   const router = useRouter()
   const supabase = createClient()
 
@@ -206,7 +209,7 @@ export default function FlashcardNieuw({ subjects, userId }: Props) {
 
         {parsed.length === 0 && (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-6 text-center">
-            <p className="text-sm text-indigo-300">Nog geen kaarten — importeer hierboven of voeg handmatig toe.</p>
+            <p className="text-sm text-indigo-300">{fc.noCardsNew}</p>
             <button onClick={addCard} className="mt-3 text-sm text-indigo-500 hover:text-indigo-700 transition-colors font-medium">+ Kaart toevoegen</button>
           </div>
         )}
@@ -216,7 +219,7 @@ export default function FlashcardNieuw({ subjects, userId }: Props) {
         {(parsed.length > 0 || title) && (
           <button onClick={handleSave} disabled={loading}
             className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl py-3 text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 disabled:opacity-50 transition-all shadow-sm shadow-indigo-200">
-            {loading ? 'Opslaan...' : `Set opslaan (${parsed.length} kaarten)`}
+            {loading ? fc.saving : `${fc.saveSet} (${parsed.length})`}
           </button>
         )}
       </main>

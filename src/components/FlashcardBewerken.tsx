@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Nav from '@/components/Nav'
 import Link from 'next/link'
 import { vertaalFout } from '@/lib/foutmelding'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Card = { id: string; front: string; back: string }
 type Set = { id: string; title: string; vak: string | null }
@@ -15,6 +16,8 @@ type Props = { set: Set; cards: Card[]; subjects: Subject[]; userId: string }
 function uid() { return Math.random().toString(36).slice(2) }
 
 export default function FlashcardBewerken({ set, cards: initialCards, subjects, userId }: Props) {
+  const { tr } = useLanguage()
+  const fc = tr.flashcards
   const router = useRouter()
   const supabase = createClient()
 
@@ -115,7 +118,7 @@ export default function FlashcardBewerken({ set, cards: initialCards, subjects, 
             </div>
           ))}
           {cards.length === 0 && (
-            <p className="text-sm text-indigo-300 text-center py-4">Geen kaarten — voeg er een toe.</p>
+            <p className="text-sm text-indigo-300 text-center py-4">{fc.noCardsEdit}</p>
           )}
         </div>
 

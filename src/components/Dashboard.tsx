@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
@@ -79,10 +79,10 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const spacedKey = spacedMoment ? `knowl_spaced_dismissed_${spacedMoment.id}` : null
   const [showSpaced, setShowSpaced] = useState(false)
-  useState(() => {
+  useEffect(() => {
     if (!spacedKey) return
     try { if (!localStorage.getItem(spacedKey)) setShowSpaced(true) } catch {}
-  })
+  }, [spacedKey])
   const [search, setSearch] = useState('')
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [duplicateSuccess, setDuplicateSuccess] = useState(false)
@@ -465,7 +465,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
 
           {search && moments.filter(m => m.title.toLowerCase().includes(search.toLowerCase()) || m.description?.toLowerCase().includes(search.toLowerCase())).length === 0 && (
             <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-8 text-center">
-              <p className="text-indigo-300 text-sm">Geen resultaten voor &ldquo;{search}&rdquo;</p>
+              <p className="text-indigo-300 text-sm">{tr.flashcards.searchNoResultsMoments} &ldquo;{search}&rdquo;</p>
             </div>
           )}
 
