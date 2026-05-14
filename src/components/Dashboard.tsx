@@ -393,11 +393,16 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
 
             {duplicateSuccess && <div className="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3"><p className="text-sm text-indigo-600 font-medium">{d.duplicateNote}</p></div>}
             {error && <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3"><p className="text-sm text-red-600">{error}</p></div>}
-            {success && <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3"><p className="text-sm text-emerald-600 font-medium">{d.saved}</p></div>}
+            {success && (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-center gap-3">
+                <span className="text-emerald-500 text-lg shrink-0">✓</span>
+                <p className="text-sm text-emerald-700 font-medium">{d.saved}</p>
+              </div>
+            )}
 
             <button
               type="submit" disabled={loading}
-              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl py-3 text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 disabled:opacity-50 transition-all shadow-sm shadow-indigo-200"
+              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl py-3 text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 active:scale-95 disabled:opacity-50 transition-all shadow-sm shadow-indigo-200"
             >
               {loading ? d.saving : d.add}
             </button>
