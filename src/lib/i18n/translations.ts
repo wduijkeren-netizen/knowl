@@ -14,7 +14,7 @@ export type LangCode = typeof languages[number]['code']
 
 const t = {
   nl: {
-    nav: { moments: 'Leermomenten', results: 'Resultaten', subjects: 'Vakken', logout: 'Uitloggen', more: 'Meer', monthly: 'Maandoverzicht', profile: 'Profiel', home: 'Home', loginBtn: 'Inloggen', timer: 'Timer', week: 'Weekoverzicht', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Woordweb', 'feedback': 'Feedback', 'loginLink': 'Inloggen' },
+    nav: { moments: 'Leermomenten', results: 'Resultaten', subjects: 'Vakken', logout: 'Uitloggen', more: 'Meer', monthly: 'Maandoverzicht', profile: 'Profiel', home: 'Home', loginBtn: 'Inloggen', timer: 'Timer', week: 'Weekoverzicht', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Woordweb', 'feedback': 'Feedback', 'loginLink': 'Inloggen', grades: 'Cijferberekening' },
     dashboard: {
       momentsCount: 'Leermomenten', minutesLearned: 'Minuten geleerd', inHours: 'In uren',
       newMoment: 'Nieuw leermoment', newMomentSub: 'Wat heb je vandaag geleerd?',
@@ -201,7 +201,7 @@ const t = {
     guest: { 'save': 'Opslaan', 'cancel': 'Annuleren', 'delete': 'Verwijderen', 'summary': 'Samenvatting' },
   },
   en: {
-    nav: { moments: 'Learning moments', results: 'Results', subjects: 'Subjects', logout: 'Log out', more: 'More', monthly: 'Monthly overview', profile: 'Profile', home: 'Home', loginBtn: 'Log in', timer: 'Timer', week: 'Weekly overview', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Word map', 'feedback': 'Feedback', 'loginLink': 'Log in' },
+    nav: { moments: 'Learning moments', results: 'Results', subjects: 'Subjects', logout: 'Log out', more: 'More', monthly: 'Monthly overview', profile: 'Profile', home: 'Home', loginBtn: 'Log in', timer: 'Timer', week: 'Weekly overview', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Word map', 'feedback': 'Feedback', 'loginLink': 'Log in', grades: 'Grade calculator' },
     dashboard: {
       momentsCount: 'Learning moments', minutesLearned: 'Minutes learned', inHours: 'In hours',
       newMoment: 'New learning moment', newMomentSub: 'What did you learn today?',
@@ -388,7 +388,7 @@ const t = {
     guest: { 'save': 'Save', 'cancel': 'Cancel', 'delete': 'Delete', 'summary': 'Summary' },
   },
   es: {
-    nav: { moments: 'Momentos de aprendizaje', results: 'Resultados', subjects: 'Asignaturas', logout: 'Cerrar sesión', more: 'Más', monthly: 'Resumen mensual', profile: 'Perfil', home: 'Inicio', loginBtn: 'Iniciar sesión', timer: 'Temporizador', week: 'Resumen semanal', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Mapa mental', 'feedback': 'Comentarios', 'loginLink': 'Iniciar sesión' },
+    nav: { moments: 'Momentos de aprendizaje', results: 'Resultados', subjects: 'Asignaturas', logout: 'Cerrar sesión', more: 'Más', monthly: 'Resumen mensual', profile: 'Perfil', home: 'Inicio', loginBtn: 'Iniciar sesión', timer: 'Temporizador', week: 'Resumen semanal', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Mapa mental', 'feedback': 'Comentarios', 'loginLink': 'Iniciar sesión', grades: 'Calculadora de notas' },
     dashboard: {
       momentsCount: 'Momentos', minutesLearned: 'Minutos aprendidos', inHours: 'En horas',
       newMoment: 'Nuevo momento de aprendizaje', newMomentSub: '¿Qué aprendiste hoy?',
@@ -574,7 +574,7 @@ const t = {
     guest: { 'save': 'Guardar', 'cancel': 'Cancelar', 'delete': 'Eliminar', 'summary': 'Resumen' },
   },
   pt: {
-    nav: { moments: 'Momentos de aprendizado', results: 'Resultados', subjects: 'Disciplinas', logout: 'Sair', more: 'Mais', monthly: 'Resumo mensal', profile: 'Perfil', home: 'Início', loginBtn: 'Entrar', timer: 'Temporizador', week: 'Resumo semanal', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Mapa mental', 'feedback': 'Feedback', 'loginLink': 'Entrar' },
+    nav: { moments: 'Momentos de aprendizado', results: 'Resultados', subjects: 'Disciplinas', logout: 'Sair', more: 'Mais', monthly: 'Resumo mensal', profile: 'Perfil', home: 'Início', loginBtn: 'Entrar', timer: 'Temporizador', week: 'Resumo semanal', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Mapa mental', 'feedback': 'Feedback', 'loginLink': 'Entrar', grades: 'Calculadora de notas' },
     dashboard: {
       momentsCount: 'Momentos', minutesLearned: 'Minutos aprendidos', inHours: 'Em horas',
       newMoment: 'Novo momento de aprendizado', newMomentSub: 'O que você aprendeu hoje?',
@@ -761,7 +761,7 @@ const t = {
     guest: { 'save': 'Guardar', 'cancel': 'Cancelar', 'delete': 'Eliminar', 'summary': 'Resumo' },
   },
   fr: {
-    nav: { moments: "Moments d'apprentissage", results: 'Résultats', subjects: 'Matières', logout: 'Se déconnecter', more: 'Plus', monthly: 'Bilan mensuel', profile: 'Profil', home: 'Accueil', loginBtn: 'Se connecter', timer: 'Minuterie', week: 'Bilan hebdomadaire', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Carte mentale', 'feedback': 'Retour', 'loginLink': 'Connexion' },
+    nav: { moments: "Moments d'apprentissage", results: 'Résultats', subjects: 'Matières', logout: 'Se déconnecter', more: 'Plus', monthly: 'Bilan mensuel', profile: 'Profil', home: 'Accueil', loginBtn: 'Se connecter', timer: 'Minuterie', week: 'Bilan hebdomadaire', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Carte mentale', 'feedback': 'Retour', 'loginLink': 'Connexion', grades: 'Calculateur de notes' },
     dashboard: {
       momentsCount: 'Moments', minutesLearned: 'Minutes apprises', inHours: 'En heures',
       newMoment: "Nouveau moment d'apprentissage", newMomentSub: "Qu'avez-vous appris aujourd'hui ?",
@@ -948,7 +948,7 @@ const t = {
     guest: { 'save': 'Enregistrer', 'cancel': 'Annuler', 'delete': 'Supprimer', 'summary': 'Résumé' },
   },
   de: {
-    nav: { moments: 'Lernmomente', results: 'Ergebnisse', subjects: 'Fächer', logout: 'Abmelden', more: 'Mehr', monthly: 'Monatsübersicht', profile: 'Profil', home: 'Start', loginBtn: 'Anmelden', timer: 'Timer', week: 'Wochenübersicht', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begriffsnetz', 'feedback': 'Feedback', 'loginLink': 'Anmelden' },
+    nav: { moments: 'Lernmomente', results: 'Ergebnisse', subjects: 'Fächer', logout: 'Abmelden', more: 'Mehr', monthly: 'Monatsübersicht', profile: 'Profil', home: 'Start', loginBtn: 'Anmelden', timer: 'Timer', week: 'Wochenübersicht', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begriffsnetz', 'feedback': 'Feedback', 'loginLink': 'Anmelden', grades: 'Notenrechner' },
     dashboard: {
       momentsCount: 'Lernmomente', minutesLearned: 'Gelernte Minuten', inHours: 'In Stunden',
       newMoment: 'Neuer Lernmoment', newMomentSub: 'Was hast du heute gelernt?',
@@ -1135,7 +1135,7 @@ const t = {
     guest: { 'save': 'Speichern', 'cancel': 'Abbrechen', 'delete': 'Löschen', 'summary': 'Zusammenfassung' },
   },
   da: {
-    nav: { moments: 'Læringsøjeblikke', results: 'Resultater', subjects: 'Fag', logout: 'Log ud', more: 'Mere', monthly: 'Månedsoversigt', profile: 'Profil', home: 'Hjem', loginBtn: 'Log ind', timer: 'Timer', week: 'Ugeoversigt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begrebskort', 'feedback': 'Feedback', 'loginLink': 'Log ind' },
+    nav: { moments: 'Læringsøjeblikke', results: 'Resultater', subjects: 'Fag', logout: 'Log ud', more: 'Mere', monthly: 'Månedsoversigt', profile: 'Profil', home: 'Hjem', loginBtn: 'Log ind', timer: 'Timer', week: 'Ugeoversigt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begrebskort', 'feedback': 'Feedback', 'loginLink': 'Log ind', grades: 'Karakterberegner' },
     dashboard: {
       momentsCount: 'Læringsøjeblikke', minutesLearned: 'Minutter lært', inHours: 'I timer',
       newMoment: 'Nyt læringsøjeblik', newMomentSub: 'Hvad lærte du i dag?',
@@ -1322,7 +1322,7 @@ const t = {
     guest: { 'save': 'Gem', 'cancel': 'Annuller', 'delete': 'Slet', 'summary': 'Resumé' },
   },
   sv: {
-    nav: { moments: 'Lärstunder', results: 'Resultat', subjects: 'Ämnen', logout: 'Logga ut', more: 'Mer', monthly: 'Månadsöversikt', profile: 'Profil', home: 'Hem', loginBtn: 'Logga in', timer: 'Timer', week: 'Veckosöversikt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begreppskarta', 'feedback': 'Feedback', 'loginLink': 'Logga in' },
+    nav: { moments: 'Lärstunder', results: 'Resultat', subjects: 'Ämnen', logout: 'Logga ut', more: 'Mer', monthly: 'Månadsöversikt', profile: 'Profil', home: 'Hem', loginBtn: 'Logga in', timer: 'Timer', week: 'Veckosöversikt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begreppskarta', 'feedback': 'Feedback', 'loginLink': 'Logga in', grades: 'Betygsräknare' },
     dashboard: {
       momentsCount: 'Lärstunder', minutesLearned: 'Minuter lärt', inHours: 'I timmar',
       newMoment: 'Ny lärstund', newMomentSub: 'Vad lärde du dig idag?',
@@ -1509,7 +1509,7 @@ const t = {
     guest: { 'save': 'Spara', 'cancel': 'Avbryt', 'delete': 'Radera', 'summary': 'Sammanfattning' },
   },
   no: {
-    nav: { moments: 'Læringsøyeblikk', results: 'Resultater', subjects: 'Fag', logout: 'Logg ut', more: 'Mer', monthly: 'Månedsoversikt', profile: 'Profil', home: 'Hjem', loginBtn: 'Logg inn', timer: 'Timer', week: 'Ukeoversikt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begrepskart', 'feedback': 'Tilbakemelding', 'loginLink': 'Logg inn' },
+    nav: { moments: 'Læringsøyeblikk', results: 'Resultater', subjects: 'Fag', logout: 'Logg ut', more: 'Mer', monthly: 'Månedsoversikt', profile: 'Profil', home: 'Hjem', loginBtn: 'Logg inn', timer: 'Timer', week: 'Ukeoversikt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begrepskart', 'feedback': 'Tilbakemelding', 'loginLink': 'Logg inn', grades: 'Karakterkalkulator' },
     dashboard: {
       momentsCount: 'Læringsøyeblikk', minutesLearned: 'Minutter lært', inHours: 'I timer',
       newMoment: 'Nytt læringsøyeblikk', newMomentSub: 'Hva lærte du i dag?',

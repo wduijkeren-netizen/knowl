@@ -98,6 +98,7 @@ export default function Nav() {
   ]
 
   const meerLinks: DropdownItem[] = [
+    { href: '/cijfers', label: tr.nav.grades ?? 'Cijferberekening' },
     { href: '/profiel', label: tr.nav.profile },
   ]
 
@@ -113,6 +114,7 @@ export default function Nav() {
     { href: '/pomodoro', label: tr.nav.timer, group: 'leren' },
     { href: '/flashcards', label: tr.nav.flashcards ?? 'Flashcards', group: 'leren' },
     { href: '/woordweb', label: tr.nav.woordweb ?? 'Woordweb', group: 'leren' },
+    { href: '/cijfers', label: tr.nav.grades ?? 'Cijferberekening', group: 'meer' },
     { href: '/profiel', label: tr.nav.profile, group: 'meer' },
   ] : [
     { href: '/leermomenten', label: tr.nav.moments, group: 'loggen' },
@@ -140,15 +142,14 @@ export default function Nav() {
           {/* Desktop nav */}
           {isLoggedIn && (
             <nav className="hidden md:flex gap-1 bg-indigo-50 rounded-xl p-1">
-              {/* Loggen — directe link */}
+              <NavDropdown label="Overzicht" items={overzichtLinks} isActive={isActive} />
+              {/* Leermomenten — directe link */}
               <Link href="/leermomenten"
                 className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
                   isActive('/leermomenten') ? 'bg-white text-indigo-700 shadow-sm' : 'text-indigo-400 hover:text-indigo-600'
                 }`}>
                 {tr.nav.moments}
               </Link>
-
-              <NavDropdown label="Overzicht" items={overzichtLinks} isActive={isActive} />
               <NavDropdown label="Leren" items={lerenLinks} isActive={isActive} />
               <NavDropdown label={tr.nav.more} items={meerLinks} isActive={isActive} />
             </nav>
