@@ -98,7 +98,7 @@ export default function FlashcardStudeer({ set, cards: initialCards, srMap, memb
         <div className="flex items-center justify-between">
           <div>
             <Link href="/flashcards" className="text-indigo-400 hover:text-indigo-600 transition-colors text-sm">← {fc.title}</Link>
-            <h1 className="text-xl font-bold text-indigo-900 mt-1">{set.title}</h1>
+            <h1 className="text-xl font-bold text-indigo-900 mt-1 truncate">{set.title}</h1>
           </div>
           <div className="flex gap-2 flex-wrap justify-end">
             <Link href={`/flashcards/${set.id}/bewerken`}
@@ -118,11 +118,11 @@ export default function FlashcardStudeer({ set, cards: initialCards, srMap, memb
 
         {members.length > 0 && (
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm px-5 py-3 flex items-center gap-3 flex-wrap">
-            <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wide shrink-0">Leden</span>
+            <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wide shrink-0">{tr.nav.members}</span>
             <div className="flex gap-2 flex-wrap">
               {members.map(m => (
                 <span key={m.user_id} className={`text-xs rounded-full px-2.5 py-1 font-medium ${m.user_id === ownerId ? 'bg-indigo-600 text-white' : 'bg-indigo-50 text-indigo-600'}`}>
-                  {m.name ?? 'Student'}{m.user_id === ownerId ? ' (jij)' : ''}
+                  {m.name ?? 'Student'}{m.user_id === ownerId ? ` ${tr.nav.you}` : ''}
                 </span>
               ))}
             </div>

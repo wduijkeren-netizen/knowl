@@ -125,8 +125,8 @@ export default function Nav() {
 
   const mobileGroups = [
     { key: 'loggen', label: tr.nav.moments },
-    { key: 'overzicht', label: 'Overzicht' },
-    { key: 'leren', label: 'Leren' },
+    { key: 'overzicht', label: tr.nav.overview },
+    { key: 'leren', label: tr.nav.learn },
     { key: 'meer', label: tr.nav.more },
   ]
 
@@ -143,7 +143,7 @@ export default function Nav() {
           {/* Desktop nav */}
           {isLoggedIn && (
             <nav className="hidden md:flex gap-1 bg-indigo-50 rounded-xl p-1">
-              <NavDropdown label="Overzicht" items={overzichtLinks} isActive={isActive} />
+              <NavDropdown label={tr.nav.overview} items={overzichtLinks} isActive={isActive} />
               {/* Leermomenten — directe link */}
               <Link href="/leermomenten"
                 className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
@@ -151,7 +151,7 @@ export default function Nav() {
                 }`}>
                 {tr.nav.moments}
               </Link>
-              <NavDropdown label="Leren" items={lerenLinks} isActive={isActive} />
+              <NavDropdown label={tr.nav.learn} items={lerenLinks} isActive={isActive} />
               <NavDropdown label={tr.nav.more} items={meerLinks} isActive={isActive} />
             </nav>
           )}

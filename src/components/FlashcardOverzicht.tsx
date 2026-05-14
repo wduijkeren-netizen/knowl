@@ -89,7 +89,7 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
       <div key={set.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all p-4 sm:p-5">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
           <div className="flex-1 min-w-0">
-            <h2 className="font-semibold text-indigo-900">{set.title}</h2>
+            <h2 className="font-semibold text-indigo-900 truncate">{set.title}</h2>
             <div className="flex gap-2 mt-1.5 flex-wrap">
               <span className="text-xs bg-violet-50 text-violet-500 rounded-full px-2.5 py-0.5 font-medium">{countMap[set.id] ?? 0} {fc.cards}</span>
               {(dueMap[set.id] ?? 0) > 0 && (
@@ -231,7 +231,7 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
                 <div key={set.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm p-4 sm:p-5">
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                     <div>
-                      <h2 className="font-semibold text-indigo-900">{set.title}</h2>
+                      <h2 className="font-semibold text-indigo-900 truncate">{set.title}</h2>
                       {set.vak && <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-0.5 font-medium mt-1.5 inline-block">{set.vak}</span>}
                     </div>
                     <div className="flex gap-2 flex-wrap">
