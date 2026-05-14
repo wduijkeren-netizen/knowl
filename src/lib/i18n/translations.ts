@@ -85,7 +85,7 @@ const t = {
       pause: 'Pauzeren', start: 'Starten', resume: 'Hervatten', reset: 'Reset',
       completed: 'voltooid', settings: 'Tijden aanpassen',
       focusMin: 'Focus (minuten)', breakMin: 'Pauze (minuten)', apply: 'Toepassen',
-      sessionMode: 'Sessiemodus', sessionDone: 'Sessie voltooid! 🎉', sessionAdd: 'Leermoment toevoegen', sessionSkip: 'Overslaan', sessionTitle: 'Wat heb je geleerd?', sessionSaved: 'Opgeslagen!', sessionSubject: 'Vak', sessionMinutes: 'Minuten', sessionTitleLabel: 'Titel',
+      title: 'Pomodoro Timer', sessionModeDesc: 'Na elke sessie direct een leermoment invullen', sessionMode: 'Sessiemodus', sessionDone: 'Sessie voltooid! 🎉', sessionAdd: 'Leermoment toevoegen', sessionSkip: 'Overslaan', sessionTitle: 'Wat heb je geleerd?', sessionSaved: 'Opgeslagen!', sessionSubject: 'Vak', sessionMinutes: 'Minuten', sessionTitleLabel: 'Titel',
     },
     rating: {
       title: 'Leermoment opgeslagen! 🎉', question: 'Hoe goed begreep je de stof?',
@@ -270,7 +270,7 @@ const t = {
       pause: 'Pause', start: 'Start', resume: 'Resume', reset: 'Reset',
       completed: 'completed', settings: 'Adjust times',
       focusMin: 'Focus (minutes)', breakMin: 'Break (minutes)', apply: 'Apply',
-      sessionMode: 'Session mode', sessionDone: 'Session complete! 🎉', sessionAdd: 'Add learning moment', sessionSkip: 'Skip', sessionTitle: 'What did you learn?', sessionSaved: 'Saved!', sessionSubject: 'Subject', sessionMinutes: 'Minutes', sessionTitleLabel: 'Title',
+      title: 'Pomodoro Timer', sessionModeDesc: 'Log a learning moment after each session.', sessionMode: 'Session mode', sessionDone: 'Session complete! 🎉', sessionAdd: 'Add learning moment', sessionSkip: 'Skip', sessionTitle: 'What did you learn?', sessionSaved: 'Saved!', sessionSubject: 'Subject', sessionMinutes: 'Minutes', sessionTitleLabel: 'Title',
     },
     rating: {
       title: 'Learning moment saved! 🎉', question: 'How well did you understand the material?',
@@ -455,7 +455,7 @@ const t = {
       pause: 'Pausar', start: 'Iniciar', resume: 'Reanudar', reset: 'Reiniciar',
       completed: 'completado', settings: 'Ajustar tiempos',
       focusMin: 'Enfoque (minutos)', breakMin: 'Descanso (minutos)', apply: 'Aplicar',
-      sessionMode: 'Modo sesión', sessionDone: '¡Sesión completada! 🎉', sessionAdd: 'Agregar momento', sessionSkip: 'Omitir', sessionTitle: '¿Qué aprendiste?', sessionSaved: '¡Guardado!', sessionSubject: 'Asignatura', sessionMinutes: 'Minutos', sessionTitleLabel: 'Título',
+      title: 'Pomodoro Timer', sessionModeDesc: 'Registra un momento de aprendizaje después de cada sesión.', sessionMode: 'Modo sesión', sessionDone: '¡Sesión completada! 🎉', sessionAdd: 'Agregar momento', sessionSkip: 'Omitir', sessionTitle: '¿Qué aprendiste?', sessionSaved: '¡Guardado!', sessionSubject: 'Asignatura', sessionMinutes: 'Minutos', sessionTitleLabel: 'Título',
     },
     rating: {
       title: '¡Momento guardado! 🎉', question: '¿Qué tan bien entendiste el material?',
@@ -639,7 +639,7 @@ const t = {
       pause: 'Pausar', start: 'Iniciar', resume: 'Retomar', reset: 'Reiniciar',
       completed: 'concluído', settings: 'Ajustar tempos',
       focusMin: 'Foco (minutos)', breakMin: 'Pausa (minutos)', apply: 'Aplicar',
-      sessionMode: 'Modo sessão', sessionDone: 'Sessão concluída! 🎉', sessionAdd: 'Adicionar momento', sessionSkip: 'Pular', sessionTitle: 'O que você aprendeu?', sessionSaved: 'Salvo!', sessionSubject: 'Disciplina', sessionMinutes: 'Minutos', sessionTitleLabel: 'Título',
+      title: 'Pomodoro Timer', sessionModeDesc: 'Registre um momento de aprendizagem após cada sessão.', sessionMode: 'Modo sessão', sessionDone: 'Sessão concluída! 🎉', sessionAdd: 'Adicionar momento', sessionSkip: 'Pular', sessionTitle: 'O que você aprendeu?', sessionSaved: 'Salvo!', sessionSubject: 'Disciplina', sessionMinutes: 'Minutos', sessionTitleLabel: 'Título',
     },
     rating: {
       title: 'Momento salvo! 🎉', question: 'Quão bem você entendeu o material?',
@@ -824,7 +824,7 @@ const t = {
       pause: 'Pause', start: 'Démarrer', resume: 'Reprendre', reset: 'Réinitialiser',
       completed: 'complété', settings: 'Ajuster les temps',
       focusMin: 'Concentration (minutes)', breakMin: 'Pause (minutes)', apply: 'Appliquer',
-      sessionMode: 'Mode session', sessionDone: 'Session terminée ! 🎉', sessionAdd: 'Ajouter un moment', sessionSkip: 'Passer', sessionTitle: "Qu'avez-vous appris ?", sessionSaved: 'Enregistré !', sessionSubject: 'Matière', sessionMinutes: 'Minutes', sessionTitleLabel: 'Titre',
+      title: 'Pomodoro Timer', sessionModeDesc: 'Enregistrez un moment d\'apprentissage après chaque session.', sessionMode: 'Mode session', sessionDone: 'Session terminée ! 🎉', sessionAdd: 'Ajouter un moment', sessionSkip: 'Passer', sessionTitle: "Qu'avez-vous appris ?", sessionSaved: 'Enregistré !', sessionSubject: 'Matière', sessionMinutes: 'Minutes', sessionTitleLabel: 'Titre',
     },
     rating: {
       title: 'Moment enregistré ! 🎉', question: 'Dans quelle mesure avez-vous compris la matière ?',
@@ -1009,7 +1009,7 @@ const t = {
       pause: 'Pausieren', start: 'Starten', resume: 'Fortsetzen', reset: 'Zurücksetzen',
       completed: 'abgeschlossen', settings: 'Zeiten anpassen',
       focusMin: 'Fokus (Minuten)', breakMin: 'Pause (Minuten)', apply: 'Anwenden',
-      sessionMode: 'Sitzungsmodus', sessionDone: 'Sitzung abgeschlossen! 🎉', sessionAdd: 'Lernmoment hinzufügen', sessionSkip: 'Überspringen', sessionTitle: 'Was hast du gelernt?', sessionSaved: 'Gespeichert!', sessionSubject: 'Fach', sessionMinutes: 'Minuten', sessionTitleLabel: 'Titel',
+      title: 'Pomodoro Timer', sessionModeDesc: 'Erfasse nach jeder Sitzung einen Lernmoment.', sessionMode: 'Sitzungsmodus', sessionDone: 'Sitzung abgeschlossen! 🎉', sessionAdd: 'Lernmoment hinzufügen', sessionSkip: 'Überspringen', sessionTitle: 'Was hast du gelernt?', sessionSaved: 'Gespeichert!', sessionSubject: 'Fach', sessionMinutes: 'Minuten', sessionTitleLabel: 'Titel',
     },
     rating: {
       title: 'Lernmoment gespeichert! 🎉', question: 'Wie gut hast du den Stoff verstanden?',
@@ -1194,7 +1194,7 @@ const t = {
       pause: 'Pause', start: 'Start', resume: 'Genoptag', reset: 'Nulstil',
       completed: 'gennemført', settings: 'Juster tider',
       focusMin: 'Fokus (minutter)', breakMin: 'Pause (minutter)', apply: 'Anvend',
-      sessionMode: 'Sessionstilstand', sessionDone: 'Session fuldført! 🎉', sessionAdd: 'Tilføj læringsøjeblik', sessionSkip: 'Spring over', sessionTitle: 'Hvad lærte du?', sessionSaved: 'Gemt!', sessionSubject: 'Fag', sessionMinutes: 'Minutter', sessionTitleLabel: 'Titel',
+      title: 'Pomodoro Timer', sessionModeDesc: 'Log et læringsøjeblik efter hver session.', sessionMode: 'Sessionstilstand', sessionDone: 'Session fuldført! 🎉', sessionAdd: 'Tilføj læringsøjeblik', sessionSkip: 'Spring over', sessionTitle: 'Hvad lærte du?', sessionSaved: 'Gemt!', sessionSubject: 'Fag', sessionMinutes: 'Minutter', sessionTitleLabel: 'Titel',
     },
     rating: {
       title: 'Øjeblik gemt! 🎉', question: 'Hvor godt forstod du materialet?',
@@ -1379,7 +1379,7 @@ const t = {
       pause: 'Pausa', start: 'Starta', resume: 'Återuppta', reset: 'Återställ',
       completed: 'slutfört', settings: 'Justera tider',
       focusMin: 'Fokus (minuter)', breakMin: 'Paus (minuter)', apply: 'Tillämpa',
-      sessionMode: 'Sessionsläge', sessionDone: 'Session avklarad! 🎉', sessionAdd: 'Lägg till lärstund', sessionSkip: 'Hoppa över', sessionTitle: 'Vad lärde du dig?', sessionSaved: 'Sparat!', sessionSubject: 'Ämne', sessionMinutes: 'Minuter', sessionTitleLabel: 'Titel',
+      title: 'Pomodoro Timer', sessionModeDesc: 'Logga ett lärmoment efter varje session.', sessionMode: 'Sessionsläge', sessionDone: 'Session avklarad! 🎉', sessionAdd: 'Lägg till lärstund', sessionSkip: 'Hoppa över', sessionTitle: 'Vad lärde du dig?', sessionSaved: 'Sparat!', sessionSubject: 'Ämne', sessionMinutes: 'Minuter', sessionTitleLabel: 'Titel',
     },
     rating: {
       title: 'Lärstund sparad! 🎉', question: 'Hur väl förstod du materialet?',
@@ -1564,7 +1564,7 @@ const t = {
       pause: 'Pause', start: 'Start', resume: 'Fortsett', reset: 'Tilbakestill',
       completed: 'fullført', settings: 'Juster tider',
       focusMin: 'Fokus (minutter)', breakMin: 'Pause (minutter)', apply: 'Bruk',
-      sessionMode: 'Øktmodus', sessionDone: 'Økt fullført! 🎉', sessionAdd: 'Legg til læringsøyeblikk', sessionSkip: 'Hopp over', sessionTitle: 'Hva lærte du?', sessionSaved: 'Lagret!', sessionSubject: 'Fag', sessionMinutes: 'Minutter', sessionTitleLabel: 'Tittel',
+      title: 'Pomodoro Timer', sessionModeDesc: 'Logg et læringsøyeblikk etter hver økt.', sessionMode: 'Øktmodus', sessionDone: 'Økt fullført! 🎉', sessionAdd: 'Legg til læringsøyeblikk', sessionSkip: 'Hopp over', sessionTitle: 'Hva lærte du?', sessionSaved: 'Lagret!', sessionSubject: 'Fag', sessionMinutes: 'Minutter', sessionTitleLabel: 'Tittel',
     },
     rating: {
       title: 'Øyeblikk lagret! 🎉', question: 'Hvor godt forstod du materialet?',

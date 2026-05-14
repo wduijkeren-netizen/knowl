@@ -3,7 +3,7 @@ import Link from 'next/link'
 export const metadata = { title: 'Privacybeleid — Knowl' }
 
 const UPDATED = '7 mei 2025'
-const EMAIL = 'privacy@knowl.app'
+const EMAIL = 'myknowl@hotmail.com'
 
 export default function PrivacyPage() {
   return (

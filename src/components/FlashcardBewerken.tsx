@@ -40,7 +40,7 @@ export default function FlashcardBewerken({ set, cards: initialCards, subjects, 
   }
 
   async function handleSave() {
-    if (!title.trim()) { setError('Geef de set een naam.'); return }
+    if (!title.trim()) { setError(fc.errorName); return }
     const valid = cards.filter(c => c.front.trim() || c.back.trim())
     const invalid = valid.some(c => !c.front.trim() || !c.back.trim())
     if (invalid) { setError(fc.errorCardComplete); return }
@@ -49,7 +49,8 @@ export default function FlashcardBewerken({ set, cards: initialCards, subjects, 
     setError('')
 
     // Update set titel en vak
-    await supabase.from('flashcard_sets').update({ title: title.trim(), vak: vak || null }).eq('id', set.id)
+    const { error: setErr } = await supabase.from('flashcard_sets').update({ title: title.trim(), vak: vak || null }).eq('id', set.id)
+    if (setErr) { setError(setErr.message); setSaving(false); return }
 
     // Verwijder kaarten die weg zijn
     const removedIds = initialCards.filter(orig => !cards.find(c => c.id === orig.id)).map(c => c.id)

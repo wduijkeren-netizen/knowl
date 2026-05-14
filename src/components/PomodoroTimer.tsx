@@ -215,7 +215,7 @@ export default function PomodoroTimer({ user, subjects }: Props) {
 
       <main className="max-w-md mx-auto px-4 py-10 space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-indigo-900">Pomodoro Timer</h1>
+          <h1 className="text-2xl font-bold text-indigo-900">{p.title ?? 'Pomodoro Timer'}</h1>
           <p className="text-sm text-indigo-400 mt-1">{p.subtitle}</p>
         </div>
 
@@ -224,7 +224,7 @@ export default function PomodoroTimer({ user, subjects }: Props) {
           <div className="flex items-center justify-between bg-white rounded-2xl border border-indigo-100 px-5 py-3">
             <div>
               <p className="text-sm font-medium text-indigo-800">{p.sessionMode}</p>
-              <p className="text-xs text-indigo-400">Na elke sessie direct een leermoment invullen</p>
+              <p className="text-xs text-indigo-400">{p.sessionModeDesc}</p>
             </div>
             <button
               onClick={() => setSessionMode(s => !s)}
