@@ -231,10 +231,8 @@ export default function PomodoroTimer({ user, subjects }: Props) {
 
   const timerViews: Record<Style, React.ReactNode> = { circle: CircleTimer, minimal: MinimalTimer, retro: RetroTimer }
 
-  const btnStart = focusMode || retro
-    ? isWork ? 'bg-indigo-500 text-white hover:bg-indigo-400' : 'bg-emerald-500 text-white hover:bg-emerald-400'
-    : isWork ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:opacity-90' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90'
-  const btnReset = focusMode || retro ? 'bg-white/10 text-white hover:bg-white/20' : 'text-indigo-400 bg-indigo-50 hover:bg-indigo-100'
+  const btnStart = isWork ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:opacity-90' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90'
+  const btnReset = focusMode ? 'bg-white/10 text-white hover:bg-white/20' : 'text-indigo-400 bg-indigo-50 hover:bg-indigo-100'
 
   return (
     <div className={`min-h-screen transition-all duration-500 ${
