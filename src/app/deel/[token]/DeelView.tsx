@@ -38,6 +38,7 @@ export default function DeelView({ moment }: { moment: Moment }) {
           </div>
 
           {moment.photo_url && (
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={moment.photo_url} alt="" className="w-full max-h-64 object-cover" />
           )}
 

@@ -70,6 +70,7 @@ export default function Nav() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setIsLoggedIn(!!data.user))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const isActive = (href: string) => pathname === href || (href !== '/home' && pathname.startsWith(href))

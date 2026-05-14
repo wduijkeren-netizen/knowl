@@ -248,6 +248,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
               <span className="text-xs bg-gray-50 text-gray-400 rounded-full px-2.5 py-1">{detailMoment.learned_at}</span>
             </div>
             {detailMoment.photo_url && (
+              // eslint-disable-next-line @next/next/no-img-element
               <img src={detailMoment.photo_url} alt="" className="w-full max-h-64 object-cover rounded-2xl" />
             )}
             {detailMoment.description ? (
@@ -519,6 +520,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
           ).map((moment) => (
             <div key={moment.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all">
               {moment.photo_url && (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img src={moment.photo_url} alt="Foto" className="w-full max-h-48 object-cover rounded-t-2xl" />
               )}
               <div className="p-5">
