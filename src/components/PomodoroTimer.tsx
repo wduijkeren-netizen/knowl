@@ -328,13 +328,13 @@ export default function PomodoroTimer({ user, subjects }: Props) {
         )}
 
         {!focusMode && (
-          <div className={`flex gap-2 rounded-2xl border p-2 ${retro ? 'bg-gray-900 border-gray-800' : 'bg-white border-indigo-100'}`}>
+          <div className='flex gap-2 rounded-2xl border p-2 bg-white border-indigo-100'>
             {(['work', 'break'] as Mode[]).map(m => (
               <button key={m} onClick={() => switchMode(m)}
                 className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${
                   mode === m
                     ? m === 'work' ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-sm' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm'
-                    : retro ? 'text-gray-500 hover:text-gray-300' : 'text-indigo-400 hover:text-indigo-600'
+                    : 'text-indigo-400 hover:text-indigo-600'
                 }`}>
                 {m === 'work' ? p.focus : p.break}
               </button>
@@ -360,23 +360,23 @@ export default function PomodoroTimer({ user, subjects }: Props) {
         </div>
 
         {!focusMode && (
-          <div className={`rounded-2xl border shadow-sm p-5 ${retro ? 'bg-gray-900 border-gray-800' : 'bg-white border-indigo-100'}`}>
+          <div className='rounded-2xl border shadow-sm p-5 bg-white border-indigo-100'>
             <button onClick={() => setShowSettings(s => !s)}
-              className={`w-full text-sm font-medium flex justify-between items-center ${retro ? 'text-gray-400 hover:text-gray-200' : 'text-indigo-500 hover:text-indigo-700'}`}>
+              className='w-full text-sm font-medium flex justify-between items-center text-indigo-500 hover:text-indigo-700'>
               <span>{p.settings}</span><span>{showSettings ? '▲' : '▼'}</span>
             </button>
             {showSettings && (
               <div className="mt-4 space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className={`block text-xs mb-1 ${retro ? 'text-gray-500 font-mono' : 'text-indigo-400'}`}>{p.focusMin}</label>
+                    <label className='block text-xs mb-1 text-indigo-400'>{p.focusMin}</label>
                     <input type="number" min="1" max="60" value={customWork} onChange={e => setCustomWork(parseInt(e.target.value))}
-                      className={`w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 ${retro ? 'bg-gray-800 border-gray-700 text-white' : 'border-gray-200'}`} />
+                      className='w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 border-gray-200' />
                   </div>
                   <div>
-                    <label className={`block text-xs mb-1 ${retro ? 'text-gray-500 font-mono' : 'text-indigo-400'}`}>{p.breakMin}</label>
+                    <label className='block text-xs mb-1 text-indigo-400'>{p.breakMin}</label>
                     <input type="number" min="1" max="60" value={customBreak} onChange={e => setCustomBreak(parseInt(e.target.value))}
-                      className={`w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 ${retro ? 'bg-gray-800 border-gray-700 text-white' : 'border-gray-200'}`} />
+                      className='w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 border-gray-200' />
                   </div>
                 </div>
                 <button onClick={() => { setShowSettings(false); setRunning(false); setSeconds((mode === 'work' ? customWork : customBreak) * 60) }}
