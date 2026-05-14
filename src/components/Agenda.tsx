@@ -1,8 +1,9 @@
 'use client'
 
 import Nav from '@/components/Nav'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import { createClient } from '@/lib/supabase/client'
 
 const LOCALE_MAP: Record<string, string> = {
   nl: 'nl-NL', en: 'en-GB', es: 'es-ES', pt: 'pt-PT',
@@ -28,66 +29,77 @@ type AgendaEvent = {
 type Props = {
   sessions: StudySession[]
   subjects: string[]
+  events: AgendaEvent[]
+  userId: string | null
 }
-
-const STORAGE_KEY = 'knowl_agenda_events'
 
 function pad(n: number) { return String(n).padStart(2, '0') }
 function toDateStr(d: Date) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` }
 
-export default function Agenda({ sessions, subjects }: Props) {
+export default function Agenda({ sessions, subjects, events: initialEvents, userId }: Props) {
   const { lang, tr } = useLanguage()
   const a = tr.agenda
   const locale = LOCALE_MAP[lang] ?? 'nl-NL'
+  const supabase = createClient()
 
   const today = toDateStr(new Date())
   const [viewDate, setViewDate] = useState(new Date())
   const [selectedDay, setSelectedDay] = useState<string | null>(today)
-  const [events, setEvents] = useState<AgendaEvent[]>([])
+  const [events, setEvents] = useState<AgendaEvent[]>(initialEvents)
   const [showForm, setShowForm] = useState(false)
   const [formDate, setFormDate] = useState(today)
   const [formTitle, setFormTitle] = useState('')
   const [formType, setFormType] = useState<'exam' | 'planned'>('exam')
   const [formSubject, setFormSubject] = useState('')
   const [formTime, setFormTime] = useState('')
+  const [saving, setSaving] = useState(false)
 
-  // Copy/paste state
   const [copySource, setCopySource] = useState<StudySession | null>(null)
   const [showCopyModal, setShowCopyModal] = useState(false)
   const [copyTargetDate, setCopyTargetDate] = useState(today)
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) setEvents(JSON.parse(raw))
-    } catch {}
-  }, [])
-
-  function saveEvents(next: AgendaEvent[]) {
-    setEvents(next)
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)) } catch {}
-  }
-
-  function addEvent() {
+  async function addEvent() {
     if (!formTitle.trim()) return
-    const ev: AgendaEvent = {
-      id: Date.now().toString(),
-      date: formDate,
-      type: formType,
-      title: formTitle.trim(),
-      subject: formSubject.trim(),
-      time: formTime,
+    setSaving(true)
+
+    if (userId) {
+      const { data, error } = await supabase
+        .from('agenda_events')
+        .insert({
+          user_id: userId,
+          date: formDate,
+          type: formType,
+          title: formTitle.trim(),
+          subject: formSubject.trim(),
+          time: formTime,
+        })
+        .select('id, date, type, title, subject, time')
+        .single()
+
+      if (!error && data) {
+        setEvents(prev => [...prev, data as AgendaEvent])
+      }
+    } else {
+      // Gast: alleen lokaal tonen (geen persistentie)
+      const ev: AgendaEvent = {
+        id: Date.now().toString(),
+        date: formDate, type: formType,
+        title: formTitle.trim(), subject: formSubject.trim(), time: formTime,
+      }
+      setEvents(prev => [...prev, ev])
     }
-    saveEvents([...events, ev])
-    setFormTitle('')
-    setFormSubject('')
-    setFormTime('')
+
+    setFormTitle(''); setFormSubject(''); setFormTime('')
     setShowForm(false)
     setSelectedDay(formDate)
+    setSaving(false)
   }
 
-  function deleteEvent(id: string) {
-    saveEvents(events.filter(e => e.id !== id))
+  async function deleteEvent(id: string) {
+    if (userId) {
+      await supabase.from('agenda_events').delete().eq('id', id)
+    }
+    setEvents(prev => prev.filter(e => e.id !== id))
   }
 
   function openCopyModal(session: StudySession) {
@@ -96,23 +108,43 @@ export default function Agenda({ sessions, subjects }: Props) {
     setShowCopyModal(true)
   }
 
-  function confirmCopy() {
+  async function confirmCopy() {
     if (!copySource) return
-    const ev: AgendaEvent = {
-      id: Date.now().toString(),
-      date: copyTargetDate,
-      type: 'planned',
-      title: copySource.title,
-      subject: copySource.category ?? '',
-      time: '',
+    setSaving(true)
+
+    if (userId) {
+      const { data, error } = await supabase
+        .from('agenda_events')
+        .insert({
+          user_id: userId,
+          date: copyTargetDate,
+          type: 'planned',
+          title: copySource.title,
+          subject: copySource.category ?? '',
+          time: '',
+        })
+        .select('id, date, type, title, subject, time')
+        .single()
+
+      if (!error && data) {
+        setEvents(prev => [...prev, data as AgendaEvent])
+      }
+    } else {
+      const ev: AgendaEvent = {
+        id: Date.now().toString(),
+        date: copyTargetDate, type: 'planned',
+        title: copySource.title, subject: copySource.category ?? '', time: '',
+      }
+      setEvents(prev => [...prev, ev])
     }
-    saveEvents([...events, ev])
+
     setShowCopyModal(false)
     setCopySource(null)
     setSelectedDay(copyTargetDate)
+    setSaving(false)
   }
 
-  // Build study data map: date -> { minutes, sessions[] }
+  // Build study data map
   const studyMap: Record<string, { minutes: number; sessions: StudySession[] }> = {}
   for (const s of sessions) {
     const d = s.learned_at
@@ -144,9 +176,6 @@ export default function Agenda({ sessions, subjects }: Props) {
   const eventsOnSelected = selectedDay ? events.filter(e => e.date === selectedDay) : []
   const studyOnSelected = selectedDay ? studyMap[selectedDay] : undefined
 
-  function prevMonth() { setViewDate(d => new Date(d.getFullYear(), d.getMonth() - 1, 1)) }
-  function nextMonth() { setViewDate(d => new Date(d.getFullYear(), d.getMonth() + 1, 1)) }
-
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
       <Nav />
@@ -158,7 +187,7 @@ export default function Agenda({ sessions, subjects }: Props) {
           </div>
           <button
             onClick={() => { setFormDate(selectedDay ?? today); setShowForm(true) }}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">
+            className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 active:scale-95 transition-all">
             {a.addEvent}
           </button>
         </div>
@@ -166,9 +195,11 @@ export default function Agenda({ sessions, subjects }: Props) {
         {/* Calendar */}
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
           <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-4 flex items-center justify-between">
-            <button onClick={prevMonth} className="text-white/70 hover:text-white transition-colors text-xl px-2">‹</button>
+            <button onClick={() => setViewDate(d => new Date(d.getFullYear(), d.getMonth() - 1, 1))}
+              className="text-white/70 hover:text-white transition-colors text-xl px-2">‹</button>
             <h2 className="font-semibold text-white capitalize">{monthLabel}</h2>
-            <button onClick={nextMonth} className="text-white/70 hover:text-white transition-colors text-xl px-2">›</button>
+            <button onClick={() => setViewDate(d => new Date(d.getFullYear(), d.getMonth() + 1, 1))}
+              className="text-white/70 hover:text-white transition-colors text-xl px-2">›</button>
           </div>
 
           <div className="p-4">
@@ -188,12 +219,9 @@ export default function Agenda({ sessions, subjects }: Props) {
                 const hasPlanned = events.some(e => e.date === day && e.type === 'planned')
 
                 return (
-                  <button
-                    key={day}
-                    onClick={() => setSelectedDay(day)}
+                  <button key={day} onClick={() => setSelectedDay(day)}
                     className={`relative aspect-square flex flex-col items-center justify-center rounded-xl text-sm font-medium transition-all
-                      ${isSelected ? 'bg-indigo-600 text-white shadow-md' : isToday ? 'bg-indigo-50 text-indigo-700 font-bold' : 'text-gray-700 hover:bg-indigo-50'}
-                    `}>
+                      ${isSelected ? 'bg-indigo-600 text-white shadow-md' : isToday ? 'bg-indigo-50 text-indigo-700 font-bold' : 'text-gray-700 hover:bg-indigo-50'}`}>
                     <span>{new Date(day + 'T12:00:00').getDate()}</span>
                     <div className="flex gap-0.5 mt-0.5">
                       {hasStudy && <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-emerald-400'}`} />}
@@ -222,12 +250,10 @@ export default function Agenda({ sessions, subjects }: Props) {
           </div>
         </div>
 
-        {/* Lege staat hint als er nog geen studiedata is */}
         {sessions.length === 0 && events.length === 0 && (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-8 text-center">
             <p className="text-3xl mb-3">📅</p>
             <p className="text-sm font-medium text-indigo-700">{a.selectDay}</p>
-            <p className="text-xs text-indigo-400 mt-1">Voeg een toets of leermoment toe via de knop rechtsboven.</p>
           </div>
         )}
 
@@ -241,14 +267,12 @@ export default function Agenda({ sessions, subjects }: Props) {
                   <span className="ml-2 text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium">{a.today}</span>
                 )}
               </h3>
-              <button
-                onClick={() => { setFormDate(selectedDay); setShowForm(true) }}
+              <button onClick={() => { setFormDate(selectedDay); setShowForm(true) }}
                 className="text-xs text-indigo-500 hover:text-indigo-700 font-medium border border-indigo-200 px-3 py-1 rounded-lg transition-colors">
                 {a.addEvent}
               </button>
             </div>
 
-            {/* Study sessions with copy button */}
             {studyOnSelected && (
               <div className="bg-emerald-50 rounded-xl p-4">
                 <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-2">{a.studied}</p>
@@ -263,9 +287,7 @@ export default function Agenda({ sessions, subjects }: Props) {
                         {s.category && <p className="text-xs text-emerald-500">{s.category}</p>}
                         {s.duration_minutes && <p className="text-xs text-emerald-400">{s.duration_minutes} min</p>}
                       </div>
-                      <button
-                        onClick={() => openCopyModal(s)}
-                        title={a.copyTo}
+                      <button onClick={() => openCopyModal(s)} title={a.copyTo}
                         className="text-xs text-indigo-400 hover:text-indigo-600 border border-indigo-200 rounded-lg px-2 py-1 transition-colors whitespace-nowrap">
                         {a.copyTo} →
                       </button>
@@ -275,7 +297,6 @@ export default function Agenda({ sessions, subjects }: Props) {
               </div>
             )}
 
-            {/* Planned events */}
             {eventsOnSelected.length > 0 ? (
               <div className="space-y-2">
                 {eventsOnSelected
@@ -302,7 +323,7 @@ export default function Agenda({ sessions, subjects }: Props) {
           </div>
         )}
 
-        {/* Add event form modal */}
+        {/* Add event modal */}
         {showForm && (
           <div className="fixed inset-0 bg-black/30 z-50 flex items-end sm:items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
@@ -338,7 +359,8 @@ export default function Agenda({ sessions, subjects }: Props) {
               <div>
                 <label className="text-xs font-medium text-indigo-400 uppercase tracking-wide block mb-1">{a.eventName}</label>
                 <input type="text" value={formTitle} onChange={e => setFormTitle(e.target.value)}
-                  placeholder={a.eventNamePlaceholder}
+                  placeholder={a.eventNamePlaceholder} autoFocus
+                  onKeyDown={e => e.key === 'Enter' && addEvent()}
                   className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
               </div>
 
@@ -362,16 +384,16 @@ export default function Agenda({ sessions, subjects }: Props) {
                   className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
                   {a.cancel}
                 </button>
-                <button onClick={addEvent}
-                  className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors">
-                  {a.save}
+                <button onClick={addEvent} disabled={saving || !formTitle.trim()}
+                  className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-colors">
+                  {saving ? '...' : a.save}
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Copy to other day modal */}
+        {/* Copy modal */}
         {showCopyModal && copySource && (
           <div className="fixed inset-0 bg-black/30 z-50 flex items-end sm:items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
@@ -392,9 +414,9 @@ export default function Agenda({ sessions, subjects }: Props) {
                   className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
                   {a.cancel}
                 </button>
-                <button onClick={confirmCopy}
-                  className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors">
-                  {a.copyConfirm}
+                <button onClick={confirmCopy} disabled={saving}
+                  className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-colors">
+                  {saving ? '...' : a.copyConfirm}
                 </button>
               </div>
             </div>
