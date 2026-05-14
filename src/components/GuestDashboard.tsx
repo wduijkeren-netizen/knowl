@@ -122,7 +122,7 @@ export default function GuestDashboard() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { href: '/resultaten', label: tr.nav.results, icon: '📊' },
-            { href: '/pomodoro', label: tr.nav.timer, icon: '🍅' },
+            { href: '/pomodoro', label: tr.nav.timer, icon: '⏱️' },
             { href: '/flashcards', label: tr.nav.flashcards ?? 'Flashcards', icon: '🃏' },
             { href: '/login?signup=true', label: tr.nav.loginBtn, icon: '👤' },
           ].map(item => (

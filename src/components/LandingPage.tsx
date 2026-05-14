@@ -19,7 +19,7 @@ export default function LandingPage() {
   const secondaryFeatures = [
     { title: l.feat3title, desc: l.feat3desc, icon: '🃏' },
     { title: l.feat4title, desc: l.feat4desc, icon: '🕸️' },
-    { title: l.feat5title, desc: l.feat5desc, icon: '🍅' },
+    { title: l.feat5title, desc: l.feat5desc, icon: '⏱️' },
     { title: l.feat6title, desc: l.feat6desc, icon: '📅' },
   ]
 
