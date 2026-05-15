@@ -17,6 +17,7 @@ type Moment = {
   photo_url: string | null
   is_public: boolean
   share_token: string
+  notes?: string | null
 }
 
 type Subject = { id: string; name: string }
@@ -171,6 +172,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
       category: moment.category ?? '',
       learned_at: moment.learned_at,
       duration_minutes: moment.duration_minutes,
+      notes: moment.notes ?? '',
     })
   }
 
@@ -183,6 +185,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
         category: editData.category || null,
         learned_at: editData.learned_at,
         duration_minutes: editData.duration_minutes || null,
+        notes: editData.notes || null,
       })
       .eq('id', id)
       .select()
@@ -258,6 +261,14 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
               </div>
             ) : (
               <p className="text-sm text-indigo-300 italic">Geen samenvatting toegevoegd.</p>
+            )}
+            {detailMoment.notes && (
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">{d.notes}</p>
+                <div className="text-sm text-indigo-800 leading-relaxed bg-indigo-50 rounded-xl p-3 whitespace-pre-wrap">
+                  {detailMoment.notes}
+                </div>
+              </div>
             )}
             <div className="flex gap-3 pt-2">
               <button onClick={() => { startEdit(detailMoment); setDetailMoment(null) }}
@@ -543,6 +554,13 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
                         onChange={e => setEditData({ ...editData, learned_at: e.target.value })}
                         className="border border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
                     </div>
+                    <textarea
+                      value={editData.notes ?? ''}
+                      onChange={e => setEditData({ ...editData, notes: e.target.value })}
+                      placeholder={d.notesPlaceholder}
+                      rows={3}
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
+                    />
                     <div className="flex gap-2">
                       <button onClick={() => handleSaveEdit(moment.id)}
                         className="text-sm bg-indigo-600 text-white rounded-xl px-4 py-2 hover:bg-indigo-700 transition-colors font-medium">{d.save}</button>

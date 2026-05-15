@@ -90,6 +90,7 @@ export default function Nav() {
     { href: '/wrapped', label: tr.nav.monthly },
     { href: '/week', label: tr.nav.week },
     { href: '/agenda', label: tr.nav.agenda },
+    { href: '/rooster', label: tr.nav.schedule },
   ]
 
   const lerenLinks: DropdownItem[] = [
@@ -112,6 +113,7 @@ export default function Nav() {
     { href: '/wrapped', label: tr.nav.monthly, group: 'overzicht' },
     { href: '/week', label: tr.nav.week, group: 'overzicht' },
     { href: '/agenda', label: tr.nav.agenda, group: 'overzicht' },
+    { href: '/rooster', label: tr.nav.schedule, group: 'overzicht' },
     { href: '/pomodoro', label: tr.nav.timer, group: 'leren' },
     { href: '/flashcards', label: tr.nav.flashcards ?? 'Flashcards', group: 'leren' },
     { href: '/woordweb', label: tr.nav.woordweb ?? 'Woordweb', group: 'leren' },

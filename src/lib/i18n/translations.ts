@@ -14,7 +14,7 @@ export type LangCode = typeof languages[number]['code']
 
 const t = {
   nl: {
-    nav: { moments: 'Leermomenten', results: 'Resultaten', subjects: 'Vakken', logout: 'Uitloggen', more: 'Meer', monthly: 'Maandoverzicht', profile: 'Profiel', home: 'Home', loginBtn: 'Inloggen', timer: 'Timer', week: 'Weekoverzicht', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Woordweb', 'feedback': 'Feedback', 'loginLink': 'Inloggen', grades: 'Cijferberekening', overview: 'Overzicht', learn: 'Leren', members: 'Leden', you: '(jij)' },
+    nav: { moments: 'Leermomenten', results: 'Resultaten', subjects: 'Vakken', logout: 'Uitloggen', more: 'Meer', monthly: 'Maandoverzicht', profile: 'Profiel', home: 'Home', loginBtn: 'Inloggen', timer: 'Timer', week: 'Weekoverzicht', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Woordweb', 'feedback': 'Feedback', 'loginLink': 'Inloggen', grades: 'Cijferberekening', overview: 'Overzicht', learn: 'Leren', members: 'Leden', you: '(jij)', schedule: 'Rooster' },
     dashboard: {
       momentsCount: 'Leermomenten', minutesLearned: 'Minuten geleerd', inHours: 'In uren',
       newMoment: 'Nieuw leermoment', newMomentSub: 'Wat heb je vandaag geleerd?',
@@ -29,6 +29,7 @@ const t = {
       duplicate: 'Dupliceren', duplicateNote: '✓ Gegevens ingevuld — pas de datum aan en sla op.', share: 'Delen', shared: 'Gedeeld ✓', linkCopied: 'Link gekopieerd!', confirmYes: 'Ja', confirmNo: 'Nee',
       spacedTitle: 'Weet je het nog?', spacedSub: 'Je leerde dit op',
       guestBanner: 'Je bekijkt een voorbeeld van Knowl. Maak een gratis account aan om je data te bewaren en alle functies te gebruiken.', guestBannerBtn: 'Gratis account aanmaken', guestBannerSub: 'Je huidige momenten worden meegenomen.',
+      notes: 'Notities', notesPlaceholder: 'Schrijf hier aantekeningen bij dit leermoment...',
     },
     results: {
       title: 'Jouw resultaten', subtitle: 'Zie hoe je de tijd hebt verdeeld over je vakken',
@@ -73,6 +74,7 @@ const t = {
       step1: 'Maak vakken aan', step2: 'Voeg een moment toe', step3: 'Bekijk je groei',
       greeting: 'Hoi, {name}', greetingSub: 'Welkom terug bij Knowl. Hier is je overzicht.',
       shields: 'Schilden', shieldsInfo: 'Reserve-beschermingen voor je streak',
+      examPlanner: 'Tentamenplanner', examPlannerSub: 'Hoeveel minuten per dag moet je nog studeren?', daysLeft: 'dagen', minPerDay: 'min/dag', onTrack: 'Op schema ✓', noGoalSet: 'Geen doelminuten ingesteld', freeStudyTime: 'Vrije studeerblokken', freeStudyTimeSub: 'Op basis van jouw rooster van vandaag',
     },
     wrapped: {
       title: 'Jouw maandoverzicht', hoursLearned: 'Uren geleerd', moments: 'Leermomenten',
@@ -199,10 +201,12 @@ const t = {
     reset: { 'title': 'Nieuw wachtwoord instellen', 'subtitle': 'Kies een nieuw wachtwoord voor je account.', 'newPassword': 'Nieuw wachtwoord', 'repeatPassword': 'Herhaal wachtwoord', 'saving': 'Opslaan...', 'saveBtn': 'Wachtwoord opslaan', 'successMsg': 'Wachtwoord succesvol gewijzigd!', 'successSub': 'Je wordt doorgestuurd naar Home…', 'mismatch': 'De wachtwoorden komen niet overeen.', 'tooShort': 'Wachtwoord moet minimaal 6 tekens zijn.' },
     share: { 'tagline': 'Gedeeld leermoment', 'madeWith': 'Gemaakt met Knowl — jouw persoonlijke leertracker', 'summary': 'Samenvatting' },
     cijfers: { title: 'Cijferberekening', subtitle: 'Bereken je gemiddelde en wat je moet halen voor je doel', addSubject: '+ Vak toevoegen', average: 'Gemiddelde', colName: 'Omschrijving', colGrade: 'Cijfer', colWeight: 'Weging', addGrade: '+ Cijfer toevoegen', sectionTitle: 'Wat haal ik nog?', targetLabel: 'Doelcijfer voor dit vak', futureWeightLabel: 'Weging toets die je nog maakt', impossible: 'Niet meer haalbaar', impossibleSub: 'Je zou een {grade} nodig hebben — dat gaat niet.', achieved: 'Doel al behaald!', achievedSub: 'Je hebt je doel al gehaald, wat je ook scoort.', needed: 'Benodigd cijfer', infoWeight: 'Weging: gebruik dezelfde weging als op school — bijv. 1 voor een SO, 2 voor een proefwerk.', infoDecimal: 'Komma of punt: beide werken (7,5 of 7.5).', infoNote: 'Data wordt niet opgeslagen — gebruik dit als rekenhulp.', subjectLink: '→ Doelen instellen per vak', subjectPlaceholder: 'Vak {n} (bijv. Wiskunde)' },
+    badges: { title: 'Badges & Mijlpalen', subtitle: 'Jouw behaalde prestaties', earned: 'behaald', locked: 'Nog niet behaald', progress: 'van', rarityCommon: 'Gewoon', rarityRare: 'Zeldzaam', rarityEpic: 'Episch', rarityLegendary: 'Legendarisch' },
+    rooster: { title: 'Rooster', subtitle: 'Jouw lesrooster en vrije studeerblokken', addSlot: '+ Les toevoegen', day0: 'Maandag', day1: 'Dinsdag', day2: 'Woensdag', day3: 'Donderdag', day4: 'Vrijdag', day5: 'Zaterdag', day6: 'Zondag', startTime: 'Begintijd', endTime: 'Eindtijd', label: 'Vak / les', save: 'Opslaan', delete: 'Verwijderen', freeBlocks: 'Vrije studeerblokken vandaag', noSlots: 'Nog geen lessen toegevoegd', suggestion: 'Studeer:', minFree: 'min vrij', schedule: 'Rooster →', noFreeBlocks: 'Geen vrije blokken vandaag' },
     guest: { 'save': 'Opslaan', 'cancel': 'Annuleren', 'delete': 'Verwijderen', 'summary': 'Samenvatting' },
   },
   en: {
-    nav: { moments: 'Learning moments', results: 'Results', subjects: 'Subjects', logout: 'Log out', more: 'More', monthly: 'Monthly overview', profile: 'Profile', home: 'Home', loginBtn: 'Log in', timer: 'Timer', week: 'Weekly overview', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Word map', 'feedback': 'Feedback', 'loginLink': 'Log in', grades: 'Grade calculator', overview: 'Overview', learn: 'Learn', members: 'Members', you: '(you)' },
+    nav: { moments: 'Learning moments', results: 'Results', subjects: 'Subjects', logout: 'Log out', more: 'More', monthly: 'Monthly overview', profile: 'Profile', home: 'Home', loginBtn: 'Log in', timer: 'Timer', week: 'Weekly overview', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Word map', 'feedback': 'Feedback', 'loginLink': 'Log in', grades: 'Grade calculator', overview: 'Overview', learn: 'Learn', members: 'Members', you: '(you)', schedule: 'Schedule' },
     dashboard: {
       momentsCount: 'Learning moments', minutesLearned: 'Minutes learned', inHours: 'In hours',
       newMoment: 'New learning moment', newMomentSub: 'What did you learn today?',
@@ -217,6 +221,7 @@ const t = {
       duplicate: 'Duplicate', duplicateNote: '✓ Details filled in — adjust the date and save.', share: 'Share', shared: 'Shared ✓', linkCopied: 'Link copied!', confirmYes: 'Yes', confirmNo: 'No',
       spacedTitle: 'Do you still remember?', spacedSub: 'You learned this on',
       guestBanner: 'You\'re viewing a preview of Knowl. Create a free account to save your data and use all features.', guestBannerBtn: 'Create free account', guestBannerSub: 'Your current moments will be carried over.',
+      notes: 'Notes', notesPlaceholder: 'Write notes for this learning moment...',
     },
     results: {
       title: 'Your results', subtitle: 'See how you distributed your time across subjects',
@@ -261,6 +266,7 @@ const t = {
       step1: 'Create subjects', step2: 'Add a moment', step3: 'View your growth',
       greeting: 'Hey, {name}', greetingSub: 'Welcome back to Knowl. Here is your overview.',
       shields: 'Shields', shieldsInfo: 'Reserve protection for your streak',
+      examPlanner: 'Exam planner', examPlannerSub: 'How many minutes per day do you still need to study?', daysLeft: 'days', minPerDay: 'min/day', onTrack: 'On track ✓', noGoalSet: 'No target minutes set', freeStudyTime: 'Free study blocks', freeStudyTimeSub: 'Based on today\'s schedule',
     },
     wrapped: {
       title: 'Your monthly overview', hoursLearned: 'Hours learned', moments: 'Learning moments',
@@ -387,10 +393,12 @@ const t = {
     reset: { 'title': 'Set new password', 'subtitle': 'Choose a new password for your account.', 'newPassword': 'New password', 'repeatPassword': 'Repeat password', 'saving': 'Saving...', 'saveBtn': 'Save password', 'successMsg': 'Password changed successfully!', 'successSub': 'Redirecting to Home…', 'mismatch': 'The passwords do not match.', 'tooShort': 'Password must be at least 6 characters.' },
     share: { 'tagline': 'Shared learning moment', 'madeWith': 'Made with Knowl — your personal learning tracker', 'summary': 'Summary' },
     cijfers: { title: 'Grade calculator', subtitle: 'Calculate your average and what you need to reach your goal', addSubject: '+ Add subject', average: 'Average', colName: 'Description', colGrade: 'Grade', colWeight: 'Weight', addGrade: '+ Add grade', sectionTitle: 'What do I still need?', targetLabel: 'Target grade for this subject', futureWeightLabel: 'Weight of upcoming test', impossible: 'No longer achievable', impossibleSub: 'You would need a {grade} — that is not possible.', achieved: 'Goal already achieved!', achievedSub: 'You have already reached your goal, no matter what you score.', needed: 'Required grade', infoWeight: 'Weight: use the same weighting as your school — e.g. 1 for a small test, 2 for an exam.', infoDecimal: 'Comma or period: both work.', infoNote: 'Data is not saved — use this as a calculation tool.', subjectLink: '→ Set goals per subject', subjectPlaceholder: 'Subject {n} (e.g. Maths)' },
+    badges: { title: 'Badges & Milestones', subtitle: 'Your achievements', earned: 'earned', locked: 'Not yet unlocked', progress: 'of', rarityCommon: 'Common', rarityRare: 'Rare', rarityEpic: 'Epic', rarityLegendary: 'Legendary' },
+    rooster: { title: 'Schedule', subtitle: 'Your class schedule and free study blocks', addSlot: '+ Add class', day0: 'Monday', day1: 'Tuesday', day2: 'Wednesday', day3: 'Thursday', day4: 'Friday', day5: 'Saturday', day6: 'Sunday', startTime: 'Start time', endTime: 'End time', label: 'Subject / class', save: 'Save', delete: 'Delete', freeBlocks: 'Free study blocks today', noSlots: 'No classes added yet', suggestion: 'Study:', minFree: 'min free', schedule: 'Manage schedule →', noFreeBlocks: 'No free blocks today' },
     guest: { 'save': 'Save', 'cancel': 'Cancel', 'delete': 'Delete', 'summary': 'Summary' },
   },
   es: {
-    nav: { moments: 'Momentos de aprendizaje', results: 'Resultados', subjects: 'Asignaturas', logout: 'Cerrar sesión', more: 'Más', monthly: 'Resumen mensual', profile: 'Perfil', home: 'Inicio', loginBtn: 'Iniciar sesión', timer: 'Temporizador', week: 'Resumen semanal', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Mapa mental', 'feedback': 'Comentarios', 'loginLink': 'Iniciar sesión', grades: 'Calculadora de notas', overview: 'Resumen', learn: 'Aprender', members: 'Miembros', you: '(tú)' },
+    nav: { moments: 'Momentos de aprendizaje', results: 'Resultados', subjects: 'Asignaturas', logout: 'Cerrar sesión', more: 'Más', monthly: 'Resumen mensual', profile: 'Perfil', home: 'Inicio', loginBtn: 'Iniciar sesión', timer: 'Temporizador', week: 'Resumen semanal', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Mapa mental', 'feedback': 'Comentarios', 'loginLink': 'Iniciar sesión', grades: 'Calculadora de notas', overview: 'Resumen', learn: 'Aprender', members: 'Miembros', you: '(tú)', schedule: 'Horario' },
     dashboard: {
       momentsCount: 'Momentos', minutesLearned: 'Minutos aprendidos', inHours: 'En horas',
       newMoment: 'Nuevo momento de aprendizaje', newMomentSub: '¿Qué aprendiste hoy?',
@@ -405,6 +413,7 @@ const t = {
       duplicate: 'Duplicar', duplicateNote: '✓ Datos rellenados — ajusta la fecha y guarda.', share: 'Compartir', shared: 'Compartido ✓', linkCopied: '¡Enlace copiado!', confirmYes: 'Sí', confirmNo: 'No',
       spacedTitle: '¿Lo recuerdas?', spacedSub: 'Aprendiste esto el',
       guestBanner: 'Estás viendo una vista previa de Knowl. Crea una cuenta gratuita para guardar tus datos y usar todas las funciones.', guestBannerBtn: 'Crear cuenta gratuita', guestBannerSub: 'Tus momentos actuales se transferirán.',
+      notes: 'Notas', notesPlaceholder: 'Escribe notas para este momento de aprendizaje...',
     },
     results: {
       title: 'Tus resultados', subtitle: 'Ve cómo distribuiste el tiempo por asignatura',
@@ -449,6 +458,7 @@ const t = {
       step1: 'Crea asignaturas', step2: 'Añade un momento', step3: 'Ve tu progreso',
       greeting: 'Hola, {name}', greetingSub: 'Bienvenido de nuevo a Knowl. Aquí está tu resumen.',
       shields: 'Escudos', shieldsInfo: 'Protección de reserva para tu racha',
+      examPlanner: 'Planificador de exámenes', examPlannerSub: '¿Cuántos minutos al día necesitas estudiar?', daysLeft: 'días', minPerDay: 'min/día', onTrack: 'En camino ✓', noGoalSet: 'Sin minutos objetivo', freeStudyTime: 'Bloques de estudio libres', freeStudyTimeSub: 'Basado en tu horario de hoy',
     },
     wrapped: {
       title: 'Tu resumen mensual', hoursLearned: 'Horas aprendidas', moments: 'Momentos',
@@ -574,10 +584,12 @@ const t = {
     reset: { 'title': 'Establecer nueva contraseña', 'subtitle': 'Elige una nueva contraseña para tu cuenta.', 'newPassword': 'Nueva contraseña', 'repeatPassword': 'Repetir contraseña', 'saving': 'Guardando...', 'saveBtn': 'Guardar contraseña', 'successMsg': '¡Contraseña cambiada con éxito!', 'successSub': 'Redirigiendo a Inicio…', 'mismatch': 'Las contraseñas no coinciden.', 'tooShort': 'La contraseña debe tener al menos 6 caracteres.' },
     share: { 'tagline': 'Momento de aprendizaje compartido', 'madeWith': 'Hecho con Knowl — tu rastreador personal de aprendizaje', 'summary': 'Resumen' },
     cijfers: { title: 'Calculadora de notas', subtitle: 'Calcula tu media y lo que necesitas para tu objetivo', addSubject: '+ Añadir asignatura', average: 'Media', colName: 'Descripción', colGrade: 'Nota', colWeight: 'Peso', addGrade: '+ Añadir nota', sectionTitle: '¿Qué necesito aún?', targetLabel: 'Nota objetivo para esta asignatura', futureWeightLabel: 'Peso del próximo examen', impossible: 'Ya no es alcanzable', impossibleSub: 'Necesitarías un {grade} — no es posible.', achieved: '¡Objetivo ya alcanzado!', achievedSub: 'Ya alcanzaste tu objetivo sin importar la nota.', needed: 'Nota necesaria', infoWeight: 'Peso: usa la misma ponderación que tu escuela.', infoDecimal: 'Coma o punto: ambos funcionan.', infoNote: 'Los datos no se guardan — úsalo como herramienta de cálculo.', subjectLink: '→ Establecer objetivos por asignatura', subjectPlaceholder: 'Asignatura {n} (ej. Matemáticas)' },
+    badges: { title: 'Insignias & Hitos', subtitle: 'Tus logros', earned: 'obtenida', locked: 'Aún no desbloqueada', progress: 'de', rarityCommon: 'Común', rarityRare: 'Rara', rarityEpic: 'Épica', rarityLegendary: 'Legendaria' },
+    rooster: { title: 'Horario', subtitle: 'Tu horario de clases y bloques libres de estudio', addSlot: '+ Añadir clase', day0: 'Lunes', day1: 'Martes', day2: 'Miércoles', day3: 'Jueves', day4: 'Viernes', day5: 'Sábado', day6: 'Domingo', startTime: 'Hora inicio', endTime: 'Hora fin', label: 'Asignatura', save: 'Guardar', delete: 'Eliminar', freeBlocks: 'Bloques libres hoy', noSlots: 'Aún no hay clases', suggestion: 'Estudia:', minFree: 'min libres', schedule: 'Gestionar horario →', noFreeBlocks: 'No hay bloques libres hoy' },
     guest: { 'save': 'Guardar', 'cancel': 'Cancelar', 'delete': 'Eliminar', 'summary': 'Resumen' },
   },
   pt: {
-    nav: { moments: 'Momentos de aprendizado', results: 'Resultados', subjects: 'Disciplinas', logout: 'Sair', more: 'Mais', monthly: 'Resumo mensal', profile: 'Perfil', home: 'Início', loginBtn: 'Entrar', timer: 'Temporizador', week: 'Resumo semanal', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Mapa mental', 'feedback': 'Feedback', 'loginLink': 'Entrar', grades: 'Calculadora de notas', overview: 'Visão geral', learn: 'Aprender', members: 'Membros', you: '(você)' },
+    nav: { moments: 'Momentos de aprendizado', results: 'Resultados', subjects: 'Disciplinas', logout: 'Sair', more: 'Mais', monthly: 'Resumo mensal', profile: 'Perfil', home: 'Início', loginBtn: 'Entrar', timer: 'Temporizador', week: 'Resumo semanal', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Mapa mental', 'feedback': 'Feedback', 'loginLink': 'Entrar', grades: 'Calculadora de notas', overview: 'Visão geral', learn: 'Aprender', members: 'Membros', you: '(você)', schedule: 'Horário' },
     dashboard: {
       momentsCount: 'Momentos', minutesLearned: 'Minutos aprendidos', inHours: 'Em horas',
       newMoment: 'Novo momento de aprendizado', newMomentSub: 'O que você aprendeu hoje?',
@@ -592,6 +604,7 @@ const t = {
       duplicate: 'Duplicar', duplicateNote: '✓ Dados preenchidos — ajuste a data e salve.', share: 'Compartilhar', shared: 'Compartilhado ✓', linkCopied: 'Link copiado!', confirmYes: 'Sim', confirmNo: 'Não',
       spacedTitle: 'Você ainda lembra?', spacedSub: 'Você aprendeu isso em',
       guestBanner: 'Está a ver uma pré-visualização do Knowl. Crie uma conta gratuita para guardar os seus dados e usar todas as funcionalidades.', guestBannerBtn: 'Criar conta gratuita', guestBannerSub: 'Os seus momentos atuais serão transferidos.',
+      notes: 'Notas', notesPlaceholder: 'Escreva notas para este momento de aprendizagem...',
     },
     results: {
       title: 'Seus resultados', subtitle: 'Veja como distribuiu o tempo por disciplina',
@@ -636,6 +649,7 @@ const t = {
       step1: 'Crie disciplinas', step2: 'Adicione um momento', step3: 'Veja seu progresso',
       greeting: 'Olá, {name}', greetingSub: 'Bem-vindo de volta ao Knowl. Aqui está seu resumo.',
       shields: 'Escudos', shieldsInfo: 'Proteção reserva para sua sequência',
+      examPlanner: 'Planejador de provas', examPlannerSub: 'Quantos minutos por dia você ainda precisa estudar?', daysLeft: 'dias', minPerDay: 'min/dia', onTrack: 'No prazo ✓', noGoalSet: 'Sem minutos-alvo', freeStudyTime: 'Blocos de estudo livres', freeStudyTimeSub: 'Com base no seu horário de hoje',
     },
     wrapped: {
       title: 'Seu resumo mensal', hoursLearned: 'Horas aprendidas', moments: 'Momentos',
@@ -762,10 +776,12 @@ const t = {
     reset: { 'title': 'Definir nova palavra-passe', 'subtitle': 'Escolha uma nova palavra-passe para a sua conta.', 'newPassword': 'Nova palavra-passe', 'repeatPassword': 'Repetir palavra-passe', 'saving': 'A guardar...', 'saveBtn': 'Guardar palavra-passe', 'successMsg': 'Palavra-passe alterada com sucesso!', 'successSub': 'A redirecionar para Início…', 'mismatch': 'As palavras-passe não coincidem.', 'tooShort': 'A palavra-passe deve ter pelo menos 6 caracteres.' },
     share: { 'tagline': 'Momento de aprendizagem partilhado', 'madeWith': 'Feito com Knowl — o seu rastreador pessoal de aprendizagem', 'summary': 'Resumo' },
     cijfers: { title: 'Calculadora de notas', subtitle: 'Calcule sua média e o que precisa para atingir seu objetivo', addSubject: '+ Adicionar disciplina', average: 'Média', colName: 'Descrição', colGrade: 'Nota', colWeight: 'Peso', addGrade: '+ Adicionar nota', sectionTitle: 'O que ainda preciso?', targetLabel: 'Nota alvo para esta disciplina', futureWeightLabel: 'Peso do próximo teste', impossible: 'Já não é alcançável', impossibleSub: 'Você precisaria de um {grade} — isso não é possível.', achieved: 'Objetivo já atingido!', achievedSub: 'Você já atingiu seu objetivo independentemente da nota.', needed: 'Nota necessária', infoWeight: 'Peso: use a mesma ponderação da sua escola.', infoDecimal: 'Vírgula ou ponto: ambos funcionam.', infoNote: 'Os dados não são salvos — use como ferramenta de cálculo.', subjectLink: '→ Definir objetivos por disciplina', subjectPlaceholder: 'Disciplina {n} (ex. Matemática)' },
+    badges: { title: 'Conquistas', subtitle: 'Seus achievements', earned: 'obtida', locked: 'Ainda não desbloqueada', progress: 'de', rarityCommon: 'Comum', rarityRare: 'Rara', rarityEpic: 'Épica', rarityLegendary: 'Lendária' },
+    rooster: { title: 'Horário', subtitle: 'Seu horário de aulas e blocos livres de estudo', addSlot: '+ Adicionar aula', day0: 'Segunda', day1: 'Terça', day2: 'Quarta', day3: 'Quinta', day4: 'Sexta', day5: 'Sábado', day6: 'Domingo', startTime: 'Hora início', endTime: 'Hora fim', label: 'Disciplina', save: 'Salvar', delete: 'Excluir', freeBlocks: 'Blocos livres hoje', noSlots: 'Nenhuma aula adicionada', suggestion: 'Estude:', minFree: 'min livres', schedule: 'Gerenciar horário →', noFreeBlocks: 'Sem blocos livres hoje' },
     guest: { 'save': 'Guardar', 'cancel': 'Cancelar', 'delete': 'Eliminar', 'summary': 'Resumo' },
   },
   fr: {
-    nav: { moments: "Moments d'apprentissage", results: 'Résultats', subjects: 'Matières', logout: 'Se déconnecter', more: 'Plus', monthly: 'Bilan mensuel', profile: 'Profil', home: 'Accueil', loginBtn: 'Se connecter', timer: 'Minuterie', week: 'Bilan hebdomadaire', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Carte mentale', 'feedback': 'Retour', 'loginLink': 'Connexion', grades: 'Calculateur de notes', overview: 'Aperçu', learn: 'Apprendre', members: 'Membres', you: '(moi)' },
+    nav: { moments: "Moments d'apprentissage", results: 'Résultats', subjects: 'Matières', logout: 'Se déconnecter', more: 'Plus', monthly: 'Bilan mensuel', profile: 'Profil', home: 'Accueil', loginBtn: 'Se connecter', timer: 'Minuterie', week: 'Bilan hebdomadaire', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Carte mentale', 'feedback': 'Retour', 'loginLink': 'Connexion', grades: 'Calculateur de notes', overview: 'Aperçu', learn: 'Apprendre', members: 'Membres', you: '(moi)', schedule: "Emploi du temps" },
     dashboard: {
       momentsCount: 'Moments', minutesLearned: 'Minutes apprises', inHours: 'En heures',
       newMoment: "Nouveau moment d'apprentissage", newMomentSub: "Qu'avez-vous appris aujourd'hui ?",
@@ -780,6 +796,7 @@ const t = {
       duplicate: 'Dupliquer', duplicateNote: '✓ Données remplies — ajustez la date et enregistrez.', share: 'Partager', shared: 'Partagé ✓', linkCopied: 'Lien copié !', confirmYes: 'Oui', confirmNo: 'Non',
       spacedTitle: 'Vous en souvenez-vous encore ?', spacedSub: 'Vous avez appris ceci le',
       guestBanner: 'Vous consultez un aperçu de Knowl. Créez un compte gratuit pour sauvegarder vos données et utiliser toutes les fonctionnalités.', guestBannerBtn: 'Créer un compte gratuit', guestBannerSub: 'Vos moments actuels seront conservés.',
+      notes: 'Notes', notesPlaceholder: "Écrivez des notes pour ce moment d'apprentissage...",
     },
     results: {
       title: 'Vos résultats', subtitle: 'Voyez comment vous avez réparti votre temps',
@@ -824,6 +841,7 @@ const t = {
       step1: 'Créer des matières', step2: 'Ajouter un moment', step3: 'Voir vos progrès',
       greeting: 'Bonjour, {name}', greetingSub: 'Bienvenue sur Knowl. Voici votre aperçu.',
       shields: 'Boucliers', shieldsInfo: 'Protection de réserve pour votre série',
+      examPlanner: 'Planificateur d\'examens', examPlannerSub: 'Combien de minutes par jour devez-vous encore étudier ?', daysLeft: 'jours', minPerDay: 'min/j', onTrack: 'Dans les délais ✓', noGoalSet: 'Pas de minutes cibles', freeStudyTime: "Créneaux d'étude libres", freeStudyTimeSub: "Basé sur votre emploi du temps d'aujourd'hui",
     },
     wrapped: {
       title: 'Votre bilan mensuel', hoursLearned: 'Heures apprises', moments: 'Moments',
@@ -950,10 +968,12 @@ const t = {
     reset: { 'title': 'Définir un nouveau mot de passe', 'subtitle': 'Choisissez un nouveau mot de passe pour votre compte.', 'newPassword': 'Nouveau mot de passe', 'repeatPassword': 'Répéter le mot de passe', 'saving': 'Enregistrement...', 'saveBtn': 'Enregistrer le mot de passe', 'successMsg': 'Mot de passe modifié avec succès !', 'successSub': 'Redirection vers Accueil…', 'mismatch': 'Les mots de passe ne correspondent pas.', 'tooShort': 'Le mot de passe doit comporter au moins 6 caractères.' },
     share: { 'tagline': 'Moment d\'apprentissage partagé', 'madeWith': 'Fait avec Knowl — votre tracker d\'apprentissage personnel', 'summary': 'Résumé' },
     cijfers: { title: 'Calculateur de notes', subtitle: "Calculez votre moyenne et ce qu'il vous faut pour atteindre votre objectif", addSubject: '+ Ajouter une matière', average: 'Moyenne', colName: 'Description', colGrade: 'Note', colWeight: 'Coefficient', addGrade: '+ Ajouter une note', sectionTitle: "De quoi ai-je encore besoin?", targetLabel: 'Note cible pour cette matière', futureWeightLabel: 'Coefficient du prochain examen', impossible: 'Plus atteignable', impossibleSub: "Vous auriez besoin d'un {grade} — c'est impossible.", achieved: 'Objectif déjà atteint!', achievedSub: 'Vous avez déjà atteint votre objectif quelle que soit votre note.', needed: 'Note requise', infoWeight: 'Coefficient: utilisez la même pondération que votre école.', infoDecimal: 'Virgule ou point: les deux fonctionnent.', infoNote: 'Les données ne sont pas sauvegardées — utilisez comme outil de calcul.', subjectLink: '→ Définir des objectifs par matière', subjectPlaceholder: 'Matière {n} (ex. Maths)' },
+    badges: { title: 'Badges & Jalons', subtitle: 'Vos réalisations', earned: 'obtenu', locked: 'Pas encore débloqué', progress: 'sur', rarityCommon: 'Commun', rarityRare: 'Rare', rarityEpic: 'Épique', rarityLegendary: 'Légendaire' },
+    rooster: { title: "Emploi du temps", subtitle: "Votre emploi du temps et créneaux d'étude libres", addSlot: '+ Ajouter un cours', day0: 'Lundi', day1: 'Mardi', day2: 'Mercredi', day3: 'Jeudi', day4: 'Vendredi', day5: 'Samedi', day6: 'Dimanche', startTime: 'Heure début', endTime: 'Heure fin', label: 'Matière', save: 'Enregistrer', delete: 'Supprimer', freeBlocks: "Créneaux libres aujourd'hui", noSlots: 'Aucun cours ajouté', suggestion: 'Étudiez:', minFree: 'min libres', schedule: "Gérer l'emploi du temps →", noFreeBlocks: "Aucun créneau libre aujourd'hui" },
     guest: { 'save': 'Enregistrer', 'cancel': 'Annuler', 'delete': 'Supprimer', 'summary': 'Résumé' },
   },
   de: {
-    nav: { moments: 'Lernmomente', results: 'Ergebnisse', subjects: 'Fächer', logout: 'Abmelden', more: 'Mehr', monthly: 'Monatsübersicht', profile: 'Profil', home: 'Start', loginBtn: 'Anmelden', timer: 'Timer', week: 'Wochenübersicht', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begriffsnetz', 'feedback': 'Feedback', 'loginLink': 'Anmelden', grades: 'Notenrechner', overview: 'Übersicht', learn: 'Lernen', members: 'Mitglieder', you: '(du)' },
+    nav: { moments: 'Lernmomente', results: 'Ergebnisse', subjects: 'Fächer', logout: 'Abmelden', more: 'Mehr', monthly: 'Monatsübersicht', profile: 'Profil', home: 'Start', loginBtn: 'Anmelden', timer: 'Timer', week: 'Wochenübersicht', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begriffsnetz', 'feedback': 'Feedback', 'loginLink': 'Anmelden', grades: 'Notenrechner', overview: 'Übersicht', learn: 'Lernen', members: 'Mitglieder', you: '(du)', schedule: 'Stundenplan' },
     dashboard: {
       momentsCount: 'Lernmomente', minutesLearned: 'Gelernte Minuten', inHours: 'In Stunden',
       newMoment: 'Neuer Lernmoment', newMomentSub: 'Was hast du heute gelernt?',
@@ -968,6 +988,7 @@ const t = {
       duplicate: 'Duplizieren', duplicateNote: '✓ Daten ausgefüllt — Datum anpassen und speichern.', share: 'Teilen', shared: 'Geteilt ✓', linkCopied: 'Link kopiert!', confirmYes: 'Ja', confirmNo: 'Nein',
       spacedTitle: 'Erinnerst du dich noch?', spacedSub: 'Du hast das gelernt am',
       guestBanner: 'Du siehst eine Vorschau von Knowl. Erstelle ein kostenloses Konto, um deine Daten zu speichern und alle Funktionen zu nutzen.', guestBannerBtn: 'Kostenloses Konto erstellen', guestBannerSub: 'Deine aktuellen Momente werden übernommen.',
+      notes: 'Notizen', notesPlaceholder: 'Schreibe Notizen zu diesem Lernmoment...',
     },
     results: {
       title: 'Deine Ergebnisse', subtitle: 'Sieh, wie du deine Zeit auf die Fächer verteilt hast',
@@ -1012,6 +1033,7 @@ const t = {
       step1: 'Fächer erstellen', step2: 'Moment hinzufügen', step3: 'Fortschritt ansehen',
       greeting: 'Hallo, {name}', greetingSub: 'Willkommen zurück bei Knowl. Hier ist deine Übersicht.',
       shields: 'Schutzschilde', shieldsInfo: 'Reserve-Schutz für deine Streak',
+      examPlanner: 'Prüfungsplaner', examPlannerSub: 'Wie viele Minuten pro Tag musst du noch lernen?', daysLeft: 'Tage', minPerDay: 'min/Tag', onTrack: 'Im Plan ✓', noGoalSet: 'Kein Ziel gesetzt', freeStudyTime: 'Freie Lernblöcke', freeStudyTimeSub: 'Basierend auf deinem heutigen Stundenplan',
     },
     wrapped: {
       title: 'Deine Monatsübersicht', hoursLearned: 'Gelernte Stunden', moments: 'Lernmomente',
@@ -1138,10 +1160,12 @@ const t = {
     reset: { 'title': 'Neues Passwort festlegen', 'subtitle': 'Wähle ein neues Passwort für dein Konto.', 'newPassword': 'Neues Passwort', 'repeatPassword': 'Passwort wiederholen', 'saving': 'Speichern...', 'saveBtn': 'Passwort speichern', 'successMsg': 'Passwort erfolgreich geändert!', 'successSub': 'Du wirst zu Home weitergeleitet…', 'mismatch': 'Die Passwörter stimmen nicht überein.', 'tooShort': 'Passwort muss mindestens 6 Zeichen lang sein.' },
     share: { 'tagline': 'Geteilter Lernmoment', 'madeWith': 'Erstellt mit Knowl — dein persönlicher Lerntracker', 'summary': 'Zusammenfassung' },
     cijfers: { title: 'Notenrechner', subtitle: 'Berechne deinen Durchschnitt und was du für dein Ziel brauchst', addSubject: '+ Fach hinzufügen', average: 'Durchschnitt', colName: 'Beschreibung', colGrade: 'Note', colWeight: 'Gewichtung', addGrade: '+ Note hinzufügen', sectionTitle: 'Was brauche ich noch?', targetLabel: 'Zielnote für dieses Fach', futureWeightLabel: 'Gewichtung der nächsten Prüfung', impossible: 'Nicht mehr erreichbar', impossibleSub: 'Du bräuchtest eine {grade} — das ist nicht möglich.', achieved: 'Ziel bereits erreicht!', achievedSub: 'Du hast dein Ziel bereits erreicht egal was du schreibst.', needed: 'Benötigte Note', infoWeight: 'Gewichtung: Nutze dieselbe Gewichtung wie deine Schule.', infoDecimal: 'Komma oder Punkt: beides funktioniert.', infoNote: 'Daten werden nicht gespeichert — nutze dies als Rechenhilfe.', subjectLink: '→ Ziele pro Fach festlegen', subjectPlaceholder: 'Fach {n} (z.B. Mathe)' },
+    badges: { title: 'Abzeichen & Meilensteine', subtitle: 'Deine Errungenschaften', earned: 'erhalten', locked: 'Noch nicht freigeschaltet', progress: 'von', rarityCommon: 'Gewöhnlich', rarityRare: 'Selten', rarityEpic: 'Episch', rarityLegendary: 'Legendär' },
+    rooster: { title: 'Stundenplan', subtitle: 'Dein Stundenplan und freie Lernblöcke', addSlot: '+ Stunde hinzufügen', day0: 'Montag', day1: 'Dienstag', day2: 'Mittwoch', day3: 'Donnerstag', day4: 'Freitag', day5: 'Samstag', day6: 'Sonntag', startTime: 'Startzeit', endTime: 'Endzeit', label: 'Fach', save: 'Speichern', delete: 'Löschen', freeBlocks: 'Freie Lernblöcke heute', noSlots: 'Noch keine Stunden hinzugefügt', suggestion: 'Lerne:', minFree: 'min frei', schedule: 'Stundenplan verwalten →', noFreeBlocks: 'Keine freien Blöcke heute' },
     guest: { 'save': 'Speichern', 'cancel': 'Abbrechen', 'delete': 'Löschen', 'summary': 'Zusammenfassung' },
   },
   da: {
-    nav: { moments: 'Læringsøjeblikke', results: 'Resultater', subjects: 'Fag', logout: 'Log ud', more: 'Mere', monthly: 'Månedsoversigt', profile: 'Profil', home: 'Hjem', loginBtn: 'Log ind', timer: 'Timer', week: 'Ugeoversigt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begrebskort', 'feedback': 'Feedback', 'loginLink': 'Log ind', grades: 'Karakterberegner', overview: 'Oversigt', learn: 'Lær', members: 'Medlemmer', you: '(dig)' },
+    nav: { moments: 'Læringsøjeblikke', results: 'Resultater', subjects: 'Fag', logout: 'Log ud', more: 'Mere', monthly: 'Månedsoversigt', profile: 'Profil', home: 'Hjem', loginBtn: 'Log ind', timer: 'Timer', week: 'Ugeoversigt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begrebskort', 'feedback': 'Feedback', 'loginLink': 'Log ind', grades: 'Karakterberegner', overview: 'Oversigt', learn: 'Lær', members: 'Medlemmer', you: '(dig)', schedule: 'Skema' },
     dashboard: {
       momentsCount: 'Læringsøjeblikke', minutesLearned: 'Minutter lært', inHours: 'I timer',
       newMoment: 'Nyt læringsøjeblik', newMomentSub: 'Hvad lærte du i dag?',
@@ -1156,6 +1180,7 @@ const t = {
       duplicate: 'Dupliker', duplicateNote: '✓ Data udfyldt — juster datoen og gem.', share: 'Del', shared: 'Delt ✓', linkCopied: 'Link kopieret!', confirmYes: 'Ja', confirmNo: 'Nej',
       spacedTitle: 'Husker du det stadig?', spacedSub: 'Du lærte dette den',
       guestBanner: 'Du ser en forhåndsvisning af Knowl. Opret en gratis konto for at gemme dine data og bruge alle funktioner.', guestBannerBtn: 'Opret gratis konto', guestBannerSub: 'Dine nuværende øjeblikke overføres.',
+      notes: 'Notater', notesPlaceholder: 'Skriv noter til dette læringsøjeblik...',
     },
     results: {
       title: 'Dine resultater', subtitle: 'Se hvordan du har fordelt din tid på fag',
@@ -1200,6 +1225,7 @@ const t = {
       step1: 'Opret fag', step2: 'Tilføj et moment', step3: 'Se din vækst',
       greeting: 'Hej, {name}', greetingSub: 'Velkommen tilbage til Knowl. Her er dit overblik.',
       shields: 'Skjolde', shieldsInfo: 'Reserve-beskyttelse til din streak',
+      examPlanner: 'Eksamensplanlægger', examPlannerSub: 'Hvor mange minutter om dagen skal du stadig studere?', daysLeft: 'dage', minPerDay: 'min/dag', onTrack: 'På rette spor ✓', noGoalSet: 'Ingen målminutter', freeStudyTime: 'Frie studieblokke', freeStudyTimeSub: 'Baseret på dit skema i dag',
     },
     wrapped: {
       title: 'Din månedsoversigt', hoursLearned: 'Lærte timer', moments: 'Læringsøjeblikke',
@@ -1326,10 +1352,12 @@ const t = {
     reset: { 'title': 'Angiv nyt adgangskode', 'subtitle': 'Vælg et nyt adgangskode til din konto.', 'newPassword': 'Nyt adgangskode', 'repeatPassword': 'Gentag adgangskode', 'saving': 'Gemmer...', 'saveBtn': 'Gem adgangskode', 'successMsg': 'Adgangskode ændret!', 'successSub': 'Omdirigerer til Hjem…', 'mismatch': 'Adgangskoderne stemmer ikke overens.', 'tooShort': 'Adgangskode skal være mindst 6 tegn.' },
     share: { 'tagline': 'Delt læringsøjeblik', 'madeWith': 'Lavet med Knowl — din personlige læringstracker', 'summary': 'Resumé' },
     cijfers: { title: 'Karakterberegner', subtitle: 'Beregn dit gennemsnit og hvad du skal have for at nå dit mål', addSubject: '+ Tilføj fag', average: 'Gennemsnit', colName: 'Beskrivelse', colGrade: 'Karakter', colWeight: 'Vægt', addGrade: '+ Tilføj karakter', sectionTitle: 'Hvad har jeg stadig brug for?', targetLabel: 'Målkarakter for dette fag', futureWeightLabel: 'Vægt af kommende prøve', impossible: 'Ikke længere opnåeligt', impossibleSub: 'Du ville have brug for et {grade} — det er ikke muligt.', achieved: 'Mål allerede nået!', achievedSub: 'Du har allerede nået dit mål uanset hvad du scorer.', needed: 'Nødvendig karakter', infoWeight: 'Vægt: brug samme vægtning som din skole.', infoDecimal: 'Komma eller punktum: begge virker.', infoNote: 'Data gemmes ikke — brug dette som beregningsværktøj.', subjectLink: '→ Sæt mål pr. fag', subjectPlaceholder: 'Fag {n} (f.eks. Matematik)' },
+    badges: { title: 'Badges & Milepæle', subtitle: 'Dine præstationer', earned: 'opnået', locked: 'Endnu ikke låst op', progress: 'af', rarityCommon: 'Almindelig', rarityRare: 'Sjælden', rarityEpic: 'Episk', rarityLegendary: 'Legendarisk' },
+    rooster: { title: 'Skema', subtitle: 'Dit skema og frie studiepladser', addSlot: '+ Tilføj lektion', day0: 'Mandag', day1: 'Tirsdag', day2: 'Onsdag', day3: 'Torsdag', day4: 'Fredag', day5: 'Lørdag', day6: 'Søndag', startTime: 'Starttid', endTime: 'Sluttid', label: 'Fag', save: 'Gem', delete: 'Slet', freeBlocks: 'Frie studieblokke i dag', noSlots: 'Ingen lektioner tilføjet', suggestion: 'Studér:', minFree: 'min fri', schedule: 'Administrer skema →', noFreeBlocks: 'Ingen frie blokke i dag' },
     guest: { 'save': 'Gem', 'cancel': 'Annuller', 'delete': 'Slet', 'summary': 'Resumé' },
   },
   sv: {
-    nav: { moments: 'Lärstunder', results: 'Resultat', subjects: 'Ämnen', logout: 'Logga ut', more: 'Mer', monthly: 'Månadsöversikt', profile: 'Profil', home: 'Hem', loginBtn: 'Logga in', timer: 'Timer', week: 'Veckosöversikt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begreppskarta', 'feedback': 'Feedback', 'loginLink': 'Logga in', grades: 'Betygsräknare', overview: 'Översikt', learn: 'Lär', members: 'Medlemmar', you: '(dig)' },
+    nav: { moments: 'Lärstunder', results: 'Resultat', subjects: 'Ämnen', logout: 'Logga ut', more: 'Mer', monthly: 'Månadsöversikt', profile: 'Profil', home: 'Hem', loginBtn: 'Logga in', timer: 'Timer', week: 'Veckosöversikt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begreppskarta', 'feedback': 'Feedback', 'loginLink': 'Logga in', grades: 'Betygsräknare', overview: 'Översikt', learn: 'Lär', members: 'Medlemmar', you: '(dig)', schedule: 'Schema' },
     dashboard: {
       momentsCount: 'Lärstunder', minutesLearned: 'Minuter lärt', inHours: 'I timmar',
       newMoment: 'Ny lärstund', newMomentSub: 'Vad lärde du dig idag?',
@@ -1344,6 +1372,7 @@ const t = {
       duplicate: 'Duplicera', duplicateNote: '✓ Uppgifter ifyllda — justera datumet och spara.', share: 'Dela', shared: 'Delat ✓', linkCopied: 'Länk kopierad!', confirmYes: 'Ja', confirmNo: 'Nej',
       spacedTitle: 'Kommer du ihåg det?', spacedSub: 'Du lärde dig detta den',
       guestBanner: 'Du ser en förhandsgranskning av Knowl. Skapa ett gratis konto för att spara dina data och använda alla funktioner.', guestBannerBtn: 'Skapa gratis konto', guestBannerSub: 'Dina nuvarande moment överförs.',
+      notes: 'Anteckningar', notesPlaceholder: 'Skriv anteckningar för detta lärmoment...',
     },
     results: {
       title: 'Dina resultat', subtitle: 'Se hur du fördelat din tid på ämnen',
@@ -1388,6 +1417,7 @@ const t = {
       step1: 'Skapa ämnen', step2: 'Lägg till ett moment', step3: 'Se dina framsteg',
       greeting: 'Hej, {name}', greetingSub: 'Välkommen tillbaka till Knowl. Här är din översikt.',
       shields: 'Sköldar', shieldsInfo: 'Reserveskydd för din streak',
+      examPlanner: 'Tentamensplanerare', examPlannerSub: 'Hur många minuter per dag behöver du fortfarande studera?', daysLeft: 'dagar', minPerDay: 'min/dag', onTrack: 'I tid ✓', noGoalSet: 'Inget mål satt', freeStudyTime: 'Fria studiepass', freeStudyTimeSub: 'Baserat på ditt schema idag',
     },
     wrapped: {
       title: 'Din månadsöversikt', hoursLearned: 'Inlärda timmar', moments: 'Lärstunder',
@@ -1514,10 +1544,12 @@ const t = {
     reset: { 'title': 'Ange nytt lösenord', 'subtitle': 'Välj ett nytt lösenord för ditt konto.', 'newPassword': 'Nytt lösenord', 'repeatPassword': 'Upprepa lösenord', 'saving': 'Sparar...', 'saveBtn': 'Spara lösenord', 'successMsg': 'Lösenord ändrat!', 'successSub': 'Omdirigerar till Hem…', 'mismatch': 'Lösenorden stämmer inte överens.', 'tooShort': 'Lösenordet måste vara minst 6 tecken.' },
     share: { 'tagline': 'Delat lärmoment', 'madeWith': 'Gjort med Knowl — din personliga lärspårare', 'summary': 'Sammanfattning' },
     cijfers: { title: 'Betygsräknare', subtitle: 'Beräkna ditt genomsnitt och vad du behöver för att nå ditt mål', addSubject: '+ Lägg till ämne', average: 'Genomsnitt', colName: 'Beskrivning', colGrade: 'Betyg', colWeight: 'Vikt', addGrade: '+ Lägg till betyg', sectionTitle: 'Vad behöver jag fortfarande?', targetLabel: 'Målbetyg för detta ämne', futureWeightLabel: 'Vikt på kommande prov', impossible: 'Inte längre möjligt', impossibleSub: 'Du skulle behöva ett {grade} — det är inte möjligt.', achieved: 'Mål redan uppnått!', achievedSub: 'Du har redan nått ditt mål oavsett vad du får.', needed: 'Nödvändigt betyg', infoWeight: 'Vikt: använd samma viktning som din skola.', infoDecimal: 'Komma eller punkt: båda fungerar.', infoNote: 'Data sparas inte — använd detta som beräkningsverktyg.', subjectLink: '→ Sätt mål per ämne', subjectPlaceholder: 'Ämne {n} (t.ex. Matematik)' },
+    badges: { title: 'Utmärkelser & Milstolpar', subtitle: 'Dina prestationer', earned: 'uppnått', locked: 'Inte upplåst än', progress: 'av', rarityCommon: 'Vanlig', rarityRare: 'Sällsynt', rarityEpic: 'Episk', rarityLegendary: 'Legendarisk' },
+    rooster: { title: 'Schema', subtitle: 'Ditt schema och fria studiestunder', addSlot: '+ Lägg till lektion', day0: 'Måndag', day1: 'Tisdag', day2: 'Onsdag', day3: 'Torsdag', day4: 'Fredag', day5: 'Lördag', day6: 'Söndag', startTime: 'Starttid', endTime: 'Sluttid', label: 'Ämne', save: 'Spara', delete: 'Ta bort', freeBlocks: 'Fria studiepass idag', noSlots: 'Inga lektioner tillagda', suggestion: 'Studera:', minFree: 'min fri', schedule: 'Hantera schema →', noFreeBlocks: 'Inga fria block idag' },
     guest: { 'save': 'Spara', 'cancel': 'Avbryt', 'delete': 'Radera', 'summary': 'Sammanfattning' },
   },
   no: {
-    nav: { moments: 'Læringsøyeblikk', results: 'Resultater', subjects: 'Fag', logout: 'Logg ut', more: 'Mer', monthly: 'Månedsoversikt', profile: 'Profil', home: 'Hjem', loginBtn: 'Logg inn', timer: 'Timer', week: 'Ukeoversikt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begrepskart', 'feedback': 'Tilbakemelding', 'loginLink': 'Logg inn', grades: 'Karakterkalkulator', overview: 'Oversikt', learn: 'Lær', members: 'Medlemmer', you: '(deg)' },
+    nav: { moments: 'Læringsøyeblikk', results: 'Resultater', subjects: 'Fag', logout: 'Logg ut', more: 'Mer', monthly: 'Månedsoversikt', profile: 'Profil', home: 'Hjem', loginBtn: 'Logg inn', timer: 'Timer', week: 'Ukeoversikt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begrepskart', 'feedback': 'Tilbakemelding', 'loginLink': 'Logg inn', grades: 'Karakterkalkulator', overview: 'Oversikt', learn: 'Lær', members: 'Medlemmer', you: '(deg)', schedule: 'Timeplan' },
     dashboard: {
       momentsCount: 'Læringsøyeblikk', minutesLearned: 'Minutter lært', inHours: 'I timer',
       newMoment: 'Nytt læringsøyeblikk', newMomentSub: 'Hva lærte du i dag?',
@@ -1532,6 +1564,7 @@ const t = {
       duplicate: 'Dupliser', duplicateNote: '✓ Data fylt inn — juster datoen og lagre.', share: 'Del', shared: 'Delt ✓', linkCopied: 'Lenke kopiert!', confirmYes: 'Ja', confirmNo: 'Nei',
       spacedTitle: 'Husker du det fortsatt?', spacedSub: 'Du lærte dette den',
       guestBanner: 'Du ser en forhåndsvisning av Knowl. Opprett en gratis konto for å lagre dataene dine og bruke alle funksjoner.', guestBannerBtn: 'Opprett gratis konto', guestBannerSub: 'Dine nåværende øyeblikk overføres.',
+      notes: 'Notater', notesPlaceholder: 'Skriv notater for dette læringsøyeblikket...',
     },
     results: {
       title: 'Dine resultater', subtitle: 'Se hvordan du har fordelt tiden på fag',
@@ -1576,6 +1609,7 @@ const t = {
       step1: 'Opprett fag', step2: 'Legg til et moment', step3: 'Se din vekst',
       greeting: 'Hei, {name}', greetingSub: 'Velkommen tilbake til Knowl. Her er din oversikt.',
       shields: 'Skjold', shieldsInfo: 'Reservebeskyttelse for din streak',
+      examPlanner: 'Eksamensplanlegger', examPlannerSub: 'Hvor mange minutter per dag trenger du fortsatt å studere?', daysLeft: 'dager', minPerDay: 'min/dag', onTrack: 'I rute ✓', noGoalSet: 'Ingen målminutter', freeStudyTime: 'Frie studieblokker', freeStudyTimeSub: 'Basert på ditt timeplan i dag',
     },
     wrapped: {
       title: 'Din månedsoversikt', hoursLearned: 'Lærte timer', moments: 'Læringsøyeblikk',
@@ -1702,6 +1736,8 @@ const t = {
     reset: { 'title': 'Angi nytt passord', 'subtitle': 'Velg et nytt passord for kontoen din.', 'newPassword': 'Nytt passord', 'repeatPassword': 'Gjenta passord', 'saving': 'Lagrer...', 'saveBtn': 'Lagre passord', 'successMsg': 'Passord endret!', 'successSub': 'Omdirigerer til Hjem…', 'mismatch': 'Passordene stemmer ikke overens.', 'tooShort': 'Passordet må være minst 6 tegn.' },
     share: { 'tagline': 'Delt læringsøyeblikk', 'madeWith': 'Laget med Knowl — din personlige læringssporer', 'summary': 'Sammendrag' },
     cijfers: { title: 'Karakterkalkulator', subtitle: 'Beregn gjennomsnittet ditt og hva du trenger for å nå målet ditt', addSubject: '+ Legg til fag', average: 'Gjennomsnitt', colName: 'Beskrivelse', colGrade: 'Karakter', colWeight: 'Vekt', addGrade: '+ Legg til karakter', sectionTitle: 'Hva trenger jeg fortsatt?', targetLabel: 'Målkarakter for dette faget', futureWeightLabel: 'Vekt på kommende prøve', impossible: 'Ikke lenger oppnåelig', impossibleSub: 'Du ville trenge et {grade} — det er ikke mulig.', achieved: 'Mål allerede nådd!', achievedSub: 'Du har allerede nådd målet ditt uansett hva du scorer.', needed: 'Nødvendig karakter', infoWeight: 'Vekt: bruk samme vekting som skolen din.', infoDecimal: 'Komma eller punktum: begge fungerer.', infoNote: 'Data lagres ikke — bruk dette som beregningsverktøy.', subjectLink: '→ Sett mål per fag', subjectPlaceholder: 'Fag {n} (f.eks. Matematikk)' },
+    badges: { title: 'Merker & Milepæler', subtitle: 'Dine prestasjoner', earned: 'oppnådd', locked: 'Ikke låst opp ennå', progress: 'av', rarityCommon: 'Vanlig', rarityRare: 'Sjelden', rarityEpic: 'Episk', rarityLegendary: 'Legendarisk' },
+    rooster: { title: 'Timeplan', subtitle: 'Din timeplan og frie studiestunder', addSlot: '+ Legg til time', day0: 'Mandag', day1: 'Tirsdag', day2: 'Onsdag', day3: 'Torsdag', day4: 'Fredag', day5: 'Lørdag', day6: 'Søndag', startTime: 'Starttid', endTime: 'Sluttid', label: 'Fag', save: 'Lagre', delete: 'Slett', freeBlocks: 'Frie studieblokker i dag', noSlots: 'Ingen timer lagt til', suggestion: 'Studer:', minFree: 'min fri', schedule: 'Administrer timeplan →', noFreeBlocks: 'Ingen frie blokker i dag' },
     guest: { 'save': 'Lagre', 'cancel': 'Avbryt', 'delete': 'Slett', 'summary': 'Sammendrag' },
   },
 } as const

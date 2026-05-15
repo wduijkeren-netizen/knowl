@@ -6,6 +6,7 @@ import Nav from '@/components/Nav'
 import type { User } from '@supabase/supabase-js'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import DagelijkseHerinnering from '@/components/DagelijkseHerinnering'
+import BadgesSection from '@/components/BadgesSection'
 
 type Profile = {
   voornaam?: string | null
@@ -19,6 +20,10 @@ type Profile = {
 type Props = {
   user: User
   profile: Profile
+  moments: { learned_at: string; duration_minutes: number | null }[]
+  subjectCount: number
+  flashcardsSR: number
+  hasWordweb: boolean
 }
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
@@ -36,7 +41,7 @@ function Field({ label, required, children }: { label: string; required?: boolea
   )
 }
 
-export default function ProfielForm({ user, profile }: Props) {
+export default function ProfielForm({ user, profile, moments, subjectCount, flashcardsSR, hasWordweb }: Props) {
   const { tr } = useLanguage()
   const p = tr.profile
   const [voornaam, setVoornaam] = useState(profile.voornaam ?? '')
@@ -98,6 +103,8 @@ export default function ProfielForm({ user, profile }: Props) {
           <h1 className="text-2xl font-bold text-indigo-900">{p.title}</h1>
           <p className="text-sm text-indigo-400 mt-1">{p.subtitle}</p>
         </div>
+
+        <BadgesSection moments={moments} subjectCount={subjectCount} flashcardsSR={flashcardsSR} hasWordweb={hasWordweb} />
 
         <form onSubmit={handleSubmit} className="space-y-6">
 

@@ -19,13 +19,31 @@ type Props = {
   subjects: { name: string; goal_minutes: number | null; goal_date: string | null; recurring_type: string | null; recurring_goal_minutes: number | null }[]
   displayName: string | null
   studySessions: StudySession[]
+  examEvents: { id: string; date: string; title: string; subject: string }[]
+  todaySlots: { id: string; day_of_week: number; start_time: string; end_time: string; label: string }[]
+}
+
+function getFreeBlocks(slots: { id: string; day_of_week: number; start_time: string; end_time: string; label: string }[]) {
+  const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m }
+  const toStr = (m: number) => `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`
+  const sorted = [...slots].sort((a, b) => a.start_time.localeCompare(b.start_time))
+  const blocks: { start: string; end: string; minutes: number }[] = []
+  let cur = 480
+  for (const s of sorted) {
+    const ss = toMin(s.start_time), se = toMin(s.end_time)
+    if (ss > cur + 29) blocks.push({ start: toStr(cur), end: toStr(ss), minutes: ss - cur })
+    cur = Math.max(cur, se)
+  }
+  if (1320 > cur + 29) blocks.push({ start: toStr(cur), end: toStr(1320), minutes: 1320 - cur })
+  return blocks.filter(b => b.minutes >= 30)
 }
 
 const TIMEFRAME_DAYS = [7, 30, 90, null]
 
-export default function HomePage({ user, allMoments, thisMonth, subjects, displayName, studySessions }: Props) {
+export default function HomePage({ user, allMoments, thisMonth, subjects, displayName, studySessions, examEvents, todaySlots }: Props) {
   const { tr } = useLanguage()
   const h = tr.home
+  const r = tr.rooster
   const [timeframe, setTimeframe] = useState<number | null>(30)
   const [search, setSearch] = useState('')
   const searchResults = search.trim() ? allMoments.filter(m => (m.title ?? '').toLowerCase().includes(search.toLowerCase()) || (m.category ?? '').toLowerCase().includes(search.toLowerCase())).slice(0, 8) : []
@@ -87,6 +105,11 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
     perCategory[key] = (perCategory[key] ?? 0) + (m.duration_minutes ?? 0)
   }
   const topVak = Object.entries(perCategory).sort((a, b) => b[1] - a[1])[0]
+
+  const minutesPerSubject = allMoments.reduce((acc, m) => {
+    if (m.category && m.duration_minutes) acc[m.category] = (acc[m.category] ?? 0) + m.duration_minutes
+    return acc
+  }, {} as Record<string, number>)
 
   const chartData = useMemo(() => {
     const cutoff = timeframe
@@ -343,6 +366,93 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
             </div>
           </div>
         )}
+
+        {/* Tentamenplanner */}
+        {examEvents.length > 0 && (
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 space-y-3">
+            <h2 className="font-bold text-indigo-900">{h.examPlanner}</h2>
+            <p className="text-xs text-indigo-400 -mt-2">{h.examPlannerSub}</p>
+            <div className="space-y-2">
+              {examEvents.map(exam => {
+                const daysLeft = Math.max(0, Math.ceil((new Date(exam.date).getTime() - Date.now()) / 86400000))
+                const subject = subjects.find(s => s.name === exam.subject)
+                const goalMin = subject?.goal_minutes ?? 0
+                const studiedMin = minutesPerSubject[exam.subject] ?? 0
+                const remaining = Math.max(0, goalMin - studiedMin)
+                const perDay = daysLeft > 0 && goalMin > 0 ? Math.ceil(remaining / daysLeft) : null
+                const onTrack = goalMin === 0 || studiedMin >= goalMin
+                const urgent = daysLeft <= 3
+                return (
+                  <div key={exam.id} className={`rounded-xl p-4 border ${onTrack ? 'bg-emerald-50 border-emerald-100' : urgent ? 'bg-red-50 border-red-100' : 'bg-indigo-50 border-indigo-100'}`}>
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm text-indigo-900 truncate">{exam.title}</p>
+                        <p className="text-xs text-indigo-400">{exam.subject}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className={`text-xl font-bold ${urgent ? 'text-red-600' : 'text-indigo-700'}`}>{daysLeft}</p>
+                        <p className="text-xs text-indigo-300">{h.daysLeft}</p>
+                      </div>
+                    </div>
+                    {goalMin > 0 && (
+                      <div className="mt-3 space-y-1.5">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-indigo-400">{studiedMin} / {goalMin} min</span>
+                          {!onTrack && perDay !== null && <span className="font-semibold text-amber-600">{perDay} {h.minPerDay}</span>}
+                          {onTrack && <span className="font-semibold text-emerald-600">{h.onTrack}</span>}
+                        </div>
+                        <div className="h-1.5 bg-white rounded-full overflow-hidden">
+                          <div className="h-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500" style={{ width: `${Math.min(100, Math.round(studiedMin / goalMin * 100))}%` }} />
+                        </div>
+                      </div>
+                    )}
+                    {goalMin === 0 && <p className="text-xs text-indigo-300 mt-1">{h.noGoalSet}</p>}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Rooster vrije blokken */}
+        {todaySlots.length > 0 && (() => {
+          const freeBlocks = getFreeBlocks(todaySlots)
+          if (freeBlocks.length === 0) return null
+          const behindSubject = subjects
+            .filter(s => s.goal_minutes && s.goal_minutes > (minutesPerSubject[s.name] ?? 0))
+            .sort((a, b) => {
+              const remA = (a.goal_minutes ?? 0) - (minutesPerSubject[a.name] ?? 0)
+              const remB = (b.goal_minutes ?? 0) - (minutesPerSubject[b.name] ?? 0)
+              return remB - remA
+            })[0]
+          return (
+            <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 space-y-3">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="font-bold text-indigo-900">{h.freeStudyTime}</h2>
+                  <p className="text-xs text-indigo-400">{h.freeStudyTimeSub}</p>
+                </div>
+                <a href="/rooster" className="text-xs text-indigo-400 hover:text-indigo-600 transition-colors">{r.schedule}</a>
+              </div>
+              <div className="space-y-2">
+                {freeBlocks.slice(0, 3).map((block, i) => (
+                  <div key={i} className="flex items-center justify-between bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
+                    <div>
+                      <p className="text-sm font-semibold text-emerald-800">{block.start} – {block.end}</p>
+                      <p className="text-xs text-emerald-500">{Math.round(block.minutes / 60 * 10) / 10} uur vrij</p>
+                    </div>
+                    {behindSubject && (
+                      <div className="text-right">
+                        <p className="text-xs text-emerald-600 font-medium">{r.suggestion}</p>
+                        <p className="text-xs text-emerald-500 truncate max-w-[120px]">{behindSubject.name}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
       </main>
     </div>
   )
