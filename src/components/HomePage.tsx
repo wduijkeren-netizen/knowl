@@ -19,7 +19,7 @@ type Props = {
   subjects: { name: string; goal_minutes: number | null; goal_date: string | null; recurring_type: string | null; recurring_goal_minutes: number | null }[]
   displayName: string | null
   studySessions: StudySession[]
-  examEvents: { id: string; date: string; title: string; subject: string }[]
+  examEvents: { id: string; date: string; title: string; subject: string | null }[]
   todaySlots: { id: string; day_of_week: number; start_time: string; end_time: string; label: string }[]
 }
 
@@ -375,9 +375,9 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
             <div className="space-y-2">
               {examEvents.map(exam => {
                 const daysLeft = Math.max(0, Math.ceil((new Date(exam.date).getTime() - Date.now()) / 86400000))
-                const subject = subjects.find(s => s.name === exam.subject)
+                const subject = exam.subject ? subjects.find(s => s.name === exam.subject) : undefined
                 const goalMin = subject?.goal_minutes ?? 0
-                const studiedMin = minutesPerSubject[exam.subject] ?? 0
+                const studiedMin = exam.subject ? (minutesPerSubject[exam.subject] ?? 0) : 0
                 const remaining = Math.max(0, goalMin - studiedMin)
                 const perDay = daysLeft > 0 && goalMin > 0 ? Math.ceil(remaining / daysLeft) : null
                 const onTrack = goalMin === 0 || studiedMin >= goalMin

@@ -20,7 +20,7 @@ type Profile = {
 type Props = {
   user: User
   profile: Profile
-  moments: { learned_at: string; duration_minutes: number | null }[]
+  moments: { learned_at: string; duration_minutes: number | null; created_at?: string | null }[]
   subjectCount: number
   flashcardsSR: number
   hasWordweb: boolean

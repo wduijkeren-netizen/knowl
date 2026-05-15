@@ -9,7 +9,7 @@ export default async function ProfielPage() {
 
   const [{ data: profile }, momentsRes, srRes, subjectsRes, wordWebsRes] = await Promise.all([
     supabase.from('profiles').select('voornaam, achternaam, telefoonnummer, geboortedatum, postcode, stad').eq('id', user.id).maybeSingle(),
-    supabase.from('learning_moments').select('learned_at, duration_minutes').eq('user_id', user.id),
+    supabase.from('learning_moments').select('learned_at, duration_minutes, created_at').eq('user_id', user.id),
     supabase.from('flashcard_sr').select('card_id').eq('user_id', user.id),
     supabase.from('subjects').select('id'),
     supabase.from('word_webs').select('id').limit(1),

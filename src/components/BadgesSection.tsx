@@ -5,7 +5,7 @@ import { ALL_BADGES, computeMaxStreak, type BadgeData, type BadgeRarity } from '
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Props = {
-  moments: { learned_at: string; duration_minutes: number | null }[]
+  moments: { learned_at: string; duration_minutes: number | null; created_at?: string | null }[]
   subjectCount: number
   flashcardsSR: number
   hasWordweb: boolean
@@ -49,11 +49,13 @@ export default function BadgesSection({ moments, subjectCount, flashcardsSR, has
   const totalMinutes = moments.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
   const totalMoments = moments.length
   const hasEarlyMoment = moments.some(m => {
-    const hour = new Date(m.learned_at).getHours()
+    const ts = m.created_at ?? m.learned_at
+    const hour = new Date(ts).getHours()
     return hour < 8
   })
   const hasLateMoment = moments.some(m => {
-    const hour = new Date(m.learned_at).getHours()
+    const ts = m.created_at ?? m.learned_at
+    const hour = new Date(ts).getHours()
     return hour >= 23
   })
 
