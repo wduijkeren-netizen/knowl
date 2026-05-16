@@ -1,7 +1,9 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const AUTH_ONLY = ['/home', '/profiel', '/week']
+// Routes die GEEN login vereisen
+const PUBLIC_PATHS = ['/', '/login', '/leermomenten', '/resultaten', '/pomodoro', '/cijfers', '/privacy', '/voorwaarden', '/reset-wachtwoord']
+const PUBLIC_PREFIXES = ['/deel/', '/flashcards/deel/', '/flashcards/lid-worden/']
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -25,9 +27,9 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
   const path = request.nextUrl.pathname
-  const isAuthOnly = AUTH_ONLY.some(p => path === p || path.startsWith(p + '/'))
+  const isPublic = PUBLIC_PATHS.includes(path) || PUBLIC_PREFIXES.some(p => path.startsWith(p))
 
-  if (!user && isAuthOnly) {
+  if (!user && !isPublic) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)

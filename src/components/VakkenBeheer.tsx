@@ -36,6 +36,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
   const [subjects, setSubjects] = useState(initialSubjects)
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
+  const [search, setSearch] = useState('')
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [editingGoal, setEditingGoal] = useState<string | null>(null)
   const [goalMinutes, setGoalMinutes] = useState('')
@@ -147,6 +148,13 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
             <h2 className="font-semibold text-indigo-900">{s.yourSubjects}</h2>
             <span className="text-xs text-indigo-400 bg-indigo-50 px-2.5 py-1 rounded-full">{subjects.length} {s.subjects}</span>
           </div>
+          {subjects.length > 4 && (
+            <input
+              value={search} onChange={e => setSearch(e.target.value)}
+              placeholder={tr.flashcards.searchPlaceholder}
+              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 mb-3"
+            />
+          )}
 
           {subjects.length === 0 && (
             <div className="text-center py-8">
@@ -155,7 +163,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
           )}
 
           <ul className="space-y-3">
-            {subjects.map(subject => {
+            {subjects.filter(sub => !search.trim() || sub.name.toLowerCase().includes(search.toLowerCase())).map(subject => {
               const done = minutesPerSubject[subject.name] ?? 0
               const goal = subject.goal_minutes
               const progress = goal ? Math.min(100, Math.round((done / goal) * 100)) : null

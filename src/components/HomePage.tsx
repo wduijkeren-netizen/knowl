@@ -73,7 +73,7 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
     let run = 1
     for (let i = 1; i < days.length; i++) {
       const diff = (new Date(days[i]).getTime() - new Date(days[i - 1]).getTime()) / 86400000
-      if (diff === 1) { run++; if (run % 3 === 0) earnedShields++ }
+      if (Math.round(diff) === 1) { run++; if (run % 3 === 0) earnedShields++ }
       else run = 1
     }
     const availableShields = Math.max(0, earnedShields - usedShields)
@@ -92,8 +92,8 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
 
     for (let i = 1; i < rev.length; i++) {
       const diff = (new Date(rev[i - 1]).getTime() - new Date(rev[i]).getTime()) / 86400000
-      if (diff === 1) count++
-      else if (diff === 2 && freeUsed < maxFree) { count++; freeUsed++ }
+      if (Math.round(diff) === 1) count++
+      else if (Math.round(diff) === 2 && freeUsed < maxFree) { count++; freeUsed++ }
       else { break }
     }
     return { streak: count, shields: availableShields }

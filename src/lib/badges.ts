@@ -53,7 +53,7 @@ export function computeMaxStreak(moments: { learned_at: string }[]): number {
   let max = 1, cur = 1
   for (let i = 1; i < dates.length; i++) {
     const diff = (new Date(dates[i]).getTime() - new Date(dates[i-1]).getTime()) / 86400000
-    if (diff === 1) { cur++; if (cur > max) max = cur } else { cur = 1 }
+    if (Math.round(diff) === 1) { cur++; if (cur > max) max = cur } else { cur = 1 }
   }
   return max
 }
