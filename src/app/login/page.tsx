@@ -38,7 +38,7 @@ function LoginForm() {
         options: { emailRedirectTo: `${window.location.origin}${redirect}` },
       })
       if (error) setError(vertaalFout(error.message))
-      else setInfo(lg.confirmEmail)
+      else router.push(redirect)
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) setError(vertaalFout(error.message))
