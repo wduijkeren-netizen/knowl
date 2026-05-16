@@ -205,10 +205,10 @@ export default function GuestDashboard() {
           )}
 
           {moments.length === 0 && (
-            <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-10 text-center">
-              <p className="text-4xl mb-3">📝</p>
-              <p className="text-indigo-900 font-semibold mb-1">{d.empty}</p>
-              <p className="text-indigo-300 text-xs mt-2">{d.guestBannerSub}</p>
+            <div className="bg-white rounded-2xl border border-indigo-100 p-10 text-center space-y-2">
+              <p className="text-5xl">🌱</p>
+              <p className="text-indigo-900 font-semibold">{d.empty}</p>
+              <p className="text-indigo-400 text-sm">Vul het formulier hierboven in — het duurt 30 seconden.</p>
             </div>
           )}
 

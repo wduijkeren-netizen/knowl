@@ -463,21 +463,28 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
         {/* Welkomstbanner voor nieuwe gebruikers */}
         {moments.length === 0 && (
           <div className="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-6 text-white">
-            <h2 className="text-lg font-bold">{h.welcome}</h2>
-            <p className="text-indigo-200 text-sm mt-1 mb-4">{h.welcomeSub}</p>
+            <div className="flex items-start gap-3 mb-4">
+              <span className="text-3xl">👋</span>
+              <div>
+                <h2 className="text-lg font-bold">{h.welcome}</h2>
+                <p className="text-indigo-200 text-sm mt-0.5">{h.welcomeSub}</p>
+              </div>
+            </div>
             <div className="grid grid-cols-3 gap-3 text-center">
-              <Link href="/vakken" className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl p-3 block">
-                <p className="text-2xl font-bold">1</p>
-                <p className="text-xs text-indigo-200 mt-0.5">{h.step1}</p>
-                <p className="text-xs text-white/60 mt-1">{h.manage}</p>
+              <Link href="/vakken" className="bg-white/10 hover:bg-white/25 active:scale-95 transition-all rounded-xl p-3 block">
+                <p className="text-2xl mb-1">📚</p>
+                <p className="text-xs font-semibold text-white">{h.step1}</p>
+                <p className="text-xs text-indigo-300 mt-0.5">{h.manage}</p>
               </Link>
               <div className="bg-white/10 rounded-xl p-3">
-                <p className="text-2xl font-bold">2</p>
-                <p className="text-xs text-indigo-200 mt-0.5">{h.step2}</p>
+                <p className="text-2xl mb-1">✍️</p>
+                <p className="text-xs font-semibold text-white">{h.step2}</p>
+                <p className="text-xs text-indigo-300 mt-0.5">Formulier hierboven</p>
               </div>
               <div className="bg-white/10 rounded-xl p-3">
-                <p className="text-2xl font-bold">3</p>
-                <p className="text-xs text-indigo-200 mt-0.5">{h.step3}</p>
+                <p className="text-2xl mb-1">📊</p>
+                <p className="text-xs font-semibold text-white">{h.step3}</p>
+                <p className="text-xs text-indigo-300 mt-0.5">Automatisch</p>
               </div>
             </div>
           </div>
@@ -514,8 +521,14 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
           )}
 
           {moments.length === 0 && (
-            <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-10 text-center">
-              <p className="text-indigo-300 text-sm">{d.empty}</p>
+            <div className="bg-white rounded-2xl border border-indigo-100 p-10 text-center space-y-3">
+              <p className="text-5xl">🌱</p>
+              <p className="font-semibold text-indigo-900">Nog geen leermomenten</p>
+              <p className="text-sm text-indigo-400">Vul het formulier hierboven in — het duurt minder dan een minuut.</p>
+              <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
+                ↑ Moment toevoegen
+              </button>
             </div>
           )}
 

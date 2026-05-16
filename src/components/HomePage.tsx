@@ -137,7 +137,9 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
     })
   }, [allMoments, timeframe])
 
-  const firstName = displayName ?? user.email?.split('@')[0] ?? 'daar'
+  const firstName = displayName ?? user.email?.split('@')[0]?.split('+')[0] ?? 'daar'
+  const hour = new Date().getHours()
+  const timeGreeting = hour < 12 ? 'Goedemorgen' : hour < 18 ? 'Hoi' : 'Goedenavond'
 
   const studyMinutesThisWeek = Math.round(
     studySessions.reduce((s, x) => s + x.duration_seconds, 0) / 60
@@ -150,10 +152,10 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
   }
 
   const shortcuts = [
-    { href: '/leermomenten', label: h.s1label, sub: h.s1sub, gradient: true },
-    { href: '/pomodoro', label: h.s2label, sub: h.s2sub, gradient: false },
-    { href: '/resultaten', label: h.s3label, sub: h.s3sub, gradient: false },
-    { href: '/wrapped', label: h.s4label, sub: h.s4sub, gradient: false },
+    { href: '/leermomenten', label: h.s1label, sub: h.s1sub, gradient: true, emoji: '📝' },
+    { href: '/pomodoro', label: h.s2label, sub: h.s2sub, gradient: false, emoji: '⏰' },
+    { href: '/resultaten', label: h.s3label, sub: h.s3sub, gradient: false, emoji: '📊' },
+    { href: '/wrapped', label: h.s4label, sub: h.s4sub, gradient: false, emoji: '📅' },
   ]
 
   const timeframeLabels = [`7 ${h.days}`, `30 ${h.days}`, `3 ${h.months}`, h.all]
@@ -166,7 +168,7 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
       <main className="max-w-3xl mx-auto px-4 py-10 space-y-8">
 
         <div>
-          <h1 className="text-3xl font-bold text-indigo-900">{h.greeting?.replace('{name}', firstName) ?? `Hoi, ${firstName}`}</h1>
+          <h1 className="text-3xl font-bold text-indigo-900">{h.greeting?.replace('{name}', firstName).replace('Hoi', timeGreeting) ?? `${timeGreeting}, ${firstName}`}</h1>
           <p className="text-indigo-400 mt-1">{h.greetingSub ?? 'Welkom terug bij Knowl. Hier is je overzicht.'}</p>
         </div>
 
@@ -215,9 +217,16 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
             <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.thisMonth}</p>
             <p className="text-4xl font-bold text-indigo-700 mt-2">{monthMinutes}<span className="text-xl text-indigo-300">m</span></p>
           </div>
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.streak}</p>
-            <p className="text-4xl font-bold text-indigo-700 mt-2">{streak}<span className="text-xl text-indigo-300">d</span></p>
+          <div className={`rounded-2xl border shadow-sm p-5 transition-all ${streak >= 7 ? 'border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50' : 'bg-white border-indigo-100'}`}>
+            <p className={`text-xs font-medium uppercase tracking-wide ${streak >= 7 ? 'text-orange-400' : 'text-indigo-400'}`}>{h.streak}</p>
+            <div className="flex items-end gap-1 mt-2">
+              <p className={`text-4xl font-bold ${streak >= 7 ? 'text-orange-500' : 'text-indigo-700'}`}>{streak}</p>
+              <span className={`text-xl pb-1 ${streak >= 7 ? 'text-orange-300' : 'text-indigo-300'}`}>d</span>
+              {streak >= 1 && <span className="text-2xl pb-1 ml-1">{streak >= 30 ? '🔥🔥🔥' : streak >= 14 ? '🔥🔥' : '🔥'}</span>}
+            </div>
+            <p className={`text-xs mt-1 font-medium ${streak >= 7 ? 'text-orange-500' : 'text-indigo-400'}`}>
+              {streak === 0 ? 'Begin vandaag! 💪' : streak >= 30 ? 'Legendarisch! 🏆' : streak >= 14 ? 'Je bent niet te stoppen!' : streak >= 7 ? 'Een week! Ga zo door!' : 'Goed bezig!'}
+            </p>
             {shields > 0 && (
               <p className="text-xs text-amber-500 mt-1 font-medium">{'🛡️'.repeat(Math.min(shields, 5))} {h.shields}</p>
             )}
@@ -232,7 +241,7 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
         {studySessions.length > 0 && (
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
             <div className="flex justify-between items-center mb-3">
-              <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">Studietijd deze week</p>
+              <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">⏱ Studietijd deze week</p>
               <span className="text-sm font-bold text-indigo-700">{studyMinutesThisWeek} min</span>
             </div>
             <div className="space-y-2">
@@ -281,8 +290,10 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
           </div>
 
           {chartData.length === 0 ? (
-            <div className="h-48 flex items-center justify-center">
-              <p className="text-indigo-300 text-sm">{h.noData}</p>
+            <div className="h-48 flex flex-col items-center justify-center gap-2">
+              <p className="text-4xl">📈</p>
+              <p className="text-indigo-400 text-sm font-medium">{h.noData}</p>
+              <p className="text-indigo-300 text-xs">Voeg je eerste leermoment toe om je grafiek te zien</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={200}>
@@ -319,14 +330,15 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
             <Link
               key={s.href}
               href={s.href}
-              className={`rounded-2xl p-6 transition-all ${
+              className={`rounded-2xl p-5 transition-all active:scale-95 ${
                 s.gradient
                   ? 'bg-gradient-to-br from-indigo-600 to-violet-600 text-white hover:opacity-90'
-                  : 'bg-white border border-indigo-100 shadow-sm hover:shadow-md'
+                  : 'bg-white border border-indigo-100 shadow-sm hover:shadow-md hover:-translate-y-0.5'
               }`}
             >
-              <p className={`font-semibold ${s.gradient ? 'text-white' : 'text-indigo-900'}`}>{s.label}</p>
-              <p className={`text-sm mt-1 ${s.gradient ? 'text-indigo-200' : 'text-indigo-400'}`}>{s.sub}</p>
+              <p className="text-2xl mb-2">{s.emoji}</p>
+              <p className={`font-semibold text-sm ${s.gradient ? 'text-white' : 'text-indigo-900'}`}>{s.label}</p>
+              <p className={`text-xs mt-0.5 ${s.gradient ? 'text-indigo-200' : 'text-indigo-400'}`}>{s.sub}</p>
             </Link>
           ))}
         </div>
