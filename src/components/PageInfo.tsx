@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 
-export default function PageInfo({ text }: { text: string }) {
+export default function PageInfo({ text, dark = false }: { text: string; dark?: boolean }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -27,7 +27,9 @@ export default function PageInfo({ text }: { text: string }) {
       <button
         onClick={() => setOpen(o => !o)}
         className={`w-5 h-5 rounded-full text-xs font-bold transition-all flex items-center justify-center shrink-0 ${
-          open ? 'bg-indigo-600 text-white' : 'bg-indigo-100 text-indigo-400 hover:bg-indigo-200 hover:text-indigo-600'
+          dark
+            ? open ? 'bg-white text-indigo-600' : 'bg-white/20 text-white hover:bg-white/40'
+            : open ? 'bg-indigo-600 text-white' : 'bg-indigo-100 text-indigo-400 hover:bg-indigo-200 hover:text-indigo-600'
         }`}
         aria-label="Uitleg"
       >

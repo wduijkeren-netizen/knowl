@@ -42,7 +42,7 @@ function getFreeBlocks(slots: { id: string; day_of_week: number; start_time: str
 const TIMEFRAME_DAYS = [7, 30, 90, null]
 
 export default function HomePage({ user, allMoments, thisMonth, subjects, displayName, studySessions, examEvents, todaySlots }: Props) {
-  const { tr } = useLanguage()
+  const { tr, lang } = useLanguage()
   const h = tr.home
   const r = tr.rooster
   const [timeframe, setTimeframe] = useState<number | null>(30)
@@ -140,7 +140,19 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
 
   const firstName = displayName ?? user.email?.split('@')[0]?.split('+')[0] ?? 'daar'
   const hour = new Date().getHours()
-  const timeGreeting = hour < 12 ? 'Goedemorgen' : hour < 18 ? 'Hoi' : 'Goedenavond'
+  const timeGreetings: Record<string, [string, string, string]> = {
+    nl: ['Goedemorgen', 'Hoi', 'Goedenavond'],
+    en: ['Good morning', 'Hey', 'Good evening'],
+    de: ['Guten Morgen', 'Hallo', 'Guten Abend'],
+    fr: ['Bonjour', 'Salut', 'Bonsoir'],
+    es: ['Buenos días', 'Hola', 'Buenas noches'],
+    pt: ['Bom dia', 'Olá', 'Boa noite'],
+    da: ['God morgen', 'Hej', 'God aften'],
+    sv: ['God morgon', 'Hej', 'God kväll'],
+    no: ['God morgen', 'Hei', 'God kveld'],
+  }
+  const [greetMorning, greetDay, greetEvening] = timeGreetings[lang] ?? timeGreetings.nl
+  const timeGreeting = hour < 12 ? greetMorning : hour < 18 ? greetDay : greetEvening
 
   const studyMinutesThisWeek = Math.round(
     studySessions.reduce((s, x) => s + x.duration_seconds, 0) / 60
@@ -170,7 +182,7 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
 
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-bold text-indigo-900">{h.greeting?.replace('{name}', firstName).replace('Hoi', timeGreeting) ?? `${timeGreeting}, ${firstName}`}</h1>
+            <h1 className="text-3xl font-bold text-indigo-900">{`${timeGreeting}, ${firstName}`}</h1>
             <PageInfo text="Dit is jouw persoonlijk dashboard. Je ziet je streak, totale studietijd, grafiek en recente leermomenten in één overzicht." />
           </div>
           <p className="text-indigo-400 mt-1">{h.greetingSub ?? 'Welkom terug bij Knowl. Hier is je overzicht.'}</p>

@@ -102,17 +102,24 @@ export default function CijferCalculator() {
   const { tr } = useLanguage()
   const c = tr.cijfers
 
-  const [vakken, setVakken] = useState<Vak[]>(() => {
-    try {
-      const saved = localStorage.getItem('knowl_cijfers')
-      if (saved) return JSON.parse(saved) as Vak[]
-    } catch {}
-    return [{ id: uid(), naam: '', doelcijfer: '6', toekomstigeWeging: '1', cijfers: [{ id: uid(), naam: '', cijfer: '', weging: '1' }] }]
-  })
+  const [vakken, setVakken] = useState<Vak[]>([
+    { id: 'v0', naam: '', doelcijfer: '6', toekomstigeWeging: '1', cijfers: [{ id: 'c0', naam: '', cijfer: '', weging: '1' }] }
+  ])
+  const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
+    try {
+      const saved = localStorage.getItem('knowl_cijfers')
+      if (saved) setVakken(JSON.parse(saved) as Vak[])
+      else setVakken([{ id: uid(), naam: '', doelcijfer: '6', toekomstigeWeging: '1', cijfers: [{ id: uid(), naam: '', cijfer: '', weging: '1' }] }])
+    } catch {}
+    setLoaded(true)
+  }, [])
+
+  useEffect(() => {
+    if (!loaded) return
     try { localStorage.setItem('knowl_cijfers', JSON.stringify(vakken)) } catch {}
-  }, [vakken])
+  }, [vakken, loaded])
 
   function addVak() {
     setVakken(v => [...v, { id: uid(), naam: '', doelcijfer: '6', toekomstigeWeging: '1', cijfers: [{ id: uid(), naam: '', cijfer: '', weging: '1' }] }])

@@ -68,7 +68,7 @@ export default function WeeklyOverview({ moments, weekStart }: Props) {
         <div className="bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 rounded-3xl p-8 text-white text-center">
           <div className="flex items-center justify-center gap-2">
             <p className="text-indigo-200 text-sm uppercase tracking-widest font-medium">{w.weekTitle}</p>
-            <PageInfo text="Jouw weekoverzicht: hoeveel je hebt gestudeerd, per dag en per vak. Handig om te zien of je de week goed hebt verdeeld." />
+            <PageInfo text="Jouw weekoverzicht: hoeveel je hebt gestudeerd, per dag en per vak. Handig om te zien of je de week goed hebt verdeeld." dark />
           </div>
           <h1 className="text-3xl font-bold mt-2">{weekLabel}</h1>
           <p className="text-indigo-200 mt-2 text-sm">
