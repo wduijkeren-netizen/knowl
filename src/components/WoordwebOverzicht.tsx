@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import Nav from '@/components/Nav'
+import PageInfo from '@/components/PageInfo'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -62,7 +63,7 @@ export default function WoordwebOverzicht({ webs }: Props) {
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-indigo-900">{ww.title}</h1>
+            <div className="flex items-center gap-2"><h1 className="text-2xl font-bold text-indigo-900">{ww.title}</h1><PageInfo text="Maak een visuele kaart van begrippen die met elkaar verbonden zijn. Handig voor het samenvatten van een hoofdstuk of het begrijpen van verbanden." /></div>
             <p className="text-sm text-indigo-400 mt-0.5">{ww.subtitle}</p>
           </div>
           <Link href="/woordweb/nieuw"

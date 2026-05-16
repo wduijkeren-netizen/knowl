@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Nav from '@/components/Nav'
+import PageInfo from '@/components/PageInfo'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
@@ -64,7 +65,7 @@ export default function Rooster({ initialSlots, userId }: { initialSlots: Slot[]
       <Nav />
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-indigo-900">{r.title}</h1>
+          <div className="flex items-center gap-2"><h1 className="text-2xl font-bold text-indigo-900">{r.title}</h1><PageInfo text="Voer hier je lesrooster in. Knowl berekent welke tijdsloten jij vrij hebt op een dag en stelt voor wanneer je kunt studeren." /></div>
           <p className="text-sm text-indigo-400 mt-0.5">{r.subtitle}</p>
         </div>
 

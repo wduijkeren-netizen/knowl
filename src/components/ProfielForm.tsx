@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Nav from '@/components/Nav'
+import PageInfo from '@/components/PageInfo'
 import type { User } from '@supabase/supabase-js'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import DagelijkseHerinnering from '@/components/DagelijkseHerinnering'
@@ -100,7 +101,7 @@ export default function ProfielForm({ user, profile, moments, subjectCount, flas
       <Nav />
       <main className="max-w-lg mx-auto px-4 py-10 space-y-8">
         <div>
-          <h1 className="text-2xl font-bold text-indigo-900">{p.title}</h1>
+          <div className="flex items-center gap-2"><h1 className="text-2xl font-bold text-indigo-900">{p.title}</h1><PageInfo text="Jouw accountgegevens en de badges die je hebt verdiend. Badges verdien je automatisch door Knowl te gebruiken — streaks, uren, flashcards en meer." /></div>
           <p className="text-sm text-indigo-400 mt-1">{p.subtitle}</p>
         </div>
 

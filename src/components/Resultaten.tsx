@@ -1,6 +1,7 @@
 'use client'
 
 import Nav from '@/components/Nav'
+import PageInfo from '@/components/PageInfo'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
@@ -78,7 +79,10 @@ export default function Resultaten({ moments, isGuest }: Props) {
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-indigo-900">{r.title}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-indigo-900">{r.title}</h1>
+            <PageInfo text="Hier zie je grafieken van jouw studietijd. Je ziet hoeveel minuten je per vak hebt gestudeerd en hoe evenwichtig je de tijd verdeelt." />
+          </div>
           <p className="text-sm text-indigo-400 mt-1">{r.subtitle}</p>
         </div>
 

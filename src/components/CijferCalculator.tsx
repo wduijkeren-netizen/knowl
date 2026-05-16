@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Nav from '@/components/Nav'
+import PageInfo from '@/components/PageInfo'
 import Link from 'next/link'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
@@ -149,7 +150,7 @@ export default function CijferCalculator() {
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-2xl font-bold text-indigo-900">{c.title}</h1>
+            <div className="flex items-center gap-2"><h1 className="text-2xl font-bold text-indigo-900">{c.title}</h1><PageInfo text="Bereken je huidige gemiddelde of wat je moet halen voor je doelcijfer. Vul je cijfers en wegingen in — de rest doet Knowl." /></div>
             <p className="text-sm text-indigo-400 mt-0.5">{c.subtitle}</p>
           </div>
           <button onClick={addVak}

@@ -1,6 +1,7 @@
 'use client'
 
 import Nav from '@/components/Nav'
+import PageInfo from '@/components/PageInfo'
 import Link from 'next/link'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
@@ -65,7 +66,10 @@ export default function WeeklyOverview({ moments, weekStart }: Props) {
 
         {/* Header */}
         <div className="bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 rounded-3xl p-8 text-white text-center">
-          <p className="text-indigo-200 text-sm uppercase tracking-widest font-medium">{w.weekTitle}</p>
+          <div className="flex items-center justify-center gap-2">
+            <p className="text-indigo-200 text-sm uppercase tracking-widest font-medium">{w.weekTitle}</p>
+            <PageInfo text="Jouw weekoverzicht: hoeveel je hebt gestudeerd, per dag en per vak. Handig om te zien of je de week goed hebt verdeeld." />
+          </div>
           <h1 className="text-3xl font-bold mt-2">{weekLabel}</h1>
           <p className="text-indigo-200 mt-2 text-sm">
             {moments.length === 0 ? w.noWeekMoments : `${moments.length} ${w.moments} ${w.logged}`}

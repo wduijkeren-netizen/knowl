@@ -1,6 +1,7 @@
 'use client'
 
 import Nav from '@/components/Nav'
+import PageInfo from '@/components/PageInfo'
 import Link from 'next/link'
 import { useState, useMemo, useEffect } from 'react'
 import type { User } from '@supabase/supabase-js'
@@ -168,7 +169,10 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
       <main className="max-w-3xl mx-auto px-4 py-10 space-y-8">
 
         <div>
-          <h1 className="text-3xl font-bold text-indigo-900">{h.greeting?.replace('{name}', firstName).replace('Hoi', timeGreeting) ?? `${timeGreeting}, ${firstName}`}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-3xl font-bold text-indigo-900">{h.greeting?.replace('{name}', firstName).replace('Hoi', timeGreeting) ?? `${timeGreeting}, ${firstName}`}</h1>
+            <PageInfo text="Dit is jouw persoonlijk dashboard. Je ziet je streak, totale studietijd, grafiek en recente leermomenten in één overzicht." />
+          </div>
           <p className="text-indigo-400 mt-1">{h.greetingSub ?? 'Welkom terug bij Knowl. Hier is je overzicht.'}</p>
         </div>
 

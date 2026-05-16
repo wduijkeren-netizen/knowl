@@ -1,6 +1,7 @@
 'use client'
 
 import Nav from '@/components/Nav'
+import PageInfo from '@/components/PageInfo'
 import { useState } from 'react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { createClient } from '@/lib/supabase/client'
@@ -182,7 +183,7 @@ export default function Agenda({ sessions, subjects, events: initialEvents, user
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-2xl font-bold text-indigo-900">{a.title}</h1>
+            <div className="flex items-center gap-2"><h1 className="text-2xl font-bold text-indigo-900">{a.title}</h1><PageInfo text="Plan hier je toetsen en leermomenten in. Klik op een dag om details te zien of iets toe te voegen aan je studiekalender." /></div>
             <p className="text-sm text-indigo-400 mt-1">{a.subtitle}</p>
           </div>
           <button

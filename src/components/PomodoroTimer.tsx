@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Nav from '@/components/Nav'
+import PageInfo from '@/components/PageInfo'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
@@ -296,7 +297,7 @@ export default function PomodoroTimer({ user, subjects }: Props) {
       }`}>
         {!focusMode && (
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-indigo-900">{p.title ?? 'Pomodoro Timer'}</h1>
+            <div className="flex items-center gap-2"><h1 className="text-2xl font-bold text-indigo-900">{p.title ?? 'Pomodoro Timer'}</h1><PageInfo text="Studeer in blokken van 25 minuten met 5 minuten pauze. Deze methode heet de Pomodoro-techniek en is bewezen effectief voor concentratie." /></div>
             <p className="text-sm text-indigo-400 mt-1">{p.subtitle}</p>
           </div>
         )}

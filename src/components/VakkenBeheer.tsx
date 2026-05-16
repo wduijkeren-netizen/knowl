@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Nav from '@/components/Nav'
+import PageInfo from '@/components/PageInfo'
 import Link from 'next/link'
 import type { User } from '@supabase/supabase-js'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
@@ -109,7 +110,10 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
 
       <main className="max-w-lg mx-auto px-4 py-8 space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-indigo-900">{s.title}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-indigo-900">{s.title}</h1>
+            <PageInfo text="Beheer hier je vakken en stel doelen in. Knowl berekent automatisch hoeveel minuten je per dag moet studeren om je doel voor de deadline te halen." />
+          </div>
           <p className="text-sm text-indigo-400 mt-1">{s.subtitle}</p>
         </div>
 

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
+import PageInfo from '@/components/PageInfo'
 import type { User } from '@supabase/supabase-js'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
@@ -326,6 +327,10 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
       )}
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-indigo-900">{tr.nav.moments}</h1>
+          <PageInfo text="Hier log je wat je hebt geleerd. Voeg een titel, vak en minuten toe — Knowl houdt bij hoe je de tijd verdeelt per vak." />
+        </div>
 
         {/* Spaced repetition kaart */}
         {showSpaced && spacedMoment && (
@@ -368,7 +373,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
         {/* Formulier */}
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
           <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-4">
-            <h2 className="font-semibold text-white">{d.newMoment}</h2>
+            <div className="flex items-center gap-2"><h2 className="font-semibold text-white">{d.newMoment}</h2></div>
             <p className="text-indigo-200 text-sm mt-0.5">{d.newMomentSub}</p>
           </div>
 

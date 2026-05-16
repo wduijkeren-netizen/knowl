@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import Nav from '@/components/Nav'
+import PageInfo from '@/components/PageInfo'
 import { createClient } from '@/lib/supabase/client'
 import { useState, useEffect } from 'react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
@@ -188,7 +189,7 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-indigo-900">{fc.title}</h1>
+            <div className="flex items-center gap-2"><h1 className="text-2xl font-bold text-indigo-900">{fc.title}</h1><PageInfo text="Maak sets met begrippen of woorden en leer ze via herhaling. Knowl vraagt jou de kaartjes op het juiste moment opnieuw — zo onthoud je ze beter." /></div>
             <p className="text-sm text-indigo-400 mt-0.5">{fc.subtitle}</p>
           </div>
           <Link href="/flashcards/nieuw"
