@@ -67,16 +67,31 @@ function BenodigdBadge({ benodigd, labels }: { benodigd: number | null; labels: 
       </div>
     </div>
   )
-  const kleur = benodigd >= 5.5
-    ? benodigd >= 8 ? 'amber' : 'indigo'
-    : 'emerald'
   const emoji = benodigd >= 8 ? '😰' : benodigd >= 5.5 ? '📚' : '😌'
-  return (
-    <div className={`flex items-center gap-3 bg-${kleur}-50 border border-${kleur}-200 rounded-xl px-4 py-3`}>
+  if (benodigd >= 8) return (
+    <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
       <span className="text-2xl">{emoji}</span>
       <div>
-        <p className={`text-xs text-${kleur}-400 uppercase tracking-wide font-semibold`}>{labels.needed}</p>
-        <p className={`text-3xl font-bold text-${kleur}-700`}>{benodigd.toFixed(1)}</p>
+        <p className="text-xs text-amber-400 uppercase tracking-wide font-semibold">{labels.needed}</p>
+        <p className="text-3xl font-bold text-amber-700">{benodigd.toFixed(1)}</p>
+      </div>
+    </div>
+  )
+  if (benodigd >= 5.5) return (
+    <div className="flex items-center gap-3 bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-3">
+      <span className="text-2xl">{emoji}</span>
+      <div>
+        <p className="text-xs text-indigo-400 uppercase tracking-wide font-semibold">{labels.needed}</p>
+        <p className="text-3xl font-bold text-indigo-700">{benodigd.toFixed(1)}</p>
+      </div>
+    </div>
+  )
+  return (
+    <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+      <span className="text-2xl">{emoji}</span>
+      <div>
+        <p className="text-xs text-emerald-400 uppercase tracking-wide font-semibold">{labels.needed}</p>
+        <p className="text-3xl font-bold text-emerald-700">{benodigd.toFixed(1)}</p>
       </div>
     </div>
   )

@@ -123,7 +123,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
         description: description || null,
         category: category || null,
         learned_at: learnedAt,
-        duration_minutes: duration ? parseInt(duration) : null,
+        duration_minutes: duration ? Math.max(1, parseInt(duration) || 1) : null,
         user_id: user.id,
         photo_url,
       })
@@ -547,8 +547,8 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
                         <option value="">{d.noSubject}</option>
                         {subjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
                       </select>
-                      <input type="number" value={editData.duration_minutes ?? ''} placeholder={d.minutes}
-                        onChange={e => setEditData({ ...editData, duration_minutes: parseInt(e.target.value) || null })}
+                      <input type="number" min="1" value={editData.duration_minutes ?? ''} placeholder={d.minutes}
+                        onChange={e => { const v = parseInt(e.target.value); setEditData({ ...editData, duration_minutes: v > 0 ? v : null }) }}
                         className="border border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
                       <input type="date" value={editData.learned_at ?? ''}
                         onChange={e => setEditData({ ...editData, learned_at: e.target.value })}

@@ -33,14 +33,14 @@ function LoginForm() {
 
     if (isSignUp) {
       const { error } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: { emailRedirectTo: `${window.location.origin}${redirect}` },
       })
       if (error) setError(vertaalFout(error.message))
       else router.push(redirect)
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
       if (error) setError(vertaalFout(error.message))
       else router.push(redirect)
     }

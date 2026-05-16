@@ -38,7 +38,7 @@ export default function Rooster({ initialSlots, userId }: { initialSlots: Slot[]
   const freeBlocks = getFreeBlocks(slots, todayDow)
 
   async function addSlot() {
-    if (!formLabel.trim() || !formStart || !formEnd) return
+    if (!formLabel.trim() || !formStart || !formEnd || formStart >= formEnd) return
     setSaving(true)
     const { data, error } = await supabase.from('schedule_slots').insert({
       user_id: userId,

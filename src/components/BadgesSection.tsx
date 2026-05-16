@@ -50,13 +50,15 @@ export default function BadgesSection({ moments, subjectCount, flashcardsSR, has
   const totalMoments = moments.length
   const hasEarlyMoment = moments.some(m => {
     const ts = m.created_at ?? m.learned_at
-    const hour = new Date(ts).getHours()
-    return hour < 8
+    if (!ts) return false
+    const d = new Date(ts)
+    return !isNaN(d.getTime()) && d.getHours() < 8
   })
   const hasLateMoment = moments.some(m => {
     const ts = m.created_at ?? m.learned_at
-    const hour = new Date(ts).getHours()
-    return hour >= 23
+    if (!ts) return false
+    const d = new Date(ts)
+    return !isNaN(d.getTime()) && d.getHours() >= 23
   })
 
   const data: BadgeData = {
