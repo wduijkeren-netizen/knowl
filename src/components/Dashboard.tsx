@@ -117,7 +117,8 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
   const [ratingMomentId, setRatingMomentId] = useState<string | null>(null)
   const [ratingHover, setRatingHover] = useState(0)
   const [ratingSaved, setRatingSaved] = useState(false)
-  const [ratings, setRatings] = useState<Record<string, number>>(getRatings)
+  const [ratings, setRatings] = useState<Record<string, number>>({})
+  useEffect(() => { setRatings(getRatings()) }, [])
 
   const supabase = createClient()
 
@@ -202,6 +203,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
   }
 
   async function handleSaveEdit(id: string) {
+    if (!editData.title?.trim()) return
     const { data, error } = await supabase
       .from('learning_moments')
       .update({

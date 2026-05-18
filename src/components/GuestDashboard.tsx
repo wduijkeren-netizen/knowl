@@ -72,6 +72,7 @@ export default function GuestDashboard() {
   }
 
   function handleSaveEdit(id: string) {
+    if (!editData.title?.trim()) return
     setMoments(moments.map(m => m.id === id ? { ...m, ...editData } as Moment : m))
     setEditingId(null)
   }

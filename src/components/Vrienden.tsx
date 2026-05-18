@@ -222,11 +222,11 @@ export default function Vrienden({ userId, following, myUsername, myIsPublic }: 
                     </div>
                     <div className="text-center">
                       <p className="text-lg font-bold text-indigo-700">{friend.hoursMonth}u</p>
-                      <p className="text-xs text-indigo-300">{f.hoursMonth.replace('uur ', '').replace('hours ', '').replace('horas ', '').replace('heures ', '').replace('stunden ', '').split(' ')[0]}</p>
+                      <p className="text-xs text-indigo-300">{f.hoursMonth}</p>
                     </div>
                     <div className="text-center">
                       <p className="text-lg font-bold text-violet-600">{friend.momentsMonth}</p>
-                      <p className="text-xs text-indigo-300">{f.momentsMonth.split(' ')[0]}</p>
+                      <p className="text-xs text-indigo-300">{f.momentsMonth}</p>
                     </div>
                     <button
                       onClick={() => unfollow(friend.id)}
