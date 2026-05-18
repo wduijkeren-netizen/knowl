@@ -112,7 +112,7 @@ export default function MonthlyWrapped({ thisMonth, lastMonth, isGuest }: Props)
               {topVak && (
                 <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 col-span-1">
                   <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{w.topSubject}</p>
-                  <p className="text-lg font-bold text-indigo-700 mt-2 leading-tight">{topVak[0]}</p>
+                  <p className="text-sm font-bold text-indigo-700 mt-2 break-words hyphens-auto leading-snug" lang="nl">{topVak[0]}</p>
                   <p className="text-xs text-indigo-300 mt-1">{topVak[1]} {w.min}</p>
                 </div>
               )}
