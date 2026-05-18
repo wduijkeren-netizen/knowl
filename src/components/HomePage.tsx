@@ -258,7 +258,7 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
             <p className="text-4xl font-bold text-indigo-700 mt-2">{totalHours}<span className="text-xl text-indigo-300">u</span></p>
           </div>
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">📅 {h.thisMonth}</p>
+            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.thisMonth}</p>
             <p className="text-4xl font-bold text-indigo-700 mt-2">{monthMinutes}<span className="text-xl text-indigo-300">m</span></p>
           </div>
           <div className={`rounded-2xl border shadow-sm p-5 transition-all cursor-default hover:shadow-md hover:-translate-y-0.5 ${streak >= 7 ? 'border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50' : 'bg-white border-indigo-100'}`}>
@@ -276,8 +276,8 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
             )}
           </div>
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">🏅 {h.topSubject}</p>
-            <p className="text-sm font-bold text-indigo-700 mt-2 break-words hyphens-auto leading-snug" lang="nl">{topVak?.[0] ?? '—'}</p>
+            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.topSubject}</p>
+            <p className="text-lg font-bold text-indigo-700 mt-2 break-words hyphens-auto leading-tight" lang="nl">{topVak?.[0] ?? '—'}</p>
           </div>
         </div>
 
