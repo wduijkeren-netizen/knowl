@@ -6,6 +6,7 @@ import PageInfo from '@/components/PageInfo'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
+import Link from 'next/link'
 
 type Mode = 'work' | 'break'
 type Style = 'circle' | 'minimal' | 'retro'
@@ -299,6 +300,12 @@ export default function PomodoroTimer({ user, subjects }: Props) {
           <div className="text-center">
             <div className="flex items-center gap-2"><h1 className="text-2xl font-bold text-indigo-900">{p.title ?? 'Pomodoro Timer'}</h1><PageInfo text="Studeer in blokken van 25 minuten met 5 minuten pauze. Deze methode heet de Pomodoro-techniek en is bewezen effectief voor concentratie." /></div>
             <p className="text-sm text-indigo-400 mt-1">{p.subtitle}</p>
+            <div className="mt-3 flex justify-center">
+              <Link href="/pomodoro/groep"
+                className="flex items-center gap-2 text-sm bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl font-medium hover:bg-indigo-100 transition-colors">
+                👥 Studeer samen
+              </Link>
+            </div>
           </div>
         )}
 

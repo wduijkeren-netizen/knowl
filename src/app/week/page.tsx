@@ -20,5 +20,5 @@ export default async function WeekPage() {
     .gte('learned_at', mondayStr)
     .order('learned_at', { ascending: true })
 
-  return <WeeklyOverview moments={moments ?? []} weekStart={mondayStr} />
+  return <WeeklyOverview moments={moments ?? []} weekStart={mondayStr} user={user} />
 }

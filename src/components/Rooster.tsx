@@ -33,10 +33,39 @@ export default function Rooster({ initialSlots, userId }: { initialSlots: Slot[]
   const [formEnd, setFormEnd] = useState('11:00')
   const [formLabel, setFormLabel] = useState('')
   const [saving, setSaving] = useState(false)
+  const [icalText, setIcalText] = useState('')
+  const [icalPreview, setIcalPreview] = useState<{day: number; start: string; end: string; label: string}[]>([])
+  const [icalImporting, setIcalImporting] = useState(false)
 
   const days = [r.day0, r.day1, r.day2, r.day3, r.day4, r.day5, r.day6]
   const todayDow = (new Date().getDay() + 6) % 7
   const freeBlocks = getFreeBlocks(slots, todayDow)
+
+  function parseIcal(text: string): {day: number; start: string; end: string; label: string}[] {
+    const results: {day: number; start: string; end: string; label: string}[] = []
+    const events = text.split('BEGIN:VEVENT').slice(1)
+    for (const ev of events) {
+      const startMatch = ev.match(/DTSTART[^:]*:(\d{8}T\d{6})/)
+      const endMatch = ev.match(/DTEND[^:]*:(\d{8}T\d{6})/)
+      const summaryMatch = ev.match(/SUMMARY:(.+)/)
+      if (!startMatch || !endMatch || !summaryMatch) continue
+      const toDate = (s: string) => new Date(s.replace(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})/, '$1-$2-$3T$4:$5:$6'))
+      const start = toDate(startMatch[1])
+      const end = toDate(endMatch[1])
+      const label = summaryMatch[1].trim().replace(/\\n/g, ' ').replace(/\\,/g, ',')
+      const toTime = (d: Date) => `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+      results.push({
+        day: (start.getDay() + 6) % 7,
+        start: toTime(start),
+        end: toTime(end),
+        label: label.slice(0, 60),
+      })
+    }
+    const unique = results.filter((item, i, arr) =>
+      arr.findIndex(x => x.day === item.day && x.start === item.start && x.label === item.label) === i
+    )
+    return unique.slice(0, 50)
+  }
 
   async function addSlot() {
     if (!formLabel.trim() || !formStart || !formEnd || formStart >= formEnd) return
@@ -144,6 +173,78 @@ export default function Rooster({ initialSlots, userId }: { initialSlots: Slot[]
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+        </div>
+        {/* iCal import */}
+        <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 space-y-4">
+          <div>
+            <h2 className="font-bold text-indigo-900">📅 Importeer vanuit Magister / SOMtoday</h2>
+            <p className="text-sm text-indigo-400 mt-0.5">Exporteer je rooster als .ics bestand en plak de inhoud hieronder, of upload het bestand.</p>
+          </div>
+
+          <div className="flex gap-3 flex-wrap">
+            <label className="cursor-pointer text-sm bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl font-medium hover:bg-indigo-100 transition-colors">
+              📁 Bestand uploaden (.ics)
+              <input type="file" accept=".ics" className="hidden" onChange={e => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                const reader = new FileReader()
+                reader.onload = ev => {
+                  const text = ev.target?.result as string
+                  setIcalText(text)
+                  setIcalPreview(parseIcal(text))
+                }
+                reader.readAsText(file)
+              }} />
+            </label>
+            <button onClick={() => { setIcalText(''); setIcalPreview([]) }} className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+              Wissen
+            </button>
+          </div>
+
+          <textarea
+            value={icalText}
+            onChange={e => { setIcalText(e.target.value); setIcalPreview(parseIcal(e.target.value)) }}
+            placeholder="Plak hier de inhoud van je .ics bestand..."
+            rows={4}
+            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none text-gray-500"
+          />
+
+          {icalPreview.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-sm font-semibold text-indigo-700">{icalPreview.length} lessen gevonden:</p>
+              <div className="max-h-48 overflow-y-auto space-y-1.5">
+                {icalPreview.map((item, i) => (
+                  <div key={i} className="flex items-center gap-3 text-sm bg-indigo-50 rounded-xl px-3 py-2">
+                    <span className="text-indigo-400 w-16 shrink-0 text-xs">{days[item.day]}</span>
+                    <span className="text-indigo-300 text-xs">{item.start}–{item.end}</span>
+                    <span className="text-indigo-800 font-medium truncate">{item.label}</span>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={async () => {
+                  setIcalImporting(true)
+                  for (const item of icalPreview) {
+                    const { data } = await supabase.from('schedule_slots').insert({
+                      user_id: userId,
+                      day_of_week: item.day,
+                      start_time: item.start,
+                      end_time: item.end,
+                      label: item.label,
+                    }).select('id, day_of_week, start_time, end_time, label').single()
+                    if (data) setSlots(s => [...s, data as Slot])
+                  }
+                  setIcalPreview([])
+                  setIcalText('')
+                  setIcalImporting(false)
+                }}
+                disabled={icalImporting}
+                className="w-full bg-indigo-600 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-all active:scale-95"
+              >
+                {icalImporting ? 'Importeren...' : `${icalPreview.length} lessen importeren →`}
+              </button>
             </div>
           )}
         </div>

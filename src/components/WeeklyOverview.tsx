@@ -3,6 +3,7 @@
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
 import Link from 'next/link'
+import { useState } from 'react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Moment = {
@@ -15,6 +16,7 @@ type Moment = {
 type Props = {
   moments: Moment[]
   weekStart: string
+  user?: { id: string } | null
 }
 
 const LOCALE_MAP: Record<string, string> = {
@@ -22,8 +24,9 @@ const LOCALE_MAP: Record<string, string> = {
   fr: 'fr-FR', de: 'de-DE', da: 'da-DK', sv: 'sv-SE', no: 'nb-NO',
 }
 
-export default function WeeklyOverview({ moments, weekStart }: Props) {
+export default function WeeklyOverview({ moments, weekStart, user }: Props) {
   const { lang, tr } = useLanguage()
+  const [weekCopied, setWeekCopied] = useState(false)
   const w = tr.wrapped
   const locale = LOCALE_MAP[lang] ?? 'nl-NL'
 
@@ -71,6 +74,21 @@ export default function WeeklyOverview({ moments, weekStart }: Props) {
             <PageInfo text="Jouw weekoverzicht: hoeveel je hebt gestudeerd, per dag en per vak. Handig om te zien of je de week goed hebt verdeeld." dark />
           </div>
           <h1 className="text-3xl font-bold mt-2">{weekLabel}</h1>
+          {user && (
+            <div className="mt-3">
+              <button
+                onClick={async () => {
+                  const url = `${window.location.origin}/studielogboek/${user.id}?week=${weekStart}`
+                  await navigator.clipboard.writeText(url)
+                  setWeekCopied(true)
+                  setTimeout(() => setWeekCopied(false), 2500)
+                }}
+                className="text-sm bg-white/20 text-white px-3 py-1.5 rounded-xl font-medium hover:bg-white/30 transition-colors active:scale-95"
+              >
+                {weekCopied ? '✓ Link gekopieerd!' : '🔗 Deel week'}
+              </button>
+            </div>
+          )}
           <p className="text-indigo-200 mt-2 text-sm">
             {moments.length === 0 ? w.noWeekMoments : `${moments.length} ${w.moments} ${w.logged}`}
           </p>

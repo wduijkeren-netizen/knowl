@@ -95,6 +95,7 @@ export default function Nav() {
 
   const lerenLinks: DropdownItem[] = [
     { href: '/pomodoro', label: tr.nav.timer },
+    { href: '/pomodoro/groep', label: 'Groepsstudie' },
     { href: '/flashcards', label: tr.nav.flashcards ?? 'Flashcards' },
     { href: '/woordweb', label: tr.nav.woordweb ?? 'Woordweb' },
   ]
@@ -115,6 +116,7 @@ export default function Nav() {
     { href: '/agenda', label: tr.nav.agenda, group: 'overzicht' },
     { href: '/rooster', label: tr.nav.schedule, group: 'overzicht' },
     { href: '/pomodoro', label: tr.nav.timer, group: 'leren' },
+    { href: '/pomodoro/groep', label: 'Groepsstudie', group: 'leren' },
     { href: '/flashcards', label: tr.nav.flashcards ?? 'Flashcards', group: 'leren' },
     { href: '/woordweb', label: tr.nav.woordweb ?? 'Woordweb', group: 'leren' },
     { href: '/cijfers', label: tr.nav.grades ?? 'Cijferberekening', group: 'meer' },

@@ -100,6 +100,23 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
     return { streak: count, shields: availableShields }
   }, [allMoments, usedShields])
 
+  const [burnoutDismissed, setBurnoutDismissed] = useState(false)
+
+  const burnoutWarning = useMemo(() => {
+    if (burnoutDismissed) return false
+    const last14 = Array.from({ length: 14 }, (_, i) => {
+      const d = new Date()
+      d.setDate(d.getDate() - i)
+      return d.toISOString().slice(0, 10)
+    })
+    const studiedDays = new Set(allMoments.map(m => m.learned_at))
+    if (!last14.every(d => studiedDays.has(d))) return false
+    const totalMin = allMoments
+      .filter(m => last14.includes(m.learned_at))
+      .reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
+    return totalMin / 14 > 180
+  }, [allMoments, burnoutDismissed])
+
   const perCategory: Record<string, number> = {}
   for (const m of thisMonth) {
     const key = m.category || 'Overig'
@@ -179,6 +196,17 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
       <OnboardingWizard isNewUser={allMoments.length === 0} />
 
       <main className="max-w-3xl mx-auto px-4 py-10 space-y-8">
+
+        {burnoutWarning && !burnoutDismissed && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 items-start">
+            <span className="text-2xl">😴</span>
+            <div className="flex-1">
+              <p className="font-semibold text-amber-800">Let op je rust!</p>
+              <p className="text-sm text-amber-600 mt-0.5">Je hebt 14 dagen op rij meer dan 3 uur per dag gestudeerd. Je brein heeft een pauzedag nodig — studeer vandaag even niet.</p>
+            </div>
+            <button onClick={() => setBurnoutDismissed(true)} className="text-amber-400 hover:text-amber-600 text-xl leading-none">×</button>
+          </div>
+        )}
 
         <div>
           <div className="flex items-center gap-2">
