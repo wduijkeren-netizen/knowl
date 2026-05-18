@@ -350,7 +350,7 @@ export default function PomodoroTimer({ user, subjects }: Props) {
           </div>
         )}
 
-        <div className={`flex flex-col items-center ${retro && !focusMode ? 'bg-transparent' : focusMode ? '' : 'bg-white rounded-3xl border border-indigo-100 shadow-sm'} p-8`}>
+        <div className={`flex flex-col items-center ${retro && !focusMode ? 'bg-transparent' : focusMode ? '' : isWork ? 'bg-white rounded-3xl border border-indigo-100 shadow-sm' : 'bg-gradient-to-b from-emerald-50 to-white rounded-3xl border border-emerald-100 shadow-sm'} p-8`}>
           {timerViews[timerStyle]}
           <div className={`flex gap-3 w-full mt-6 ${focusMode ? 'max-w-xs' : ''}`}>
             <button onClick={() => setRunning(r => !r)} className={`flex-1 py-3 rounded-2xl font-semibold text-sm transition-all shadow-sm ${btnStart}`}>

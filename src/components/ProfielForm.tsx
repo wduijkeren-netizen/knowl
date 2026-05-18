@@ -129,7 +129,7 @@ export default function ProfielForm({ user, profile, moments, subjectCount, flas
           {/* Persoonsgegevens */}
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
             <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-4">
-              <h2 className="font-semibold text-white">{p.personalInfo}</h2>
+              <h2 className="font-semibold text-white">👤 {p.personalInfo}</h2>
             </div>
             <div className="p-6 space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

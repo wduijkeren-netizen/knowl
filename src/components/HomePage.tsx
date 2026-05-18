@@ -253,15 +253,15 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
 
         {/* Statistieken */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.totalHours}</p>
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
+            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">⏱ {h.totalHours}</p>
             <p className="text-4xl font-bold text-indigo-700 mt-2">{totalHours}<span className="text-xl text-indigo-300">u</span></p>
           </div>
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.thisMonth}</p>
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
+            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">📅 {h.thisMonth}</p>
             <p className="text-4xl font-bold text-indigo-700 mt-2">{monthMinutes}<span className="text-xl text-indigo-300">m</span></p>
           </div>
-          <div className={`rounded-2xl border shadow-sm p-5 transition-all ${streak >= 7 ? 'border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50' : 'bg-white border-indigo-100'}`}>
+          <div className={`rounded-2xl border shadow-sm p-5 transition-all cursor-default hover:shadow-md hover:-translate-y-0.5 ${streak >= 7 ? 'border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50' : 'bg-white border-indigo-100'}`}>
             <p className={`text-xs font-medium uppercase tracking-wide ${streak >= 7 ? 'text-orange-400' : 'text-indigo-400'}`}>{h.streak}</p>
             <div className="flex items-end gap-1 mt-2">
               <p className={`text-4xl font-bold ${streak >= 7 ? 'text-orange-500' : 'text-indigo-700'}`}>{streak}</p>
@@ -275,8 +275,8 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
               <p className="text-xs text-amber-500 mt-1 font-medium">{'🛡️'.repeat(Math.min(shields, 5))} {h.shields}</p>
             )}
           </div>
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.topSubject}</p>
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
+            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">🏅 {h.topSubject}</p>
             <p className="text-lg font-bold text-indigo-700 mt-2 break-words hyphens-auto leading-tight" lang="nl">{topVak?.[0] ?? '—'}</p>
           </div>
         </div>
@@ -313,7 +313,7 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
           <div className="flex justify-between items-center mb-5 flex-wrap gap-3">
             <div>
-              <h2 className="font-semibold text-indigo-900">{h.cumulative}</h2>
+              <h2 className="font-semibold text-indigo-900 border-l-4 border-indigo-300 pl-3">{h.cumulative}</h2>
               <p className="text-xs text-indigo-400 mt-0.5">{h.cumulativeSub}</p>
             </div>
             <div className="flex gap-1 bg-indigo-50 rounded-xl p-1">
@@ -376,7 +376,7 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
               href={s.href}
               className={`rounded-2xl p-5 transition-all active:scale-95 ${
                 s.gradient
-                  ? 'bg-gradient-to-br from-indigo-600 to-violet-600 text-white hover:opacity-90'
+                  ? 'bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 text-white hover:opacity-90'
                   : 'bg-white border border-indigo-100 shadow-sm hover:shadow-md hover:-translate-y-0.5'
               }`}
             >
@@ -391,7 +391,7 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
         {subjects.filter(s => s.goal_minutes).length > 0 && (
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="font-semibold text-indigo-900">{h.goalProgress}</h2>
+              <h2 className="font-semibold text-indigo-900 border-l-4 border-indigo-300 pl-3">{h.goalProgress}</h2>
               <Link href="/vakken" className="text-xs text-indigo-400 hover:text-indigo-600">{h.manage}</Link>
             </div>
             <div className="space-y-4">

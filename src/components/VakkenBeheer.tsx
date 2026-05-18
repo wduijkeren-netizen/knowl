@@ -126,7 +126,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
 
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
           <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-4">
-            <h2 className="font-semibold text-white">{s.addTitle}</h2>
+            <h2 className="font-semibold text-white">📚 {s.addTitle}</h2>
           </div>
           <form onSubmit={handleAdd} className="p-6">
             <div className="flex gap-3">
@@ -177,7 +177,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
               const recurringProgress = recurringGoal ? Math.min(100, Math.round((periodDone / recurringGoal) * 100)) : null
 
               return (
-                <li key={subject.id} className="rounded-2xl border border-indigo-50 overflow-hidden">
+                <li key={subject.id} className="rounded-2xl border border-indigo-50 overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all">
                   {/* Vak-rij */}
                   <div className="group">
                     <Link
@@ -313,7 +313,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
                           </div>
                           <div className="h-2 bg-indigo-100 rounded-full overflow-hidden">
                             <div
-                              className={`h-full rounded-full transition-all ${progress >= 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-indigo-500 to-violet-500'}`}
+                              className={`h-full rounded-full transition-all ${progress >= 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500'}`}
                               style={{ width: `${progress}%` }}
                             />
                           </div>

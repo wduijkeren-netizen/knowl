@@ -290,7 +290,7 @@ export default function CijferCalculator() {
           )
         })}
 
-        <div className="bg-indigo-50 rounded-2xl p-4 text-xs text-indigo-400 space-y-1">
+        <div className="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-2xl p-4 text-xs text-indigo-400 space-y-1">
           <p><span className="font-semibold text-indigo-600">{c.colWeight}:</span> {c.infoWeight}</p>
           <p><span className="font-semibold text-indigo-600">{c.infoDecimal.split(':')[0]}:</span>{c.infoDecimal.includes(':') ? c.infoDecimal.split(':').slice(1).join(':') : c.infoDecimal}</p>
           <p className="text-indigo-300">{c.infoNote}</p>

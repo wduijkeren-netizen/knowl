@@ -303,7 +303,7 @@ export default function Agenda({ sessions, subjects, events: initialEvents, user
                 {eventsOnSelected
                   .sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'))
                   .map(ev => (
-                    <div key={ev.id} className={`flex justify-between items-start rounded-xl p-3 ${ev.type === 'exam' ? 'bg-red-50' : 'bg-violet-50'}`}>
+                    <div key={ev.id} className={`flex justify-between items-start rounded-xl p-3 border-l-4 ${ev.type === 'exam' ? 'bg-red-50 border-red-400' : 'bg-violet-50 border-emerald-400'}`}>
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ev.type === 'exam' ? 'bg-red-100 text-red-600' : 'bg-violet-100 text-violet-600'}`}>

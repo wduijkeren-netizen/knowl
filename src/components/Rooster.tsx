@@ -144,7 +144,7 @@ export default function Rooster({ initialSlots, userId }: { initialSlots: Slot[]
                   <p className="text-sm font-semibold text-indigo-700 mb-2">{day}</p>
                   <div className="flex flex-wrap gap-2">
                     {daySlots.map(slot => (
-                      <div key={slot.id} className="flex items-center gap-2 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-1.5 text-sm">
+                      <div key={slot.id} className="flex items-center gap-2 bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 rounded-xl px-3 py-1.5 text-sm">
                         <span className="font-medium text-indigo-800">{slot.label}</span>
                         <span className="text-indigo-400 text-xs">{slot.start_time}–{slot.end_time}</span>
                         <button onClick={() => deleteSlot(slot.id)} className="text-indigo-300 hover:text-red-400 transition-colors text-lg leading-none">×</button>
@@ -166,7 +166,7 @@ export default function Rooster({ initialSlots, userId }: { initialSlots: Slot[]
             <div className="space-y-2">
               {freeBlocks.map((b, i) => (
                 <div key={i} className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
-                  <div className="text-2xl">📖</div>
+                  <div className="text-3xl">📖</div>
                   <div>
                     <p className="font-semibold text-sm text-emerald-800">{b.start} – {b.end}</p>
                     <p className="text-xs text-emerald-500">{b.minutes} {r.minFree}</p>

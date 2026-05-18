@@ -87,7 +87,7 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
   function renderSet(set: Set) {
     const pct = progress[set.id] ?? -1
     return (
-      <div key={set.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all p-4 sm:p-5">
+      <div key={set.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all p-4 sm:p-5 border-l-4 border-l-transparent hover:border-l-indigo-300">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
           <div className="flex-1 min-w-0">
             <h2 className="font-semibold text-indigo-900 truncate">{set.title}</h2>
@@ -205,10 +205,10 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
 
         {sets.length === 0 ? (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-12 text-center">
-            <p className="text-4xl mb-3">🃏</p>
-            <p className="font-semibold text-indigo-900 mb-1">{fc.emptyTitle}</p>
-            <p className="text-sm text-indigo-400 mb-5">{fc.emptyBody}</p>
-            <Link href="/flashcards/nieuw" className="inline-block bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">{fc.emptyBtn}</Link>
+            <p className="text-5xl mb-4">🧠</p>
+            <p className="font-bold text-indigo-900 text-lg mb-1">{fc.emptyTitle}</p>
+            <p className="text-sm text-indigo-400 mb-6">{fc.emptyBody}</p>
+            <Link href="/flashcards/nieuw" className="inline-block bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 transition-all shadow-sm shadow-indigo-200">{fc.emptyBtn}</Link>
           </div>
         ) : filtered.length === 0 ? (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-8 text-center">

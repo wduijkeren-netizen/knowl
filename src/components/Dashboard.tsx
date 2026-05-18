@@ -354,15 +354,15 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
 
         {/* Statistieken */}
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4">
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4 border-b-4 border-b-indigo-400 hover:shadow-md hover:-translate-y-0.5 transition-all">
             <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide leading-tight">{d.momentsCount}</p>
             <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-indigo-700 mt-1">{moments.length}</p>
           </div>
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4">
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4 border-b-4 border-b-violet-400 hover:shadow-md hover:-translate-y-0.5 transition-all">
             <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide leading-tight">{d.minutesLearned}</p>
             <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-indigo-700 mt-1">{totalMinutes}</p>
           </div>
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4">
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4 border-b-4 border-b-purple-400 hover:shadow-md hover:-translate-y-0.5 transition-all">
             <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide leading-tight">{d.inHours}</p>
             <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-indigo-700 mt-1">
               {totalHours}<span className="text-base sm:text-lg font-medium text-indigo-300">u</span>
@@ -511,7 +511,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
         {/* Lijst */}
         <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <h2 className="font-semibold text-indigo-900">{d.recent}</h2>
+            <h2 className="font-semibold text-indigo-900 border-l-4 border-indigo-300 pl-3">📋 {d.recent}</h2>
             <div className="flex items-center gap-2">
               {moments.length > 0 && (
                 <button
@@ -560,7 +560,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
             ? moments.filter(m => m.title.toLowerCase().includes(search.toLowerCase()) || m.description?.toLowerCase().includes(search.toLowerCase()))
             : moments.slice(0, 5)
           ).map((moment) => (
-            <div key={moment.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all">
+            <div key={moment.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all border-l-4 border-l-indigo-200 hover:border-l-indigo-400">
               {moment.photo_url && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={moment.photo_url} alt="Foto" className="w-full max-h-48 object-cover rounded-t-2xl" />
