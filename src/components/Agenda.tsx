@@ -188,7 +188,7 @@ export default function Agenda({ sessions, subjects, events: initialEvents, user
           </div>
           <button
             onClick={() => { setFormDate(selectedDay ?? today); setShowForm(true) }}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 active:scale-95 transition-all">
+            className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 active:scale-95 transition-all">
             {a.addEvent}
           </button>
         </div>

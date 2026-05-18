@@ -118,7 +118,7 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
                 {fc.repeat}
               </Link>
             )}
-            <Link href={`/flashcards/${set.id}`} className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">{fc.study}</Link>
+            <Link href={`/flashcards/${set.id}`} className="text-sm bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-3 py-1.5 rounded-lg font-medium hover:from-indigo-700 hover:to-violet-700 transition-all">{fc.study}</Link>
             {(countMap[set.id] ?? 0) >= 2 && (
               <Link href={`/flashcards/${set.id}/quiz`} className="text-sm bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg font-medium hover:bg-violet-200 transition-colors">{fc.quiz}</Link>
             )}
@@ -236,7 +236,7 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
                       {set.vak && <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-0.5 font-medium mt-1.5 inline-block">{set.vak}</span>}
                     </div>
                     <div className="flex gap-2 flex-wrap">
-                      <Link href={`/flashcards/${set.id}`} className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+                      <Link href={`/flashcards/${set.id}`} className="text-sm bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-3 py-1.5 rounded-lg font-medium hover:from-indigo-700 hover:to-violet-700 transition-all">
                         {fc.study}
                       </Link>
                       {(countMap[set.id] ?? 0) >= 2 && (

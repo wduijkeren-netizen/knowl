@@ -100,9 +100,11 @@ export default function Resultaten({ moments, isGuest }: Props) {
         )}
 
         {!heeftData ? (
-          <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-16 text-center">
-            <p className="text-indigo-300 text-sm">{r.empty}</p>
-            <a href="/leermomenten" className="mt-4 inline-block text-sm bg-indigo-600 text-white px-5 py-2 rounded-xl font-medium hover:bg-indigo-700 transition-colors">
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-16 text-center space-y-3">
+            <p className="text-4xl">📊</p>
+            <p className="font-semibold text-indigo-900">Nog geen data</p>
+            <p className="text-sm text-indigo-400 max-w-xs mx-auto">{r.empty}</p>
+            <a href="/leermomenten" className="inline-block text-sm bg-indigo-600 text-white px-5 py-2 rounded-xl font-medium hover:bg-indigo-700 transition-colors">
               {r.addLink ?? 'Voeg een leermoment toe →'}
             </a>
           </div>

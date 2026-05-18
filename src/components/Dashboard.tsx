@@ -31,6 +31,7 @@ type Props = {
 }
 
 const RATINGS_KEY = 'knowl_ratings'
+const DRAFT_KEY = 'knowl_lm_draft'
 
 function getRatings(): Record<string, number> {
   try { return JSON.parse(localStorage.getItem(RATINGS_KEY) ?? '{}') } catch { return {} }
@@ -85,6 +86,28 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
     if (!spacedKey) return
     try { if (!localStorage.getItem(spacedKey)) setShowSpaced(true) } catch {}
   }, [spacedKey])
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY)
+      if (raw) {
+        const draft = JSON.parse(raw)
+        if (draft.title) setTitle(draft.title)
+        if (draft.description) setDescription(draft.description)
+        if (draft.category) setCategory(draft.category)
+        if (draft.duration) setDuration(draft.duration)
+      }
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    if (!title && !description && !category && !duration) return
+    const t = setTimeout(() => {
+      try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ title, description, category, duration })) } catch {}
+    }, 600)
+    return () => clearTimeout(t)
+  }, [title, description, category, duration])
+
   const [search, setSearch] = useState('')
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [detailMoment, setDetailMoment] = useState<Moment | null>(null)
@@ -141,6 +164,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
       setDuration('')
       setLearnedAt(new Date().toISOString().split('T')[0])
       setPhotoFile(null)
+      try { localStorage.removeItem(DRAFT_KEY) } catch {}
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)
       // Show rating modal
@@ -385,7 +409,10 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
           <form onSubmit={handleAdd} className="p-5 space-y-4">
             {/* Titel */}
             <div>
-              <label className="block text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1.5">{d.title}</label>
+              <div className="flex items-center mb-1.5">
+                <label className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">{d.title}</label>
+                {title && <span className="text-xs text-gray-300 ml-auto">opgeslagen</span>}
+              </div>
               <input
                 value={title}
                 onChange={e => setTitle(e.target.value)}
@@ -397,14 +424,22 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
 
             {/* Samenvatting */}
             <div>
-              <label className="block text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1.5">
-                {d.summary} <span className="text-gray-300 normal-case font-normal">{d.summaryOptional}</span>
-              </label>
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">
+                  {d.summary} <span className="text-gray-300 normal-case font-normal">{d.summaryOptional}</span>
+                </label>
+                {description.length > 0 && (
+                  <span className={`text-xs font-medium ${description.length > 450 ? 'text-amber-500' : 'text-gray-300'}`}>
+                    {description.length}/500
+                  </span>
+                )}
+              </div>
               <textarea
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 placeholder={d.summaryPlaceholder}
                 rows={3}
+                maxLength={500}
                 className="w-full border-2 border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-300 bg-gray-50 focus:bg-white transition-all resize-none placeholder:text-gray-300"
               />
             </div>

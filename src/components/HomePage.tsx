@@ -101,6 +101,8 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
   }, [allMoments, usedShields])
 
   const [burnoutDismissed, setBurnoutDismissed] = useState(false)
+  const [milestoneDismissed, setMilestoneDismissed] = useState(false)
+  const streakMilestone = !milestoneDismissed && [7, 30, 100].includes(streak) ? streak : null
 
   const burnoutWarning = useMemo(() => {
     if (burnoutDismissed) return false
@@ -123,6 +125,35 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
     perCategory[key] = (perCategory[key] ?? 0) + (m.duration_minutes ?? 0)
   }
   const topVak = Object.entries(perCategory).sort((a, b) => b[1] - a[1])[0]
+
+  // Week comparison
+  const todayStr = new Date().toISOString().slice(0, 10)
+  const thisWeekStartDate = new Date()
+  thisWeekStartDate.setDate(thisWeekStartDate.getDate() - ((thisWeekStartDate.getDay() + 6) % 7))
+  const thisWeekStart = thisWeekStartDate.toISOString().slice(0, 10)
+  const lastWeekStart = new Date(thisWeekStartDate)
+  lastWeekStart.setDate(lastWeekStart.getDate() - 7)
+  const lastWeekStartStr = lastWeekStart.toISOString().slice(0, 10)
+
+  const thisWeekMin = allMoments
+    .filter(m => m.learned_at >= thisWeekStart)
+    .reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
+  const lastWeekMin = allMoments
+    .filter(m => m.learned_at >= lastWeekStartStr && m.learned_at < thisWeekStart)
+    .reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
+  const weekChangePercent = lastWeekMin > 0
+    ? Math.round(((thisWeekMin - lastWeekMin) / lastWeekMin) * 100)
+    : null
+
+  // Average session length
+  const sessionsWithMin = allMoments.filter(m => (m.duration_minutes ?? 0) > 0)
+  const avgSessionMin = sessionsWithMin.length > 0
+    ? Math.round(sessionsWithMin.reduce((s, m) => s + (m.duration_minutes ?? 0), 0) / sessionsWithMin.length)
+    : 0
+
+  // Today's moments
+  const todayMoments = allMoments.filter(m => m.learned_at === todayStr)
+  const todayMinutes = todayMoments.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
 
   const minutesPerSubject = allMoments.reduce((acc, m) => {
     if (m.category && m.duration_minutes) acc[m.category] = (acc[m.category] ?? 0) + m.duration_minutes
@@ -208,6 +239,19 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
           </div>
         )}
 
+        {streakMilestone && (
+          <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-4 flex items-center gap-3 text-white">
+            <span className="text-3xl">🔥</span>
+            <div className="flex-1">
+              <p className="font-bold">{streakMilestone} dagen streak bereikt!</p>
+              <p className="text-orange-100 text-sm mt-0.5">
+                {streakMilestone === 7 ? 'Een week op rij — je bent goed bezig!' : streakMilestone === 30 ? 'Een maand op rij — echt indrukwekkend!' : 'Honderd dagen! Je bent een legende.'}
+              </p>
+            </div>
+            <button onClick={() => setMilestoneDismissed(true)} className="text-orange-200 hover:text-white text-xl leading-none">×</button>
+          </div>
+        )}
+
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-3xl font-bold text-indigo-900">{`${timeGreeting}, ${firstName}`}</h1>
@@ -280,6 +324,42 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
             <p className="text-lg font-bold text-indigo-700 mt-2 break-words hyphens-auto leading-tight" lang="nl">{topVak?.[0] ?? '—'}</p>
           </div>
         </div>
+
+        {/* Vandaag */}
+        <div className={`rounded-2xl border p-4 flex items-center justify-between gap-4 ${todayMoments.length > 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-white border-indigo-100 shadow-sm'}`}>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-400">Vandaag</p>
+            <p className={`font-bold mt-0.5 ${todayMoments.length > 0 ? 'text-emerald-800' : 'text-indigo-400'}`}>
+              {todayMoments.length > 0 ? `${todayMoments.length} moment${todayMoments.length > 1 ? 'en' : ''} · ${todayMinutes} min` : 'Nog niets gelogd vandaag'}
+            </p>
+          </div>
+          <Link href="/leermomenten" className={`text-sm font-semibold px-4 py-2 rounded-xl transition-all active:scale-95 shrink-0 ${todayMoments.length > 0 ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}>
+            {todayMoments.length > 0 ? '+ Meer' : '+ Loggen'}
+          </Link>
+        </div>
+
+        {/* Gemiddelde sessie + week vergelijking */}
+        {(avgSessionMin > 0 || weekChangePercent !== null) && (
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 flex flex-col sm:flex-row gap-4 sm:gap-8 hover:shadow-md transition-all">
+            {avgSessionMin > 0 && (
+              <div>
+                <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">Gemiddelde sessie</p>
+                <p className="text-3xl font-bold text-indigo-700 mt-1">{avgSessionMin}<span className="text-lg text-indigo-300">m</span></p>
+              </div>
+            )}
+            {weekChangePercent !== null && (
+              <div>
+                <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">Week vs vorige week</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-3xl font-bold text-indigo-700">{thisWeekMin}<span className="text-lg text-indigo-300">m</span></p>
+                  <span className={`text-sm font-bold px-2.5 py-1 rounded-xl ${weekChangePercent >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'}`}>
+                    {weekChangePercent >= 0 ? '+' : ''}{weekChangePercent}%
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Studietijd deze week */}
         {studySessions.length > 0 && (
