@@ -25,5 +25,16 @@ export default async function Home() {
   const moments = allMoments ?? []
   const thisMonth = moments.filter(m => m.learned_at >= firstOfMonth)
 
-  return <HomePage user={user} allMoments={moments} thisMonth={thisMonth} subjects={subjects ?? []} displayName={profile?.voornaam ?? null} studySessions={studySessions ?? []} examEvents={examRes.data ?? []} todaySlots={slotsRes.data ?? []} />
+  // Weekly minutes per subject (for recurring weekly goals)
+  const weekStart = new Date(now)
+  weekStart.setDate(now.getDate() - ((now.getDay() + 6) % 7))
+  const weekStartStr = weekStart.toISOString().split('T')[0]
+  const minutesThisWeek: Record<string, number> = {}
+  for (const m of moments) {
+    if (m.learned_at >= weekStartStr && m.category) {
+      minutesThisWeek[m.category] = (minutesThisWeek[m.category] ?? 0) + (m.duration_minutes ?? 0)
+    }
+  }
+
+  return <HomePage user={user} allMoments={moments} thisMonth={thisMonth} subjects={subjects ?? []} displayName={profile?.voornaam ?? null} studySessions={studySessions ?? []} examEvents={examRes.data ?? []} todaySlots={slotsRes.data ?? []} minutesThisWeek={minutesThisWeek} />
 }

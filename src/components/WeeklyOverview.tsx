@@ -92,6 +92,16 @@ export default function WeeklyOverview({ moments, weekStart, user }: Props) {
           <p className="text-indigo-200 mt-2 text-sm">
             {moments.length === 0 ? w.noWeekMoments : `${moments.length} ${w.moments} ${w.logged}`}
           </p>
+          {moments.length > 0 && (
+            <div className="mt-3">
+              <button
+                onClick={() => window.print()}
+                className="text-sm bg-white/20 text-white px-3 py-1.5 rounded-xl font-medium hover:bg-white/30 transition-colors active:scale-95 print:hidden"
+              >
+                {w.exportPrint ?? 'Afdrukken als PDF'}
+              </button>
+            </div>
+          )}
         </div>
 
         {moments.length === 0 ? (

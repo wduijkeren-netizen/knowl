@@ -78,6 +78,16 @@ export default function MonthlyWrapped({ thisMonth, lastMonth, isGuest }: Props)
           <p className="text-indigo-200 mt-2 text-sm">
             {thisMonth.length === 0 ? w.noMoments : `${thisMonth.length} ${w.moments} ${w.logged}`}
           </p>
+          {thisMonth.length > 0 && (
+            <div className="mt-3">
+              <button
+                onClick={() => window.print()}
+                className="text-sm bg-white/20 text-white px-3 py-1.5 rounded-xl font-medium hover:bg-white/30 transition-colors active:scale-95 print:hidden"
+              >
+                {w.exportPrint ?? 'Afdrukken als PDF'}
+              </button>
+            </div>
+          )}
         </div>
 
         {thisMonth.length === 0 ? (

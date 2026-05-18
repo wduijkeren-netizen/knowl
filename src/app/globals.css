@@ -181,3 +181,15 @@ body {
 .dark .to-violet-50 { --tw-gradient-to: #1e1b4b !important; }
 .dark .from-amber-50 { --tw-gradient-from: #292010 !important; }
 .dark .to-orange-50 { --tw-gradient-to: #292010 !important; }
+
+/* Print / PDF export */
+@media print {
+  header, nav, .print\:hidden { display: none !important; }
+  body { background: white !important; }
+  .bg-\[#f8f7ff\] { background: white !important; }
+  .shadow-sm, .shadow-md { box-shadow: none !important; }
+  main { padding: 0 !important; }
+  .rounded-2xl, .rounded-3xl { border-radius: 8px !important; }
+  a { text-decoration: none !important; }
+  button { display: none !important; }
+}

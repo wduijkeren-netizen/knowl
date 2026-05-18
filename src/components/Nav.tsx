@@ -101,6 +101,7 @@ export default function Nav() {
   ]
 
   const meerLinks: DropdownItem[] = [
+    { href: '/vrienden', label: tr.nav.friends ?? 'Vrienden' },
     { href: '/cijfers', label: tr.nav.grades ?? 'Cijferberekening' },
     { href: '/profiel', label: tr.nav.profile },
   ]
@@ -119,6 +120,7 @@ export default function Nav() {
     { href: '/pomodoro/groep', label: 'Groepsstudie', group: 'leren' },
     { href: '/flashcards', label: tr.nav.flashcards ?? 'Flashcards', group: 'leren' },
     { href: '/woordweb', label: tr.nav.woordweb ?? 'Woordweb', group: 'leren' },
+    { href: '/vrienden', label: tr.nav.friends ?? 'Vrienden', group: 'meer' },
     { href: '/cijfers', label: tr.nav.grades ?? 'Cijferberekening', group: 'meer' },
     { href: '/profiel', label: tr.nav.profile, group: 'meer' },
   ] : [

@@ -22,6 +22,7 @@ type Props = {
   studySessions: StudySession[]
   examEvents: { id: string; date: string; title: string; subject: string | null }[]
   todaySlots: { id: string; day_of_week: number; start_time: string; end_time: string; label: string }[]
+  minutesThisWeek: Record<string, number>
 }
 
 function getFreeBlocks(slots: { id: string; day_of_week: number; start_time: string; end_time: string; label: string }[]) {
@@ -41,7 +42,7 @@ function getFreeBlocks(slots: { id: string; day_of_week: number; start_time: str
 
 const TIMEFRAME_DAYS = [7, 30, 90, null]
 
-export default function HomePage({ user, allMoments, thisMonth, subjects, displayName, studySessions, examEvents, todaySlots }: Props) {
+export default function HomePage({ user, allMoments, thisMonth, subjects, displayName, studySessions, examEvents, todaySlots, minutesThisWeek }: Props) {
   const { tr, lang } = useLanguage()
   const h = tr.home
   const r = tr.rooster
@@ -295,6 +296,31 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
           </div>
         )}
 
+        {/* Tentamen countdown widget — alleen bij < 14 dagen */}
+        {(() => {
+          const next = examEvents[0]
+          if (!next) return null
+          const daysLeft = Math.max(0, Math.ceil((new Date(next.date).getTime() - Date.now()) / 86400000))
+          if (daysLeft > 14) return null
+          const urgent = daysLeft <= 3
+          return (
+            <div className={`rounded-2xl p-5 flex items-center gap-5 border ${urgent ? 'bg-gradient-to-r from-red-50 to-rose-50 border-red-200' : daysLeft <= 7 ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200' : 'bg-gradient-to-r from-indigo-50 to-violet-50 border-indigo-200'}`}>
+              <div className="text-center shrink-0">
+                <p className={`text-5xl font-black leading-none ${urgent ? 'text-red-600' : daysLeft <= 7 ? 'text-amber-600' : 'text-indigo-700'}`}>{daysLeft}</p>
+                <p className={`text-xs font-semibold mt-1 ${urgent ? 'text-red-400' : daysLeft <= 7 ? 'text-amber-500' : 'text-indigo-400'}`}>{h.daysLeft}</p>
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className={`font-bold text-base truncate ${urgent ? 'text-red-800' : daysLeft <= 7 ? 'text-amber-800' : 'text-indigo-900'}`}>{next.title}</p>
+                {next.subject && <p className={`text-sm ${urgent ? 'text-red-500' : daysLeft <= 7 ? 'text-amber-500' : 'text-indigo-400'}`}>{next.subject}</p>}
+                <p className={`text-xs mt-1 ${urgent ? 'text-red-400' : daysLeft <= 7 ? 'text-amber-400' : 'text-indigo-300'}`}>{new Date(next.date).toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+              </div>
+              <a href="/agenda" className={`text-xs font-semibold px-3 py-1.5 rounded-xl shrink-0 transition-colors ${urgent ? 'bg-red-100 text-red-700 hover:bg-red-200' : daysLeft <= 7 ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'}`}>
+                Agenda →
+              </a>
+            </div>
+          )
+        })()}
+
         {/* Statistieken */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
           {/* Totaal uren */}
@@ -485,34 +511,49 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
         </div>
 
         {/* Vakken doelen */}
-        {subjects.filter(s => s.goal_minutes).length > 0 && (
+        {(subjects.filter(s => s.goal_minutes || s.recurring_goal_minutes).length > 0) && (
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="font-semibold text-indigo-900 border-l-4 border-indigo-300 pl-3">{h.goalProgress}</h2>
               <Link href="/vakken" className="text-xs text-indigo-400 hover:text-indigo-600">{h.manage}</Link>
             </div>
-            <div className="space-y-4">
-              {subjects.filter(s => s.goal_minutes).map(subject => {
+            <div className="space-y-5">
+              {subjects.filter(s => s.goal_minutes || s.recurring_goal_minutes).map(subject => {
                 const done = allMoments.filter(m => m.category === subject.name).reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
-                const progress = Math.min(100, Math.round((done / subject.goal_minutes!) * 100))
+                const weekDone = minutesThisWeek[subject.name] ?? 0
                 const days = subject.goal_date ? Math.ceil((new Date(subject.goal_date).getTime() - Date.now()) / 86400000) : null
                 return (
-                  <div key={subject.name}>
+                  <div key={subject.name} className="space-y-2">
                     <div className="flex justify-between text-sm mb-1">
                       <span className="font-medium text-indigo-800">{subject.name}</span>
-                      <div className="flex gap-2 items-center">
-                        {days !== null && (
-                          <span className={`text-xs ${days < 7 ? 'text-red-400' : 'text-indigo-300'}`}>{days}d</span>
-                        )}
-                        <span className="text-xs font-bold text-indigo-600">{progress}%</span>
+                      {days !== null && (
+                        <span className={`text-xs ${days < 7 ? 'text-red-400' : 'text-indigo-300'}`}>{days}d</span>
+                      )}
+                    </div>
+                    {subject.goal_minutes && (
+                      <div>
+                        <div className="flex justify-between text-xs mb-0.5">
+                          <span className="text-indigo-400">Totaal doel</span>
+                          <span className="font-bold text-indigo-600">{Math.min(100, Math.round((done / subject.goal_minutes) * 100))}% · {done}/{subject.goal_minutes} min</span>
+                        </div>
+                        <div className="h-2 bg-indigo-50 rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full ${done >= subject.goal_minutes ? 'bg-emerald-500' : 'bg-gradient-to-r from-indigo-500 to-violet-500'}`}
+                            style={{ width: `${Math.min(100, Math.round((done / subject.goal_minutes) * 100))}%` }} />
+                        </div>
                       </div>
-                    </div>
-                    <div className="h-2 bg-indigo-50 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${progress >= 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-indigo-500 to-violet-500'}`}
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
+                    )}
+                    {subject.recurring_goal_minutes && subject.recurring_type === 'weekly' && (
+                      <div>
+                        <div className="flex justify-between text-xs mb-0.5">
+                          <span className="text-violet-400">Per week</span>
+                          <span className="font-bold text-violet-600">{Math.min(100, Math.round((weekDone / subject.recurring_goal_minutes) * 100))}% · {weekDone}/{subject.recurring_goal_minutes} min</span>
+                        </div>
+                        <div className="h-2 bg-violet-50 rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full ${weekDone >= subject.recurring_goal_minutes ? 'bg-emerald-500' : 'bg-gradient-to-r from-violet-400 to-purple-500'}`}
+                            style={{ width: `${Math.min(100, Math.round((weekDone / subject.recurring_goal_minutes) * 100))}%` }} />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )
               })}
