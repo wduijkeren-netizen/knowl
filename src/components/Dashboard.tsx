@@ -372,85 +372,98 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
 
         {/* Formulier */}
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
-          <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-4">
-            <div className="flex items-center gap-2"><h2 className="font-semibold text-white">{d.newMoment}</h2></div>
-            <p className="text-indigo-200 text-sm mt-0.5">{d.newMomentSub}</p>
+          <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-5">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">✍️</span>
+              <div>
+                <h2 className="font-bold text-white text-base">{d.newMoment}</h2>
+                <p className="text-indigo-200 text-xs mt-0.5">{d.newMomentSub}</p>
+              </div>
+            </div>
           </div>
 
-          <form onSubmit={handleAdd} className="p-6 space-y-4">
+          <form onSubmit={handleAdd} className="p-5 space-y-4">
+            {/* Titel */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">{d.title}</label>
+              <label className="block text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1.5">{d.title}</label>
               <input
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 required
                 placeholder={d.titlePlaceholder}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all"
+                className="w-full border-2 border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-300 bg-gray-50 focus:bg-white transition-all placeholder:text-gray-300"
               />
             </div>
 
+            {/* Samenvatting */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">{d.summary} <span className="text-gray-400 font-normal">{d.summaryOptional}</span></label>
+              <label className="block text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1.5">
+                {d.summary} <span className="text-gray-300 normal-case font-normal">{d.summaryOptional}</span>
+              </label>
               <textarea
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 placeholder={d.summaryPlaceholder}
-                rows={4}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all resize-none"
+                rows={3}
+                className="w-full border-2 border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-300 bg-gray-50 focus:bg-white transition-all resize-none placeholder:text-gray-300"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">{d.photo} <span className="text-gray-400 font-normal">{d.summaryOptional}</span></label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={e => setPhotoFile(e.target.files?.[0] ?? null)}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100"
-              />
-            </div>
-
+            {/* Vak + Minuten + Datum */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">{d.subject}</label>
+                <label className="block text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1.5">{d.subject}</label>
                 {subjects.length > 0 ? (
-                  <select
-                    value={category}
-                    onChange={e => setCategory(e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent bg-white transition-all"
-                  >
-                    <option value="">{d.chooseSubject}</option>
-                    {subjects.map(s => (
-                      <option key={s.id} value={s.name}>{s.name}</option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={category}
+                      onChange={e => setCategory(e.target.value)}
+                      className="w-full appearance-none border-2 border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-300 bg-gray-50 focus:bg-white transition-all text-gray-700 cursor-pointer pr-8"
+                    >
+                      <option value="">{d.chooseSubject}</option>
+                      {subjects.map(s => (
+                        <option key={s.id} value={s.name}>{s.name}</option>
+                      ))}
+                    </select>
+                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
+                  </div>
                 ) : (
-                  <Link href="/vakken" className="flex items-center justify-center w-full border border-dashed border-indigo-200 rounded-xl px-3 py-2.5 text-sm text-indigo-400 hover:text-indigo-600 hover:border-indigo-400 transition-colors">
+                  <Link href="/vakken" className="flex items-center justify-center w-full border-2 border-dashed border-indigo-200 rounded-2xl px-3 py-3 text-sm text-indigo-400 hover:text-indigo-600 hover:border-indigo-400 transition-colors">
                     {d.manageSubjects}
                   </Link>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">{d.minutes}</label>
+                <label className="block text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1.5">{d.minutes}</label>
                 <input
                   type="number" min="1" value={duration} onChange={e => setDuration(e.target.value)}
                   placeholder={d.minutesPlaceholder}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all"
+                  className="w-full border-2 border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-300 bg-gray-50 focus:bg-white transition-all placeholder:text-gray-300"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">{d.date}</label>
+                <label className="block text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1.5">{d.date}</label>
                 <input
                   type="date" value={learnedAt} onChange={e => setLearnedAt(e.target.value)} required
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all"
+                  className="w-full border-2 border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-300 bg-gray-50 focus:bg-white transition-all text-gray-700"
                 />
               </div>
             </div>
 
-            {duplicateSuccess && <div className="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3"><p className="text-sm text-indigo-600 font-medium">{d.duplicateNote}</p></div>}
-            {error && <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3"><p className="text-sm text-red-600">{error}</p></div>}
+            {/* Foto — verborgen achter subtiel knopje */}
+            <div>
+              <label className="inline-flex items-center gap-1.5 text-xs text-indigo-300 hover:text-indigo-500 cursor-pointer transition-colors">
+                <span>📷</span>
+                <span>{d.photo} <span className="text-gray-300">{d.summaryOptional}</span></span>
+                <input type="file" accept="image/*" className="hidden" onChange={e => setPhotoFile(e.target.files?.[0] ?? null)} />
+              </label>
+              {photoFile && <p className="text-xs text-indigo-400 mt-1">📎 {photoFile.name}</p>}
+            </div>
+
+            {duplicateSuccess && <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-4 py-3"><p className="text-sm text-indigo-600 font-medium">{d.duplicateNote}</p></div>}
+            {error && <div className="bg-red-50 border border-red-100 rounded-2xl px-4 py-3"><p className="text-sm text-red-600">{error}</p></div>}
             {success && (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-center gap-3">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3 flex items-center gap-3">
                 <span className="text-emerald-500 text-lg shrink-0">✓</span>
                 <p className="text-sm text-emerald-700 font-medium">{d.saved}</p>
               </div>
@@ -458,7 +471,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
 
             <button
               type="submit" disabled={loading}
-              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl py-3 text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 active:scale-95 disabled:opacity-50 transition-all shadow-sm shadow-indigo-200"
+              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl py-3.5 text-sm font-bold hover:from-indigo-700 hover:to-violet-700 active:scale-95 disabled:opacity-50 transition-all shadow-md shadow-indigo-100"
             >
               {loading ? d.saving : d.add}
             </button>
