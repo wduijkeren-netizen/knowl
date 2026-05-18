@@ -102,7 +102,7 @@ export default function BadgesSection({ moments, subjectCount, flashcardsSR, has
               )}
               <span className="text-3xl">{badge.emoji}</span>
               <p className="text-sm font-semibold text-indigo-900 leading-tight w-full">{badge.title}</p>
-              <p className="text-xs text-gray-500 leading-tight w-full line-clamp-2">{badge.desc}</p>
+              <p className="text-xs text-gray-500 leading-tight w-full line-clamp-2 hyphens-auto" lang="nl">{badge.desc}</p>
               <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full mt-1 ${
                 badge.rarity === 'legendary' ? 'bg-yellow-100 text-yellow-700' :
                 badge.rarity === 'epic' ? 'bg-amber-100 text-amber-700' :
