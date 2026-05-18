@@ -95,14 +95,14 @@ export default function BadgesSection({ moments, subjectCount, flashcardsSR, has
           return (
             <div
               key={badge.id}
-              className={`relative rounded-xl border p-3 flex flex-col items-center text-center gap-1 ${rarityStyle(badge.rarity, isEarned)}`}
+              className={`relative rounded-xl border p-3 flex flex-col items-center text-center gap-1 overflow-hidden ${rarityStyle(badge.rarity, isEarned)}`}
             >
               {isEarned && (
                 <span className="absolute top-1.5 right-1.5 text-xs text-emerald-500 font-bold">✓</span>
               )}
               <span className="text-3xl">{badge.emoji}</span>
-              <p className="text-sm font-semibold text-indigo-900 leading-tight">{badge.title}</p>
-              <p className="text-xs text-gray-500 leading-tight">{badge.desc}</p>
+              <p className="text-sm font-semibold text-indigo-900 leading-tight w-full">{badge.title}</p>
+              <p className="text-xs text-gray-500 leading-tight w-full line-clamp-2">{badge.desc}</p>
               <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full mt-1 ${
                 badge.rarity === 'legendary' ? 'bg-yellow-100 text-yellow-700' :
                 badge.rarity === 'epic' ? 'bg-amber-100 text-amber-700' :

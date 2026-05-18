@@ -184,7 +184,7 @@ export default function Resultaten({ moments, isGuest }: Props) {
                     <BarChart data={weekdayData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
                       <XAxis dataKey="dag" tick={{ fontSize: 12, fill: '#818cf8' }} />
-                      <YAxis tick={{ fontSize: 12, fill: '#818cf8' }} unit=" min" />
+                      <YAxis tick={{ fontSize: 12, fill: '#818cf8' }} unit=" min" allowDecimals={false} domain={[0, 'auto']} />
                       <Tooltip
                         formatter={(v) => [`${v} min`, r.time]}
                         contentStyle={{ borderRadius: '12px', border: '1px solid #e0e7ff', fontSize: '13px' }}
