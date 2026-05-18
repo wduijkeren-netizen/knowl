@@ -297,31 +297,48 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
 
         {/* Statistieken */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.totalHours}</p>
-            <p className="text-4xl font-bold text-indigo-700 mt-2">{totalHours}<span className="text-xl text-indigo-300">u</span></p>
-          </div>
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.thisMonth}</p>
-            <p className="text-4xl font-bold text-indigo-700 mt-2">{monthMinutes}<span className="text-xl text-indigo-300">m</span></p>
-          </div>
-          <div className={`rounded-2xl border shadow-sm p-5 transition-all cursor-default hover:shadow-md hover:-translate-y-0.5 ${streak >= 7 ? 'border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50' : 'bg-white border-indigo-100'}`}>
-            <p className={`text-xs font-medium uppercase tracking-wide ${streak >= 7 ? 'text-orange-400' : 'text-indigo-400'}`}>{h.streak}</p>
-            <div className="flex items-end gap-1 mt-2">
-              <p className={`text-4xl font-bold ${streak >= 7 ? 'text-orange-500' : 'text-indigo-700'}`}>{streak}</p>
-              <span className={`text-xl pb-1 ${streak >= 7 ? 'text-orange-300' : 'text-indigo-300'}`}>d</span>
-              {streak >= 1 && <span className="text-2xl pb-1 ml-1">{streak >= 30 ? '🔥🔥🔥' : streak >= 14 ? '🔥🔥' : '🔥'}</span>}
+          {/* Totaal uren */}
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
+            <div className="h-1 bg-gradient-to-r from-indigo-400 to-indigo-600" />
+            <div className="p-5">
+              <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">{h.totalHours}</p>
+              <p className="text-4xl font-bold text-indigo-700 mt-2">{totalHours}<span className="text-xl text-indigo-300">u</span></p>
             </div>
-            <p className={`text-xs mt-1 font-medium ${streak >= 7 ? 'text-orange-500' : 'text-indigo-400'}`}>
-              {streak === 0 ? 'Begin vandaag!' : streak >= 30 ? 'Legendarisch! 🏆' : streak >= 14 ? 'Je bent niet te stoppen!' : streak >= 7 ? 'Een week! Ga zo door!' : 'Goed bezig!'}
-            </p>
-            {shields > 0 && (
-              <p className="text-xs text-amber-500 mt-1 font-medium">{'🛡️'.repeat(Math.min(shields, 5))} {h.shields}</p>
-            )}
           </div>
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.topSubject}</p>
-            <p className="text-lg font-bold text-indigo-700 mt-2 break-words hyphens-auto leading-tight" lang="nl">{topVak?.[0] ?? '—'}</p>
+          {/* Deze maand */}
+          <div className="bg-white rounded-2xl border border-violet-100 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
+            <div className="h-1 bg-gradient-to-r from-violet-400 to-violet-600" />
+            <div className="p-5">
+              <p className="text-xs font-semibold text-violet-400 uppercase tracking-wide">{h.thisMonth}</p>
+              <p className="text-4xl font-bold text-violet-700 mt-2">{monthMinutes}<span className="text-xl text-violet-300">m</span></p>
+            </div>
+          </div>
+          {/* Streak */}
+          <div className={`rounded-2xl border shadow-sm overflow-hidden transition-all cursor-default hover:shadow-md hover:-translate-y-0.5 ${streak >= 7 ? 'border-orange-200' : 'border-amber-100'}`}>
+            <div className={`h-1 bg-gradient-to-r ${streak >= 7 ? 'from-orange-400 to-red-500' : 'from-amber-300 to-amber-500'}`} />
+            <div className={`p-5 ${streak >= 7 ? 'bg-gradient-to-br from-orange-50 to-amber-50' : 'bg-white'}`}>
+              <p className={`text-xs font-semibold uppercase tracking-wide ${streak >= 7 ? 'text-orange-400' : 'text-amber-500'}`}>{h.streak}</p>
+              <div className="flex items-end gap-1 mt-2">
+                <p className={`text-4xl font-bold ${streak >= 7 ? 'text-orange-500' : 'text-amber-600'}`}>{streak}</p>
+                <span className={`text-xl pb-1 ${streak >= 7 ? 'text-orange-300' : 'text-amber-300'}`}>d</span>
+                {streak >= 1 && <span className="text-2xl pb-1 ml-1">{streak >= 30 ? '🔥🔥🔥' : streak >= 14 ? '🔥🔥' : '🔥'}</span>}
+              </div>
+              <p className={`text-xs mt-1 font-medium ${streak >= 7 ? 'text-orange-500' : 'text-amber-500'}`}>
+                {streak === 0 ? 'Begin vandaag!' : streak >= 30 ? 'Legendarisch! 🏆' : streak >= 14 ? 'Je bent niet te stoppen!' : streak >= 7 ? 'Een week! Ga zo door!' : 'Goed bezig!'}
+              </p>
+              {shields > 0 && (
+                <p className="text-xs text-amber-500 mt-1 font-medium">{'🛡️'.repeat(Math.min(shields, 5))} {h.shields}</p>
+              )}
+            </div>
+          </div>
+          {/* Topvak */}
+          <div className="bg-white rounded-2xl border border-purple-100 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
+            <div className="h-1 bg-gradient-to-r from-purple-400 to-purple-600" />
+            <div className="p-5">
+              <p className="text-xs font-semibold text-purple-400 uppercase tracking-wide">{h.topSubject}</p>
+              <p className="text-sm font-bold text-purple-700 mt-2 break-words hyphens-auto leading-snug" lang="nl">{topVak?.[0] ?? '—'}</p>
+              {topVak && <p className="text-xs text-purple-300 mt-1">{topVak[1]} min</p>}
+            </div>
           </div>
         </div>
 
