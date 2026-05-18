@@ -254,7 +254,7 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
         {/* Statistieken */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">⏱ {h.totalHours}</p>
+            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{h.totalHours}</p>
             <p className="text-4xl font-bold text-indigo-700 mt-2">{totalHours}<span className="text-xl text-indigo-300">u</span></p>
           </div>
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
@@ -269,7 +269,7 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
               {streak >= 1 && <span className="text-2xl pb-1 ml-1">{streak >= 30 ? '🔥🔥🔥' : streak >= 14 ? '🔥🔥' : '🔥'}</span>}
             </div>
             <p className={`text-xs mt-1 font-medium ${streak >= 7 ? 'text-orange-500' : 'text-indigo-400'}`}>
-              {streak === 0 ? 'Begin vandaag! 💪' : streak >= 30 ? 'Legendarisch! 🏆' : streak >= 14 ? 'Je bent niet te stoppen!' : streak >= 7 ? 'Een week! Ga zo door!' : 'Goed bezig!'}
+              {streak === 0 ? 'Begin vandaag!' : streak >= 30 ? 'Legendarisch! 🏆' : streak >= 14 ? 'Je bent niet te stoppen!' : streak >= 7 ? 'Een week! Ga zo door!' : 'Goed bezig!'}
             </p>
             {shields > 0 && (
               <p className="text-xs text-amber-500 mt-1 font-medium">{'🛡️'.repeat(Math.min(shields, 5))} {h.shields}</p>
@@ -277,7 +277,7 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
           </div>
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
             <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">🏅 {h.topSubject}</p>
-            <p className="text-lg font-bold text-indigo-700 mt-2 break-words hyphens-auto leading-tight" lang="nl">{topVak?.[0] ?? '—'}</p>
+            <p className="text-sm font-bold text-indigo-700 mt-2 break-words hyphens-auto leading-snug" lang="nl">{topVak?.[0] ?? '—'}</p>
           </div>
         </div>
 
