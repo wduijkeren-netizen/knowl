@@ -113,7 +113,7 @@ export default function WeeklyOverview({ moments, weekStart, user }: Props) {
               </div>
               <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 text-center">
                 <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{w.topSubject}</p>
-                <p className="text-lg font-bold text-indigo-700 mt-2 truncate">{topVak?.[0] ?? '—'}</p>
+                <p className="text-lg font-bold text-indigo-700 mt-2 break-words hyphens-auto leading-tight" lang="nl">{topVak?.[0] ?? '—'}</p>
               </div>
             </div>
 
