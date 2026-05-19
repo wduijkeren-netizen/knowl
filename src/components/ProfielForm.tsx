@@ -16,6 +16,7 @@ type Profile = {
   geboortedatum?: string | null
   postcode?: string | null
   stad?: string | null
+  weekly_digest?: boolean | null
 }
 
 type Props = {
@@ -54,6 +55,7 @@ export default function ProfielForm({ user, profile, moments, subjectCount, flas
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
+  const [weeklyDigest, setWeeklyDigest] = useState(profile.weekly_digest ?? false)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const supabase = createClient()
@@ -73,6 +75,7 @@ export default function ProfielForm({ user, profile, moments, subjectCount, flas
       geboortedatum: geboortedatum || null,
       postcode: postcode.trim() || null,
       stad: stad.trim() || null,
+      weekly_digest: weeklyDigest,
       updated_at: new Date().toISOString(),
     })
 
@@ -221,6 +224,22 @@ export default function ProfielForm({ user, profile, moments, subjectCount, flas
         </form>
 
         <DagelijkseHerinnering />
+
+        {/* Weekmail */}
+        <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6 space-y-3">
+          <h2 className="font-semibold text-indigo-900">Wekelijks overzicht per mail</h2>
+          <p className="text-sm text-gray-500 leading-relaxed">
+            Ontvang elke zondagochtend een korte samenvatting van je studieweek: momenten, tijd, streak en komende tentamens.
+          </p>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <div
+              onClick={() => setWeeklyDigest(d => !d)}
+              className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${weeklyDigest ? 'bg-indigo-500' : 'bg-gray-200'}`}>
+              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${weeklyDigest ? 'translate-x-6' : 'translate-x-1'}`} />
+            </div>
+            <span className="text-sm font-medium text-indigo-800">{weeklyDigest ? 'Weekmail ingeschakeld' : 'Weekmail uitgeschakeld'}</span>
+          </label>
+        </div>
 
         {/* Account verwijderen */}
         <div className="bg-white rounded-2xl border border-red-100 shadow-sm p-6 space-y-3">

@@ -8,7 +8,7 @@ export default async function ProfielPage() {
   if (!user) redirect('/login')
 
   const [{ data: profile }, { data: moments }, { data: srCards }, { data: subjects }, { data: wordWebs }] = await Promise.all([
-    supabase.from('profiles').select('voornaam, achternaam, telefoonnummer, geboortedatum, postcode, stad').eq('id', user.id).maybeSingle(),
+    supabase.from('profiles').select('voornaam, achternaam, telefoonnummer, geboortedatum, postcode, stad, weekly_digest').eq('id', user.id).maybeSingle(),
     supabase.from('learning_moments').select('learned_at, duration_minutes, created_at').eq('user_id', user.id),
     supabase.from('flashcard_sr').select('card_id').eq('user_id', user.id),
     supabase.from('subjects').select('id'),

@@ -56,6 +56,7 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
   const [momentTitle, setMomentTitle] = useState('')
   const [momentMinutes, setMomentMinutes] = useState('')
   const [momentAdded, setMomentAdded] = useState(false)
+  const [flashcardDone, setFlashcardDone] = useState(false)
 
   // Start/stop timer op basis van paginazichtbaarheid
   useEffect(() => {
@@ -188,6 +189,49 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
     setMomentTitle(title || n.untitled)
     setMomentMinutes(String(Math.max(1, Math.round(sessionSeconds / 60))))
     setShowAddMoment(true)
+  }
+
+  async function createFlashcardsFromNote() {
+    if (!selectedId || !content) return
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(content, 'text/html')
+    const pairs: { front: string; back: string }[] = []
+    const nodes = Array.from(doc.body.childNodes)
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i] as Element
+      if (!node.tagName) continue
+      if (['H1', 'H2', 'H3'].includes(node.tagName)) {
+        const front = node.textContent?.trim() ?? ''
+        if (!front) continue
+        const backParts: string[] = []
+        for (let j = i + 1; j < nodes.length; j++) {
+          const next = nodes[j] as Element
+          if (!next.tagName) continue
+          if (['H1', 'H2', 'H3'].includes(next.tagName)) break
+          const text = next.textContent?.trim()
+          if (text) backParts.push(text)
+        }
+        pairs.push({ front, back: backParts.slice(0, 3).join(' · ') })
+      }
+    }
+    if (pairs.length === 0) {
+      alert('Geen kopteksten gevonden. Gebruik H1/H2-knoppen voor koppen, dan worden die automatisch flashcards.')
+      return
+    }
+    const setId = crypto.randomUUID()
+    await supabase.from('flashcard_sets').insert({
+      id: setId, user_id: userId,
+      title: title || n.untitled,
+      vak: subject || null,
+      is_public: false,
+      share_token: crypto.randomUUID(),
+      edit_token: crypto.randomUUID(),
+    })
+    await supabase.from('flashcards').insert(
+      pairs.map(p => ({ id: crypto.randomUUID(), set_id: setId, front: p.front, back: p.back || '...' }))
+    )
+    setFlashcardDone(true)
+    setTimeout(() => setFlashcardDone(false), 3000)
   }
 
   async function saveAsMoment() {
@@ -436,6 +480,12 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
                   {saveStatus === 'saving' && <span className="text-xs text-indigo-300">{n.saving}</span>}
                   {saveStatus === 'saved' && <span className="text-xs text-emerald-500 font-medium">{n.autoSaved} ✓</span>}
 
+                  <button
+                    onClick={createFlashcardsFromNote}
+                    title="Maak flashcards van kopteksten"
+                    className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${flashcardDone ? 'bg-emerald-100 text-emerald-700' : 'text-violet-500 hover:bg-violet-50'}`}>
+                    {flashcardDone ? '✓ Flashcards!' : 'Flashcards'}
+                  </button>
                   <button onClick={handleShare}
                     className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${isPublic ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'text-indigo-400 hover:bg-indigo-50'}`}>
                     {shareCopied ? '✓ Gekopieerd!' : isPublic ? '🔗 Link' : 'Delen'}
