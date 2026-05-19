@@ -158,6 +158,14 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
       if (e.key === 'i') { e.preventDefault(); fmt('italic') }
       if (e.key === 'u') { e.preventDefault(); fmt('underline') }
     }
+    if (e.key === 'Tab') {
+      e.preventDefault()
+      if (e.shiftKey) {
+        fmt('outdent')
+      } else {
+        fmt('indent')
+      }
+    }
   }
 
   const wordCount = content.replace(/<[^>]*>/g, '').trim().split(/\s+/).filter(Boolean).length
