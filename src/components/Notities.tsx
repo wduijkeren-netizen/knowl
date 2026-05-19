@@ -152,6 +152,72 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
     handleInput()
   }
 
+  function getParentLi(): HTMLLIElement | null {
+    const sel = window.getSelection()
+    if (!sel?.rangeCount) return null
+    let node: Node | null = sel.getRangeAt(0).startContainer
+    while (node && node !== editorRef.current) {
+      if (node instanceof HTMLLIElement) return node
+      node = node.parentNode
+    }
+    return null
+  }
+
+  function indentListItem(li: HTMLLIElement) {
+    const parentList = li.parentElement
+    if (!parentList) return
+    const prev = li.previousElementSibling as HTMLLIElement | null
+    if (!prev) return // eerste item kan niet inspringen
+    // Zoek bestaande sublijst in vorige li, of maak er een aan
+    const tag = parentList.tagName // UL of OL
+    let sub = prev.querySelector(':scope > ul, :scope > ol') as HTMLElement | null
+    if (!sub) {
+      sub = document.createElement(tag.toLowerCase())
+      prev.appendChild(sub)
+    }
+    sub.appendChild(li)
+    // Zet cursor terug in het verplaatste li-element
+    const range = document.createRange()
+    const sel = window.getSelection()
+    range.selectNodeContents(li)
+    range.collapse(false)
+    sel?.removeAllRanges()
+    sel?.addRange(range)
+    handleInput()
+  }
+
+  function outdentListItem(li: HTMLLIElement) {
+    const parentList = li.parentElement
+    if (!parentList) return
+    const grandparentLi = parentList.parentElement
+    if (!grandparentLi || !(grandparentLi instanceof HTMLLIElement)) {
+      // Al op topniveau — verwijder lijst helemaal
+      fmt('outdent')
+      return
+    }
+    const grandparentList = grandparentLi.parentElement
+    if (!grandparentList) return
+    // Verplaats alle opvolgers naar een nieuwe sublijst achter het li-element
+    const siblings: Element[] = []
+    let next = li.nextElementSibling
+    while (next) { siblings.push(next); next = next.nextElementSibling }
+    // Verplaats li naar na grandparentLi
+    grandparentList.insertBefore(li, grandparentLi.nextSibling)
+    if (siblings.length) {
+      const newSub = document.createElement(parentList.tagName.toLowerCase())
+      siblings.forEach(s => newSub.appendChild(s))
+      li.appendChild(newSub)
+    }
+    if (!parentList.children.length) grandparentLi.removeChild(parentList)
+    const range = document.createRange()
+    const sel = window.getSelection()
+    range.selectNodeContents(li)
+    range.collapse(false)
+    sel?.removeAllRanges()
+    sel?.addRange(range)
+    handleInput()
+  }
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     if (e.ctrlKey || e.metaKey) {
       if (e.key === 'b') { e.preventDefault(); fmt('bold') }
@@ -160,10 +226,13 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
     }
     if (e.key === 'Tab') {
       e.preventDefault()
-      if (e.shiftKey) {
-        fmt('outdent')
+      const li = getParentLi()
+      if (li) {
+        if (e.shiftKey) outdentListItem(li); else indentListItem(li)
       } else {
-        fmt('indent')
+        // Buiten lijst: vier spaties invoegen
+        document.execCommand('insertHTML', false, '&nbsp;&nbsp;&nbsp;&nbsp;')
+        handleInput()
       }
     }
   }
