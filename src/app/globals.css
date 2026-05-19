@@ -206,4 +206,3 @@ body {
 .notes-editor blockquote { border-left: 3px solid #a5b4fc; padding-left: 1rem; color: #6366f1; font-style: italic; margin: 0.5rem 0; }
 .notes-editor a { color: #6366f1; text-decoration: underline; }
 .notes-editor:empty::before { content: attr(data-placeholder); color: #c7d2fe; pointer-events: none; }
-.notes-editor br:only-child { display: none; }

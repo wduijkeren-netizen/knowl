@@ -51,7 +51,8 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
   // Set editor HTML only when switching notes (not on every keystroke)
   useEffect(() => {
     if (editorRef.current) {
-      editorRef.current.innerHTML = content
+      document.execCommand('defaultParagraphSeparator', false, 'p')
+      editorRef.current.innerHTML = content || ''
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId])
