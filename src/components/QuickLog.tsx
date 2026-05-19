@@ -16,6 +16,7 @@ export default function QuickLog() {
   const [duration, setDuration] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [saveError, setSaveError] = useState(false)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -33,7 +34,8 @@ export default function QuickLog() {
   async function handleSave() {
     if (!title.trim() || !userId) return
     setSaving(true)
-    await supabase.from('learning_moments').insert({
+    setSaveError(false)
+    const { error } = await supabase.from('learning_moments').insert({
       id: crypto.randomUUID(),
       user_id: userId,
       title: title.trim(),
@@ -42,6 +44,11 @@ export default function QuickLog() {
       learned_at: new Date().toISOString().split('T')[0],
     })
     setSaving(false)
+    if (error) {
+      setSaveError(true)
+      setTimeout(() => setSaveError(false), 3000)
+      return
+    }
     setSaved(true)
     setTimeout(() => {
       setSaved(false)
@@ -108,9 +115,9 @@ export default function QuickLog() {
             <button
               onClick={handleSave}
               disabled={!title.trim() || saving}
-              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl py-4 font-bold text-sm disabled:opacity-50 transition-all active:scale-95 shadow-md shadow-indigo-200"
+              className={`w-full rounded-2xl py-4 font-bold text-sm disabled:opacity-50 transition-all active:scale-95 shadow-md ${saveError ? 'bg-red-500 text-white shadow-red-200' : 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-indigo-200'}`}
             >
-              {saved ? '✓ Opgeslagen!' : saving ? 'Opslaan...' : 'Opslaan'}
+              {saved ? '✓ Opgeslagen!' : saving ? 'Opslaan...' : saveError ? 'Mislukt — probeer opnieuw' : 'Opslaan'}
             </button>
           </div>
         </div>

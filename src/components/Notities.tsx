@@ -57,18 +57,23 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
   const [momentMinutes, setMomentMinutes] = useState('')
   const [momentAdded, setMomentAdded] = useState(false)
   const [flashcardDone, setFlashcardDone] = useState(false)
+  const [flashcardError, setFlashcardError] = useState(false)
 
   // Start/stop timer op basis van paginazichtbaarheid
+  // savedSeconds slaat opgebouwde tijd op zodat de closure niet stale is
+  const savedSeconds = useRef(0)
   useEffect(() => {
-    function tick() { setSessionSeconds(Math.floor((Date.now() - sessionStart.current) / 1000)) }
+    function tick() { setSessionSeconds(savedSeconds.current + Math.floor((Date.now() - sessionStart.current) / 1000)) }
     tickRef.current = setInterval(tick, 10000)
     tick()
     function onVisibility() {
       if (document.hidden) {
+        savedSeconds.current += Math.floor((Date.now() - sessionStart.current) / 1000)
         if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null }
       } else {
-        sessionStart.current = Date.now() - sessionSeconds * 1000
+        sessionStart.current = Date.now()
         if (!tickRef.current) tickRef.current = setInterval(tick, 10000)
+        tick()
       }
     }
     document.addEventListener('visibilitychange', onVisibility)
@@ -82,6 +87,7 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
   // Reset timer bij andere notitie
   useEffect(() => {
     sessionStart.current = Date.now()
+    savedSeconds.current = 0
     setSessionSeconds(0)
     setShowAddMoment(false)
     setMomentAdded(false)
@@ -215,7 +221,8 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
       }
     }
     if (pairs.length === 0) {
-      alert('Geen kopteksten gevonden. Gebruik H1/H2-knoppen voor koppen, dan worden die automatisch flashcards.')
+      setFlashcardError(true)
+      setTimeout(() => setFlashcardError(false), 3000)
       return
     }
     const setId = crypto.randomUUID()
@@ -482,9 +489,9 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
 
                   <button
                     onClick={createFlashcardsFromNote}
-                    title="Maak flashcards van kopteksten"
-                    className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${flashcardDone ? 'bg-emerald-100 text-emerald-700' : 'text-violet-500 hover:bg-violet-50'}`}>
-                    {flashcardDone ? '✓ Flashcards!' : 'Flashcards'}
+                    title="Maak flashcards van H1/H2 kopteksten"
+                    className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${flashcardDone ? 'bg-emerald-100 text-emerald-700' : flashcardError ? 'bg-red-100 text-red-600' : 'text-violet-500 hover:bg-violet-50'}`}>
+                    {flashcardDone ? '✓ Flashcards!' : flashcardError ? 'Geen koppen gevonden' : 'Flashcards'}
                   </button>
                   <button onClick={handleShare}
                     className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${isPublic ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'text-indigo-400 hover:bg-indigo-50'}`}>
