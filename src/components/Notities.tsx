@@ -1,7 +1,7 @@
 'use client'
 
 import Nav from '@/components/Nav'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
@@ -97,11 +97,13 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
   const lastSelection = useRef<{ start: number; end: number }>({ start: 0, end: 0 })
 
   // Restore cursor position after content update caused by keyboard shortcut
-  useEffect(() => {
+  // useLayoutEffect fires synchronously after React updates the DOM,
+  // before the browser paints — the only reliable way to restore cursor
+  // position in a controlled textarea after a state-driven content change.
+  useLayoutEffect(() => {
     if (pendingSelection.current && textareaRef.current) {
-      const { start, end } = pendingSelection.current
-      textareaRef.current.selectionStart = start
-      textareaRef.current.selectionEnd = end
+      textareaRef.current.selectionStart = pendingSelection.current.start
+      textareaRef.current.selectionEnd = pendingSelection.current.end
       pendingSelection.current = null
     }
   }, [content])
@@ -208,7 +210,7 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
     const ta = e.currentTarget
     const start = ta.selectionStart
     const end = ta.selectionEnd
-    const value = content
+    const value = ta.value // read from DOM, never stale
 
     if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
       e.preventDefault()
