@@ -426,16 +426,9 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
 
             {/* Samenvatting */}
             <div>
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">
-                  {d.summary} <span className="text-gray-300 normal-case font-normal">{d.summaryOptional}</span>
-                </label>
-                {description.length > 0 && (
-                  <span className={`text-xs font-medium ${description.length > 450 ? 'text-amber-500' : 'text-gray-300'}`}>
-                    {description.length}/500
-                  </span>
-                )}
-              </div>
+              <label className="text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1.5 block">
+                {d.summary} <span className="text-gray-300 normal-case font-normal">{d.summaryOptional}</span>
+              </label>
               <textarea
                 value={description}
                 onChange={e => {
@@ -449,7 +442,6 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
                 }}
                 placeholder={d.summaryPlaceholder}
                 rows={3}
-                maxLength={500}
                 className="w-full border-2 border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-300 bg-gray-50 focus:bg-white transition-all resize-none placeholder:text-gray-300 min-h-[76px] focus:min-h-[120px]"
               />
             </div>
