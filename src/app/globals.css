@@ -193,3 +193,17 @@ body {
   a { text-decoration: none !important; }
   button { display: none !important; }
 }
+
+/* Notities WYSIWYG editor */
+.notes-editor { outline: none; }
+.notes-editor h1 { font-size: 1.5rem; font-weight: 800; color: #1e1b4b; margin: 1.2rem 0 0.4rem; line-height: 1.2; }
+.notes-editor h2 { font-size: 1.15rem; font-weight: 700; color: #312e81; margin: 1rem 0 0.3rem; line-height: 1.3; }
+.notes-editor h3 { font-size: 1rem; font-weight: 700; color: #3730a3; margin: 0.8rem 0 0.2rem; }
+.notes-editor p { margin: 0.25rem 0; color: #3730a3; line-height: 1.75; }
+.notes-editor ul { list-style: disc; padding-left: 1.5rem; margin: 0.5rem 0; color: #3730a3; }
+.notes-editor ol { list-style: decimal; padding-left: 1.5rem; margin: 0.5rem 0; color: #3730a3; }
+.notes-editor li { margin: 0.15rem 0; line-height: 1.6; }
+.notes-editor blockquote { border-left: 3px solid #a5b4fc; padding-left: 1rem; color: #6366f1; font-style: italic; margin: 0.5rem 0; }
+.notes-editor a { color: #6366f1; text-decoration: underline; }
+.notes-editor:empty::before { content: attr(data-placeholder); color: #c7d2fe; pointer-events: none; }
+.notes-editor br:only-child { display: none; }

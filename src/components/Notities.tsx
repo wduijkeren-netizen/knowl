@@ -1,7 +1,7 @@
 'use client'
 
 import Nav from '@/components/Nav'
-import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
@@ -21,50 +21,6 @@ type Props = {
   subjects: string[]
 }
 
-function renderMarkdown(text: string): string {
-  if (!text.trim()) return '<p class="text-indigo-300 italic">Lege notitie</p>'
-  const lines = text.split('\n')
-  let html = ''
-  let inUl = false
-  let inOl = false
-
-  const inline = (s: string) =>
-    s
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/`(.*?)`/g, '<code class="bg-indigo-50 text-indigo-700 px-1 rounded text-sm font-mono">$1</code>')
-
-  for (const line of lines) {
-    const trimmed = line.trim()
-    if (!trimmed.match(/^[-*] /) && inUl) { html += '</ul>'; inUl = false }
-    if (!trimmed.match(/^\d+\. /) && inOl) { html += '</ol>'; inOl = false }
-
-    if (trimmed.startsWith('### ')) {
-      html += `<h3 class="text-base font-bold text-indigo-800 mt-4 mb-1">${inline(trimmed.slice(4))}</h3>`
-    } else if (trimmed.startsWith('## ')) {
-      html += `<h2 class="text-lg font-bold text-indigo-900 mt-5 mb-1.5">${inline(trimmed.slice(3))}</h2>`
-    } else if (trimmed.startsWith('# ')) {
-      html += `<h1 class="text-xl font-extrabold text-indigo-900 mt-6 mb-2">${inline(trimmed.slice(2))}</h1>`
-    } else if (trimmed.startsWith('> ')) {
-      html += `<blockquote class="border-l-4 border-indigo-300 pl-3 text-indigo-600 italic my-2">${inline(trimmed.slice(2))}</blockquote>`
-    } else if (trimmed.match(/^[-*] /)) {
-      if (!inUl) { html += '<ul class="list-disc list-inside space-y-0.5 my-2 text-indigo-800">'; inUl = true }
-      html += `<li>${inline(trimmed.slice(2))}</li>`
-    } else if (trimmed.match(/^\d+\. /)) {
-      if (!inOl) { html += '<ol class="list-decimal list-inside space-y-0.5 my-2 text-indigo-800">'; inOl = true }
-      html += `<li>${inline(trimmed.replace(/^\d+\. /, ''))}</li>`
-    } else if (!trimmed) {
-      html += '<div class="h-2"></div>'
-    } else {
-      html += `<p class="text-indigo-800 leading-relaxed">${inline(trimmed)}</p>`
-    }
-  }
-  if (inUl) html += '</ul>'
-  if (inOl) html += '</ol>'
-  return html
-}
-
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
 }
@@ -81,32 +37,30 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
   const [subject, setSubject] = useState(initialNotes[0]?.subject ?? '')
   const [search, setSearch] = useState('')
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
-  const [preview, setPreview] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [mobileView, setMobileView] = useState<'list' | 'editor'>('list')
-  const [showShortcuts, setShowShortcuts] = useState(false)
   const [subjectOpen, setSubjectOpen] = useState(false)
   const [shareUrl, setShareUrl] = useState<string | null>(null)
   const [shareCopied, setShareCopied] = useState(false)
 
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const editorRef = useRef<HTMLDivElement>(null)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  // Stores pending selection to restore after content state update
-  const pendingSelection = useRef<{ start: number; end: number } | null>(null)
-  // Stores last textarea selection before toolbar button focus-loss
-  const lastSelection = useRef<{ start: number; end: number }>({ start: 0, end: 0 })
+  const contentRef = useRef(content)
+  contentRef.current = content
 
-  // Restore cursor position after content update caused by keyboard shortcut
-  // useLayoutEffect fires synchronously after React updates the DOM,
-  // before the browser paints — the only reliable way to restore cursor
-  // position in a controlled textarea after a state-driven content change.
-  useLayoutEffect(() => {
-    if (pendingSelection.current && textareaRef.current) {
-      textareaRef.current.selectionStart = pendingSelection.current.start
-      textareaRef.current.selectionEnd = pendingSelection.current.end
-      pendingSelection.current = null
+  // Set editor HTML only when switching notes (not on every keystroke)
+  useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.innerHTML = content
     }
-  }, [content])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId])
+
+  const handleInput = useCallback(() => {
+    if (editorRef.current) {
+      setContent(editorRef.current.innerHTML)
+    }
+  }, [])
 
   const autoSave = useCallback(async (id: string, t: string, c: string, s: string) => {
     setSaveStatus('saving')
@@ -137,7 +91,6 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
     setTitle(note.title)
     setContent(note.content)
     setSubject(note.subject ?? '')
-    setPreview(false)
     setConfirmDelete(false)
     setSubjectOpen(false)
     setShareUrl(note.is_public && note.share_token ? `${window.location.origin}/deel/notitie/${note.share_token}` : null)
@@ -173,7 +126,6 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
   async function handleShare() {
     const note = notes.find(note => note.id === selectedId)
     if (!note || !selectedId) return
-
     const token = note.share_token ?? crypto.randomUUID()
     if (!note.is_public) {
       await supabase.from('notes').update({ is_public: true, share_token: token }).eq('id', selectedId)
@@ -193,74 +145,21 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
     setShareUrl(null)
   }
 
-  function applyWrap(before: string, after: string) {
-    const ta = textareaRef.current
-    if (!ta) return
-    // Use lastSelection if textarea lost focus (toolbar button click)
-    const start = document.activeElement === ta ? ta.selectionStart : lastSelection.current.start
-    const end = document.activeElement === ta ? ta.selectionEnd : lastSelection.current.end
-    const selected = content.slice(start, end)
-    const newContent = content.slice(0, start) + before + selected + after + content.slice(end)
-    setContent(newContent)
-    pendingSelection.current = { start: start + before.length, end: end + before.length }
-    ta.focus()
+  function fmt(command: string, value?: string) {
+    editorRef.current?.focus()
+    document.execCommand(command, false, value ?? undefined)
+    handleInput()
   }
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    const ta = e.currentTarget
-    const start = ta.selectionStart
-    const end = ta.selectionEnd
-    const value = ta.value // read from DOM, never stale
-
-    if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-      e.preventDefault()
-      const selected = value.slice(start, end)
-      setContent(value.slice(0, start) + '**' + selected + '**' + value.slice(end))
-      pendingSelection.current = { start: start + 2, end: end + 2 }
-      return
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
-      e.preventDefault()
-      const selected = value.slice(start, end)
-      setContent(value.slice(0, start) + '*' + selected + '*' + value.slice(end))
-      pendingSelection.current = { start: start + 1, end: end + 1 }
-      return
-    }
-    if (e.key === 'Tab') {
-      e.preventDefault()
-      if (e.shiftKey) {
-        const lineStart = value.lastIndexOf('\n', start - 1) + 1
-        if (value.slice(lineStart, lineStart + 2) === '  ') {
-          setContent(value.slice(0, lineStart) + value.slice(lineStart + 2))
-          pendingSelection.current = { start: Math.max(start - 2, lineStart), end: Math.max(start - 2, lineStart) }
-        }
-      } else {
-        setContent(value.slice(0, start) + '  ' + value.slice(end))
-        pendingSelection.current = { start: start + 2, end: start + 2 }
-      }
-      return
-    }
-    if (e.key === 'Enter') {
-      const lineStart = value.lastIndexOf('\n', start - 1) + 1
-      const currentLine = value.slice(lineStart, start)
-      const bulletMatch = currentLine.match(/^([-*] )(.+)/)
-      const numberedMatch = currentLine.match(/^(\d+)\. (.+)/)
-      if (bulletMatch) {
-        e.preventDefault()
-        const prefix = bulletMatch[1]
-        setContent(value.slice(0, start) + '\n' + prefix + value.slice(end))
-        pendingSelection.current = { start: start + 1 + prefix.length, end: start + 1 + prefix.length }
-      } else if (numberedMatch) {
-        e.preventDefault()
-        const nextNum = parseInt(numberedMatch[1]) + 1
-        const prefix = nextNum + '. '
-        setContent(value.slice(0, start) + '\n' + prefix + value.slice(end))
-        pendingSelection.current = { start: start + 1 + prefix.length, end: start + 1 + prefix.length }
-      }
+  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.ctrlKey || e.metaKey) {
+      if (e.key === 'b') { e.preventDefault(); fmt('bold') }
+      if (e.key === 'i') { e.preventDefault(); fmt('italic') }
+      if (e.key === 'u') { e.preventDefault(); fmt('underline') }
     }
   }
 
-  const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0
+  const wordCount = content.replace(/<[^>]*>/g, '').trim().split(/\s+/).filter(Boolean).length
   const filtered = notes.filter(note =>
     !search ||
     note.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -268,6 +167,15 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
   )
   const selectedNote = notes.find(note => note.id === selectedId)
   const isPublic = selectedNote?.is_public ?? false
+
+  const ToolBtn = ({ onClick, title, children, active }: { onClick: () => void; title: string; children: React.ReactNode; active?: boolean }) => (
+    <button
+      onMouseDown={e => { e.preventDefault(); onClick() }}
+      title={title}
+      className={`h-7 px-2 rounded-md text-sm transition-colors flex items-center justify-center ${active ? 'bg-indigo-600 text-white' : 'text-indigo-600 hover:bg-white'}`}>
+      {children}
+    </button>
+  )
 
   return (
     <div className="min-h-screen bg-[#f8f7ff] flex flex-col">
@@ -285,11 +193,9 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
                 {n.new}
               </button>
             </div>
-            <input
-              value={search} onChange={e => setSearch(e.target.value)}
+            <input value={search} onChange={e => setSearch(e.target.value)}
               placeholder={n.searchPlaceholder}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-gray-50"
-            />
+              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-gray-50" />
           </div>
           <div className="flex-1 overflow-y-auto">
             {filtered.length === 0 ? (
@@ -311,7 +217,7 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
                       <span className="text-xs text-indigo-300">{formatDate(note.updated_at)}</span>
                     </div>
                     {note.content && (
-                      <p className="text-xs text-indigo-300 mt-1 truncate">{note.content.replace(/[#*`>-]/g, '').trim()}</p>
+                      <p className="text-xs text-indigo-300 mt-1 truncate">{note.content.replace(/<[^>]*>/g, '').trim()}</p>
                     )}
                   </button>
                 ))}
@@ -341,26 +247,35 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
           ) : (
             <>
               {/* Toolbar */}
-              <div className="flex items-center justify-between px-4 py-2.5 border-b border-indigo-50 gap-2 flex-wrap">
-                {/* Links: terug + vakkeuzebox */}
+              <div className="flex items-center justify-between px-3 py-2 border-b border-indigo-50 gap-2 flex-wrap">
                 <div className="flex items-center gap-2">
                   <button onClick={() => setMobileView('list')}
-                    className="sm:hidden text-indigo-400 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-indigo-50 transition-colors text-sm">
-                    ←
-                  </button>
+                    className="sm:hidden text-indigo-400 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-indigo-50 transition-colors text-sm">←</button>
 
-                  {/* Vak-dropdown */}
+                  {/* Opmaak */}
+                  <div className="flex items-center gap-0.5 bg-indigo-50 rounded-lg p-0.5">
+                    <ToolBtn onClick={() => fmt('bold')} title="Vet (Ctrl+B)"><strong>B</strong></ToolBtn>
+                    <ToolBtn onClick={() => fmt('italic')} title="Cursief (Ctrl+I)"><em>I</em></ToolBtn>
+                    <ToolBtn onClick={() => fmt('underline')} title="Onderstrepen (Ctrl+U)"><span className="underline">U</span></ToolBtn>
+                    <div className="w-px h-4 bg-indigo-200 mx-0.5" />
+                    <ToolBtn onClick={() => fmt('formatBlock', 'h1')} title="Grote koptekst">H1</ToolBtn>
+                    <ToolBtn onClick={() => fmt('formatBlock', 'h2')} title="Kleine koptekst">H2</ToolBtn>
+                    <ToolBtn onClick={() => fmt('formatBlock', 'p')} title="Gewone tekst">¶</ToolBtn>
+                    <div className="w-px h-4 bg-indigo-200 mx-0.5" />
+                    <ToolBtn onClick={() => fmt('insertUnorderedList')} title="Opsommingspunt">•</ToolBtn>
+                    <ToolBtn onClick={() => fmt('insertOrderedList')} title="Genummerde lijst">1.</ToolBtn>
+                  </div>
+
+                  {/* Vak */}
                   <div className="relative">
-                    <button
-                      onClick={() => setSubjectOpen(o => !o)}
+                    <button onClick={() => setSubjectOpen(o => !o)}
                       className={`flex items-center gap-1.5 text-sm border rounded-xl px-3 py-1.5 transition-colors ${subject ? 'border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100' : 'border-gray-200 bg-white text-gray-400 hover:bg-gray-50'}`}>
-                      <span className="max-w-[160px] truncate font-medium">{subject || n.noSubject}</span>
+                      <span className="max-w-[140px] truncate font-medium">{subject || n.noSubject}</span>
                       <span className="text-xs opacity-60 shrink-0">▾</span>
                     </button>
                     {subjectOpen && (
                       <div className="absolute left-0 top-full mt-1 z-30 bg-white border border-indigo-100 rounded-2xl shadow-xl py-2 min-w-[200px] max-h-60 overflow-y-auto">
-                        <button
-                          onClick={() => { setSubject(''); setSubjectOpen(false) }}
+                        <button onClick={() => { setSubject(''); setSubjectOpen(false) }}
                           className={`w-full text-left px-4 py-2.5 text-sm hover:bg-indigo-50 transition-colors ${!subject ? 'text-indigo-700 font-semibold' : 'text-gray-400'}`}>
                           {n.noSubject}
                         </button>
@@ -376,103 +291,22 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
                   </div>
                 </div>
 
-                {/* Rechts: opmaak + opties */}
-                <div className="flex items-center gap-1.5 flex-wrap">
+                <div className="flex items-center gap-1.5">
                   {saveStatus === 'saving' && <span className="text-xs text-indigo-300">{n.saving}</span>}
                   {saveStatus === 'saved' && <span className="text-xs text-emerald-500 font-medium">{n.autoSaved} ✓</span>}
 
-                  {/* Opmaakknoppen */}
-                  <div className="flex items-center gap-0.5 bg-indigo-50 rounded-lg p-0.5">
-                      <button
-                        onMouseDown={e => { e.preventDefault(); applyWrap('**', '**') }}
-                        className="text-sm font-bold text-indigo-600 w-7 h-7 rounded-md hover:bg-white transition-colors flex items-center justify-center"
-                        title="Ctrl+B">B</button>
-                      <button
-                        onMouseDown={e => { e.preventDefault(); applyWrap('*', '*') }}
-                        className="text-sm italic text-indigo-600 w-7 h-7 rounded-md hover:bg-white transition-colors flex items-center justify-center"
-                        title="Ctrl+I">I</button>
-                      <button
-                        onMouseDown={e => {
-                          e.preventDefault()
-                          const ta = textareaRef.current
-                          if (!ta) return
-                          const pos = document.activeElement === ta ? ta.selectionStart : lastSelection.current.start
-                          const lineStart = content.lastIndexOf('\n', pos - 1) + 1
-                          const newContent = content.slice(0, lineStart) + '# ' + content.slice(lineStart)
-                          setContent(newContent)
-                          pendingSelection.current = { start: pos + 2, end: pos + 2 }
-                          ta.focus()
-                        }}
-                        className="text-xs font-bold text-indigo-600 w-7 h-7 rounded-md hover:bg-white transition-colors flex items-center justify-center"
-                        title="Koptekst">H</button>
-                      <button
-                        onMouseDown={e => {
-                          e.preventDefault()
-                          const ta = textareaRef.current
-                          if (!ta) return
-                          const pos = document.activeElement === ta ? ta.selectionStart : lastSelection.current.start
-                          const lineStart = content.lastIndexOf('\n', pos - 1) + 1
-                          const newContent = content.slice(0, lineStart) + '- ' + content.slice(lineStart)
-                          setContent(newContent)
-                          pendingSelection.current = { start: pos + 2, end: pos + 2 }
-                          ta.focus()
-                        }}
-                        className="text-sm text-indigo-600 w-7 h-7 rounded-md hover:bg-white transition-colors flex items-center justify-center"
-                        title="Opsommingspunt">•</button>
-                    </div>
-
-                  <div className="flex items-center gap-0.5 bg-indigo-50 rounded-lg p-0.5">
-                    <button
-                      onClick={() => setPreview(false)}
-                      className={`text-xs font-medium px-2.5 py-1 rounded-md transition-colors ${!preview ? 'bg-white text-indigo-700 shadow-sm' : 'text-indigo-400'}`}>
-                      {n.edit}
-                    </button>
-                    <button
-                      onClick={() => setPreview(true)}
-                      className={`text-xs font-medium px-2.5 py-1 rounded-md transition-colors ${preview ? 'bg-white text-indigo-700 shadow-sm' : 'text-indigo-400'}`}>
-                      {n.preview}
-                    </button>
-                  </div>
-
-                  {/* Deel-knop */}
-                  <button
-                    onClick={handleShare}
+                  <button onClick={handleShare}
                     className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${isPublic ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'text-indigo-400 hover:bg-indigo-50'}`}>
                     {shareCopied ? '✓ Gekopieerd!' : isPublic ? '🔗 Link' : 'Delen'}
                   </button>
-
                   {isPublic && (
-                    <button onClick={handleUnshare} className="text-xs text-gray-300 hover:text-gray-500 transition-colors px-1">
-                      ✕
-                    </button>
+                    <button onClick={handleUnshare} className="text-xs text-gray-300 hover:text-gray-500 transition-colors px-1">✕</button>
                   )}
-
-                  {/* Snelkoppelingen help */}
-                  <div className="relative hidden sm:block">
-                    <button onClick={() => setShowShortcuts(s => !s)}
-                      className="text-xs text-indigo-300 hover:text-indigo-500 w-6 h-7 rounded-lg hover:bg-indigo-50 transition-colors flex items-center justify-center">
-                      ?
-                    </button>
-                    {showShortcuts && (
-                      <div className="absolute right-0 top-full mt-1 z-20 bg-white border border-indigo-100 rounded-2xl shadow-xl p-4 w-56" onClick={() => setShowShortcuts(false)}>
-                        <p className="text-xs font-bold text-indigo-900 mb-2">{n.shortcuts}</p>
-                        {[n.shortcutBold, n.shortcutItalic, n.shortcutH1, n.shortcutList, 'Tab → inspringing', 'Enter → lijst doorzetten'].map(s => (
-                          <p key={s} className="text-xs text-indigo-400 py-0.5 font-mono">{s}</p>
-                        ))}
-                      </div>
-                    )}
-                  </div>
 
                   {confirmDelete ? (
                     <div className="flex items-center gap-1">
-                      <button onClick={deleteNote}
-                        className="text-xs bg-red-500 text-white px-2.5 py-1.5 rounded-lg font-medium hover:bg-red-600 transition-colors">
-                        Ja
-                      </button>
-                      <button onClick={() => setConfirmDelete(false)}
-                        className="text-xs text-indigo-400 hover:text-indigo-600 px-2 py-1.5 rounded-lg">
-                        Nee
-                      </button>
+                      <button onClick={deleteNote} className="text-xs bg-red-500 text-white px-2.5 py-1.5 rounded-lg font-medium hover:bg-red-600 transition-colors">Ja</button>
+                      <button onClick={() => setConfirmDelete(false)} className="text-xs text-indigo-400 hover:text-indigo-600 px-2 py-1.5 rounded-lg">Nee</button>
                     </div>
                   ) : (
                     <button onClick={() => setConfirmDelete(true)}
@@ -498,48 +332,21 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
               )}
 
               {/* Titel */}
-              <div className="px-6 pt-5 pb-2 border-b border-indigo-50">
-                <input
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                  placeholder={n.untitled}
-                  className="w-full text-2xl font-bold text-indigo-900 placeholder:text-indigo-200 bg-transparent border-0 outline-none focus:ring-0"
-                />
+              <div className="px-6 pt-5 pb-2">
+                <input value={title} onChange={e => setTitle(e.target.value)} placeholder={n.untitled}
+                  className="w-full text-2xl font-bold text-indigo-900 placeholder:text-indigo-200 bg-transparent border-0 outline-none focus:ring-0" />
               </div>
 
-              {/* Split-view: editor links, live preview rechts */}
-              <div className="flex-1 flex overflow-hidden">
-                {/* Editor — altijd zichtbaar tenzij pure preview-modus op mobiel */}
-                <div className={`${preview ? 'hidden md:flex' : 'flex'} flex-col flex-1 min-w-0 border-r border-indigo-50`}>
-                  <div className="px-3 py-1.5 bg-indigo-50/50 border-b border-indigo-50">
-                    <span className="text-xs font-medium text-indigo-400">Bewerken</span>
-                  </div>
-                  <textarea
-                    ref={textareaRef}
-                    value={content}
-                    onChange={e => setContent(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    onSelect={e => {
-                      const ta = e.currentTarget
-                      lastSelection.current = { start: ta.selectionStart, end: ta.selectionEnd }
-                    }}
-                    placeholder={n.placeholder}
-                    className="flex-1 w-full px-6 py-4 text-sm text-indigo-800 bg-transparent border-0 outline-none focus:ring-0 resize-none leading-relaxed placeholder:text-indigo-200 font-mono"
-                    spellCheck
-                  />
-                </div>
-
-                {/* Live preview — altijd zichtbaar naast editor op desktop */}
-                <div className={`${preview ? 'flex' : 'hidden md:flex'} flex-col flex-1 min-w-0`}>
-                  <div className="px-3 py-1.5 bg-indigo-50/50 border-b border-indigo-50">
-                    <span className="text-xs font-medium text-indigo-400">Voorbeeld</span>
-                  </div>
-                  <div
-                    className="flex-1 px-6 py-4 overflow-y-auto text-sm leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
-                  />
-                </div>
-              </div>
+              {/* WYSIWYG editor */}
+              <div
+                ref={editorRef}
+                contentEditable
+                suppressContentEditableWarning
+                onInput={handleInput}
+                onKeyDown={handleKeyDown}
+                data-placeholder={n.placeholder?.split('\n')[0] ?? 'Begin met typen...'}
+                className="notes-editor flex-1 px-6 py-3 text-sm overflow-y-auto"
+              />
 
               {/* Footer */}
               <div className="px-6 py-2 border-t border-indigo-50 flex justify-between items-center">
