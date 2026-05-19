@@ -48,12 +48,14 @@ export default function GuestDashboard() {
 
   function handleAdd(e: React.FormEvent) {
     e.preventDefault()
+    if (!title.trim()) return
+    const durationMin = duration ? Math.max(1, parseInt(duration) || 1) : null
     setMoments(prev => [{
       id: crypto.randomUUID(),
-      title, description: description || null,
+      title: title.trim(), description: description || null,
       category: category || null,
       learned_at: learnedAt,
-      duration_minutes: duration ? parseInt(duration) : null,
+      duration_minutes: durationMin,
     }, ...prev])
     setTitle(''); setDescription(''); setCategory(''); setDuration('')
     setLearnedAt(new Date().toISOString().split('T')[0])
@@ -224,7 +226,7 @@ export default function GuestDashboard() {
                   <div className="grid grid-cols-3 gap-2">
                     <input value={editData.category ?? ''} onChange={e => setEditData({ ...editData, category: e.target.value })}
                       placeholder={d.subject} className="border border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-                    <input type="number" value={editData.duration_minutes ?? ''} placeholder={d.minutes}
+                    <input type="number" min="1" value={editData.duration_minutes ?? ''} placeholder={d.minutes}
                       onChange={e => setEditData({ ...editData, duration_minutes: parseInt(e.target.value) || null })}
                       className="border border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
                     <input type="date" value={editData.learned_at ?? ''}

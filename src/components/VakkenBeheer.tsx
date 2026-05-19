@@ -206,9 +206,9 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
                       </button>
                       {confirmDeleteId === subject.id ? (
                         <span className="flex items-center gap-1">
-                          <button onClick={(e) => handleDelete(subject.id, e)} className="text-xs text-red-500 hover:text-red-700 font-medium">Ja</button>
+                          <button onClick={(e) => handleDelete(subject.id, e)} className="text-xs text-red-500 hover:text-red-700 font-medium">{s.confirmYes ?? 'Ja'}</button>
                           <span className="text-xs text-gray-300">·</span>
-                          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmDeleteId(null) }} className="text-xs text-gray-400 hover:text-gray-600">Nee</button>
+                          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmDeleteId(null) }} className="text-xs text-gray-400 hover:text-gray-600">{s.confirmNo ?? 'Nee'}</button>
                         </span>
                       ) : (
                         <button
@@ -225,12 +225,12 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
                   {editingGoal === subject.id && (
                     <div className="px-4 pb-4 pt-2 bg-indigo-50 border-t border-indigo-100 space-y-4">
                       <div>
-                        <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-2">Eenmalig doel</p>
+                        <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-2">{s.goalOneTime ?? 'Eenmalig doel'}</p>
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-xs text-indigo-500 mb-1">Doelminuten</label>
+                            <label className="block text-xs text-indigo-500 mb-1">{s.goalMinutes ?? 'Doelminuten'}</label>
                             <input
-                              type="number"
+                              type="number" min="1" max="100000"
                               value={goalMinutes}
                               onChange={e => setGoalMinutes(e.target.value)}
                               placeholder="bijv. 1800"
@@ -238,7 +238,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-indigo-500 mb-1">Deadline</label>
+                            <label className="block text-xs text-indigo-500 mb-1">{s.goalDeadline ?? 'Deadline'}</label>
                             <input
                               type="date"
                               value={goalDate}
@@ -250,25 +250,25 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
                       </div>
 
                       <div>
-                        <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-2">Terugkerend doel</p>
+                        <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-2">{s.goalRecurring ?? 'Terugkerend doel'}</p>
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-xs text-indigo-500 mb-1">Periode</label>
+                            <label className="block text-xs text-indigo-500 mb-1">{s.goalPeriod ?? 'Periode'}</label>
                             <select
                               value={recurringType}
                               onChange={e => setRecurringType(e.target.value)}
                               className="w-full border border-indigo-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
                             >
-                              <option value="">Geen</option>
-                              <option value="daily">Per dag</option>
-                              <option value="weekly">Per week</option>
-                              <option value="monthly">Per maand</option>
+                              <option value="">{s.goalNone ?? 'Geen'}</option>
+                              <option value="daily">{recurringLabels.daily}</option>
+                              <option value="weekly">{recurringLabels.weekly}</option>
+                              <option value="monthly">{recurringLabels.monthly}</option>
                             </select>
                           </div>
                           <div>
-                            <label className="block text-xs text-indigo-500 mb-1">Minuten</label>
+                            <label className="block text-xs text-indigo-500 mb-1">{s.minLabel ?? 'Minuten'}</label>
                             <input
-                              type="number"
+                              type="number" min="1" max="10000"
                               value={recurringGoalMinutes}
                               onChange={e => setRecurringGoalMinutes(e.target.value)}
                               placeholder="bijv. 60"
@@ -283,13 +283,13 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
                           onClick={(e) => saveGoal(subject.id, e)}
                           className="text-sm bg-indigo-600 text-white rounded-lg px-4 py-1.5 hover:bg-indigo-700 transition-colors font-medium"
                         >
-                          Opslaan
+                          {s.goalSave ?? 'Opslaan'}
                         </button>
                         <button
                           onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditingGoal(null) }}
                           className="text-sm text-indigo-400 hover:text-indigo-600 px-3 py-1.5"
                         >
-                          Annuleren
+                          {s.goalCancel ?? 'Annuleren'}
                         </button>
                       </div>
                     </div>

@@ -14,7 +14,7 @@ export type LangCode = typeof languages[number]['code']
 
 const t = {
   nl: {
-    nav: { moments: 'Leermomenten', results: 'Resultaten', subjects: 'Vakken', logout: 'Uitloggen', more: 'Meer', monthly: 'Maandoverzicht', profile: 'Profiel', home: 'Home', loginBtn: 'Inloggen', timer: 'Timer', week: 'Weekoverzicht', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Woordweb', 'feedback': 'Feedback', 'loginLink': 'Inloggen', grades: 'Cijferberekening', overview: 'Overzicht', learn: 'Leren', members: 'Leden', you: '(jij)', schedule: 'Rooster', friends: 'Vrienden', notities: 'Notities' },
+    nav: { moments: 'Leermomenten', results: 'Resultaten', subjects: 'Vakken', logout: 'Uitloggen', more: 'Meer', monthly: 'Maandoverzicht', profile: 'Profiel', home: 'Home', loginBtn: 'Inloggen', timer: 'Timer', week: 'Weekoverzicht', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Woordweb', 'feedback': 'Feedback', 'loginLink': 'Inloggen', grades: 'Cijferberekening', overview: 'Overzicht', learn: 'Leren', members: 'Leden', you: '(jij)', schedule: 'Rooster', friends: 'Vrienden', notities: 'Notities', group: 'Groepsstudie' },
     dashboard: {
       momentsCount: 'Leermomenten', minutesLearned: 'Minuten geleerd', inHours: 'In uren',
       newMoment: 'Nieuw leermoment', newMomentSub: 'Wat heb je vandaag geleerd?',
@@ -44,7 +44,7 @@ const t = {
       title: 'Vakken', subtitle: 'Klik op een vak om alle leermomenten te zien',
       addTitle: 'Nieuw vak toevoegen', placeholder: 'bijv. Vennootschapsbelasting',
       addBtn: 'Toevoegen', yourSubjects: 'Jouw vakken', subjects: 'vakken',
-      moment: 'moment', moments: 'momenten', empty: 'Nog geen vakken. Voeg er een toe!', delete: 'Verwijderen', setGoal: 'Doel instellen', notes: 'Notities', notesPlaceholder: 'Schrijf hier notities voor dit vak...', notesSaved: 'Notities opgeslagen',
+      moment: 'moment', moments: 'momenten', empty: 'Nog geen vakken. Voeg er een toe!', delete: 'Verwijderen', setGoal: 'Doel instellen', notes: 'Notities', notesPlaceholder: 'Schrijf hier notities voor dit vak...', notesSaved: 'Notities opgeslagen', goalOneTime: 'Eenmalig doel', goalRecurring: 'Terugkerend doel', goalMinutes: 'Doelminuten', goalPeriod: 'Periode', goalDeadline: 'Deadline', goalNone: 'Geen', goalSave: 'Opslaan', goalCancel: 'Annuleren', confirmYes: 'Ja', confirmNo: 'Nee', minLabel: 'Minuten',
     },
     detail: {
       back: '← Vakken', momentsCount: 'Leermomenten', minutesSpent: 'Minuten besteed',
@@ -208,7 +208,7 @@ const t = {
     guest: { 'save': 'Opslaan', 'cancel': 'Annuleren', 'delete': 'Verwijderen', 'summary': 'Samenvatting' },
   },
   en: {
-    nav: { moments: 'Learning moments', results: 'Results', subjects: 'Subjects', logout: 'Log out', more: 'More', monthly: 'Monthly overview', profile: 'Profile', home: 'Home', loginBtn: 'Log in', timer: 'Timer', week: 'Weekly overview', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Word map', 'feedback': 'Feedback', 'loginLink': 'Log in', grades: 'Grade calculator', overview: 'Overview', learn: 'Learn', members: 'Members', you: '(you)', schedule: 'Schedule', friends: 'Friends', notities: 'Notes' },
+    nav: { moments: 'Learning moments', results: 'Results', subjects: 'Subjects', logout: 'Log out', more: 'More', monthly: 'Monthly overview', profile: 'Profile', home: 'Home', loginBtn: 'Log in', timer: 'Timer', week: 'Weekly overview', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Word map', 'feedback': 'Feedback', 'loginLink': 'Log in', grades: 'Grade calculator', overview: 'Overview', learn: 'Learn', members: 'Members', you: '(you)', schedule: 'Schedule', friends: 'Friends', notities: 'Notes', group: 'Group study' },
     dashboard: {
       momentsCount: 'Learning moments', minutesLearned: 'Minutes learned', inHours: 'In hours',
       newMoment: 'New learning moment', newMomentSub: 'What did you learn today?',
@@ -238,7 +238,7 @@ const t = {
       title: 'Subjects', subtitle: 'Click a subject to see all learning moments',
       addTitle: 'Add new subject', placeholder: 'e.g. Corporate tax',
       addBtn: 'Add', yourSubjects: 'Your subjects', subjects: 'subjects',
-      moment: 'moment', moments: 'moments', empty: 'No subjects yet. Add one!', delete: 'Delete', setGoal: 'Set goal', notes: 'Notes', notesPlaceholder: 'Write notes for this subject here...', notesSaved: 'Notes saved',
+      moment: 'moment', moments: 'moments', empty: 'No subjects yet. Add one!', delete: 'Delete', setGoal: 'Set goal', notes: 'Notes', notesPlaceholder: 'Write notes for this subject here...', notesSaved: 'Notes saved', goalOneTime: 'One-time goal', goalRecurring: 'Recurring goal', goalMinutes: 'Target minutes', goalPeriod: 'Period', goalDeadline: 'Deadline', goalNone: 'None', goalSave: 'Save', goalCancel: 'Cancel', confirmYes: 'Yes', confirmNo: 'No', minLabel: 'Minutes',
     },
     detail: {
       back: '← Subjects', momentsCount: 'Learning moments', minutesSpent: 'Minutes spent',
@@ -402,7 +402,7 @@ const t = {
     guest: { 'save': 'Save', 'cancel': 'Cancel', 'delete': 'Delete', 'summary': 'Summary' },
   },
   es: {
-    nav: { moments: 'Momentos de aprendizaje', results: 'Resultados', subjects: 'Asignaturas', logout: 'Cerrar sesión', more: 'Más', monthly: 'Resumen mensual', profile: 'Perfil', home: 'Inicio', loginBtn: 'Iniciar sesión', timer: 'Temporizador', week: 'Resumen semanal', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Mapa mental', 'feedback': 'Comentarios', 'loginLink': 'Iniciar sesión', grades: 'Calculadora de notas', overview: 'Resumen', learn: 'Aprender', members: 'Miembros', you: '(tú)', schedule: 'Horario', friends: 'Amigos', notities: 'Notas' },
+    nav: { moments: 'Momentos de aprendizaje', results: 'Resultados', subjects: 'Asignaturas', logout: 'Cerrar sesión', more: 'Más', monthly: 'Resumen mensual', profile: 'Perfil', home: 'Inicio', loginBtn: 'Iniciar sesión', timer: 'Temporizador', week: 'Resumen semanal', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Mapa mental', 'feedback': 'Comentarios', 'loginLink': 'Iniciar sesión', grades: 'Calculadora de notas', overview: 'Resumen', learn: 'Aprender', members: 'Miembros', you: '(tú)', schedule: 'Horario', friends: 'Amigos', notities: 'Notas', group: 'Estudio grupal' },
     dashboard: {
       momentsCount: 'Momentos', minutesLearned: 'Minutos aprendidos', inHours: 'En horas',
       newMoment: 'Nuevo momento de aprendizaje', newMomentSub: '¿Qué aprendiste hoy?',
@@ -432,7 +432,7 @@ const t = {
       title: 'Asignaturas', subtitle: 'Haz clic en una asignatura para ver todos los momentos',
       addTitle: 'Añadir asignatura', placeholder: 'ej. Derecho fiscal',
       addBtn: 'Añadir', yourSubjects: 'Tus asignaturas', subjects: 'asignaturas',
-      moment: 'momento', moments: 'momentos', empty: 'Sin asignaturas aún. ¡Añade una!', delete: 'Eliminar', setGoal: 'Establecer meta', notes: 'Notas', notesPlaceholder: 'Escribe notas para esta asignatura...', notesSaved: 'Notas guardadas',
+      moment: 'momento', moments: 'momentos', empty: 'Sin asignaturas aún. ¡Añade una!', delete: 'Eliminar', setGoal: 'Establecer meta', notes: 'Notas', notesPlaceholder: 'Escribe notas para esta asignatura...', notesSaved: 'Notas guardadas', goalOneTime: 'Meta única', goalRecurring: 'Meta recurrente', goalMinutes: 'Minutos objetivo', goalPeriod: 'Período', goalDeadline: 'Fecha límite', goalNone: 'Ninguno', goalSave: 'Guardar', goalCancel: 'Cancelar', confirmYes: 'Sí', confirmNo: 'No', minLabel: 'Minutos',
     },
     detail: {
       back: '← Asignaturas', momentsCount: 'Momentos', minutesSpent: 'Minutos dedicados',
@@ -595,7 +595,7 @@ const t = {
     guest: { 'save': 'Guardar', 'cancel': 'Cancelar', 'delete': 'Eliminar', 'summary': 'Resumen' },
   },
   pt: {
-    nav: { moments: 'Momentos de aprendizado', results: 'Resultados', subjects: 'Disciplinas', logout: 'Sair', more: 'Mais', monthly: 'Resumo mensal', profile: 'Perfil', home: 'Início', loginBtn: 'Entrar', timer: 'Temporizador', week: 'Resumo semanal', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Mapa mental', 'feedback': 'Feedback', 'loginLink': 'Entrar', grades: 'Calculadora de notas', overview: 'Visão geral', learn: 'Aprender', members: 'Membros', you: '(você)', schedule: 'Horário', friends: 'Amigos', notities: 'Notas' },
+    nav: { moments: 'Momentos de aprendizado', results: 'Resultados', subjects: 'Disciplinas', logout: 'Sair', more: 'Mais', monthly: 'Resumo mensal', profile: 'Perfil', home: 'Início', loginBtn: 'Entrar', timer: 'Temporizador', week: 'Resumo semanal', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Mapa mental', 'feedback': 'Feedback', 'loginLink': 'Entrar', grades: 'Calculadora de notas', overview: 'Visão geral', learn: 'Aprender', members: 'Membros', you: '(você)', schedule: 'Horário', friends: 'Amigos', notities: 'Notas', group: 'Estudo em grupo' },
     dashboard: {
       momentsCount: 'Momentos', minutesLearned: 'Minutos aprendidos', inHours: 'Em horas',
       newMoment: 'Novo momento de aprendizado', newMomentSub: 'O que você aprendeu hoje?',
@@ -625,7 +625,7 @@ const t = {
       title: 'Disciplinas', subtitle: 'Clique numa disciplina para ver todos os momentos',
       addTitle: 'Adicionar disciplina', placeholder: 'ex. Direito tributário',
       addBtn: 'Adicionar', yourSubjects: 'Suas disciplinas', subjects: 'disciplinas',
-      moment: 'momento', moments: 'momentos', empty: 'Nenhuma disciplina ainda. Adicione uma!', delete: 'Excluir', setGoal: 'Definir meta', notes: 'Notas', notesPlaceholder: 'Escreva notas para esta disciplina...', notesSaved: 'Notas salvas',
+      moment: 'momento', moments: 'momentos', empty: 'Nenhuma disciplina ainda. Adicione uma!', delete: 'Excluir', setGoal: 'Definir meta', notes: 'Notas', notesPlaceholder: 'Escreva notas para esta disciplina...', notesSaved: 'Notas salvas', goalOneTime: 'Meta única', goalRecurring: 'Meta recorrente', goalMinutes: 'Minutos alvo', goalPeriod: 'Período', goalDeadline: 'Prazo', goalNone: 'Nenhum', goalSave: 'Salvar', goalCancel: 'Cancelar', confirmYes: 'Sim', confirmNo: 'Não', minLabel: 'Minutos',
     },
     detail: {
       back: '← Disciplinas', momentsCount: 'Momentos', minutesSpent: 'Minutos dedicados',
@@ -789,7 +789,7 @@ const t = {
     guest: { 'save': 'Guardar', 'cancel': 'Cancelar', 'delete': 'Eliminar', 'summary': 'Resumo' },
   },
   fr: {
-    nav: { moments: "Moments d'apprentissage", results: 'Résultats', subjects: 'Matières', logout: 'Se déconnecter', more: 'Plus', monthly: 'Bilan mensuel', profile: 'Profil', home: 'Accueil', loginBtn: 'Se connecter', timer: 'Minuterie', week: 'Bilan hebdomadaire', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Carte mentale', 'feedback': 'Retour', 'loginLink': 'Connexion', grades: 'Calculateur de notes', overview: 'Aperçu', learn: 'Apprendre', members: 'Membres', you: '(moi)', schedule: "Emploi du temps", friends: 'Amis', notities: 'Notes' },
+    nav: { moments: "Moments d'apprentissage", results: 'Résultats', subjects: 'Matières', logout: 'Se déconnecter', more: 'Plus', monthly: 'Bilan mensuel', profile: 'Profil', home: 'Accueil', loginBtn: 'Se connecter', timer: 'Minuterie', week: 'Bilan hebdomadaire', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Carte mentale', 'feedback': 'Retour', 'loginLink': 'Connexion', grades: 'Calculateur de notes', overview: 'Aperçu', learn: 'Apprendre', members: 'Membres', you: '(moi)', schedule: "Emploi du temps", friends: 'Amis', notities: 'Notes', group: 'Étude en groupe' },
     dashboard: {
       momentsCount: 'Moments', minutesLearned: 'Minutes apprises', inHours: 'En heures',
       newMoment: "Nouveau moment d'apprentissage", newMomentSub: "Qu'avez-vous appris aujourd'hui ?",
@@ -819,7 +819,7 @@ const t = {
       title: 'Matières', subtitle: 'Cliquez sur une matière pour voir tous les moments',
       addTitle: 'Ajouter une matière', placeholder: 'ex. Droit fiscal',
       addBtn: 'Ajouter', yourSubjects: 'Vos matières', subjects: 'matières',
-      moment: 'moment', moments: 'moments', empty: 'Aucune matière. Ajoutez-en une !', delete: 'Supprimer', setGoal: 'Définir un objectif', notes: 'Notes', notesPlaceholder: 'Écrivez vos notes pour cette matière...', notesSaved: 'Notes sauvegardées',
+      moment: 'moment', moments: 'moments', empty: 'Aucune matière. Ajoutez-en une !', delete: 'Supprimer', setGoal: 'Définir un objectif', notes: 'Notes', notesPlaceholder: 'Écrivez vos notes pour cette matière...', notesSaved: 'Notes sauvegardées', goalOneTime: 'Objectif unique', goalRecurring: 'Objectif récurrent', goalMinutes: 'Minutes cibles', goalPeriod: 'Période', goalDeadline: 'Date limite', goalNone: 'Aucun', goalSave: 'Enregistrer', goalCancel: 'Annuler', confirmYes: 'Oui', confirmNo: 'Non', minLabel: 'Minutes',
     },
     detail: {
       back: '← Matières', momentsCount: 'Moments', minutesSpent: 'Minutes consacrées',
@@ -983,7 +983,7 @@ const t = {
     guest: { 'save': 'Enregistrer', 'cancel': 'Annuler', 'delete': 'Supprimer', 'summary': 'Résumé' },
   },
   de: {
-    nav: { moments: 'Lernmomente', results: 'Ergebnisse', subjects: 'Fächer', logout: 'Abmelden', more: 'Mehr', monthly: 'Monatsübersicht', profile: 'Profil', home: 'Start', loginBtn: 'Anmelden', timer: 'Timer', week: 'Wochenübersicht', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begriffsnetz', 'feedback': 'Feedback', 'loginLink': 'Anmelden', grades: 'Notenrechner', overview: 'Übersicht', learn: 'Lernen', members: 'Mitglieder', you: '(du)', schedule: 'Stundenplan', friends: 'Freunde', notities: 'Notizen' },
+    nav: { moments: 'Lernmomente', results: 'Ergebnisse', subjects: 'Fächer', logout: 'Abmelden', more: 'Mehr', monthly: 'Monatsübersicht', profile: 'Profil', home: 'Start', loginBtn: 'Anmelden', timer: 'Timer', week: 'Wochenübersicht', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begriffsnetz', 'feedback': 'Feedback', 'loginLink': 'Anmelden', grades: 'Notenrechner', overview: 'Übersicht', learn: 'Lernen', members: 'Mitglieder', you: '(du)', schedule: 'Stundenplan', friends: 'Freunde', notities: 'Notizen', group: 'Gruppenlernen' },
     dashboard: {
       momentsCount: 'Lernmomente', minutesLearned: 'Gelernte Minuten', inHours: 'In Stunden',
       newMoment: 'Neuer Lernmoment', newMomentSub: 'Was hast du heute gelernt?',
@@ -1013,7 +1013,7 @@ const t = {
       title: 'Fächer', subtitle: 'Klicke auf ein Fach, um alle Lernmomente zu sehen',
       addTitle: 'Neues Fach hinzufügen', placeholder: 'z.B. Steuerrecht',
       addBtn: 'Hinzufügen', yourSubjects: 'Deine Fächer', subjects: 'Fächer',
-      moment: 'Moment', moments: 'Momente', empty: 'Noch keine Fächer. Füge eines hinzu!', delete: 'Löschen', setGoal: 'Ziel setzen', notes: 'Notizen', notesPlaceholder: 'Schreibe hier Notizen für dieses Fach...', notesSaved: 'Notizen gespeichert',
+      moment: 'Moment', moments: 'Momente', empty: 'Noch keine Fächer. Füge eines hinzu!', delete: 'Löschen', setGoal: 'Ziel setzen', notes: 'Notizen', notesPlaceholder: 'Schreibe hier Notizen für dieses Fach...', notesSaved: 'Notizen gespeichert', goalOneTime: 'Einmaliges Ziel', goalRecurring: 'Wiederkehrendes Ziel', goalMinutes: 'Zielminuten', goalPeriod: 'Zeitraum', goalDeadline: 'Frist', goalNone: 'Keine', goalSave: 'Speichern', goalCancel: 'Abbrechen', confirmYes: 'Ja', confirmNo: 'Nein', minLabel: 'Minuten',
     },
     detail: {
       back: '← Fächer', momentsCount: 'Lernmomente', minutesSpent: 'Aufgewendete Minuten',
@@ -1177,7 +1177,7 @@ const t = {
     guest: { 'save': 'Speichern', 'cancel': 'Abbrechen', 'delete': 'Löschen', 'summary': 'Zusammenfassung' },
   },
   da: {
-    nav: { moments: 'Læringsøjeblikke', results: 'Resultater', subjects: 'Fag', logout: 'Log ud', more: 'Mere', monthly: 'Månedsoversigt', profile: 'Profil', home: 'Hjem', loginBtn: 'Log ind', timer: 'Timer', week: 'Ugeoversigt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begrebskort', 'feedback': 'Feedback', 'loginLink': 'Log ind', grades: 'Karakterberegner', overview: 'Oversigt', learn: 'Lær', members: 'Medlemmer', you: '(dig)', schedule: 'Skema', friends: 'Venner', notities: 'Notater' },
+    nav: { moments: 'Læringsøjeblikke', results: 'Resultater', subjects: 'Fag', logout: 'Log ud', more: 'Mere', monthly: 'Månedsoversigt', profile: 'Profil', home: 'Hjem', loginBtn: 'Log ind', timer: 'Timer', week: 'Ugeoversigt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begrebskort', 'feedback': 'Feedback', 'loginLink': 'Log ind', grades: 'Karakterberegner', overview: 'Oversigt', learn: 'Lær', members: 'Medlemmer', you: '(dig)', schedule: 'Skema', friends: 'Venner', notities: 'Notater', group: 'Gruppestudie' },
     dashboard: {
       momentsCount: 'Læringsøjeblikke', minutesLearned: 'Minutter lært', inHours: 'I timer',
       newMoment: 'Nyt læringsøjeblik', newMomentSub: 'Hvad lærte du i dag?',
@@ -1207,7 +1207,7 @@ const t = {
       title: 'Fag', subtitle: 'Klik på et fag for at se alle læringsøjeblikke',
       addTitle: 'Tilføj nyt fag', placeholder: 'f.eks. Skatteret',
       addBtn: 'Tilføj', yourSubjects: 'Dine fag', subjects: 'fag',
-      moment: 'øjeblik', moments: 'øjeblikke', empty: 'Ingen fag endnu. Tilføj et!', delete: 'Slet', setGoal: 'Sæt mål', notes: 'Noter', notesPlaceholder: 'Skriv noter til dette fag her...', notesSaved: 'Noter gemt',
+      moment: 'øjeblik', moments: 'øjeblikke', empty: 'Ingen fag endnu. Tilføj et!', delete: 'Slet', setGoal: 'Sæt mål', notes: 'Noter', notesPlaceholder: 'Skriv noter til dette fag her...', notesSaved: 'Noter gemt', goalOneTime: 'Engangs mål', goalRecurring: 'Gentaget mål', goalMinutes: 'Målminutter', goalPeriod: 'Periode', goalDeadline: 'Frist', goalNone: 'Ingen', goalSave: 'Gem', goalCancel: 'Annuller', confirmYes: 'Ja', confirmNo: 'Nej', minLabel: 'Minutter',
     },
     detail: {
       back: '← Fag', momentsCount: 'Læringsøjeblikke', minutesSpent: 'Minutter brugt',
@@ -1371,7 +1371,7 @@ const t = {
     guest: { 'save': 'Gem', 'cancel': 'Annuller', 'delete': 'Slet', 'summary': 'Resumé' },
   },
   sv: {
-    nav: { moments: 'Lärstunder', results: 'Resultat', subjects: 'Ämnen', logout: 'Logga ut', more: 'Mer', monthly: 'Månadsöversikt', profile: 'Profil', home: 'Hem', loginBtn: 'Logga in', timer: 'Timer', week: 'Veckosöversikt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begreppskarta', 'feedback': 'Feedback', 'loginLink': 'Logga in', grades: 'Betygsräknare', overview: 'Översikt', learn: 'Lär', members: 'Medlemmar', you: '(dig)', schedule: 'Schema', friends: 'Vänner', notities: 'Anteckningar' },
+    nav: { moments: 'Lärstunder', results: 'Resultat', subjects: 'Ämnen', logout: 'Logga ut', more: 'Mer', monthly: 'Månadsöversikt', profile: 'Profil', home: 'Hem', loginBtn: 'Logga in', timer: 'Timer', week: 'Veckosöversikt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begreppskarta', 'feedback': 'Feedback', 'loginLink': 'Logga in', grades: 'Betygsräknare', overview: 'Översikt', learn: 'Lär', members: 'Medlemmar', you: '(dig)', schedule: 'Schema', friends: 'Vänner', notities: 'Anteckningar', group: 'Gruppstudie' },
     dashboard: {
       momentsCount: 'Lärstunder', minutesLearned: 'Minuter lärt', inHours: 'I timmar',
       newMoment: 'Ny lärstund', newMomentSub: 'Vad lärde du dig idag?',
@@ -1401,7 +1401,7 @@ const t = {
       title: 'Ämnen', subtitle: 'Klicka på ett ämne för att se alla lärstunder',
       addTitle: 'Lägg till nytt ämne', placeholder: 't.ex. Skatterätt',
       addBtn: 'Lägg till', yourSubjects: 'Dina ämnen', subjects: 'ämnen',
-      moment: 'stund', moments: 'stunder', empty: 'Inga ämnen än. Lägg till ett!', delete: 'Radera', setGoal: 'Sätt mål', notes: 'Anteckningar', notesPlaceholder: 'Skriv anteckningar för detta ämne...', notesSaved: 'Anteckningar sparade',
+      moment: 'stund', moments: 'stunder', empty: 'Inga ämnen än. Lägg till ett!', delete: 'Radera', setGoal: 'Sätt mål', notes: 'Anteckningar', notesPlaceholder: 'Skriv anteckningar för detta ämne...', notesSaved: 'Anteckningar sparade', goalOneTime: 'Engångsmål', goalRecurring: 'Återkommande mål', goalMinutes: 'Målminuter', goalPeriod: 'Period', goalDeadline: 'Deadline', goalNone: 'Ingen', goalSave: 'Spara', goalCancel: 'Avbryt', confirmYes: 'Ja', confirmNo: 'Nej', minLabel: 'Minuter',
     },
     detail: {
       back: '← Ämnen', momentsCount: 'Lärstunder', minutesSpent: 'Minuter ägnade',
@@ -1565,7 +1565,7 @@ const t = {
     guest: { 'save': 'Spara', 'cancel': 'Avbryt', 'delete': 'Radera', 'summary': 'Sammanfattning' },
   },
   no: {
-    nav: { moments: 'Læringsøyeblikk', results: 'Resultater', subjects: 'Fag', logout: 'Logg ut', more: 'Mer', monthly: 'Månedsoversikt', profile: 'Profil', home: 'Hjem', loginBtn: 'Logg inn', timer: 'Timer', week: 'Ukeoversikt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begrepskart', 'feedback': 'Tilbakemelding', 'loginLink': 'Logg inn', grades: 'Karakterkalkulator', overview: 'Oversikt', learn: 'Lær', members: 'Medlemmer', you: '(deg)', schedule: 'Timeplan', friends: 'Venner', notities: 'Notater' },
+    nav: { moments: 'Læringsøyeblikk', results: 'Resultater', subjects: 'Fag', logout: 'Logg ut', more: 'Mer', monthly: 'Månedsoversikt', profile: 'Profil', home: 'Hjem', loginBtn: 'Logg inn', timer: 'Timer', week: 'Ukeoversikt', agenda: 'Agenda', 'flashcards': 'Flashcards', 'woordweb': 'Begrepskart', 'feedback': 'Tilbakemelding', 'loginLink': 'Logg inn', grades: 'Karakterkalkulator', overview: 'Oversikt', learn: 'Lær', members: 'Medlemmer', you: '(deg)', schedule: 'Timeplan', friends: 'Venner', notities: 'Notater', group: 'Gruppestudie' },
     dashboard: {
       momentsCount: 'Læringsøyeblikk', minutesLearned: 'Minutter lært', inHours: 'I timer',
       newMoment: 'Nytt læringsøyeblikk', newMomentSub: 'Hva lærte du i dag?',
@@ -1595,7 +1595,7 @@ const t = {
       title: 'Fag', subtitle: 'Klikk på et fag for å se alle læringsøyeblikk',
       addTitle: 'Legg til nytt fag', placeholder: 'f.eks. Skatterett',
       addBtn: 'Legg til', yourSubjects: 'Dine fag', subjects: 'fag',
-      moment: 'øyeblikk', moments: 'øyeblikk', empty: 'Ingen fag ennå. Legg til et!', delete: 'Slett', setGoal: 'Sett mål', notes: 'Notater', notesPlaceholder: 'Skriv notater for dette faget her...', notesSaved: 'Notater lagret',
+      moment: 'øyeblikk', moments: 'øyeblikk', empty: 'Ingen fag ennå. Legg til et!', delete: 'Slett', setGoal: 'Sett mål', notes: 'Notater', notesPlaceholder: 'Skriv notater for dette faget her...', notesSaved: 'Notater lagret', goalOneTime: 'Engangs mål', goalRecurring: 'Gjentakende mål', goalMinutes: 'Målminutter', goalPeriod: 'Periode', goalDeadline: 'Frist', goalNone: 'Ingen', goalSave: 'Lagre', goalCancel: 'Avbryt', confirmYes: 'Ja', confirmNo: 'Nei', minLabel: 'Minutter',
     },
     detail: {
       back: '← Fag', momentsCount: 'Læringsøyeblikk', minutesSpent: 'Minutter brukt',

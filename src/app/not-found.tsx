@@ -18,9 +18,15 @@ export default function NotFound() {
           </p>
           <Link
             href="/home"
-            className="block w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl py-3 text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 transition-all shadow-sm shadow-indigo-200"
+            className="block w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl py-3 text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 transition-all shadow-sm shadow-indigo-200 mb-3"
           >
             Terug naar Home →
+          </Link>
+          <Link
+            href="/"
+            className="block w-full text-center text-sm text-indigo-400 hover:text-indigo-600 transition-colors"
+          >
+            Of ga naar de startpagina
           </Link>
         </div>
       </div>
