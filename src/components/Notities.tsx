@@ -48,6 +48,44 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
   const contentRef = useRef(content)
   contentRef.current = content
 
+  // Session timer
+  const [sessionSeconds, setSessionSeconds] = useState(0)
+  const sessionStart = useRef<number>(Date.now())
+  const tickRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [showAddMoment, setShowAddMoment] = useState(false)
+  const [momentTitle, setMomentTitle] = useState('')
+  const [momentMinutes, setMomentMinutes] = useState('')
+  const [momentAdded, setMomentAdded] = useState(false)
+
+  // Start/stop timer op basis van paginazichtbaarheid
+  useEffect(() => {
+    function tick() { setSessionSeconds(Math.floor((Date.now() - sessionStart.current) / 1000)) }
+    tickRef.current = setInterval(tick, 10000)
+    tick()
+    function onVisibility() {
+      if (document.hidden) {
+        if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null }
+      } else {
+        sessionStart.current = Date.now() - sessionSeconds * 1000
+        if (!tickRef.current) tickRef.current = setInterval(tick, 10000)
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      if (tickRef.current) clearInterval(tickRef.current)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Reset timer bij andere notitie
+  useEffect(() => {
+    sessionStart.current = Date.now()
+    setSessionSeconds(0)
+    setShowAddMoment(false)
+    setMomentAdded(false)
+  }, [selectedId])
+
   // Set editor HTML only when switching notes (not on every keystroke)
   useEffect(() => {
     if (editorRef.current) {
@@ -144,6 +182,31 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
     await supabase.from('notes').update({ is_public: false }).eq('id', selectedId)
     setNotes(prev => prev.map(n => n.id === selectedId ? { ...n, is_public: false } : n))
     setShareUrl(null)
+  }
+
+  function openAddMoment() {
+    setMomentTitle(title || n.untitled)
+    setMomentMinutes(String(Math.max(1, Math.round(sessionSeconds / 60))))
+    setShowAddMoment(true)
+  }
+
+  async function saveAsMoment() {
+    const mins = parseInt(momentMinutes)
+    if (!mins || mins < 1) return
+    await supabase.from('learning_moments').insert({
+      id: crypto.randomUUID(),
+      user_id: userId,
+      title: momentTitle.trim() || `Notities: ${title}`,
+      category: subject || null,
+      duration_minutes: mins,
+      learned_at: new Date().toISOString().split('T')[0],
+      description: null,
+    })
+    setShowAddMoment(false)
+    setMomentAdded(true)
+    sessionStart.current = Date.now()
+    setSessionSeconds(0)
+    setTimeout(() => setMomentAdded(false), 3000)
   }
 
   function fmt(command: string, value?: string) {
@@ -426,10 +489,67 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
                 className="notes-editor flex-1 px-6 py-3 text-sm overflow-y-auto"
               />
 
+              {/* Leermoment toevoegen formulier */}
+              {showAddMoment && (
+                <div className="mx-4 mb-2 bg-indigo-50 border border-indigo-200 rounded-2xl p-4 space-y-3">
+                  <p className="text-xs font-semibold text-indigo-700 uppercase tracking-wide">Toevoegen aan studietijd</p>
+                  <div className="flex gap-2">
+                    <input
+                      value={momentTitle}
+                      onChange={e => setMomentTitle(e.target.value)}
+                      placeholder="Titel"
+                      className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white"
+                    />
+                    <div className="flex items-center gap-1.5 border border-gray-200 rounded-xl px-3 py-2 bg-white shrink-0">
+                      <input
+                        type="number"
+                        min="1"
+                        value={momentMinutes}
+                        onChange={e => setMomentMinutes(e.target.value)}
+                        className="w-12 text-sm text-indigo-700 font-semibold outline-none text-center"
+                      />
+                      <span className="text-xs text-indigo-400">min</span>
+                    </div>
+                  </div>
+                  {subject && (
+                    <p className="text-xs text-indigo-400">Vak: <span className="font-medium text-violet-600">{subject}</span></p>
+                  )}
+                  <div className="flex gap-2">
+                    <button onClick={saveAsMoment}
+                      className="flex-1 bg-indigo-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-indigo-700 transition-colors active:scale-95">
+                      Opslaan in resultaten
+                    </button>
+                    <button onClick={() => setShowAddMoment(false)}
+                      className="text-sm text-indigo-400 hover:text-indigo-600 px-3 py-2 rounded-xl transition-colors">
+                      Annuleer
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Footer */}
-              <div className="px-6 py-2 border-t border-indigo-50 flex justify-between items-center">
-                <span className="text-xs text-indigo-300">{wordCount} {n.wordCount}</span>
-                <span className="text-xs text-indigo-300">{n.lastEdited} {formatDate(selectedNote.updated_at)}</span>
+              <div className="px-4 py-2 border-t border-indigo-50 flex justify-between items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-indigo-300">{wordCount} {n.wordCount}</span>
+                  <span className="text-xs text-indigo-300">{n.lastEdited} {formatDate(selectedNote.updated_at)}</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {momentAdded && (
+                    <span className="text-xs text-emerald-500 font-medium">✓ Toegevoegd aan resultaten!</span>
+                  )}
+                  {!momentAdded && sessionSeconds >= 60 && !showAddMoment && (
+                    <button
+                      onClick={openAddMoment}
+                      className="flex items-center gap-1.5 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-xl font-medium hover:bg-indigo-700 transition-colors active:scale-95"
+                    >
+                      <span>⏱ {Math.round(sessionSeconds / 60)} min</span>
+                      <span>→ Leermoment</span>
+                    </button>
+                  )}
+                  {!momentAdded && sessionSeconds < 60 && (
+                    <span className="text-xs text-indigo-200">⏱ {sessionSeconds}s</span>
+                  )}
+                </div>
               </div>
             </>
           )}
