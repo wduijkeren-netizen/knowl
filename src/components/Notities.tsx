@@ -382,8 +382,7 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
                   {saveStatus === 'saved' && <span className="text-xs text-emerald-500 font-medium">{n.autoSaved} ✓</span>}
 
                   {/* Opmaakknoppen */}
-                  {!preview && (
-                    <div className="flex items-center gap-0.5 bg-indigo-50 rounded-lg p-0.5">
+                  <div className="flex items-center gap-0.5 bg-indigo-50 rounded-lg p-0.5">
                       <button
                         onMouseDown={e => { e.preventDefault(); applyWrap('**', '**') }}
                         className="text-sm font-bold text-indigo-600 w-7 h-7 rounded-md hover:bg-white transition-colors flex items-center justify-center"
@@ -421,13 +420,19 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
                         className="text-sm text-indigo-600 w-7 h-7 rounded-md hover:bg-white transition-colors flex items-center justify-center"
                         title="Opsommingspunt">•</button>
                     </div>
-                  )}
 
-                  <button
-                    onClick={() => setPreview(p => !p)}
-                    className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${preview ? 'bg-indigo-600 text-white' : 'text-indigo-500 hover:bg-indigo-50'}`}>
-                    {preview ? n.edit : n.preview}
-                  </button>
+                  <div className="flex items-center gap-0.5 bg-indigo-50 rounded-lg p-0.5">
+                    <button
+                      onClick={() => setPreview(false)}
+                      className={`text-xs font-medium px-2.5 py-1 rounded-md transition-colors ${!preview ? 'bg-white text-indigo-700 shadow-sm' : 'text-indigo-400'}`}>
+                      {n.edit}
+                    </button>
+                    <button
+                      onClick={() => setPreview(true)}
+                      className={`text-xs font-medium px-2.5 py-1 rounded-md transition-colors ${preview ? 'bg-white text-indigo-700 shadow-sm' : 'text-indigo-400'}`}>
+                      {n.preview}
+                    </button>
+                  </div>
 
                   {/* Deel-knop */}
                   <button
@@ -493,7 +498,7 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
               )}
 
               {/* Titel */}
-              <div className="px-6 pt-5 pb-2">
+              <div className="px-6 pt-5 pb-2 border-b border-indigo-50">
                 <input
                   value={title}
                   onChange={e => setTitle(e.target.value)}
@@ -502,14 +507,13 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
                 />
               </div>
 
-              {/* Editor / preview */}
-              <div className="flex-1 px-6 pb-6 overflow-y-auto">
-                {preview ? (
-                  <div
-                    className="text-sm leading-relaxed space-y-1"
-                    dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
-                  />
-                ) : (
+              {/* Split-view: editor links, live preview rechts */}
+              <div className="flex-1 flex overflow-hidden">
+                {/* Editor — altijd zichtbaar tenzij pure preview-modus op mobiel */}
+                <div className={`${preview ? 'hidden md:flex' : 'flex'} flex-col flex-1 min-w-0 border-r border-indigo-50`}>
+                  <div className="px-3 py-1.5 bg-indigo-50/50 border-b border-indigo-50">
+                    <span className="text-xs font-medium text-indigo-400">Bewerken</span>
+                  </div>
                   <textarea
                     ref={textareaRef}
                     value={content}
@@ -520,10 +524,21 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
                       lastSelection.current = { start: ta.selectionStart, end: ta.selectionEnd }
                     }}
                     placeholder={n.placeholder}
-                    className="w-full h-full min-h-[400px] text-sm text-indigo-800 bg-transparent border-0 outline-none focus:ring-0 resize-none leading-relaxed placeholder:text-indigo-200 font-mono"
+                    className="flex-1 w-full px-6 py-4 text-sm text-indigo-800 bg-transparent border-0 outline-none focus:ring-0 resize-none leading-relaxed placeholder:text-indigo-200 font-mono"
                     spellCheck
                   />
-                )}
+                </div>
+
+                {/* Live preview — altijd zichtbaar naast editor op desktop */}
+                <div className={`${preview ? 'flex' : 'hidden md:flex'} flex-col flex-1 min-w-0`}>
+                  <div className="px-3 py-1.5 bg-indigo-50/50 border-b border-indigo-50">
+                    <span className="text-xs font-medium text-indigo-400">Voorbeeld</span>
+                  </div>
+                  <div
+                    className="flex-1 px-6 py-4 overflow-y-auto text-sm leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
+                  />
+                </div>
               </div>
 
               {/* Footer */}
