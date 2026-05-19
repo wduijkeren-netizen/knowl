@@ -438,11 +438,19 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
               </div>
               <textarea
                 value={description}
-                onChange={e => setDescription(e.target.value)}
+                onChange={e => {
+                  setDescription(e.target.value)
+                  e.target.style.height = 'auto'
+                  e.target.style.height = e.target.scrollHeight + 'px'
+                }}
+                onFocus={e => {
+                  e.target.style.height = 'auto'
+                  e.target.style.height = Math.max(e.target.scrollHeight, 120) + 'px'
+                }}
                 placeholder={d.summaryPlaceholder}
                 rows={3}
                 maxLength={500}
-                className="w-full border-2 border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-300 bg-gray-50 focus:bg-white transition-all resize-none placeholder:text-gray-300"
+                className="w-full border-2 border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-300 bg-gray-50 focus:bg-white transition-all resize-none placeholder:text-gray-300 min-h-[76px] focus:min-h-[120px]"
               />
             </div>
 
