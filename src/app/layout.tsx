@@ -5,6 +5,7 @@ import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 import { GuestProvider } from "@/lib/GuestContext";
 import { ThemeProvider } from "@/lib/ThemeContext";
 import CookieBanner from "@/components/CookieBanner";
+import QuickLog from "@/components/QuickLog";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <LanguageProvider>
             <GuestProvider>
               {children}
+              <QuickLog />
               <CookieBanner />
             </GuestProvider>
           </LanguageProvider>

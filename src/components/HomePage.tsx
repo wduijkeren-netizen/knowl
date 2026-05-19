@@ -161,6 +161,54 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
     return acc
   }, {} as Record<string, number>)
 
+  // Slimme studiesuggestie
+  const studySuggestion = useMemo(() => {
+    // Prio 1: tentamen binnen 7 dagen met onvoldaan doel
+    const urgentExam = examEvents.find(exam => {
+      const daysLeft = Math.ceil((new Date(exam.date + 'T12:00:00').getTime() - Date.now()) / 86400000)
+      if (daysLeft > 7 || daysLeft < 0 || !exam.subject) return false
+      const subj = subjects.find(s => s.name === exam.subject)
+      if (!subj?.goal_minutes) return false
+      return (minutesPerSubject[exam.subject] ?? 0) < subj.goal_minutes
+    })
+    if (urgentExam) {
+      const daysLeft = Math.max(1, Math.ceil((new Date(urgentExam.date + 'T12:00:00').getTime() - Date.now()) / 86400000))
+      const subj = subjects.find(s => s.name === urgentExam.subject)!
+      const remaining = Math.max(0, (subj.goal_minutes ?? 0) - (minutesPerSubject[urgentExam.subject!] ?? 0))
+      return { subject: urgentExam.subject!, minutes: Math.ceil(remaining / daysLeft), reason: `Tentamen "${urgentExam.title}" over ${daysLeft} dag${daysLeft === 1 ? '' : 'en'}`, urgent: true }
+    }
+    // Prio 2: vak meest achter op wekelijks doel
+    const behind = subjects
+      .filter(s => s.recurring_type === 'weekly' && (s.recurring_goal_minutes ?? 0) > (minutesThisWeek[s.name] ?? 0))
+      .sort((a, b) => ((b.recurring_goal_minutes ?? 0) - (minutesThisWeek[b.name] ?? 0)) - ((a.recurring_goal_minutes ?? 0) - (minutesThisWeek[a.name] ?? 0)))[0]
+    if (behind) {
+      const daysLeftWeek = Math.max(1, 7 - ((new Date().getDay() + 6) % 7))
+      const remaining = (behind.recurring_goal_minutes ?? 0) - (minutesThisWeek[behind.name] ?? 0)
+      return { subject: behind.name, minutes: Math.ceil(remaining / daysLeftWeek), reason: `Wekelijks doel: nog ${remaining} min te gaan`, urgent: false }
+    }
+    return null
+  }, [examEvents, subjects, minutesPerSubject, minutesThisWeek])
+
+  // Heatmap data: laatste 365 dagen
+  const heatmapData = useMemo(() => {
+    const perDay: Record<string, number> = {}
+    for (const m of allMoments) perDay[m.learned_at] = (perDay[m.learned_at] ?? 0) + (m.duration_minutes ?? 0)
+    const today = new Date()
+    const days: { date: string; minutes: number; month: number }[] = []
+    for (let i = 364; i >= 0; i--) {
+      const d = new Date(today); d.setDate(d.getDate() - i)
+      const s = d.toISOString().split('T')[0]
+      days.push({ date: s, minutes: perDay[s] ?? 0, month: d.getMonth() })
+    }
+    // Groepeer in weken (kolommen), vul begin op tot maandag
+    const firstDay = new Date(days[0].date + 'T12:00:00')
+    const pad = (firstDay.getDay() + 6) % 7
+    const padded = [...Array(pad).fill(null), ...days]
+    const weeks: (typeof days[0] | null)[][] = []
+    for (let i = 0; i < padded.length; i += 7) weeks.push(padded.slice(i, i + 7))
+    return { weeks, perDay }
+  }, [allMoments])
+
   const chartData = useMemo(() => {
     const cutoff = timeframe
       ? new Date(Date.now() - timeframe * 86400000).toISOString().split('T')[0]
@@ -368,6 +416,25 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
           </div>
         </div>
 
+        {/* Slimme studiesuggestie */}
+        {studySuggestion && (
+          <div className={`rounded-2xl border p-4 flex items-center gap-4 ${studySuggestion.urgent ? 'bg-red-50 border-red-200' : 'bg-indigo-50 border-indigo-200'}`}>
+            <div className={`shrink-0 text-2xl w-10 h-10 rounded-xl flex items-center justify-center ${studySuggestion.urgent ? 'bg-red-100' : 'bg-indigo-100'}`}>
+              {studySuggestion.urgent ? '⚡' : '🎯'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className={`text-xs font-semibold uppercase tracking-wide ${studySuggestion.urgent ? 'text-red-400' : 'text-indigo-400'}`}>Studiesuggestie</p>
+              <p className={`font-bold truncate ${studySuggestion.urgent ? 'text-red-800' : 'text-indigo-900'}`}>
+                Studeer vandaag <span className={studySuggestion.urgent ? 'text-red-600' : 'text-indigo-600'}>{studySuggestion.minutes} min</span> {studySuggestion.subject}
+              </p>
+              <p className={`text-xs mt-0.5 ${studySuggestion.urgent ? 'text-red-400' : 'text-indigo-400'}`}>{studySuggestion.reason}</p>
+            </div>
+            <Link href="/leermomenten" className={`text-sm font-semibold px-3 py-2 rounded-xl shrink-0 transition-all active:scale-95 ${studySuggestion.urgent ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}>
+              Loggen
+            </Link>
+          </div>
+        )}
+
         {/* Vandaag */}
         <div className={`rounded-2xl border p-4 flex items-center justify-between gap-4 ${todayMoments.length > 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-white border-indigo-100 shadow-sm'}`}>
           <div>
@@ -490,6 +557,40 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
             </ResponsiveContainer>
           )}
         </div>
+
+        {/* Studiekalender heatmap */}
+        {allMoments.length > 0 && (
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
+            <h2 className="font-semibold text-indigo-900 border-l-4 border-indigo-300 pl-3 mb-4">Studiekalender</h2>
+            <div className="overflow-x-auto pb-1">
+              <div className="flex gap-1 min-w-max">
+                {heatmapData.weeks.map((week, wi) => (
+                  <div key={wi} className="flex flex-col gap-1">
+                    {week.map((day, di) => (
+                      <div key={di}
+                        title={day ? `${day.date}: ${day.minutes} min` : ''}
+                        className={`w-3 h-3 rounded-sm transition-colors ${
+                          !day ? 'opacity-0' :
+                          day.minutes === 0 ? 'bg-gray-100' :
+                          day.minutes < 30 ? 'bg-emerald-200' :
+                          day.minutes < 90 ? 'bg-emerald-400' :
+                          'bg-emerald-600'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center gap-2 mt-3 justify-end">
+              <span className="text-xs text-indigo-300">Minder</span>
+              {['bg-gray-100','bg-emerald-200','bg-emerald-400','bg-emerald-600'].map(c => (
+                <div key={c} className={`w-3 h-3 rounded-sm ${c}`} />
+              ))}
+              <span className="text-xs text-indigo-300">Meer</span>
+            </div>
+          </div>
+        )}
 
         {/* Snelkoppelingen */}
         <div className="grid grid-cols-2 gap-4">
