@@ -28,7 +28,7 @@ function formatDate(iso: string) {
 export default function Notities({ userId, initialNotes, subjects }: Props) {
   const { tr } = useLanguage()
   const n = tr.notities
-  const supabase = createClient()
+  const supabase = useRef(createClient()).current
 
   const [notes, setNotes] = useState<Note[]>(initialNotes)
   const [selectedId, setSelectedId] = useState<string | null>(initialNotes[0]?.id ?? null)
@@ -145,7 +145,8 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
         ? { ...note, title: t.trim() || n.untitled, content: c, subject: s || null, updated_at: new Date().toISOString() }
         : note
     ).sort((a, b) => b.updated_at.localeCompare(a.updated_at)))
-  }, [supabase, n.untitled])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [n.untitled])
 
   useEffect(() => {
     if (!selectedId) return

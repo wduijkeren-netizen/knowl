@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-export const metadata = { title: 'Privacybeleid — Knowl' }
+export const metadata = { title: 'Privacybeleid — Knowl', description: 'Lees hoe Knowl omgaat met jouw gegevens. Jouw privacy staat bij ons voorop.' }
 
 const UPDATED = '7 mei 2025'
 const EMAIL = 'myknowl@hotmail.com'

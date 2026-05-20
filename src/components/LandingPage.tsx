@@ -4,10 +4,12 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { languages, type LangCode } from '@/lib/i18n/translations'
+import { useGuest } from '@/lib/GuestContext'
 
 export default function LandingPage() {
   const { lang, setLang, tr } = useLanguage()
   const [showLang, setShowLang] = useState(false)
+  const { logGuestEvent } = useGuest()
   const currentLang = languages.find(l => l.code === lang)
   const l = tr.landing
 
@@ -62,7 +64,7 @@ export default function LandingPage() {
                 </>
               )}
             </div>
-            <Link href="/login" className="hidden sm:block text-sm text-indigo-500 hover:text-indigo-700 font-medium transition-colors px-3 py-1.5">
+            <Link href="/login" onClick={() => logGuestEvent('signup_click')} className="hidden sm:block text-sm text-indigo-500 hover:text-indigo-700 font-medium transition-colors px-3 py-1.5">
               {l.login}
             </Link>
             <Link href="/leermomenten" className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-indigo-700 active:scale-95 transition-all shadow-sm">
@@ -105,7 +107,7 @@ export default function LandingPage() {
               className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-8 py-3.5 rounded-2xl font-bold text-base hover:from-indigo-700 hover:to-violet-700 active:scale-95 transition-all shadow-lg shadow-indigo-200/60 text-center">
               {l.cta}
             </Link>
-            <Link href="/login"
+            <Link href="/login" onClick={() => logGuestEvent('signup_click')}
               className="bg-white text-indigo-600 px-8 py-3.5 rounded-2xl font-bold text-base hover:bg-indigo-50 active:scale-95 transition-all border border-indigo-200 shadow-sm text-center">
               {l.login}
             </Link>

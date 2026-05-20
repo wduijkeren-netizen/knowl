@@ -2,6 +2,20 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
+export async function generateMetadata({ params }: { params: { userId: string } }) {
+  const supabase = await createClient()
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('voornaam')
+    .eq('id', params.userId)
+    .maybeSingle()
+  const name = profile?.voornaam ?? 'Een student'
+  return {
+    title: `Studielogboek van ${name} — Knowl`,
+    description: `Bekijk de studievoortgang van ${name}. Gemaakt met Knowl, de gratis leertracker voor studenten.`,
+  }
+}
+
 export default async function StudielogboekPage({ params, searchParams }: {
   params: { userId: string }
   searchParams: { week?: string }

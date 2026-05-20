@@ -279,7 +279,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
             </div>
             {detailMoment.photo_url && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={detailMoment.photo_url} alt="" className="w-full max-h-64 object-cover rounded-2xl" />
+              <img src={detailMoment.photo_url} alt={detailMoment.title} className="w-full max-h-64 object-cover rounded-2xl" />
             )}
             {detailMoment.description ? (
               <div className="bg-indigo-50 rounded-2xl p-4">

@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Rooster from '@/components/Rooster'
 
-export const metadata = { title: 'Rooster — Knowl' }
+export const metadata = { title: 'Rooster — Knowl', description: 'Bekijk en beheer je lesrooster. Plan je studietijd slim met Knowl.' }
 
 export default async function RoosterPage() {
   const supabase = await createClient()

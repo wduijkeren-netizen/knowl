@@ -2,6 +2,22 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
+export async function generateMetadata({ params }: { params: { token: string } }) {
+  const supabase = await createClient()
+  const { data: note } = await supabase
+    .from('notes')
+    .select('title, content, subject')
+    .eq('share_token', params.token)
+    .eq('is_public', true)
+    .maybeSingle()
+  if (!note) return { title: 'Notitie — Knowl' }
+  const plainText = note.content?.replace(/<[^>]*>/g, '').trim().slice(0, 160)
+  return {
+    title: `${note.title || 'Naamloze notitie'} — Knowl`,
+    description: plainText || `Bekijk deze notitie${note.subject ? ` over ${note.subject}` : ''} gedeeld via Knowl.`,
+  }
+}
+
 export default async function GedeeldeNotitie({ params }: { params: { token: string } }) {
   const supabase = await createClient()
 
