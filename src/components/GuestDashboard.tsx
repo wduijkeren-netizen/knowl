@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import { useGuest } from '@/lib/GuestContext'
 
 type Moment = {
   id: string
@@ -20,6 +21,7 @@ export default function GuestDashboard() {
   const { tr } = useLanguage()
   const g = tr.guest
   const d = tr.dashboard
+  const { logGuestEvent } = useGuest()
   const [moments, setMoments] = useState<Moment[]>([])
   const [loaded, setLoaded] = useState(false)
   const [title, setTitle] = useState('')
@@ -61,11 +63,13 @@ export default function GuestDashboard() {
     setLearnedAt(new Date().toISOString().split('T')[0])
     setSuccess(true)
     setTimeout(() => setSuccess(false), 2500)
+    logGuestEvent('add_moment', { category: category || null, duration_minutes: durationMin })
   }
 
   function handleDelete(id: string) {
     setMoments(moments.filter(m => m.id !== id))
     setConfirmDeleteId(null)
+    logGuestEvent('delete_moment')
   }
 
   function startEdit(moment: Moment) {
@@ -96,7 +100,7 @@ export default function GuestDashboard() {
             <span className="bg-white/20 text-white text-xs font-bold px-2.5 py-1 rounded-full shrink-0">VOORBEELD</span>
             <p className="text-sm text-indigo-100">{d.guestBanner}</p>
           </div>
-          <Link href="/login?signup=true"
+          <Link href="/login?signup=true" onClick={() => logGuestEvent('signup_click')}
             className="shrink-0 bg-white text-indigo-700 px-4 py-1.5 rounded-xl text-sm font-bold hover:bg-indigo-50 active:scale-95 transition-all whitespace-nowrap">
             {d.guestBannerBtn}
           </Link>
@@ -277,7 +281,7 @@ export default function GuestDashboard() {
             <div className="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-5 text-white text-center">
               <p className="font-bold text-base">{d.guestBannerBtn} →</p>
               <p className="text-indigo-200 text-xs mt-1 mb-4">{d.guestBannerSub}</p>
-              <Link href="/login?signup=true"
+              <Link href="/login?signup=true" onClick={() => logGuestEvent('signup_click')}
                 className="inline-block bg-white text-indigo-700 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-50 active:scale-95 transition-all">
                 {d.guestBannerBtn}
               </Link>
