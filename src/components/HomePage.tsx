@@ -189,24 +189,33 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
     return null
   }, [examEvents, subjects, minutesPerSubject, minutesThisWeek])
 
-  // Heatmap data: laatste 365 dagen
+  // Heatmap data: laatste 16 weken (past op elk scherm zonder scrollen)
   const heatmapData = useMemo(() => {
     const perDay: Record<string, number> = {}
     for (const m of allMoments) perDay[m.learned_at] = (perDay[m.learned_at] ?? 0) + (m.duration_minutes ?? 0)
     const today = new Date()
-    const days: { date: string; minutes: number; month: number }[] = []
-    for (let i = 364; i >= 0; i--) {
+    const days: { date: string; minutes: number }[] = []
+    for (let i = 111; i >= 0; i--) {
       const d = new Date(today); d.setDate(d.getDate() - i)
-      const s = d.toISOString().split('T')[0]
-      days.push({ date: s, minutes: perDay[s] ?? 0, month: d.getMonth() })
+      days.push({ date: d.toISOString().split('T')[0], minutes: perDay[d.toISOString().split('T')[0]] ?? 0 })
     }
-    // Groepeer in weken (kolommen), vul begin op tot maandag
+    // Groepeer in weken (kolommen van 7), pad begin tot maandag
     const firstDay = new Date(days[0].date + 'T12:00:00')
     const pad = (firstDay.getDay() + 6) % 7
-    const padded = [...Array(pad).fill(null), ...days]
+    const padded: (typeof days[0] | null)[] = [...Array(pad).fill(null), ...days]
     const weeks: (typeof days[0] | null)[][] = []
     for (let i = 0; i < padded.length; i += 7) weeks.push(padded.slice(i, i + 7))
-    return { weeks, perDay }
+    // Maandlabels
+    const monthLabels: { label: string; col: number }[] = []
+    let lastMonth = -1
+    weeks.forEach((week, wi) => {
+      const firstReal = week.find(d => d !== null)
+      if (firstReal) {
+        const m = new Date(firstReal.date + 'T12:00:00').getMonth()
+        if (m !== lastMonth) { monthLabels.push({ label: ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'][m], col: wi }); lastMonth = m }
+      }
+    })
+    return { weeks, monthLabels }
   }, [allMoments])
 
   const chartData = useMemo(() => {
@@ -558,36 +567,55 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
           )}
         </div>
 
-        {/* Studiekalender heatmap */}
+        {/* Studiekalender heatmap — laatste 16 weken */}
         {allMoments.length > 0 && (
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
-            <h2 className="font-semibold text-indigo-900 border-l-4 border-indigo-300 pl-3 mb-4">Studiekalender</h2>
-            <div className="overflow-x-auto pb-1">
-              <div className="flex gap-1 min-w-max">
-                {heatmapData.weeks.map((week, wi) => (
-                  <div key={wi} className="flex flex-col gap-1">
-                    {week.map((day, di) => (
-                      <div key={di}
-                        title={day ? `${day.date}: ${day.minutes} min` : ''}
-                        className={`w-3 h-3 rounded-sm transition-colors ${
-                          !day ? 'opacity-0' :
-                          day.minutes === 0 ? 'bg-gray-100' :
-                          day.minutes < 30 ? 'bg-emerald-200' :
-                          day.minutes < 90 ? 'bg-emerald-400' :
-                          'bg-emerald-600'
-                        }`}
-                      />
-                    ))}
-                  </div>
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="font-semibold text-indigo-900 border-l-4 border-indigo-300 pl-3">Studiekalender</h2>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-indigo-300">Minder</span>
+                {['bg-gray-100','bg-emerald-200','bg-emerald-400','bg-emerald-600'].map(c => (
+                  <div key={c} className={`w-2.5 h-2.5 rounded-sm ${c}`} />
                 ))}
+                <span className="text-xs text-indigo-300">Meer</span>
               </div>
             </div>
-            <div className="flex items-center gap-2 mt-3 justify-end">
-              <span className="text-xs text-indigo-300">Minder</span>
-              {['bg-gray-100','bg-emerald-200','bg-emerald-400','bg-emerald-600'].map(c => (
-                <div key={c} className={`w-3 h-3 rounded-sm ${c}`} />
+            {/* Maandlabels */}
+            <div className="flex mb-1" style={{ gap: '3px' }}>
+              {heatmapData.weeks.map((_, wi) => {
+                const lbl = heatmapData.monthLabels.find(m => m.col === wi)
+                return <div key={wi} className="flex-1 text-center" style={{ minWidth: 0 }}>
+                  <span className="text-[10px] text-indigo-300 leading-none">{lbl?.label ?? ''}</span>
+                </div>
+              })}
+            </div>
+            {/* Grid: 7 rijen (ma–zo), N kolommen (weken) */}
+            <div className="flex flex-col gap-[3px]">
+              {[0,1,2,3,4,5,6].map(di => (
+                <div key={di} className="flex" style={{ gap: '3px' }}>
+                  {heatmapData.weeks.map((week, wi) => {
+                    const day = week[di]
+                    return (
+                      <div key={wi}
+                        title={day ? `${day.date}: ${day.minutes} min` : ''}
+                        style={{
+                          flex: '1 1 0', minWidth: 0, aspectRatio: '1',
+                          borderRadius: '3px',
+                          backgroundColor: !day ? 'transparent' :
+                            day.minutes === 0 ? '#f1f5f9' :
+                            day.minutes < 30 ? '#6ee7b7' :
+                            day.minutes < 90 ? '#34d399' :
+                            '#059669'
+                        }}
+                      />
+                    )
+                  })}
+                </div>
               ))}
-              <span className="text-xs text-indigo-300">Meer</span>
+            </div>
+            <div className="flex justify-between mt-2">
+              <span className="text-[10px] text-indigo-300">Ma</span>
+              <span className="text-[10px] text-indigo-300">Zo</span>
             </div>
           </div>
         )}

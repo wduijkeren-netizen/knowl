@@ -36,7 +36,7 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
   const [content, setContent] = useState(initialNotes[0]?.content ?? '')
   const [subject, setSubject] = useState(initialNotes[0]?.subject ?? '')
   const [search, setSearch] = useState('')
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [mobileView, setMobileView] = useState<'list' | 'editor'>('list')
   const [subjectOpen, setSubjectOpen] = useState(false)
@@ -93,14 +93,29 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
     setMomentAdded(false)
   }, [selectedId])
 
-  // Set editor HTML only when switching notes (not on every keystroke)
+  const draftKey = (id: string) => `knowl_note_draft_${id}`
+
+  // Set editor HTML when switching notes, check localStorage draft first
   useEffect(() => {
-    if (editorRef.current) {
-      document.execCommand('defaultParagraphSeparator', false, 'p')
-      editorRef.current.innerHTML = content || ''
-    }
+    if (!editorRef.current || !selectedId) return
+    document.execCommand('defaultParagraphSeparator', false, 'p')
+    try {
+      const draft = localStorage.getItem(draftKey(selectedId))
+      if (draft) {
+        editorRef.current.innerHTML = draft
+        setContent(draft)
+        return
+      }
+    } catch {}
+    editorRef.current.innerHTML = content || ''
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId])
+
+  // Backup content to localStorage on every change (safety net against save failures)
+  useEffect(() => {
+    if (!selectedId || !content) return
+    try { localStorage.setItem(draftKey(selectedId), content) } catch {}
+  }, [content, selectedId])
 
   const handleInput = useCallback(() => {
     if (editorRef.current) {
@@ -110,12 +125,19 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
 
   const autoSave = useCallback(async (id: string, t: string, c: string, s: string) => {
     setSaveStatus('saving')
-    await supabase.from('notes').update({
+    const { error } = await supabase.from('notes').update({
       title: t.trim() || n.untitled,
       content: c,
       subject: s || null,
       updated_at: new Date().toISOString(),
     }).eq('id', id)
+    if (error) {
+      setSaveStatus('error')
+      setTimeout(() => setSaveStatus('idle'), 4000)
+      return
+    }
+    // Clear localStorage draft after confirmed save
+    try { localStorage.removeItem(draftKey(id)) } catch {}
     setSaveStatus('saved')
     setTimeout(() => setSaveStatus('idle'), 2000)
     setNotes(prev => prev.map(note =>
@@ -484,8 +506,17 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
                 </div>
 
                 <div className="flex items-center gap-1.5">
-                  {saveStatus === 'saving' && <span className="text-xs text-indigo-300">{n.saving}</span>}
-                  {saveStatus === 'saved' && <span className="text-xs text-emerald-500 font-medium">{n.autoSaved} ✓</span>}
+                  {/* Vaste breedte zodat de toolbar niet springt bij status-wijziging */}
+                  <span className={`text-xs font-medium w-28 text-right transition-opacity duration-200 ${
+                    saveStatus === 'idle' ? 'opacity-0' :
+                    saveStatus === 'saving' ? 'opacity-100 text-indigo-300' :
+                    saveStatus === 'saved' ? 'opacity-100 text-emerald-500' :
+                    'opacity-100 text-red-500'
+                  }`}>
+                    {saveStatus === 'saving' ? n.saving :
+                     saveStatus === 'saved' ? `${n.autoSaved} ✓` :
+                     saveStatus === 'error' ? '✗ Niet opgeslagen' : ''}
+                  </span>
 
                   <button
                     onClick={createFlashcardsFromNote}
