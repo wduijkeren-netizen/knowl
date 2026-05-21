@@ -355,11 +355,18 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
     handleInput()
   }
 
+  function manualSave() {
+    if (!selectedId) return
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    autoSave(selectedId, title, content, subject)
+  }
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     if (e.ctrlKey || e.metaKey) {
       if (e.key === 'b') { e.preventDefault(); fmt('bold') }
       if (e.key === 'i') { e.preventDefault(); fmt('italic') }
       if (e.key === 'u') { e.preventDefault(); fmt('underline') }
+      if (e.key === 's') { e.preventDefault(); manualSave() }
     }
     if (e.key === 'Tab') {
       e.preventDefault()
@@ -507,7 +514,13 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
                 </div>
 
                 <div className="flex items-center gap-1.5">
-                  {/* Vaste breedte zodat de toolbar niet springt bij status-wijziging */}
+                  <button
+                    onClick={manualSave}
+                    disabled={saveStatus === 'saving'}
+                    title="Opslaan (Ctrl+S)"
+                    className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors active:scale-95">
+                    {saveStatus === 'saving' ? '...' : 'Opslaan'}
+                  </button>
                   <span className={`text-xs font-medium w-28 text-right transition-opacity duration-200 ${
                     saveStatus === 'idle' ? 'opacity-0' :
                     saveStatus === 'saving' ? 'opacity-100 text-indigo-300' :
