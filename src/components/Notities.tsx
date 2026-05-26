@@ -469,7 +469,7 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
           ) : (
             <>
               {/* Toolbar */}
-              <div className="flex items-center justify-between px-3 py-2 border-b border-indigo-50 gap-2 flex-wrap">
+              <div className="sticky top-0 z-10 bg-white flex items-center justify-between px-3 py-2 border-b border-indigo-50 gap-2 flex-wrap">
                 <div className="flex items-center gap-2">
                   <button onClick={() => setMobileView('list')}
                     className="sm:hidden text-indigo-400 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-indigo-50 transition-colors text-sm">←</button>
