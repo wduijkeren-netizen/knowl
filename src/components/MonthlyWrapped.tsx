@@ -2,6 +2,7 @@
 
 import Nav from '@/components/Nav'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Moment = {
@@ -15,6 +16,7 @@ type Props = {
   thisMonth: Moment[]
   lastMonth: Moment[]
   isGuest?: boolean
+  currentMonth: string
 }
 
 const LOCALE_MAP: Record<string, string> = {
@@ -22,10 +24,28 @@ const LOCALE_MAP: Record<string, string> = {
   fr: 'fr-FR', de: 'de-DE', da: 'da-DK', sv: 'sv-SE', no: 'nb-NO',
 }
 
-export default function MonthlyWrapped({ thisMonth, lastMonth, isGuest }: Props) {
+export default function MonthlyWrapped({ thisMonth, lastMonth, isGuest, currentMonth }: Props) {
   const { lang, tr } = useLanguage()
+  const router = useRouter()
   const w = tr.wrapped
-  const monthName = new Date().toLocaleString(LOCALE_MAP[lang] ?? 'nl-NL', { month: 'long' })
+
+  const [year, month] = currentMonth.split('-').map(Number)
+  const now = new Date()
+  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth() + 1
+
+  const monthName = new Date(year, month - 1, 1).toLocaleString(LOCALE_MAP[lang] ?? 'nl-NL', { month: 'long' })
+
+  function prevMonthStr() {
+    const m = month === 1 ? 12 : month - 1
+    const y = month === 1 ? year - 1 : year
+    return `${y}-${String(m).padStart(2, '0')}`
+  }
+
+  function nextMonthStr() {
+    const m = month === 12 ? 1 : month + 1
+    const y = month === 12 ? year + 1 : year
+    return `${y}-${String(m).padStart(2, '0')}`
+  }
   const totalMinutes = thisMonth.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
   const lastMonthMinutes = lastMonth.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
   const totalHours = Math.floor(totalMinutes / 60)
@@ -74,8 +94,28 @@ export default function MonthlyWrapped({ thisMonth, lastMonth, isGuest }: Props)
         )}
         <div className="bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 rounded-3xl p-8 text-white text-center">
           <p className="text-indigo-200 text-sm uppercase tracking-widest font-medium">{w.title}</p>
-          <h1 className="text-4xl font-bold mt-2 capitalize">{monthName}</h1>
-          <p className="text-indigo-200 mt-2 text-sm">
+          <div className="flex items-center justify-center gap-4 mt-2">
+            <button
+              onClick={() => router.push(`/wrapped?month=${prevMonthStr()}`)}
+              className="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors active:scale-95 print:hidden"
+              aria-label="Vorige maand"
+            >
+              ←
+            </button>
+            <div>
+              <h1 className="text-4xl font-bold capitalize">{monthName}</h1>
+              <p className="text-indigo-300 text-sm mt-0.5">{year}</p>
+            </div>
+            <button
+              onClick={() => router.push(`/wrapped?month=${nextMonthStr()}`)}
+              disabled={isCurrentMonth}
+              className="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed print:hidden"
+              aria-label="Volgende maand"
+            >
+              →
+            </button>
+          </div>
+          <p className="text-indigo-200 mt-3 text-sm">
             {thisMonth.length === 0 ? w.noMoments : `${thisMonth.length} ${w.moments} ${w.logged}`}
           </p>
           {thisMonth.length > 0 && (
