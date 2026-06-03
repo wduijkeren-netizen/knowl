@@ -449,7 +449,7 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
         </aside>
 
         {/* Editor */}
-        <main className={`${mobileView === 'list' ? 'hidden' : 'flex'} sm:flex flex-col flex-1 bg-white sm:rounded-2xl border-0 sm:border border-indigo-100 sm:shadow-sm overflow-hidden min-h-[calc(100vh-80px)] sm:min-h-0`}>
+        <main className={`${mobileView === 'list' ? 'hidden' : 'flex'} sm:flex flex-col flex-1 bg-white sm:rounded-2xl border-0 sm:border border-indigo-100 sm:shadow-sm [overflow:clip] min-h-[calc(100vh-80px)] sm:min-h-0`}>
           {!selectedNote ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
               <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center">
