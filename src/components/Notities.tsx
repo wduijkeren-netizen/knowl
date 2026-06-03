@@ -400,10 +400,10 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
   )
 
   return (
-    <div className="min-h-screen bg-[#f8f7ff] flex flex-col">
+    <div className="h-screen bg-[#f8f7ff] flex flex-col overflow-hidden">
       <Nav />
 
-      <div className="flex-1 flex max-w-6xl mx-auto w-full px-0 sm:px-4 py-0 sm:py-6 gap-0 sm:gap-4">
+      <div className="flex-1 flex max-w-6xl mx-auto w-full px-0 sm:px-4 py-0 sm:py-6 gap-0 sm:gap-4 overflow-hidden">
 
         {/* Notitie-lijst */}
         <aside className={`${mobileView === 'editor' ? 'hidden' : 'flex'} sm:flex flex-col w-full sm:w-72 shrink-0 bg-white sm:rounded-2xl border-0 sm:border border-indigo-100 sm:shadow-sm overflow-hidden`}>
@@ -449,7 +449,7 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
         </aside>
 
         {/* Editor */}
-        <main className={`${mobileView === 'list' ? 'hidden' : 'flex'} sm:flex flex-col flex-1 bg-white sm:rounded-2xl border-0 sm:border border-indigo-100 sm:shadow-sm [overflow:clip] min-h-[calc(100vh-80px)] sm:min-h-0`}>
+        <main className={`${mobileView === 'list' ? 'hidden' : 'flex'} sm:flex flex-col flex-1 bg-white sm:rounded-2xl border-0 sm:border border-indigo-100 sm:shadow-sm overflow-hidden`}>
           {!selectedNote ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
               <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center">
@@ -469,7 +469,7 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
           ) : (
             <>
               {/* Toolbar */}
-              <div className="sticky top-0 z-10 bg-white flex items-center justify-between px-3 py-2 border-b border-indigo-50 gap-2 flex-wrap">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-indigo-50 gap-2 flex-wrap shrink-0">
                 <div className="flex items-center gap-2">
                   <button onClick={() => setMobileView('list')}
                     className="sm:hidden text-indigo-400 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-indigo-50 transition-colors text-sm">←</button>
