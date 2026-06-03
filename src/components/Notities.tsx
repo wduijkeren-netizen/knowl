@@ -42,6 +42,8 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
   const [subjectOpen, setSubjectOpen] = useState(false)
   const [shareUrl, setShareUrl] = useState<string | null>(null)
   const [shareCopied, setShareCopied] = useState(false)
+  const [tablePicker, setTablePicker] = useState(false)
+  const [tableHover, setTableHover] = useState({ rows: 0, cols: 0 })
 
   const editorRef = useRef<HTMLDivElement>(null)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -355,6 +357,28 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
     handleInput()
   }
 
+  function getParentTd(): HTMLTableCellElement | null {
+    const sel = window.getSelection()
+    if (!sel?.rangeCount) return null
+    let node: Node | null = sel.getRangeAt(0).startContainer
+    while (node && node !== editorRef.current) {
+      if (node instanceof HTMLTableCellElement) return node
+      node = node.parentNode
+    }
+    return null
+  }
+
+  function insertTable(rows: number, cols: number) {
+    editorRef.current?.focus()
+    const headerCells = Array.from({ length: cols }, (_, i) => `<th>Kolom ${i + 1}</th>`).join('')
+    const bodyRow = `<tr>${Array.from({ length: cols }, () => '<td></td>').join('')}</tr>`
+    const bodyRows = Array.from({ length: rows - 1 }, () => bodyRow).join('')
+    const html = `<table><thead><tr>${headerCells}</tr></thead><tbody>${bodyRows}</tbody></table><p><br></p>`
+    document.execCommand('insertHTML', false, html)
+    handleInput()
+    setTablePicker(false)
+  }
+
   function manualSave() {
     if (!selectedId) return
     if (saveTimer.current) clearTimeout(saveTimer.current)
@@ -370,11 +394,25 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
     }
     if (e.key === 'Tab') {
       e.preventDefault()
+      const td = getParentTd()
+      if (td) {
+        const allCells = Array.from(editorRef.current?.querySelectorAll('th, td') ?? []) as HTMLElement[]
+        const idx = allCells.indexOf(td)
+        const target = e.shiftKey ? allCells[idx - 1] : allCells[idx + 1]
+        if (target) {
+          const range = document.createRange()
+          range.selectNodeContents(target)
+          range.collapse(false)
+          const sel = window.getSelection()
+          sel?.removeAllRanges()
+          sel?.addRange(range)
+        }
+        return
+      }
       const li = getParentLi()
       if (li) {
         if (e.shiftKey) outdentListItem(li); else indentListItem(li)
       } else {
-        // Buiten lijst: vier spaties invoegen
         document.execCommand('insertHTML', false, '&nbsp;&nbsp;&nbsp;&nbsp;')
         handleInput()
       }
@@ -486,6 +524,30 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
                     <div className="w-px h-4 bg-indigo-200 mx-0.5" />
                     <ToolBtn onClick={() => fmt('insertUnorderedList')} title="Opsommingspunt">•</ToolBtn>
                     <ToolBtn onClick={() => fmt('insertOrderedList')} title="Genummerde lijst">1.</ToolBtn>
+                    <div className="w-px h-4 bg-indigo-200 mx-0.5" />
+                    <div className="relative">
+                      <ToolBtn onClick={() => setTablePicker(o => !o)} title="Tabel invoegen">⊞</ToolBtn>
+                      {tablePicker && (
+                        <div className="absolute left-0 top-full mt-1 z-30 bg-white border border-indigo-100 rounded-xl shadow-xl p-2">
+                          <p className="text-xs text-indigo-400 mb-1.5 text-center">
+                            {tableHover.rows > 0 ? `${tableHover.rows} × ${tableHover.cols}` : 'Kies grootte'}
+                          </p>
+                          <div className="grid gap-0.5" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
+                            {Array.from({ length: 5 }, (_, r) =>
+                              Array.from({ length: 6 }, (_, c) => (
+                                <button
+                                  key={`${r}-${c}`}
+                                  onMouseEnter={() => setTableHover({ rows: r + 1, cols: c + 1 })}
+                                  onMouseLeave={() => setTableHover({ rows: 0, cols: 0 })}
+                                  onClick={() => insertTable(r + 1, c + 1)}
+                                  className={`w-5 h-5 rounded border transition-colors ${r < tableHover.rows && c < tableHover.cols ? 'bg-indigo-500 border-indigo-500' : 'bg-indigo-50 border-indigo-200 hover:bg-indigo-200'}`}
+                                />
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Vak */}

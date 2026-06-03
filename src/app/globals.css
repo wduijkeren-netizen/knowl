@@ -209,6 +209,10 @@ body {
 .notes-editor blockquote { border-left: 3px solid #a5b4fc; padding-left: 1rem; color: #6366f1; font-style: italic; margin: 0.5rem 0; }
 .notes-editor a { color: #6366f1; text-decoration: underline; }
 .notes-editor:empty::before { content: attr(data-placeholder); color: #c7d2fe; pointer-events: none; }
+.notes-editor table { border-collapse: collapse; width: 100%; margin: 0.75rem 0; }
+.notes-editor th { background: #f5f3ff; font-weight: 700; color: #3730a3; border: 1px solid #c7d2fe; padding: 6px 12px; text-align: left; min-width: 80px; }
+.notes-editor td { border: 1px solid #e0e7ff; padding: 6px 12px; color: #3730a3; min-width: 80px; vertical-align: top; }
+.notes-editor td:focus, .notes-editor th:focus { outline: 2px solid #6366f1; outline-offset: -2px; background: #eef2ff; }
 
 /* ── Dark mode comprehensive ── */
 .dark { color-scheme: dark; }
