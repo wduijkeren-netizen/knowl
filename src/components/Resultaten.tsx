@@ -188,18 +188,24 @@ export default function Resultaten({ moments, subjects, isGuest }: Props) {
                 <p className="text-violet-200 text-sm mt-0.5">{r.radarSub}</p>
               </div>
               <div className="p-6">
-                <ResponsiveContainer width="100%" height={320}>
-                  <RadarChart data={radarData}>
-                    <PolarGrid stroke="#e0e7ff" />
-                    <PolarAngleAxis dataKey="vak" tick={{ fontSize: 12, fill: '#818cf8' }} />
-                    <PolarRadiusAxis tick={{ fontSize: 10, fill: '#c7d2fe' }} />
-                    <Radar dataKey="minuten" stroke="#6366f1" fill="#6366f1" fillOpacity={0.15} strokeWidth={2} />
-                    <Tooltip
-                      formatter={(value) => [`${value}${r.minutesSuffix}`, r.time]}
-                      contentStyle={{ borderRadius: '12px', border: '1px solid #e0e7ff', fontSize: '13px' }}
-                    />
-                  </RadarChart>
-                </ResponsiveContainer>
+                {radarData.length >= 3 ? (
+                  <ResponsiveContainer width="100%" height={320}>
+                    <RadarChart data={radarData}>
+                      <PolarGrid stroke="#e0e7ff" />
+                      <PolarAngleAxis dataKey="vak" tick={{ fontSize: 12, fill: '#818cf8' }} />
+                      <PolarRadiusAxis tick={{ fontSize: 10, fill: '#c7d2fe' }} />
+                      <Radar dataKey="minuten" stroke="#6366f1" fill="#6366f1" fillOpacity={0.15} strokeWidth={2} />
+                      <Tooltip
+                        formatter={(value) => [`${value}${r.minutesSuffix}`, r.time]}
+                        contentStyle={{ borderRadius: '12px', border: '1px solid #e0e7ff', fontSize: '13px' }}
+                      />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-sm text-indigo-300 text-center py-16">
+                    Nodig minstens 3 vakken met studietijd om een radardiagram te tekenen.
+                  </p>
+                )}
               </div>
             </div>
             {/* Dag-van-de-week */}
@@ -214,7 +220,7 @@ export default function Resultaten({ moments, subjects, isGuest }: Props) {
                     <BarChart data={weekdayData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
                       <XAxis dataKey="dag" tick={{ fontSize: 12, fill: '#818cf8' }} />
-                      <YAxis tick={{ fontSize: 12, fill: '#818cf8' }} unit=" min" allowDecimals={false} domain={[0, 'auto']} />
+                      <YAxis tick={{ fontSize: 12, fill: '#818cf8' }} unit=" min" allowDecimals={false} />
                       <Tooltip
                         formatter={(v) => [`${v} min`, r.time]}
                         contentStyle={{ borderRadius: '12px', border: '1px solid #e0e7ff', fontSize: '13px' }}
