@@ -16,6 +16,15 @@ const COLORS = [
   '#3b82f6', '#ef4444', '#14b8a6', '#f97316', '#84cc16',
 ]
 
+function niceTicks(max: number) {
+  const safeMax = Math.max(max, 1)
+  const step = safeMax <= 10 ? 5 : safeMax <= 60 ? 10 : safeMax <= 300 ? 30 : Math.ceil(safeMax / 5 / 60) * 60
+  const top = Math.ceil(safeMax / step) * step
+  const ticks: number[] = []
+  for (let v = 0; v <= top; v += step) ticks.push(v)
+  return ticks
+}
+
 const LOCALE_MAP: Record<string, string> = {
   nl: 'nl-NL', en: 'en-GB', es: 'es-ES', pt: 'pt-PT',
   fr: 'fr-FR', de: 'de-DE', da: 'da-DK', sv: 'sv-SE', no: 'nb-NO',
@@ -81,6 +90,7 @@ export default function Resultaten({ moments, subjects, isGuest }: Props) {
     refDate.setDate(refDate.getDate() + i)
     return { dag: refDate.toLocaleString(locale, { weekday: 'short' }), minuten: min }
   })
+  const weekdayTicks = niceTicks(Math.max(...perWeekday))
 
   const sourceMoments = isGuest && moments.length === 0 ? DEMO_MOMENTS : yearFilteredMoments
 
@@ -220,7 +230,13 @@ export default function Resultaten({ moments, subjects, isGuest }: Props) {
                     <BarChart data={weekdayData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
                       <XAxis dataKey="dag" tick={{ fontSize: 12, fill: '#818cf8' }} />
-                      <YAxis tick={{ fontSize: 12, fill: '#818cf8' }} unit=" min" allowDecimals={false} />
+                      <YAxis
+                        tick={{ fontSize: 12, fill: '#818cf8' }}
+                        unit=" min"
+                        allowDecimals={false}
+                        domain={[0, weekdayTicks[weekdayTicks.length - 1]]}
+                        ticks={weekdayTicks}
+                      />
                       <Tooltip
                         formatter={(v) => [`${v} min`, r.time]}
                         contentStyle={{ borderRadius: '12px', border: '1px solid #e0e7ff', fontSize: '13px' }}
