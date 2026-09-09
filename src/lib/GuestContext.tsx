@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useRef, type ReactNode } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { ADMIN_EMAIL } from '@/lib/admin'
 
 type Moment = {
   id: string
@@ -54,11 +55,16 @@ export function GuestProvider({ children }: { children: ReactNode }) {
   const sessionId = useRef<string | null>(null)
 
   useEffect(() => {
-    const { id, isNew } = getOrCreateSessionId()
-    sessionId.current = id
-    if (isNew) {
-      supabase.from('guest_events').insert({ session_id: id, event_type: 'session_start' }).then(() => {})
-    }
+    let cancelled = false
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (cancelled || user?.email === ADMIN_EMAIL) return
+      const { id, isNew } = getOrCreateSessionId()
+      sessionId.current = id
+      if (isNew) {
+        supabase.from('guest_events').insert({ session_id: id, event_type: 'session_start' }).then(() => {})
+      }
+    })
+    return () => { cancelled = true }
   }, [supabase])
 
   function logGuestEvent(event_type: string, metadata?: Record<string, unknown>) {

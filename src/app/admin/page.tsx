@@ -1,8 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import AdminDashboard from './AdminDashboard'
-
-const ADMIN_EMAIL = 'wduijkeren@hotmail.nl'
+import { ADMIN_EMAIL } from '@/lib/admin'
 
 export default async function AdminPage() {
   const supabase = await createClient()
