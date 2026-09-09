@@ -7,7 +7,7 @@ import SchoolYearTabs from '@/components/SchoolYearTabs'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { UNKNOWN_YEAR, buildSubjectYearMap, getYearTabs, momentYear, momentYearOrNull } from '@/lib/schoolYear'
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList,
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
 } from 'recharts'
 
@@ -15,15 +15,6 @@ const COLORS = [
   '#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981',
   '#3b82f6', '#ef4444', '#14b8a6', '#f97316', '#84cc16',
 ]
-
-function niceTicks(max: number) {
-  const safeMax = Math.max(max, 1)
-  const step = safeMax <= 10 ? 5 : safeMax <= 60 ? 10 : safeMax <= 300 ? 30 : Math.ceil(safeMax / 5 / 60) * 60
-  const top = Math.ceil(safeMax / step) * step
-  const ticks: number[] = []
-  for (let v = 0; v <= top; v += step) ticks.push(v)
-  return ticks
-}
 
 const LOCALE_MAP: Record<string, string> = {
   nl: 'nl-NL', en: 'en-GB', es: 'es-ES', pt: 'pt-PT',
@@ -90,8 +81,6 @@ export default function Resultaten({ moments, subjects, isGuest }: Props) {
     refDate.setDate(refDate.getDate() + i)
     return { dag: refDate.toLocaleString(locale, { weekday: 'short' }), minuten: min }
   })
-  const weekdayTicks = niceTicks(Math.max(...perWeekday))
-
   const sourceMoments = isGuest && moments.length === 0 ? DEMO_MOMENTS : yearFilteredMoments
 
   const perCategory = sourceMoments.reduce<Record<string, number>>((acc, m) => {
@@ -227,21 +216,14 @@ export default function Resultaten({ moments, subjects, isGuest }: Props) {
                 </div>
                 <div className="p-6">
                   <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={weekdayData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
-                      <XAxis dataKey="dag" tick={{ fontSize: 12, fill: '#818cf8' }} />
-                      <YAxis
-                        tick={{ fontSize: 12, fill: '#818cf8' }}
-                        unit=" min"
-                        allowDecimals={false}
-                        domain={[0, weekdayTicks[weekdayTicks.length - 1]]}
-                        ticks={weekdayTicks}
-                      />
+                    <BarChart data={weekdayData} margin={{ top: 20, right: 0, left: 0, bottom: 0 }}>
+                      <XAxis dataKey="dag" tick={{ fontSize: 12, fill: '#818cf8' }} axisLine={{ stroke: '#e0e7ff' }} tickLine={false} />
                       <Tooltip
                         formatter={(v) => [`${v} min`, r.time]}
                         contentStyle={{ borderRadius: '12px', border: '1px solid #e0e7ff', fontSize: '13px' }}
                       />
-                      <Bar dataKey="minuten" radius={[6, 6, 0, 0]}>
+                      <Bar dataKey="minuten" radius={[6, 6, 0, 0]} isAnimationActive={false}>
+                        <LabelList dataKey="minuten" position="top" formatter={(v: unknown) => (typeof v === 'number' && v > 0) ? `${v} min` : ''} style={{ fontSize: 12, fill: '#6366f1', fontWeight: 600 }} />
                         {weekdayData.map((_, i) => (
                           <Cell key={i} fill={COLORS[i % COLORS.length]} />
                         ))}
