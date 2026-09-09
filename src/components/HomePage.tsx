@@ -2,10 +2,12 @@
 
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
+import SchoolYearTabs from '@/components/SchoolYearTabs'
 import Link from 'next/link'
 import { useState, useMemo, useEffect } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import { UNKNOWN_YEAR, getYearTabs } from '@/lib/schoolYear'
 import OnboardingWizard from '@/components/OnboardingWizard'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -17,7 +19,7 @@ type Props = {
   user: User
   allMoments: { id?: string; title?: string; duration_minutes: number | null; learned_at: string; category?: string | null }[]
   thisMonth: { category: string | null; duration_minutes: number | null }[]
-  subjects: { name: string; goal_minutes: number | null; goal_date: string | null; recurring_type: string | null; recurring_goal_minutes: number | null }[]
+  subjects: { name: string; goal_minutes: number | null; goal_date: string | null; recurring_type: string | null; recurring_goal_minutes: number | null; school_year: string | null }[]
   displayName: string | null
   studySessions: StudySession[]
   examEvents: { id: string; date: string; title: string; subject: string | null }[]
@@ -46,6 +48,18 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
   const { tr, lang } = useLanguage()
   const h = tr.home
   const r = tr.rooster
+  const sj = tr.subjects
+
+  const goalSubjects = useMemo(() => subjects.filter(s => s.goal_minutes || s.recurring_goal_minutes), [subjects])
+  const goalYearTabs = useMemo(() => getYearTabs(goalSubjects.map(s => s.school_year)), [goalSubjects])
+  const [goalActiveYear, setGoalActiveYear] = useState(() => goalYearTabs[0] ?? UNKNOWN_YEAR)
+  useEffect(() => {
+    if (goalYearTabs.length > 0 && !goalYearTabs.includes(goalActiveYear)) {
+      setGoalActiveYear(goalYearTabs[0])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [goalYearTabs])
+  const goalSubjectsInYear = goalSubjects.filter(s => (s.school_year ?? UNKNOWN_YEAR) === goalActiveYear)
   const [timeframe, setTimeframe] = useState<number | null>(30)
   const [search, setSearch] = useState('')
   const searchResults = search.trim() ? allMoments.filter(m => (m.title ?? '').toLowerCase().includes(search.toLowerCase()) || (m.category ?? '').toLowerCase().includes(search.toLowerCase())).slice(0, 8) : []
@@ -640,14 +654,18 @@ export default function HomePage({ user, allMoments, thisMonth, subjects, displa
         </div>
 
         {/* Vakken doelen */}
-        {(subjects.filter(s => s.goal_minutes || s.recurring_goal_minutes).length > 0) && (
+        {goalSubjects.length > 0 && (
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="font-semibold text-indigo-900 border-l-4 border-indigo-300 pl-3">{h.goalProgress}</h2>
               <Link href="/vakken" className="text-xs text-indigo-400 hover:text-indigo-600">{h.manage}</Link>
             </div>
+            <SchoolYearTabs years={goalYearTabs} active={goalActiveYear} onChange={setGoalActiveYear} unknownLabel={sj.unknownYear} />
+            {goalSubjectsInYear.length === 0 && (
+              <p className="text-sm text-indigo-300 text-center py-4">Geen doelen in dit schooljaar.</p>
+            )}
             <div className="space-y-5">
-              {subjects.filter(s => s.goal_minutes || s.recurring_goal_minutes).map(subject => {
+              {goalSubjectsInYear.map(subject => {
                 const done = allMoments.filter(m => m.category === subject.name).reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
                 const weekDone = minutesThisWeek[subject.name] ?? 0
                 const days = subject.goal_date ? Math.ceil((new Date(subject.goal_date).getTime() - Date.now()) / 86400000) : null

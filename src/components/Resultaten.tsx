@@ -1,8 +1,11 @@
 'use client'
 
+import { useEffect, useMemo, useState } from 'react'
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
+import SchoolYearTabs from '@/components/SchoolYearTabs'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import { UNKNOWN_YEAR, buildSubjectYearMap, getYearTabs, momentYear, momentYearOrNull } from '@/lib/schoolYear'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
@@ -24,8 +27,14 @@ type Moment = {
   learned_at?: string
 }
 
+type Subject = {
+  name: string
+  school_year: string | null
+}
+
 type Props = {
   moments: Moment[]
+  subjects: Subject[]
   isGuest?: boolean
 }
 
@@ -37,14 +46,31 @@ const DEMO_MOMENTS = [
   { category: 'Engels', duration_minutes: 45 },
 ]
 
-export default function Resultaten({ moments, isGuest }: Props) {
+export default function Resultaten({ moments, subjects, isGuest }: Props) {
   const { lang, tr } = useLanguage()
   const r = tr.results
+  const s = tr.subjects
   const locale = LOCALE_MAP[lang] ?? 'nl-NL'
+
+  const subjectYearMap = useMemo(() => buildSubjectYearMap(subjects), [subjects])
+  const yearTabs = useMemo(
+    () => getYearTabs(moments.map(m => momentYearOrNull(m.category, subjectYearMap))),
+    [moments, subjectYearMap]
+  )
+  const [activeYear, setActiveYear] = useState(() => yearTabs[0] ?? UNKNOWN_YEAR)
+
+  useEffect(() => {
+    if (yearTabs.length > 0 && !yearTabs.includes(activeYear)) {
+      setActiveYear(yearTabs[0])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [yearTabs])
+
+  const yearFilteredMoments = isGuest ? moments : moments.filter(m => momentYear(m.category, subjectYearMap) === activeYear)
 
   // Dag-van-de-week data (Ma=0 … Zo=6)
   const perWeekday: number[] = Array(7).fill(0)
-  for (const m of moments) {
+  for (const m of yearFilteredMoments) {
     if (!m.learned_at) continue
     const d = new Date(m.learned_at + 'T12:00:00').getDay()
     const idx = d === 0 ? 6 : d - 1
@@ -56,7 +82,7 @@ export default function Resultaten({ moments, isGuest }: Props) {
     return { dag: refDate.toLocaleString(locale, { weekday: 'short' }), minuten: min }
   })
 
-  const sourceMoments = isGuest && moments.length === 0 ? DEMO_MOMENTS : moments
+  const sourceMoments = isGuest && moments.length === 0 ? DEMO_MOMENTS : yearFilteredMoments
 
   const perCategory = sourceMoments.reduce<Record<string, number>>((acc, m) => {
     const key = m.category || 'Overig'
@@ -85,6 +111,8 @@ export default function Resultaten({ moments, isGuest }: Props) {
           </div>
           <p className="text-sm text-indigo-400 mt-1">{r.subtitle}</p>
         </div>
+
+        {!isGuest && <SchoolYearTabs years={yearTabs} active={activeYear} onChange={setActiveYear} unknownLabel={s.unknownYear} />}
 
         {isDemo && (
           <div className="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl px-5 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">

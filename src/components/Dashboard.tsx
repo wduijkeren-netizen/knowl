@@ -1,12 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
+import SchoolYearTabs from '@/components/SchoolYearTabs'
 import type { User } from '@supabase/supabase-js'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import { UNKNOWN_YEAR, buildSubjectYearMap, getYearTabs, momentYear, momentYearOrNull } from '@/lib/schoolYear'
 
 type Moment = {
   id: string
@@ -21,7 +23,7 @@ type Moment = {
   notes?: string | null
 }
 
-type Subject = { id: string; name: string }
+type Subject = { id: string; name: string; school_year: string | null }
 
 type Props = {
   user: User
@@ -67,6 +69,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
   const d = tr.dashboard
   const r = tr.rating
   const h = tr.home
+  const s = tr.subjects
   const [moments, setMoments] = useState(initialMoments)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -109,6 +112,23 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
   }, [title, description, category, duration])
 
   const [search, setSearch] = useState('')
+
+  const subjectYearMap = useMemo(() => buildSubjectYearMap(subjects), [subjects])
+  const yearTabs = useMemo(
+    () => getYearTabs(moments.map(m => momentYearOrNull(m.category, subjectYearMap))),
+    [moments, subjectYearMap]
+  )
+  const [activeYear, setActiveYear] = useState(() => yearTabs[0] ?? UNKNOWN_YEAR)
+
+  useEffect(() => {
+    if (yearTabs.length > 0 && !yearTabs.includes(activeYear)) {
+      setActiveYear(yearTabs[0])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [yearTabs])
+
+  const yearFilteredMoments = moments.filter(m => momentYear(m.category, subjectYearMap) === activeYear)
+
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [detailMoment, setDetailMoment] = useState<Moment | null>(null)
   const [duplicateSuccess, setDuplicateSuccess] = useState(false)
@@ -557,12 +577,16 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
                   {r.exportCsv} ↓
                 </button>
               )}
-              <span className="text-xs text-indigo-400 bg-indigo-50 px-2.5 py-1 rounded-full">{moments.length} {d.total}</span>
+              <span className="text-xs text-indigo-400 bg-indigo-50 px-2.5 py-1 rounded-full">{yearFilteredMoments.length} {d.total}</span>
             </div>
           </div>
 
-          {/* Zoekbalk */}
           {moments.length > 0 && (
+            <SchoolYearTabs years={yearTabs} active={activeYear} onChange={setActiveYear} unknownLabel={s.unknownYear} />
+          )}
+
+          {/* Zoekbalk */}
+          {yearFilteredMoments.length > 0 && (
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -571,7 +595,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
             />
           )}
 
-          {!search && moments.length > 0 && (
+          {!search && yearFilteredMoments.length > 0 && (
             <p className="text-xs text-indigo-300">{d.lastFive}</p>
           )}
 
@@ -587,15 +611,21 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
             </div>
           )}
 
-          {search && moments.filter(m => m.title.toLowerCase().includes(search.toLowerCase()) || m.description?.toLowerCase().includes(search.toLowerCase())).length === 0 && (
+          {moments.length > 0 && yearFilteredMoments.length === 0 && (
+            <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-8 text-center">
+              <p className="text-indigo-300 text-sm">Geen leermomenten in dit schooljaar.</p>
+            </div>
+          )}
+
+          {search && yearFilteredMoments.filter(m => m.title.toLowerCase().includes(search.toLowerCase()) || m.description?.toLowerCase().includes(search.toLowerCase())).length === 0 && (
             <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-8 text-center">
               <p className="text-indigo-300 text-sm">{tr.flashcards.searchNoResultsMoments} &ldquo;{search}&rdquo;</p>
             </div>
           )}
 
           {(search
-            ? moments.filter(m => m.title.toLowerCase().includes(search.toLowerCase()) || m.description?.toLowerCase().includes(search.toLowerCase()))
-            : moments.slice(0, 5)
+            ? yearFilteredMoments.filter(m => m.title.toLowerCase().includes(search.toLowerCase()) || m.description?.toLowerCase().includes(search.toLowerCase()))
+            : yearFilteredMoments.slice(0, 5)
           ).map((moment) => (
             <div key={moment.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all border-l-4 border-l-indigo-200 hover:border-l-indigo-400">
               {moment.photo_url && (

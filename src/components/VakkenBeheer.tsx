@@ -4,9 +4,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
+import SchoolYearTabs from '@/components/SchoolYearTabs'
 import Link from 'next/link'
 import type { User } from '@supabase/supabase-js'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import { UNKNOWN_YEAR, getCurrentSchoolYear, getSchoolYearOptions, getYearTabs } from '@/lib/schoolYear'
 
 type Subject = {
   id: string
@@ -32,32 +34,6 @@ const recurringLabels: Record<string, string> = {
   monthly: 'Per maand',
 }
 
-const UNKNOWN_YEAR = 'onbekend'
-
-function getCurrentSchoolYear() {
-  const now = new Date()
-  const y = now.getFullYear()
-  return now.getMonth() >= 7 ? `${y}-${y + 1}` : `${y - 1}-${y}`
-}
-
-function getSchoolYearOptions() {
-  const startYear = parseInt(getCurrentSchoolYear().split('-')[0], 10)
-  const options: string[] = []
-  for (let i = 1; i >= -5; i--) options.push(`${startYear + i}-${startYear + i + 1}`)
-  return options
-}
-
-function getYearTabs(subjects: Subject[]) {
-  const years = new Set<string>()
-  let hasUnknown = false
-  for (const sub of subjects) {
-    if (sub.school_year) years.add(sub.school_year)
-    else hasUnknown = true
-  }
-  const tabs = Array.from(years).sort((a, b) => b.localeCompare(a))
-  if (hasUnknown) tabs.push(UNKNOWN_YEAR)
-  return tabs
-}
 
 export default function VakkenBeheer({ user, subjects: initialSubjects, momentCounts = {}, minutesPerSubject = {}, minutesThisPeriod = {} }: Props) {
   const { tr } = useLanguage()
@@ -67,7 +43,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
   const [schoolYear, setSchoolYear] = useState(getCurrentSchoolYear())
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
-  const [activeYear, setActiveYear] = useState(() => getYearTabs(initialSubjects)[0] ?? UNKNOWN_YEAR)
+  const [activeYear, setActiveYear] = useState(() => getYearTabs(initialSubjects.map(s => s.school_year))[0] ?? UNKNOWN_YEAR)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [editingGoal, setEditingGoal] = useState<string | null>(null)
   const [goalMinutes, setGoalMinutes] = useState('')
@@ -148,7 +124,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
     return Math.ceil((new Date(dateStr).getTime() - Date.now()) / 86400000)
   }
 
-  const yearTabs = useMemo(() => getYearTabs(subjects), [subjects])
+  const yearTabs = useMemo(() => getYearTabs(subjects.map(s => s.school_year)), [subjects])
 
   useEffect(() => {
     if (yearTabs.length > 0 && !yearTabs.includes(activeYear)) {
@@ -183,29 +159,31 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
             <h2 className="font-semibold text-white">📚 {s.addTitle}</h2>
           </div>
           <form onSubmit={handleAdd} className="p-6">
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <input
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder={s.placeholder}
-                className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all"
+                className="sm:flex-1 min-w-0 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all"
               />
-              <select
-                value={schoolYear}
-                onChange={e => setSchoolYear(e.target.value)}
-                className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
-              >
-                {getSchoolYearOptions().map(year => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
-              <button
-                type="submit"
-                disabled={loading || !name.trim()}
-                className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl px-5 py-2.5 text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 disabled:opacity-50 transition-all shadow-sm shadow-indigo-200"
-              >
-                {s.addBtn}
-              </button>
+              <div className="flex gap-3">
+                <select
+                  value={schoolYear}
+                  onChange={e => setSchoolYear(e.target.value)}
+                  className="flex-1 sm:flex-initial min-w-0 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
+                >
+                  {getSchoolYearOptions().map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+                <button
+                  type="submit"
+                  disabled={loading || !name.trim()}
+                  className="shrink-0 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl px-5 py-2.5 text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 disabled:opacity-50 transition-all shadow-sm shadow-indigo-200"
+                >
+                  {s.addBtn}
+                </button>
+              </div>
             </div>
           </form>
         </div>
@@ -216,23 +194,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
             <span className="text-xs text-indigo-400 bg-indigo-50 px-2.5 py-1 rounded-full">{subjectsInYear.length} {s.subjects}</span>
           </div>
 
-          {yearTabs.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto pb-1 mb-4 -mx-1 px-1">
-              {yearTabs.map(year => (
-                <button
-                  key={year}
-                  onClick={() => setActiveYear(year)}
-                  className={`shrink-0 text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
-                    activeYear === year
-                      ? 'bg-indigo-600 border-indigo-600 text-white'
-                      : 'bg-white border-indigo-200 text-indigo-500 hover:bg-indigo-50'
-                  }`}
-                >
-                  {year === UNKNOWN_YEAR ? s.unknownYear : year}
-                </button>
-              ))}
-            </div>
-          )}
+          <SchoolYearTabs years={yearTabs} active={activeYear} onChange={setActiveYear} unknownLabel={s.unknownYear} />
 
           {subjectsInYear.length > 4 && (
             <input

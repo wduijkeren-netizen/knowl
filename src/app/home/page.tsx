@@ -15,7 +15,7 @@ export default async function Home() {
 
   const [{ data: allMoments }, { data: subjects }, { data: profile }, { data: studySessions }, examRes, slotsRes] = await Promise.all([
     supabase.from('learning_moments').select('id, title, duration_minutes, learned_at, category').order('learned_at', { ascending: false }),
-    supabase.from('subjects').select('name, goal_minutes, goal_date, recurring_type, recurring_goal_minutes'),
+    supabase.from('subjects').select('name, goal_minutes, goal_date, recurring_type, recurring_goal_minutes, school_year'),
     supabase.from('profiles').select('voornaam').eq('id', user.id).maybeSingle(),
     supabase.from('study_sessions').select('activity, duration_seconds, created_at').gte('created_at', weekAgo),
     supabase.from('agenda_events').select('id, date, title, subject').eq('type', 'exam').gte('date', today).order('date', { ascending: true }).limit(5),

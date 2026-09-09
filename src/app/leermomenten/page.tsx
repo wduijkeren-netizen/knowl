@@ -10,7 +10,7 @@ export default async function LeerMomentenPage() {
 
   const [{ data: moments }, { data: subjects }] = await Promise.all([
     supabase.from('learning_moments').select('*').order('learned_at', { ascending: false }),
-    supabase.from('subjects').select('id, name').order('name'),
+    supabase.from('subjects').select('id, name, school_year').order('name'),
   ])
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0]
