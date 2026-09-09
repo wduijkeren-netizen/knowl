@@ -15,7 +15,7 @@ export default async function WoordwebDetailPage({ params }: { params: { id: str
 
   if (!web) notFound()
 
-  const { data: subjects } = await supabase.from('subjects').select('id, name').order('name')
+  const { data: subjects } = await supabase.from('subjects').select('id, name').eq('is_active', true).order('name')
 
   return <WoordwebEditor web={web} subjects={subjects ?? []} userId={user.id} />
 }

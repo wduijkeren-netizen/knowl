@@ -9,7 +9,7 @@ export default async function NotitiesPage() {
 
   const [{ data: notes }, { data: subjects }] = await Promise.all([
     supabase.from('notes').select('id, title, content, subject, updated_at, share_token, is_public').eq('user_id', user.id).order('updated_at', { ascending: false }),
-    supabase.from('subjects').select('name').order('name'),
+    supabase.from('subjects').select('name').eq('is_active', true).order('name'),
   ])
 
   return (

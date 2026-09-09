@@ -10,6 +10,7 @@ export default async function NieuwePage() {
   const { data: subjects } = await supabase
     .from('subjects')
     .select('id, name')
+    .eq('is_active', true)
     .order('name')
 
   return <FlashcardNieuw subjects={subjects ?? []} userId={user.id} />

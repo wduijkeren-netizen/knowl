@@ -22,7 +22,7 @@ export default async function BewerkenPage({ params }: { params: { id: string } 
     .eq('set_id', params.id)
     .order('created_at')
 
-  const { data: subjects } = await supabase.from('subjects').select('id, name').order('name')
+  const { data: subjects } = await supabase.from('subjects').select('id, name').eq('is_active', true).order('name')
 
   return <FlashcardBewerken set={set} cards={cards ?? []} subjects={subjects ?? []} userId={user.id} />
 }

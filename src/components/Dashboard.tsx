@@ -644,7 +644,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
                       <select value={editData.category ?? ''} onChange={e => setEditData({ ...editData, category: e.target.value })}
                         className="border border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
                         <option value="">{d.noSubject}</option>
-                        {subjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+                        {activeSubjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
                       </select>
                       <input type="number" min="1" value={editData.duration_minutes ?? ''} placeholder={d.minutes}
                         onChange={e => { const v = parseInt(e.target.value); setEditData({ ...editData, duration_minutes: v > 0 ? v : null }) }}

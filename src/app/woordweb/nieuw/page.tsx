@@ -7,7 +7,7 @@ export default async function NieuwWoordwebPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: subjects } = await supabase.from('subjects').select('id, name').order('name')
+  const { data: subjects } = await supabase.from('subjects').select('id, name').eq('is_active', true).order('name')
 
   return <WoordwebEditor web={null} subjects={subjects ?? []} userId={user.id} />
 }

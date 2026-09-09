@@ -9,7 +9,7 @@ export default async function AgendaPage() {
 
   const [{ data: sessions }, { data: subjects }, { data: events }] = await Promise.all([
     supabase.from('learning_moments').select('title, category, duration_minutes, learned_at').order('learned_at', { ascending: true }),
-    supabase.from('subjects').select('name').order('name'),
+    supabase.from('subjects').select('name').eq('is_active', true).order('name'),
     supabase.from('agenda_events').select('id, date, type, title, subject, time').eq('user_id', user.id),
   ])
 
