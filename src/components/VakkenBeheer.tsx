@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
@@ -15,6 +15,7 @@ type Subject = {
   goal_date: string | null
   recurring_type: string | null
   recurring_goal_minutes: number | null
+  school_year: string | null
 }
 
 type Props = {
@@ -31,13 +32,42 @@ const recurringLabels: Record<string, string> = {
   monthly: 'Per maand',
 }
 
+const UNKNOWN_YEAR = 'onbekend'
+
+function getCurrentSchoolYear() {
+  const now = new Date()
+  const y = now.getFullYear()
+  return now.getMonth() >= 7 ? `${y}-${y + 1}` : `${y - 1}-${y}`
+}
+
+function getSchoolYearOptions() {
+  const startYear = parseInt(getCurrentSchoolYear().split('-')[0], 10)
+  const options: string[] = []
+  for (let i = 1; i >= -5; i--) options.push(`${startYear + i}-${startYear + i + 1}`)
+  return options
+}
+
+function getYearTabs(subjects: Subject[]) {
+  const years = new Set<string>()
+  let hasUnknown = false
+  for (const sub of subjects) {
+    if (sub.school_year) years.add(sub.school_year)
+    else hasUnknown = true
+  }
+  const tabs = Array.from(years).sort((a, b) => b.localeCompare(a))
+  if (hasUnknown) tabs.push(UNKNOWN_YEAR)
+  return tabs
+}
+
 export default function VakkenBeheer({ user, subjects: initialSubjects, momentCounts = {}, minutesPerSubject = {}, minutesThisPeriod = {} }: Props) {
   const { tr } = useLanguage()
   const s = tr.subjects
   const [subjects, setSubjects] = useState(initialSubjects)
   const [name, setName] = useState('')
+  const [schoolYear, setSchoolYear] = useState(getCurrentSchoolYear())
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
+  const [activeYear, setActiveYear] = useState(() => getYearTabs(initialSubjects)[0] ?? UNKNOWN_YEAR)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [editingGoal, setEditingGoal] = useState<string | null>(null)
   const [goalMinutes, setGoalMinutes] = useState('')
@@ -52,14 +82,28 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
     setLoading(true)
     const { data, error } = await supabase
       .from('subjects')
-      .insert({ id: crypto.randomUUID(), name: name.trim(), user_id: user.id })
+      .insert({ id: crypto.randomUUID(), name: name.trim(), user_id: user.id, school_year: schoolYear })
       .select()
       .single()
     if (!error && data) {
       setSubjects([...subjects, data].sort((a, b) => a.name.localeCompare(b.name)))
       setName('')
+      setActiveYear(schoolYear)
     }
     setLoading(false)
+  }
+
+  async function changeSchoolYear(id: string, year: string) {
+    const value = year === UNKNOWN_YEAR ? null : year
+    const { data, error } = await supabase
+      .from('subjects')
+      .update({ school_year: value })
+      .eq('id', id)
+      .select()
+      .single()
+    if (!error && data) {
+      setSubjects(subjects.map(s => s.id === id ? data : s))
+    }
   }
 
   async function handleDelete(id: string, e: React.MouseEvent) {
@@ -104,6 +148,16 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
     return Math.ceil((new Date(dateStr).getTime() - Date.now()) / 86400000)
   }
 
+  const yearTabs = useMemo(() => getYearTabs(subjects), [subjects])
+
+  useEffect(() => {
+    if (yearTabs.length > 0 && !yearTabs.includes(activeYear)) {
+      setActiveYear(yearTabs[0])
+    }
+  }, [yearTabs, activeYear])
+
+  const subjectsInYear = subjects.filter(sub => (sub.school_year ?? UNKNOWN_YEAR) === activeYear)
+
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
       <Nav />
@@ -136,6 +190,15 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
                 placeholder={s.placeholder}
                 className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all"
               />
+              <select
+                value={schoolYear}
+                onChange={e => setSchoolYear(e.target.value)}
+                className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
+              >
+                {getSchoolYearOptions().map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
               <button
                 type="submit"
                 disabled={loading || !name.trim()}
@@ -150,9 +213,28 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-semibold text-indigo-900">{s.yourSubjects}</h2>
-            <span className="text-xs text-indigo-400 bg-indigo-50 px-2.5 py-1 rounded-full">{subjects.length} {s.subjects}</span>
+            <span className="text-xs text-indigo-400 bg-indigo-50 px-2.5 py-1 rounded-full">{subjectsInYear.length} {s.subjects}</span>
           </div>
-          {subjects.length > 4 && (
+
+          {yearTabs.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto pb-1 mb-4 -mx-1 px-1">
+              {yearTabs.map(year => (
+                <button
+                  key={year}
+                  onClick={() => setActiveYear(year)}
+                  className={`shrink-0 text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
+                    activeYear === year
+                      ? 'bg-indigo-600 border-indigo-600 text-white'
+                      : 'bg-white border-indigo-200 text-indigo-500 hover:bg-indigo-50'
+                  }`}
+                >
+                  {year === UNKNOWN_YEAR ? s.unknownYear : year}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {subjectsInYear.length > 4 && (
             <input
               value={search} onChange={e => setSearch(e.target.value)}
               placeholder={tr.flashcards.searchPlaceholder}
@@ -160,14 +242,14 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
             />
           )}
 
-          {subjects.length === 0 && (
+          {subjectsInYear.length === 0 && (
             <div className="text-center py-8">
               <p className="text-indigo-300 text-sm">{s.empty}</p>
             </div>
           )}
 
           <ul className="space-y-3">
-            {subjects.filter(sub => !search.trim() || sub.name.toLowerCase().includes(search.toLowerCase())).map(subject => {
+            {subjectsInYear.filter(sub => !search.trim() || sub.name.toLowerCase().includes(search.toLowerCase())).map(subject => {
               const done = minutesPerSubject[subject.name] ?? 0
               const goal = subject.goal_minutes
               const progress = goal ? Math.min(100, Math.round((done / goal) * 100)) : null
@@ -197,7 +279,19 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
                     </Link>
 
                     {/* Acties — altijd zichtbaar onder de rij */}
-                    <div className="flex gap-3 px-4 pb-3">
+                    <div className="flex items-center gap-3 px-4 pb-3">
+                      <select
+                        value={subject.school_year ?? UNKNOWN_YEAR}
+                        onClick={e => e.stopPropagation()}
+                        onChange={e => { e.stopPropagation(); changeSchoolYear(subject.id, e.target.value) }}
+                        className="text-xs text-indigo-500 border border-indigo-100 rounded-lg px-1.5 py-0.5 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                        title={s.schoolYear}
+                      >
+                        <option value={UNKNOWN_YEAR}>{s.unknownYear}</option>
+                        {getSchoolYearOptions().map(year => (
+                          <option key={year} value={year}>{year}</option>
+                        ))}
+                      </select>
                       <button
                         onClick={(e) => startGoalEdit(subject, e)}
                         className="text-xs text-indigo-400 hover:text-indigo-600 transition-colors underline underline-offset-2"

@@ -35,7 +35,7 @@ export default async function VakkenPage() {
   }
 
   const [{ data: subjects }, { data: moments }] = await Promise.all([
-    supabase.from('subjects').select('id, name, goal_minutes, goal_date, recurring_type, recurring_goal_minutes').order('name'),
+    supabase.from('subjects').select('id, name, goal_minutes, goal_date, recurring_type, recurring_goal_minutes, school_year').order('name'),
     supabase.from('learning_moments').select('category, duration_minutes, learned_at'),
   ])
 
