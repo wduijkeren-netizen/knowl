@@ -44,7 +44,7 @@ const t = {
       title: 'Vakken', subtitle: 'Klik op een vak om alle leermomenten te zien',
       addTitle: 'Nieuw vak toevoegen', placeholder: 'bijv. Vennootschapsbelasting',
       addBtn: 'Toevoegen', yourSubjects: 'Jouw vakken', subjects: 'vakken',
-      moment: 'moment', moments: 'momenten', empty: 'Nog geen vakken. Voeg er een toe!', delete: 'Verwijderen', setGoal: 'Doel instellen', notes: 'Notities', notesPlaceholder: 'Schrijf hier notities voor dit vak...', notesSaved: 'Notities opgeslagen', goalOneTime: 'Eenmalig doel', goalRecurring: 'Terugkerend doel', goalMinutes: 'Doelminuten', goalPeriod: 'Periode', goalDeadline: 'Deadline', goalNone: 'Geen', goalSave: 'Opslaan', goalCancel: 'Annuleren', confirmYes: 'Ja', confirmNo: 'Nee', minLabel: 'Minuten', schoolYear: 'Schooljaar', unknownYear: 'Onbekend jaar',
+      moment: 'moment', moments: 'momenten', empty: 'Nog geen vakken. Voeg er een toe!', delete: 'Verwijderen', setGoal: 'Doel instellen', notes: 'Notities', notesPlaceholder: 'Schrijf hier notities voor dit vak...', notesSaved: 'Notities opgeslagen', goalOneTime: 'Eenmalig doel', goalRecurring: 'Terugkerend doel', goalMinutes: 'Doelminuten', goalPeriod: 'Periode', goalDeadline: 'Deadline', goalNone: 'Geen', goalSave: 'Opslaan', goalCancel: 'Annuleren', confirmYes: 'Ja', confirmNo: 'Nee', minLabel: 'Minuten', schoolYear: 'Schooljaar', unknownYear: 'Onbekend jaar', active: 'Actief', inactive: 'Niet actief',
     },
     detail: {
       back: '← Vakken', momentsCount: 'Leermomenten', minutesSpent: 'Minuten besteed',
@@ -238,7 +238,7 @@ const t = {
       title: 'Subjects', subtitle: 'Click a subject to see all learning moments',
       addTitle: 'Add new subject', placeholder: 'e.g. Corporate tax',
       addBtn: 'Add', yourSubjects: 'Your subjects', subjects: 'subjects',
-      moment: 'moment', moments: 'moments', empty: 'No subjects yet. Add one!', delete: 'Delete', setGoal: 'Set goal', notes: 'Notes', notesPlaceholder: 'Write notes for this subject here...', notesSaved: 'Notes saved', goalOneTime: 'One-time goal', goalRecurring: 'Recurring goal', goalMinutes: 'Target minutes', goalPeriod: 'Period', goalDeadline: 'Deadline', goalNone: 'None', goalSave: 'Save', goalCancel: 'Cancel', confirmYes: 'Yes', confirmNo: 'No', minLabel: 'Minutes', schoolYear: 'School year', unknownYear: 'Unknown year',
+      moment: 'moment', moments: 'moments', empty: 'No subjects yet. Add one!', delete: 'Delete', setGoal: 'Set goal', notes: 'Notes', notesPlaceholder: 'Write notes for this subject here...', notesSaved: 'Notes saved', goalOneTime: 'One-time goal', goalRecurring: 'Recurring goal', goalMinutes: 'Target minutes', goalPeriod: 'Period', goalDeadline: 'Deadline', goalNone: 'None', goalSave: 'Save', goalCancel: 'Cancel', confirmYes: 'Yes', confirmNo: 'No', minLabel: 'Minutes', schoolYear: 'School year', unknownYear: 'Unknown year', active: 'Active', inactive: 'Inactive',
     },
     detail: {
       back: '← Subjects', momentsCount: 'Learning moments', minutesSpent: 'Minutes spent',
@@ -432,7 +432,7 @@ const t = {
       title: 'Asignaturas', subtitle: 'Haz clic en una asignatura para ver todos los momentos',
       addTitle: 'Añadir asignatura', placeholder: 'ej. Derecho fiscal',
       addBtn: 'Añadir', yourSubjects: 'Tus asignaturas', subjects: 'asignaturas',
-      moment: 'momento', moments: 'momentos', empty: 'Sin asignaturas aún. ¡Añade una!', delete: 'Eliminar', setGoal: 'Establecer meta', notes: 'Notas', notesPlaceholder: 'Escribe notas para esta asignatura...', notesSaved: 'Notas guardadas', goalOneTime: 'Meta única', goalRecurring: 'Meta recurrente', goalMinutes: 'Minutos objetivo', goalPeriod: 'Período', goalDeadline: 'Fecha límite', goalNone: 'Ninguno', goalSave: 'Guardar', goalCancel: 'Cancelar', confirmYes: 'Sí', confirmNo: 'No', minLabel: 'Minutos', schoolYear: 'Curso escolar', unknownYear: 'Año desconocido',
+      moment: 'momento', moments: 'momentos', empty: 'Sin asignaturas aún. ¡Añade una!', delete: 'Eliminar', setGoal: 'Establecer meta', notes: 'Notas', notesPlaceholder: 'Escribe notas para esta asignatura...', notesSaved: 'Notas guardadas', goalOneTime: 'Meta única', goalRecurring: 'Meta recurrente', goalMinutes: 'Minutos objetivo', goalPeriod: 'Período', goalDeadline: 'Fecha límite', goalNone: 'Ninguno', goalSave: 'Guardar', goalCancel: 'Cancelar', confirmYes: 'Sí', confirmNo: 'No', minLabel: 'Minutos', schoolYear: 'Curso escolar', unknownYear: 'Año desconocido', active: 'Activo', inactive: 'Inactivo',
     },
     detail: {
       back: '← Asignaturas', momentsCount: 'Momentos', minutesSpent: 'Minutos dedicados',
@@ -625,7 +625,7 @@ const t = {
       title: 'Disciplinas', subtitle: 'Clique numa disciplina para ver todos os momentos',
       addTitle: 'Adicionar disciplina', placeholder: 'ex. Direito tributário',
       addBtn: 'Adicionar', yourSubjects: 'Suas disciplinas', subjects: 'disciplinas',
-      moment: 'momento', moments: 'momentos', empty: 'Nenhuma disciplina ainda. Adicione uma!', delete: 'Excluir', setGoal: 'Definir meta', notes: 'Notas', notesPlaceholder: 'Escreva notas para esta disciplina...', notesSaved: 'Notas salvas', goalOneTime: 'Meta única', goalRecurring: 'Meta recorrente', goalMinutes: 'Minutos alvo', goalPeriod: 'Período', goalDeadline: 'Prazo', goalNone: 'Nenhum', goalSave: 'Salvar', goalCancel: 'Cancelar', confirmYes: 'Sim', confirmNo: 'Não', minLabel: 'Minutos', schoolYear: 'Ano letivo', unknownYear: 'Ano desconhecido',
+      moment: 'momento', moments: 'momentos', empty: 'Nenhuma disciplina ainda. Adicione uma!', delete: 'Excluir', setGoal: 'Definir meta', notes: 'Notas', notesPlaceholder: 'Escreva notas para esta disciplina...', notesSaved: 'Notas salvas', goalOneTime: 'Meta única', goalRecurring: 'Meta recorrente', goalMinutes: 'Minutos alvo', goalPeriod: 'Período', goalDeadline: 'Prazo', goalNone: 'Nenhum', goalSave: 'Salvar', goalCancel: 'Cancelar', confirmYes: 'Sim', confirmNo: 'Não', minLabel: 'Minutos', schoolYear: 'Ano letivo', unknownYear: 'Ano desconhecido', active: 'Ativo', inactive: 'Inativo',
     },
     detail: {
       back: '← Disciplinas', momentsCount: 'Momentos', minutesSpent: 'Minutos dedicados',
@@ -819,7 +819,7 @@ const t = {
       title: 'Matières', subtitle: 'Cliquez sur une matière pour voir tous les moments',
       addTitle: 'Ajouter une matière', placeholder: 'ex. Droit fiscal',
       addBtn: 'Ajouter', yourSubjects: 'Vos matières', subjects: 'matières',
-      moment: 'moment', moments: 'moments', empty: 'Aucune matière. Ajoutez-en une !', delete: 'Supprimer', setGoal: 'Définir un objectif', notes: 'Notes', notesPlaceholder: 'Écrivez vos notes pour cette matière...', notesSaved: 'Notes sauvegardées', goalOneTime: 'Objectif unique', goalRecurring: 'Objectif récurrent', goalMinutes: 'Minutes cibles', goalPeriod: 'Période', goalDeadline: 'Date limite', goalNone: 'Aucun', goalSave: 'Enregistrer', goalCancel: 'Annuler', confirmYes: 'Oui', confirmNo: 'Non', minLabel: 'Minutes', schoolYear: 'Année scolaire', unknownYear: 'Année inconnue',
+      moment: 'moment', moments: 'moments', empty: 'Aucune matière. Ajoutez-en une !', delete: 'Supprimer', setGoal: 'Définir un objectif', notes: 'Notes', notesPlaceholder: 'Écrivez vos notes pour cette matière...', notesSaved: 'Notes sauvegardées', goalOneTime: 'Objectif unique', goalRecurring: 'Objectif récurrent', goalMinutes: 'Minutes cibles', goalPeriod: 'Période', goalDeadline: 'Date limite', goalNone: 'Aucun', goalSave: 'Enregistrer', goalCancel: 'Annuler', confirmYes: 'Oui', confirmNo: 'Non', minLabel: 'Minutes', schoolYear: 'Année scolaire', unknownYear: 'Année inconnue', active: 'Actif', inactive: 'Inactif',
     },
     detail: {
       back: '← Matières', momentsCount: 'Moments', minutesSpent: 'Minutes consacrées',
@@ -1013,7 +1013,7 @@ const t = {
       title: 'Fächer', subtitle: 'Klicke auf ein Fach, um alle Lernmomente zu sehen',
       addTitle: 'Neues Fach hinzufügen', placeholder: 'z.B. Steuerrecht',
       addBtn: 'Hinzufügen', yourSubjects: 'Deine Fächer', subjects: 'Fächer',
-      moment: 'Moment', moments: 'Momente', empty: 'Noch keine Fächer. Füge eines hinzu!', delete: 'Löschen', setGoal: 'Ziel setzen', notes: 'Notizen', notesPlaceholder: 'Schreibe hier Notizen für dieses Fach...', notesSaved: 'Notizen gespeichert', goalOneTime: 'Einmaliges Ziel', goalRecurring: 'Wiederkehrendes Ziel', goalMinutes: 'Zielminuten', goalPeriod: 'Zeitraum', goalDeadline: 'Frist', goalNone: 'Keine', goalSave: 'Speichern', goalCancel: 'Abbrechen', confirmYes: 'Ja', confirmNo: 'Nein', minLabel: 'Minuten', schoolYear: 'Schuljahr', unknownYear: 'Unbekanntes Jahr',
+      moment: 'Moment', moments: 'Momente', empty: 'Noch keine Fächer. Füge eines hinzu!', delete: 'Löschen', setGoal: 'Ziel setzen', notes: 'Notizen', notesPlaceholder: 'Schreibe hier Notizen für dieses Fach...', notesSaved: 'Notizen gespeichert', goalOneTime: 'Einmaliges Ziel', goalRecurring: 'Wiederkehrendes Ziel', goalMinutes: 'Zielminuten', goalPeriod: 'Zeitraum', goalDeadline: 'Frist', goalNone: 'Keine', goalSave: 'Speichern', goalCancel: 'Abbrechen', confirmYes: 'Ja', confirmNo: 'Nein', minLabel: 'Minuten', schoolYear: 'Schuljahr', unknownYear: 'Unbekanntes Jahr', active: 'Aktiv', inactive: 'Inaktiv',
     },
     detail: {
       back: '← Fächer', momentsCount: 'Lernmomente', minutesSpent: 'Aufgewendete Minuten',
@@ -1207,7 +1207,7 @@ const t = {
       title: 'Fag', subtitle: 'Klik på et fag for at se alle læringsøjeblikke',
       addTitle: 'Tilføj nyt fag', placeholder: 'f.eks. Skatteret',
       addBtn: 'Tilføj', yourSubjects: 'Dine fag', subjects: 'fag',
-      moment: 'øjeblik', moments: 'øjeblikke', empty: 'Ingen fag endnu. Tilføj et!', delete: 'Slet', setGoal: 'Sæt mål', notes: 'Noter', notesPlaceholder: 'Skriv noter til dette fag her...', notesSaved: 'Noter gemt', goalOneTime: 'Engangs mål', goalRecurring: 'Gentaget mål', goalMinutes: 'Målminutter', goalPeriod: 'Periode', goalDeadline: 'Frist', goalNone: 'Ingen', goalSave: 'Gem', goalCancel: 'Annuller', confirmYes: 'Ja', confirmNo: 'Nej', minLabel: 'Minutter', schoolYear: 'Skoleår', unknownYear: 'Ukendt år',
+      moment: 'øjeblik', moments: 'øjeblikke', empty: 'Ingen fag endnu. Tilføj et!', delete: 'Slet', setGoal: 'Sæt mål', notes: 'Noter', notesPlaceholder: 'Skriv noter til dette fag her...', notesSaved: 'Noter gemt', goalOneTime: 'Engangs mål', goalRecurring: 'Gentaget mål', goalMinutes: 'Målminutter', goalPeriod: 'Periode', goalDeadline: 'Frist', goalNone: 'Ingen', goalSave: 'Gem', goalCancel: 'Annuller', confirmYes: 'Ja', confirmNo: 'Nej', minLabel: 'Minutter', schoolYear: 'Skoleår', unknownYear: 'Ukendt år', active: 'Aktiv', inactive: 'Inaktiv',
     },
     detail: {
       back: '← Fag', momentsCount: 'Læringsøjeblikke', minutesSpent: 'Minutter brugt',
@@ -1401,7 +1401,7 @@ const t = {
       title: 'Ämnen', subtitle: 'Klicka på ett ämne för att se alla lärstunder',
       addTitle: 'Lägg till nytt ämne', placeholder: 't.ex. Skatterätt',
       addBtn: 'Lägg till', yourSubjects: 'Dina ämnen', subjects: 'ämnen',
-      moment: 'stund', moments: 'stunder', empty: 'Inga ämnen än. Lägg till ett!', delete: 'Radera', setGoal: 'Sätt mål', notes: 'Anteckningar', notesPlaceholder: 'Skriv anteckningar för detta ämne...', notesSaved: 'Anteckningar sparade', goalOneTime: 'Engångsmål', goalRecurring: 'Återkommande mål', goalMinutes: 'Målminuter', goalPeriod: 'Period', goalDeadline: 'Deadline', goalNone: 'Ingen', goalSave: 'Spara', goalCancel: 'Avbryt', confirmYes: 'Ja', confirmNo: 'Nej', minLabel: 'Minuter', schoolYear: 'Läsår', unknownYear: 'Okänt år',
+      moment: 'stund', moments: 'stunder', empty: 'Inga ämnen än. Lägg till ett!', delete: 'Radera', setGoal: 'Sätt mål', notes: 'Anteckningar', notesPlaceholder: 'Skriv anteckningar för detta ämne...', notesSaved: 'Anteckningar sparade', goalOneTime: 'Engångsmål', goalRecurring: 'Återkommande mål', goalMinutes: 'Målminuter', goalPeriod: 'Period', goalDeadline: 'Deadline', goalNone: 'Ingen', goalSave: 'Spara', goalCancel: 'Avbryt', confirmYes: 'Ja', confirmNo: 'Nej', minLabel: 'Minuter', schoolYear: 'Läsår', unknownYear: 'Okänt år', active: 'Aktiv', inactive: 'Inaktiv',
     },
     detail: {
       back: '← Ämnen', momentsCount: 'Lärstunder', minutesSpent: 'Minuter ägnade',
@@ -1595,7 +1595,7 @@ const t = {
       title: 'Fag', subtitle: 'Klikk på et fag for å se alle læringsøyeblikk',
       addTitle: 'Legg til nytt fag', placeholder: 'f.eks. Skatterett',
       addBtn: 'Legg til', yourSubjects: 'Dine fag', subjects: 'fag',
-      moment: 'øyeblikk', moments: 'øyeblikk', empty: 'Ingen fag ennå. Legg til et!', delete: 'Slett', setGoal: 'Sett mål', notes: 'Notater', notesPlaceholder: 'Skriv notater for dette faget her...', notesSaved: 'Notater lagret', goalOneTime: 'Engangs mål', goalRecurring: 'Gjentakende mål', goalMinutes: 'Målminutter', goalPeriod: 'Periode', goalDeadline: 'Frist', goalNone: 'Ingen', goalSave: 'Lagre', goalCancel: 'Avbryt', confirmYes: 'Ja', confirmNo: 'Nei', minLabel: 'Minutter', schoolYear: 'Skoleår', unknownYear: 'Ukjent år',
+      moment: 'øyeblikk', moments: 'øyeblikk', empty: 'Ingen fag ennå. Legg til et!', delete: 'Slett', setGoal: 'Sett mål', notes: 'Notater', notesPlaceholder: 'Skriv notater for dette faget her...', notesSaved: 'Notater lagret', goalOneTime: 'Engangs mål', goalRecurring: 'Gjentakende mål', goalMinutes: 'Målminutter', goalPeriod: 'Periode', goalDeadline: 'Frist', goalNone: 'Ingen', goalSave: 'Lagre', goalCancel: 'Avbryt', confirmYes: 'Ja', confirmNo: 'Nei', minLabel: 'Minutter', schoolYear: 'Skoleår', unknownYear: 'Ukjent år', active: 'Aktiv', inactive: 'Inaktiv',
     },
     detail: {
       back: '← Fag', momentsCount: 'Læringsøyeblikk', minutesSpent: 'Minutter brukt',

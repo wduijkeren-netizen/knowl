@@ -18,6 +18,7 @@ type Subject = {
   recurring_type: string | null
   recurring_goal_minutes: number | null
   school_year: string | null
+  is_active: boolean
 }
 
 type Props = {
@@ -79,6 +80,20 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
       .single()
     if (!error && data) {
       setSubjects(subjects.map(s => s.id === id ? data : s))
+    }
+  }
+
+  async function toggleActive(subject: Subject, e: React.MouseEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    const { data, error } = await supabase
+      .from('subjects')
+      .update({ is_active: !subject.is_active })
+      .eq('id', subject.id)
+      .select()
+      .single()
+    if (!error && data) {
+      setSubjects(subjects.map(s => s.id === subject.id ? data : s))
     }
   }
 
@@ -221,7 +236,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
               const recurringProgress = recurringGoal ? Math.min(100, Math.round((periodDone / recurringGoal) * 100)) : null
 
               return (
-                <li key={subject.id} className="rounded-2xl border border-indigo-50 overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all">
+                <li key={subject.id} className={`rounded-2xl border border-indigo-50 overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all ${subject.is_active ? '' : 'opacity-60'}`}>
                   {/* Vak-rij */}
                   <div className="group">
                     <Link
@@ -254,6 +269,16 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
                           <option key={year} value={year}>{year}</option>
                         ))}
                       </select>
+                      <button
+                        onClick={(e) => toggleActive(subject, e)}
+                        className={`text-xs font-medium px-2 py-0.5 rounded-full border transition-colors ${
+                          subject.is_active
+                            ? 'bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100'
+                            : 'bg-gray-50 border-gray-200 text-gray-400 hover:bg-gray-100'
+                        }`}
+                      >
+                        {subject.is_active ? s.active : s.inactive}
+                      </button>
                       <button
                         onClick={(e) => startGoalEdit(subject, e)}
                         className="text-xs text-indigo-400 hover:text-indigo-600 transition-colors underline underline-offset-2"

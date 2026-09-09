@@ -11,7 +11,7 @@ export default async function LeerMomentenPage() {
 
   const [{ data: moments }, { data: subjects }] = await Promise.all([
     supabase.from('learning_moments').select('*').order('learned_at', { ascending: false }),
-    supabase.from('subjects').select('id, name, school_year').order('name'),
+    supabase.from('subjects').select('id, name, school_year, is_active').order('name'),
   ])
 
   const subjectYearMap = buildSubjectYearMap(subjects ?? [])

@@ -10,6 +10,7 @@ export default async function PomodoroPage() {
   const { data: subjects } = await supabase
     .from('subjects')
     .select('id, name')
+    .eq('is_active', true)
     .order('name')
 
   return <PomodoroTimer user={user} subjects={subjects ?? []} />

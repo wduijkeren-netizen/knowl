@@ -22,7 +22,7 @@ export default function QuickLog() {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) return
       setUserId(data.user.id)
-      supabase.from('subjects').select('name').order('name').then(({ data: subs }) => {
+      supabase.from('subjects').select('name').eq('is_active', true).order('name').then(({ data: subs }) => {
         setSubjects((subs ?? []).map(s => s.name))
       })
     })

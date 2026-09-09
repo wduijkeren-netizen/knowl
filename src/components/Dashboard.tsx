@@ -23,7 +23,7 @@ type Moment = {
   notes?: string | null
 }
 
-type Subject = { id: string; name: string; school_year: string | null }
+type Subject = { id: string; name: string; school_year: string | null; is_active: boolean }
 
 type Props = {
   user: User
@@ -128,6 +128,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
   }, [yearTabs])
 
   const yearFilteredMoments = moments.filter(m => momentYear(m.category, subjectYearMap) === activeYear)
+  const activeSubjects = subjects.filter(s => s.is_active !== false)
 
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [detailMoment, setDetailMoment] = useState<Moment | null>(null)
@@ -470,7 +471,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1.5">{d.subject}</label>
-                {subjects.length > 0 ? (
+                {activeSubjects.length > 0 ? (
                   <div className="relative">
                     <select
                       value={category}
@@ -478,7 +479,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
                       className="w-full appearance-none border-2 border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-300 bg-gray-50 focus:bg-white transition-all text-gray-700 cursor-pointer pr-8"
                     >
                       <option value="">{d.chooseSubject}</option>
-                      {subjects.map(s => (
+                      {activeSubjects.map(s => (
                         <option key={s.id} value={s.name}>{s.name}</option>
                       ))}
                     </select>
