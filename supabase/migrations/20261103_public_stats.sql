@@ -7,7 +7,7 @@ security definer
 set search_path = public
 as $$
   select json_build_object(
-    'users', (select count(*) from profiles),
+    'users', (select count(*) from auth.users),
     'moments', (select count(*) from learning_moments),
     'minutes', (select coalesce(sum(duration_minutes), 0) from learning_moments)
   );
