@@ -196,6 +196,7 @@ const t = {
       ctaBtn: 'Probeer Knowl gratis →', ctaFooter: 'Gratis, zonder creditcard',
       footerCopy: '© 2026 Knowl', contact: 'Contact',
       audience: ['Middelbare school', 'Mbo', 'Hbo', 'Universiteit'],
+      statUsers: 'studenten gebruiken Knowl', statMoments: 'leermomenten bijgehouden', statHours: 'uur gestudeerd',
       tryTag: 'Probeer het hier', tryTitle: 'Wat heb je vandaag geleerd?', trySub: 'Typ het op. Je ziet meteen hoe het eruitziet in Knowl.',
       tryPlaceholder: 'bijv. Hoofdstuk 4 economie: vraag en aanbod', trySubject: 'Vak', trySubjectPlaceholder: 'bijv. Economie', tryMinutes: 'Hoe lang?',
       tryBtn: 'Laat zien', trySave: 'Bewaar het in Knowl →', tryAgain: 'Nog een', tryToday: 'vandaag', tryHint: 'Je hebt geen account nodig. Het wordt in je browser bewaard.',

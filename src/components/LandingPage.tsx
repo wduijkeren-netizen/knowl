@@ -10,6 +10,7 @@ import {
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import t, { languages, type LangCode } from '@/lib/i18n/translations'
 import { useGuest } from '@/lib/GuestContext'
+import { createClient } from '@/lib/supabase/client'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -73,7 +74,7 @@ function CountUp({ to, className }: { to: number; className?: string }) {
     return () => controls.stop()
   }, [inView, to])
 
-  return <p ref={ref} className={className}>{value}</p>
+  return <p ref={ref} className={className}>{value.toLocaleString('nl-NL')}</p>
 }
 
 function TiltCard({ children, className, float = 0 }: { children: ReactNode; className?: string; float?: number }) {
@@ -332,6 +333,54 @@ function ProgressDemo() {
 }
 
 type Landing = typeof t.nl.landing
+
+type PublicStats = { users: number; moments: number; minutes: number }
+
+function RealStats({ l }: { l: Landing }) {
+  const [stats, setStats] = useState<PublicStats | null>(null)
+
+  useEffect(() => {
+    createClient().rpc('public_stats').then(({ data, error }) => {
+      if (!error && data && (data as PublicStats).moments > 0) setStats(data as PublicStats)
+    })
+  }, [])
+
+  if (!stats) return null
+
+  const items = [
+    { value: stats.users, label: l.statUsers, icon: 'target' as IconName },
+    { value: stats.moments, label: l.statMoments, icon: 'cards' as IconName },
+    { value: Math.round(stats.minutes / 60), label: l.statHours, icon: 'timer' as IconName },
+  ]
+
+  return (
+    <section className="max-w-4xl mx-auto px-4 pb-12">
+      <Reveal className="grid grid-cols-3 gap-3 md:gap-5">
+        {items.map(item => (
+          <motion.div
+            key={item.label}
+            variants={popIn}
+            whileHover={{ y: -4 }}
+            className="relative overflow-hidden rounded-2xl bg-white border border-indigo-100 shadow-sm px-3 py-5 md:py-6 text-center"
+          >
+            <motion.div
+              className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-400 origin-left"
+              initial={{ scaleX: 0 }}
+              whileInView={{ scaleX: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.2, ease, delay: 0.3 }}
+            />
+            <span className="mx-auto mb-2 w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <Icon name={item.icon} className="w-5 h-5" />
+            </span>
+            <CountUp to={item.value} className="text-2xl md:text-4xl font-bold text-indigo-900 tabular-nums" />
+            <p className="text-[11px] md:text-sm text-indigo-400 mt-1 leading-snug">{item.label}</p>
+          </motion.div>
+        ))}
+      </Reveal>
+    </section>
+  )
+}
 
 const TRY_MINUTES = [15, 30, 45, 60]
 
@@ -756,13 +805,15 @@ function FeatureShowcase({ features }: { features: ShowcaseFeature[] }) {
             transition={{ type: 'spring', stiffness: 160, damping: 24 }}
             style={{ flexBasis: 0 }}
             className={`relative min-w-0 min-h-0 overflow-hidden rounded-3xl cursor-pointer border outline-none focus-visible:ring-4 focus-visible:ring-indigo-300 ${
-              isActive ? 'border-transparent shadow-2xl shadow-indigo-300/50' : 'border-indigo-100 bg-white hover:border-indigo-300 hover:shadow-lg transition-[border-color,box-shadow]'
+              isActive ? 'border-transparent shadow-2xl shadow-indigo-300/50' : 'border-transparent shadow-md hover:shadow-xl hover:brightness-110 transition-[box-shadow,filter]'
             }`}
           >
             <motion.div
               className={`absolute inset-0 bg-gradient-to-br ${f.gradient}`}
-              animate={{ opacity: isActive ? 1 : 0 }}
-              transition={{ duration: 0.5 }}
+              initial={{ clipPath: 'inset(0 100% 0 0 round 24px)' }}
+              whileInView={{ clipPath: 'inset(0 0% 0 0 round 24px)' }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.9, ease, delay: 0.2 + i * 0.12 }}
             />
             {isActive && (
               <motion.div
@@ -825,12 +876,12 @@ function FeatureShowcase({ features }: { features: ShowcaseFeature[] }) {
                   animate={{ opacity: 1, transition: { delay: 0.15 } }}
                   exit={{ opacity: 0, transition: { duration: 0.1 } }}
                 >
-                  <span className="text-xs font-bold text-indigo-300 tabular-nums">0{i + 1}</span>
-                  <h3 className="text-base md:text-lg font-semibold text-indigo-900 whitespace-nowrap">
+                  <span className="text-xs font-bold text-white/60 tabular-nums">0{i + 1}</span>
+                  <h3 className="text-base md:text-lg font-semibold text-white whitespace-nowrap">
                     {f.title}
                   </h3>
                   <motion.span
-                    className="ml-auto text-indigo-400"
+                    className="ml-auto text-white/90"
                     animate={{ x: [0, 4, 0] }}
                     transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: i * 0.3 }}
                   >
@@ -1326,6 +1377,8 @@ export default function LandingPage() {
           </TiltCard>
         </motion.div>
       </section>
+
+      <RealStats l={l} />
 
       <TryIt l={l} />
 
