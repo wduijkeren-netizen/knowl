@@ -451,7 +451,7 @@ export default function LandingPage() {
               <motion.div variants={fadeUp} className="mt-4 flex items-start gap-3 bg-white/70 rounded-2xl px-4 py-3 border border-indigo-100">
                 <span className="text-emerald-500 mt-0.5 shrink-0 text-base">🔒</span>
                 <p className="text-xs text-indigo-500 leading-relaxed">
-                  <span className="font-semibold text-indigo-700">Jouw data is van jou.</span> Geen tracking, geen advertenties, geen verkoop aan derden. Download alles als CSV, verwijder je account wanneer je wilt.
+                  <span className="font-semibold text-indigo-700">Privacy.</span> Knowl toont geen advertenties en ik verkoop niets door aan anderen.
                 </p>
               </motion.div>
 
