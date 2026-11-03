@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
-  motion, MotionConfig, animate, useInView, useMotionTemplate, useMotionValue,
+  AnimatePresence, motion, MotionConfig, animate, useInView, useMotionTemplate, useMotionValue,
   useScroll, useSpring, useTransform, type Variants,
 } from 'framer-motion'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
@@ -102,6 +102,335 @@ function TiltCard({ children, className, float = 0 }: { children: ReactNode; cla
   )
 }
 
+type ShowcaseFeature = { title: string; desc: string; icon: string; gradient: string; demo: ReactNode }
+
+const SHOWCASE_INTERVAL = 5
+
+function FeatureShowcase({ features }: { features: ShowcaseFeature[] }) {
+  const [active, setActive] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { margin: '-100px' })
+
+  useEffect(() => {
+    if (paused || !inView) return
+    const id = setTimeout(() => setActive(a => (a + 1) % features.length), SHOWCASE_INTERVAL * 1000)
+    return () => clearTimeout(id)
+  }, [active, paused, inView, features.length])
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 60 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-80px' }}
+      transition={{ duration: 0.9, ease }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      className="flex flex-col md:flex-row gap-3 h-[640px] md:h-[400px]"
+    >
+      {features.map((f, i) => {
+        const isActive = i === active
+        return (
+          <motion.div
+            key={f.title}
+            role="button"
+            tabIndex={0}
+            aria-expanded={isActive}
+            onMouseEnter={() => setActive(i)}
+            onFocus={() => setActive(i)}
+            onClick={() => setActive(i)}
+            animate={{ flexGrow: isActive ? 5 : 1 }}
+            transition={{ type: 'spring', stiffness: 160, damping: 24 }}
+            style={{ flexBasis: 0 }}
+            className={`relative min-w-0 min-h-0 overflow-hidden rounded-3xl cursor-pointer border outline-none focus-visible:ring-4 focus-visible:ring-indigo-300 ${
+              isActive ? 'border-transparent shadow-2xl shadow-indigo-300/50' : 'border-indigo-100 bg-white hover:border-indigo-300 hover:shadow-lg transition-[border-color,box-shadow]'
+            }`}
+          >
+            <motion.div
+              className={`absolute inset-0 bg-gradient-to-br ${f.gradient}`}
+              animate={{ opacity: isActive ? 1 : 0 }}
+              transition={{ duration: 0.5 }}
+            />
+            {isActive && (
+              <motion.div
+                className="absolute inset-y-0 -left-1/2 w-1/3 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] pointer-events-none"
+                initial={{ x: '0%' }}
+                animate={{ x: '600%' }}
+                transition={{ duration: 1.2, ease: 'easeInOut', delay: 0.2 }}
+              />
+            )}
+
+            <AnimatePresence initial={false}>
+              {isActive ? (
+                <motion.div
+                  key="open"
+                  className="absolute inset-0 p-6 md:p-8 grid md:grid-cols-[1fr_1.1fr] gap-4 md:gap-6 items-center text-white"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1, transition: { delay: 0.2, duration: 0.4 } }}
+                  exit={{ opacity: 0, transition: { duration: 0.15 } }}
+                >
+                  <div className="self-start md:self-center">
+                    <motion.span
+                      className="text-4xl md:text-5xl inline-block"
+                      initial={{ scale: 0, rotate: -40 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 12, delay: 0.25 }}
+                    >
+                      {f.icon}
+                    </motion.span>
+                    <motion.h3
+                      className="text-xl md:text-3xl font-bold mt-3 leading-tight"
+                      initial={{ opacity: 0, x: -30 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.5, ease, delay: 0.3 }}
+                    >
+                      {f.title}
+                    </motion.h3>
+                    <motion.p
+                      className="text-sm md:text-base text-white/80 mt-2 leading-relaxed max-w-xs"
+                      initial={{ opacity: 0, x: -30 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.5, ease, delay: 0.4 }}
+                    >
+                      {f.desc}
+                    </motion.p>
+                  </div>
+                  <motion.div
+                    className="h-full max-h-[260px] min-h-[180px] flex items-center justify-center"
+                    initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ type: 'spring', stiffness: 160, damping: 18, delay: 0.35 }}
+                  >
+                    {f.demo}
+                  </motion.div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="closed"
+                  className="absolute inset-0 flex md:flex-col items-center md:justify-between gap-3 px-5 md:px-0 md:py-6"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1, transition: { delay: 0.15 } }}
+                  exit={{ opacity: 0, transition: { duration: 0.1 } }}
+                >
+                  <span className="text-xs font-bold text-indigo-300 tabular-nums">0{i + 1}</span>
+                  <h3 className="text-sm font-semibold text-indigo-900 whitespace-nowrap md:[writing-mode:vertical-rl] md:rotate-180">
+                    {f.title}
+                  </h3>
+                  <motion.span
+                    className="text-2xl ml-auto md:ml-0"
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: i * 0.3 }}
+                  >
+                    {f.icon}
+                  </motion.span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {isActive && !paused && inView && (
+              <motion.div
+                key={`progress-${active}`}
+                className="absolute bottom-0 left-0 h-1 bg-white/70"
+                initial={{ width: '0%' }}
+                animate={{ width: '100%' }}
+                transition={{ duration: SHOWCASE_INTERVAL, ease: 'linear' }}
+              />
+            )}
+          </motion.div>
+        )
+      })}
+    </motion.div>
+  )
+}
+
+function FlashcardDemo() {
+  return (
+    <div className="relative w-44 h-32 md:w-52 md:h-36" style={{ perspective: 800 }}>
+      <motion.div
+        className="absolute inset-0 rounded-2xl bg-white/20 border border-white/30"
+        initial={{ rotate: 0 }}
+        animate={{ rotate: -8, x: -14, y: 8 }}
+        transition={{ type: 'spring', stiffness: 120, damping: 12, delay: 0.4 }}
+      />
+      <motion.div
+        className="absolute inset-0 rounded-2xl bg-white/30 border border-white/40"
+        initial={{ rotate: 0 }}
+        animate={{ rotate: 6, x: 12, y: 4 }}
+        transition={{ type: 'spring', stiffness: 120, damping: 12, delay: 0.5 }}
+      />
+      <motion.div
+        className="absolute inset-0"
+        style={{ transformStyle: 'preserve-3d' }}
+        animate={{ rotateY: [0, 0, 180, 180, 360] }}
+        transition={{ duration: 4, times: [0, 0.3, 0.45, 0.85, 1], repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
+      >
+        <div className="absolute inset-0 rounded-2xl bg-white shadow-xl flex items-center justify-center text-3xl md:text-4xl font-bold text-indigo-700" style={{ backfaceVisibility: 'hidden' }}>
+          H₂O
+        </div>
+        <div
+          className="absolute inset-0 rounded-2xl bg-emerald-50 shadow-xl flex flex-col items-center justify-center text-emerald-600"
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+        >
+          <span className="text-3xl md:text-4xl">💧</span>
+          <span className="text-2xl font-bold mt-1">✓</span>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+const WEB_NODES = [
+  { x: 40, y: 40 }, { x: 200, y: 32 }, { x: 222, y: 112 },
+  { x: 170, y: 168 }, { x: 52, y: 150 }, { x: 18, y: 96 },
+]
+
+function WoordwebDemo() {
+  return (
+    <svg viewBox="0 0 240 190" className="w-full max-w-[280px] h-auto overflow-visible">
+      {WEB_NODES.map((n, i) => (
+        <motion.path
+          key={`l${i}`}
+          d={`M120 95 L${n.x} ${n.y}`}
+          stroke="white"
+          strokeOpacity={0.7}
+          strokeWidth={2}
+          strokeLinecap="round"
+          fill="none"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 + i * 0.12, ease }}
+        />
+      ))}
+      <motion.path
+        d="M40 40 L18 96 M200 32 L222 112"
+        stroke="white"
+        strokeOpacity={0.35}
+        strokeWidth={1.5}
+        strokeDasharray="4 4"
+        fill="none"
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: 1 }}
+        transition={{ duration: 0.6, delay: 1.3 }}
+      />
+      {WEB_NODES.map((n, i) => (
+        <motion.g key={`n${i}`} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 400, damping: 14, delay: 0.7 + i * 0.12 }} style={{ originX: `${n.x}px`, originY: `${n.y}px` }}>
+          <motion.circle
+            cx={n.x}
+            cy={n.y}
+            r={i % 2 ? 11 : 14}
+            fill="white"
+            fillOpacity={0.9}
+            animate={{ cy: [n.y, n.y - 4, n.y] }}
+            transition={{ duration: 2.4 + i * 0.3, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </motion.g>
+      ))}
+      <motion.circle cx={120} cy={95} r={26} fill="white" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 12, delay: 0.3 }} style={{ originX: '120px', originY: '95px' }} />
+      <motion.circle
+        cx={120}
+        cy={95}
+        r={26}
+        fill="none"
+        stroke="white"
+        strokeWidth={2}
+        animate={{ r: [26, 44], opacity: [0.8, 0] }}
+        transition={{ duration: 1.8, repeat: Infinity, ease: 'easeOut', delay: 0.6 }}
+      />
+      <text x={120} y={102} textAnchor="middle" fontSize={20}>🧠</text>
+    </svg>
+  )
+}
+
+function PomodoroDemo() {
+  const [minutes, setMinutes] = useState(25)
+
+  useEffect(() => {
+    const id = setInterval(() => setMinutes(m => (m <= 0 ? 25 : m - 1)), 220)
+    return () => clearInterval(id)
+  }, [])
+
+  return (
+    <div className="relative w-40 h-40 md:w-48 md:h-48">
+      <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
+        <circle cx={60} cy={60} r={52} fill="none" stroke="white" strokeOpacity={0.2} strokeWidth={8} />
+        <motion.circle
+          cx={60}
+          cy={60}
+          r={52}
+          fill="none"
+          stroke="white"
+          strokeWidth={8}
+          strokeLinecap="round"
+          animate={{ pathLength: minutes / 25 }}
+          transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+        <span className="text-4xl md:text-5xl font-bold tabular-nums">{String(minutes).padStart(2, '0')}:00</span>
+        <div className="flex gap-1.5 mt-2">
+          {[0, 1, 2, 3].map(i => (
+            <motion.span
+              key={i}
+              className="w-2.5 h-2.5 rounded-full bg-white"
+              initial={{ opacity: 0.3 }}
+              animate={{ opacity: [0.3, 1, 0.3] }}
+              transition={{ duration: 1.6, repeat: Infinity, delay: i * 0.4 }}
+            />
+          ))}
+        </div>
+      </div>
+      <motion.span
+        className="absolute -top-1 -right-1 text-2xl"
+        animate={{ rotate: [-12, 12, -12] }}
+        transition={{ duration: 0.4, repeat: Infinity }}
+      >
+        🔔
+      </motion.span>
+    </div>
+  )
+}
+
+const MONTH_BARS = [40, 65, 30, 85, 55, 100, 70]
+
+function MonthDemo() {
+  return (
+    <div className="w-full max-w-[280px]">
+      <div className="flex items-end gap-2 h-32 md:h-40">
+        {MONTH_BARS.map((h, i) => (
+          <div key={i} className="relative flex-1 h-full flex items-end">
+            <motion.div
+              className={`w-full rounded-t-lg ${h === 100 ? 'bg-white' : 'bg-white/40'}`}
+              initial={{ height: '0%' }}
+              animate={{ height: `${h}%` }}
+              transition={{ type: 'spring', stiffness: 120, damping: 14, delay: 0.4 + i * 0.08 }}
+            />
+            {h === 100 && (
+              <motion.span
+                className="absolute -top-8 left-1/2 -translate-x-1/2 text-2xl"
+                initial={{ scale: 0, y: 10 }}
+                animate={{ scale: 1, y: 0 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 10, delay: 1.2 }}
+              >
+                🏆
+              </motion.span>
+            )}
+          </div>
+        ))}
+      </div>
+      <motion.div
+        className="mt-3 flex items-center justify-center gap-2 bg-white/20 rounded-2xl py-2 text-white"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.4 }}
+      >
+        <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1.2, repeat: Infinity }}>🔥</motion.span>
+        <CountUp to={21} className="text-xl font-bold tabular-nums" />
+      </motion.div>
+    </div>
+  )
+}
+
 export default function LandingPage() {
   const { lang, setLang, tr } = useLanguage()
   const [showLang, setShowLang] = useState(false)
@@ -129,11 +458,11 @@ export default function LandingPage() {
     { title: l.feat2title, desc: l.feat2desc, color: 'bg-gradient-to-br from-violet-500 to-indigo-600', icon: '📈' },
   ]
 
-  const secondaryFeatures = [
-    { title: l.feat3title, desc: l.feat3desc, icon: '🃏' },
-    { title: l.feat4title, desc: l.feat4desc, icon: '🕸️' },
-    { title: l.feat5title, desc: l.feat5desc, icon: '⏱️' },
-    { title: l.feat6title, desc: l.feat6desc, icon: '📅' },
+  const secondaryFeatures: ShowcaseFeature[] = [
+    { title: l.feat3title, desc: l.feat3desc, icon: '🃏', gradient: 'from-indigo-500 to-violet-600', demo: <FlashcardDemo /> },
+    { title: l.feat4title, desc: l.feat4desc, icon: '🕸️', gradient: 'from-violet-500 to-fuchsia-500', demo: <WoordwebDemo /> },
+    { title: l.feat5title, desc: l.feat5desc, icon: '⏱️', gradient: 'from-rose-500 to-orange-400', demo: <PomodoroDemo /> },
+    { title: l.feat6title, desc: l.feat6desc, icon: '📅', gradient: 'from-sky-500 to-indigo-600', demo: <MonthDemo /> },
   ]
 
   const usps = [
@@ -410,23 +739,7 @@ export default function LandingPage() {
           ))}
         </Reveal>
 
-        <Reveal className="grid grid-cols-2 md:grid-cols-4 gap-3" delay={0.1}>
-          {secondaryFeatures.map(f => (
-            <motion.div
-              key={f.title}
-              variants={{
-                hidden: { opacity: 0, y: 40, scale: 0.9 },
-                show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 220, damping: 20 } },
-              }}
-              whileHover={{ y: -6, rotate: -1 }}
-              className="bg-white rounded-2xl border border-indigo-100 p-4 shadow-sm hover:shadow-lg hover:border-indigo-200 transition-[box-shadow,border-color] group"
-            >
-              <span className="text-xl inline-block transition-transform duration-500 group-hover:scale-125 group-hover:rotate-12">{f.icon}</span>
-              <h3 className="text-sm font-semibold text-indigo-900 mt-2">{f.title}</h3>
-              <p className="text-xs text-indigo-400 mt-1 leading-relaxed">{f.desc}</p>
-            </motion.div>
-          ))}
-        </Reveal>
+        <FeatureShowcase features={secondaryFeatures} />
       </section>
 
       {/* Over Knowl */}
