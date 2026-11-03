@@ -102,7 +102,46 @@ function TiltCard({ children, className, float = 0 }: { children: ReactNode; cla
   )
 }
 
-type ShowcaseFeature = { title: string; desc: string; icon: string; gradient: string; demo: ReactNode }
+type IconName = 'target' | 'trend' | 'cards' | 'web' | 'timer' | 'calendar' | 'chart' | 'flame' | 'lock' | 'check' | 'bell'
+
+type Shape =
+  | { t: 'path'; d: string }
+  | { t: 'circle'; cx: number; cy: number; r: number }
+  | { t: 'rect'; x: number; y: number; width: number; height: number; rx: number }
+
+const ICONS: Record<IconName, Shape[]> = {
+  target: [{ t: 'circle', cx: 12, cy: 12, r: 10 }, { t: 'circle', cx: 12, cy: 12, r: 6 }, { t: 'circle', cx: 12, cy: 12, r: 2 }],
+  trend: [{ t: 'path', d: 'M22 7 13.5 15.5 8.5 10.5 2 17' }, { t: 'path', d: 'M16 7h6v6' }],
+  cards: [{ t: 'path', d: 'm12 2 10 5-10 5L2 7Z' }, { t: 'path', d: 'm2 12 10 5 10-5' }, { t: 'path', d: 'm2 17 10 5 10-5' }],
+  web: [{ t: 'circle', cx: 18, cy: 5, r: 3 }, { t: 'circle', cx: 6, cy: 12, r: 3 }, { t: 'circle', cx: 18, cy: 19, r: 3 }, { t: 'path', d: 'M8.6 13.5l6.8 4M15.4 6.5l-6.8 4' }],
+  timer: [{ t: 'circle', cx: 12, cy: 14, r: 8 }, { t: 'path', d: 'M10 2h4M12 14l3-3' }],
+  calendar: [{ t: 'rect', x: 3, y: 4, width: 18, height: 18, rx: 2 }, { t: 'path', d: 'M16 2v4M8 2v4M3 10h18' }],
+  chart: [{ t: 'path', d: 'M3 3v18h18' }, { t: 'path', d: 'M8 17v-3M13 17V9M18 17V5' }],
+  flame: [{ t: 'path', d: 'M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z' }],
+  lock: [{ t: 'rect', x: 3, y: 11, width: 18, height: 11, rx: 2 }, { t: 'path', d: 'M7 11V7a5 5 0 0 1 10 0v4' }],
+  check: [{ t: 'path', d: 'M20 6 9 17l-5-5' }],
+  bell: [{ t: 'path', d: 'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9' }, { t: 'path', d: 'M10.3 21a1.94 1.94 0 0 0 3.4 0' }],
+}
+
+function Icon({ name, className, strokeWidth = 2 }: { name: IconName; className?: string; strokeWidth?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      {ICONS[name].map((shape, i) => {
+        const draw = {
+          initial: { pathLength: 0, opacity: 0 },
+          whileInView: { pathLength: 1, opacity: 1 },
+          viewport: { once: true },
+          transition: { duration: 0.9, ease, delay: 0.15 + i * 0.15 },
+        }
+        if (shape.t === 'circle') return <motion.circle key={i} cx={shape.cx} cy={shape.cy} r={shape.r} {...draw} />
+        if (shape.t === 'rect') return <motion.rect key={i} x={shape.x} y={shape.y} width={shape.width} height={shape.height} rx={shape.rx} {...draw} />
+        return <motion.path key={i} d={shape.d} {...draw} />
+      })}
+    </svg>
+  )
+}
+
+type ShowcaseFeature = { title: string; desc: string; icon: IconName; gradient: string; demo: ReactNode }
 
 const SHOWCASE_INTERVAL = 5
 
@@ -127,7 +166,7 @@ function FeatureShowcase({ features }: { features: ShowcaseFeature[] }) {
       transition={{ duration: 0.9, ease }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      className="flex flex-col md:flex-row gap-3 h-[640px] md:h-[400px]"
+      className="flex flex-col gap-3 h-[680px] md:h-[620px]"
     >
       {features.map((f, i) => {
         const isActive = i === active
@@ -165,19 +204,19 @@ function FeatureShowcase({ features }: { features: ShowcaseFeature[] }) {
               {isActive ? (
                 <motion.div
                   key="open"
-                  className="absolute inset-0 p-6 md:p-8 grid md:grid-cols-[1fr_1.1fr] gap-4 md:gap-6 items-center text-white"
+                  className="absolute inset-0 p-6 md:p-8 grid md:grid-cols-2 gap-4 md:gap-6 items-center text-white"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1, transition: { delay: 0.2, duration: 0.4 } }}
                   exit={{ opacity: 0, transition: { duration: 0.15 } }}
                 >
                   <div className="self-start md:self-center">
                     <motion.span
-                      className="text-4xl md:text-5xl inline-block"
+                      className="inline-flex w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white/15 border border-white/25 items-center justify-center"
                       initial={{ scale: 0, rotate: -40 }}
                       animate={{ scale: 1, rotate: 0 }}
                       transition={{ type: 'spring', stiffness: 300, damping: 12, delay: 0.25 }}
                     >
-                      {f.icon}
+                      <Icon name={f.icon} className="w-6 h-6 md:w-7 md:h-7" />
                     </motion.span>
                     <motion.h3
                       className="text-xl md:text-3xl font-bold mt-3 leading-tight"
@@ -208,21 +247,21 @@ function FeatureShowcase({ features }: { features: ShowcaseFeature[] }) {
               ) : (
                 <motion.div
                   key="closed"
-                  className="absolute inset-0 flex md:flex-col items-center md:justify-between gap-3 px-5 md:px-0 md:py-6"
+                  className="absolute inset-0 flex items-center gap-4 px-6 md:px-8"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1, transition: { delay: 0.15 } }}
                   exit={{ opacity: 0, transition: { duration: 0.1 } }}
                 >
                   <span className="text-xs font-bold text-indigo-300 tabular-nums">0{i + 1}</span>
-                  <h3 className="text-sm font-semibold text-indigo-900 whitespace-nowrap md:[writing-mode:vertical-rl] md:rotate-180">
+                  <h3 className="text-base md:text-lg font-semibold text-indigo-900 whitespace-nowrap">
                     {f.title}
                   </h3>
                   <motion.span
-                    className="text-2xl ml-auto md:ml-0"
-                    animate={{ y: [0, -4, 0] }}
+                    className="ml-auto text-indigo-400"
+                    animate={{ x: [0, 4, 0] }}
                     transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: i * 0.3 }}
                   >
-                    {f.icon}
+                    <Icon name={f.icon} className="w-5 h-5" />
                   </motion.span>
                 </motion.div>
               )}
@@ -272,8 +311,7 @@ function FlashcardDemo() {
           className="absolute inset-0 rounded-2xl bg-emerald-50 shadow-xl flex flex-col items-center justify-center text-emerald-600"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
-          <span className="text-3xl md:text-4xl">💧</span>
-          <span className="text-2xl font-bold mt-1">✓</span>
+          <Icon name="check" className="w-12 h-12" strokeWidth={3} />
         </div>
       </motion.div>
     </div>
@@ -337,7 +375,7 @@ function WoordwebDemo() {
         animate={{ r: [26, 44], opacity: [0.8, 0] }}
         transition={{ duration: 1.8, repeat: Infinity, ease: 'easeOut', delay: 0.6 }}
       />
-      <text x={120} y={102} textAnchor="middle" fontSize={20}>🧠</text>
+      <circle cx={120} cy={95} r={9} className="fill-violet-500" />
     </svg>
   )
 }
@@ -381,11 +419,11 @@ function PomodoroDemo() {
         </div>
       </div>
       <motion.span
-        className="absolute -top-1 -right-1 text-2xl"
+        className="absolute -top-1 -right-1 text-white"
         animate={{ rotate: [-12, 12, -12] }}
         transition={{ duration: 0.4, repeat: Infinity }}
       >
-        🔔
+        <Icon name="bell" className="w-7 h-7" />
       </motion.span>
     </div>
   )
@@ -407,12 +445,12 @@ function MonthDemo() {
             />
             {h === 100 && (
               <motion.span
-                className="absolute -top-8 left-1/2 -translate-x-1/2 text-2xl"
+                className="absolute -top-8 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-white text-sky-600 text-xs font-bold flex items-center justify-center"
                 initial={{ scale: 0, y: 10 }}
                 animate={{ scale: 1, y: 0 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 10, delay: 1.2 }}
               >
-                🏆
+                1
               </motion.span>
             )}
           </div>
@@ -424,7 +462,7 @@ function MonthDemo() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.4 }}
       >
-        <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1.2, repeat: Infinity }}>🔥</motion.span>
+        <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1.2, repeat: Infinity }}><Icon name="flame" className="w-5 h-5" /></motion.span>
         <CountUp to={21} className="text-xl font-bold tabular-nums" />
       </motion.div>
     </div>
@@ -454,22 +492,22 @@ export default function LandingPage() {
   const spotlight = useMotionTemplate`radial-gradient(500px circle at ${mouseX}px ${mouseY}px, rgba(129,140,248,0.18), transparent 70%)`
 
   const primaryFeatures = [
-    { title: l.feat1title, desc: l.feat1desc, color: 'bg-gradient-to-br from-indigo-500 to-violet-600', icon: '🎯' },
-    { title: l.feat2title, desc: l.feat2desc, color: 'bg-gradient-to-br from-violet-500 to-indigo-600', icon: '📈' },
+    { title: l.feat1title, desc: l.feat1desc, color: 'bg-gradient-to-br from-indigo-500 to-violet-600', icon: 'target' as IconName },
+    { title: l.feat2title, desc: l.feat2desc, color: 'bg-gradient-to-br from-violet-500 to-indigo-600', icon: 'trend' as IconName },
   ]
 
   const secondaryFeatures: ShowcaseFeature[] = [
-    { title: l.feat3title, desc: l.feat3desc, icon: '🃏', gradient: 'from-indigo-500 to-violet-600', demo: <FlashcardDemo /> },
-    { title: l.feat4title, desc: l.feat4desc, icon: '🕸️', gradient: 'from-violet-500 to-fuchsia-500', demo: <WoordwebDemo /> },
-    { title: l.feat5title, desc: l.feat5desc, icon: '⏱️', gradient: 'from-rose-500 to-orange-400', demo: <PomodoroDemo /> },
-    { title: l.feat6title, desc: l.feat6desc, icon: '📅', gradient: 'from-sky-500 to-indigo-600', demo: <MonthDemo /> },
+    { title: l.feat3title, desc: l.feat3desc, icon: 'cards', gradient: 'from-indigo-500 to-violet-600', demo: <FlashcardDemo /> },
+    { title: l.feat4title, desc: l.feat4desc, icon: 'web', gradient: 'from-violet-500 to-fuchsia-500', demo: <WoordwebDemo /> },
+    { title: l.feat5title, desc: l.feat5desc, icon: 'timer', gradient: 'from-rose-500 to-orange-400', demo: <PomodoroDemo /> },
+    { title: l.feat6title, desc: l.feat6desc, icon: 'calendar', gradient: 'from-sky-500 to-indigo-600', demo: <MonthDemo /> },
   ]
 
   const usps = [
-    { title: l.usp1title, desc: l.usp1desc, icon: '🎯' },
-    { title: l.usp2title, desc: l.usp2desc, icon: '📊' },
-    { title: l.usp3title, desc: l.usp3desc, icon: '🔥' },
-    { title: l.usp4title, desc: l.usp4desc, icon: '🔒' },
+    { title: l.usp1title, desc: l.usp1desc, icon: 'target' as IconName },
+    { title: l.usp2title, desc: l.usp2desc, icon: 'chart' as IconName },
+    { title: l.usp3title, desc: l.usp3desc, icon: 'flame' as IconName },
+    { title: l.usp4title, desc: l.usp4desc, icon: 'lock' as IconName },
   ]
 
   return (
@@ -683,11 +721,11 @@ export default function LandingPage() {
             <div className="relative flex items-center gap-2">
               <CountUp to={12} className="text-5xl font-bold mt-2 tabular-nums" />
               <motion.span
-                className="text-3xl mt-2"
+                className="mt-2 text-orange-300"
                 animate={{ rotate: [-6, 6, -6], scale: [1, 1.15, 1] }}
                 transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
               >
-                🔥
+                <Icon name="flame" className="w-8 h-8" />
               </motion.span>
             </div>
             <p className="relative text-indigo-200 text-sm">{l.card3days}</p>
@@ -728,7 +766,7 @@ export default function LandingPage() {
                   transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: i }}
                 />
                 <div className="relative flex items-center gap-3">
-                  <span className="text-2xl inline-block transition-transform duration-500 group-hover:scale-125 group-hover:-rotate-12">{f.icon}</span>
+                  <span className="text-white inline-block transition-transform duration-500 group-hover:scale-125 group-hover:-rotate-12"><Icon name={f.icon} className="w-7 h-7" /></span>
                   <h3 className="text-lg font-bold text-white leading-tight">{f.title}</h3>
                 </div>
               </div>
@@ -762,7 +800,7 @@ export default function LandingPage() {
 
               {/* Privacy statement */}
               <motion.div variants={fadeUp} className="mt-4 flex items-start gap-3 bg-white/70 rounded-2xl px-4 py-3 border border-indigo-100">
-                <span className="text-emerald-500 mt-0.5 shrink-0 text-base">🔒</span>
+                <span className="text-emerald-500 mt-0.5 shrink-0"><Icon name="lock" className="w-4 h-4" /></span>
                 <p className="text-xs text-indigo-500 leading-relaxed">
                   <span className="font-semibold text-indigo-700">Privacy.</span> Knowl toont geen advertenties en ik verkoop niets door aan anderen.
                 </p>
@@ -789,7 +827,7 @@ export default function LandingPage() {
                   whileHover={{ x: 6, scale: 1.02 }}
                   className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow flex items-start gap-3"
                 >
-                  <span className="text-lg shrink-0">{item.icon}</span>
+                  <span className="shrink-0 w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><Icon name={item.icon} className="w-5 h-5" /></span>
                   <div>
                     <p className="font-semibold text-indigo-900 text-sm">{item.title}</p>
                     <p className="text-xs text-indigo-400 mt-0.5 leading-relaxed">{item.desc}</p>
