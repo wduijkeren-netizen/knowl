@@ -350,24 +350,67 @@ function UsersBefore({ label }: { label: string }) {
   if (users === null) return null
 
   return (
-    <section className="px-4 pb-16">
+    <section className="px-4 pb-16 flex justify-center">
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, scale: 0.5, rotate: -30 }}
+        whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
         viewport={{ once: true, margin: '-80px' }}
-        transition={{ duration: 0.8, ease }}
-        className="relative max-w-xl mx-auto text-center py-10"
+        transition={{ type: 'spring', stiffness: 120, damping: 14 }}
+        whileHover={{ scale: 1.05 }}
+        className="relative w-72 h-72 md:w-80 md:h-80"
       >
         <motion.span
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-40 rounded-full bg-gradient-to-r from-indigo-300 via-violet-300 to-fuchsia-300 blur-3xl"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.35, 0.6, 0.35] }}
+          className="absolute inset-6 rounded-full bg-gradient-to-r from-indigo-400 via-violet-400 to-fuchsia-400 blur-3xl"
+          animate={{ scale: [1, 1.15, 1], opacity: [0.35, 0.6, 0.35] }}
           transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
         />
-        <CountUp
-          to={users}
-          className="relative text-7xl md:text-8xl font-bold tracking-tight tabular-nums bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-500 bg-clip-text text-transparent"
+
+        <motion.svg
+          viewBox="0 0 300 300"
+          className="absolute inset-0 w-full h-full"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+        >
+          <defs>
+            <path id="emblem-ring" d="M150 150 m-128 0 a128 128 0 1 1 256 0 a128 128 0 1 1 -256 0" />
+          </defs>
+          <circle cx={150} cy={150} r={142} fill="white" stroke="#e0e7ff" strokeWidth={1.5} />
+          <circle cx={150} cy={150} r={112} fill="none" stroke="#e0e7ff" strokeWidth={1.5} strokeDasharray="2 6" />
+          <text fontSize={13} fontWeight={700} className="fill-indigo-500 uppercase">
+            <textPath href="#emblem-ring" startOffset="0" textLength={800} lengthAdjust="spacing">
+              Knowl · leertracker · myknowl.com · Knowl · leertracker · myknowl.com ·
+            </textPath>
+          </text>
+        </motion.svg>
+
+        <motion.div
+          className="absolute inset-[15%] rounded-full bg-[conic-gradient(from_0deg,#6366f1,#a855f7,#ec4899,#6366f1)]"
+          animate={{ rotate: -360 }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
         />
-        <p className="relative text-lg md:text-xl font-semibold text-indigo-900 mt-1">{label}</p>
+
+        <div className="absolute inset-[17%] rounded-full overflow-hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-indigo-700 shadow-2xl shadow-indigo-400/50 flex flex-col items-center justify-center text-center">
+          <div className="absolute inset-2 rounded-full border border-white/20" />
+          <motion.span
+            className="absolute inset-y-0 -left-1/2 w-1/3 bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-[-20deg]"
+            animate={{ x: ['0%', '500%'] }}
+            transition={{ duration: 1.6, repeat: Infinity, repeatDelay: 3, ease: 'easeInOut' }}
+          />
+          <CountUp to={users} className="relative text-5xl md:text-6xl font-bold text-white tabular-nums tracking-tight leading-none" />
+          <span className="relative mt-2 h-px w-12 bg-white/40" />
+          <p className="relative mt-2 px-6 text-[11px] md:text-xs font-semibold text-indigo-100 uppercase tracking-[0.15em] leading-relaxed">{label}</p>
+        </div>
+
+        {[0, 72, 144, 216, 288].map((deg, i) => (
+          <motion.span
+            key={deg}
+            className="absolute left-1/2 top-1/2 w-2 h-2 -ml-1 -mt-1 rounded-full bg-violet-400"
+            style={{ rotate: deg, transformOrigin: 'center' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 1, 0], x: [0, Math.cos((deg * Math.PI) / 180) * 170], y: [0, Math.sin((deg * Math.PI) / 180) * 170] }}
+            transition={{ duration: 2.4, repeat: Infinity, delay: 0.8 + i * 0.45, ease: 'easeOut' }}
+          />
+        ))}
       </motion.div>
     </section>
   )
