@@ -278,7 +278,8 @@ export default function LandingPage() {
               <div className="flex gap-4 flex-wrap">
                 <Link href="/privacy" className="hover:text-indigo-600 transition-colors">Privacybeleid</Link>
                 <Link href="/voorwaarden" className="hover:text-indigo-600 transition-colors">Voorwaarden</Link>
-                <a href="mailto:myknowl@hotmail.com" className="hover:text-indigo-600 transition-colors">{l.contact}</a>
+                <Link href="/about" className="hover:text-indigo-600 transition-colors">Over Knowl</Link>
+                <Link href="/contact" className="hover:text-indigo-600 transition-colors">{l.contact}</Link>
               </div>
               <a href="https://www.tiktok.com/@myknowltiktok" target="_blank" rel="noopener noreferrer"
                 className="hover:text-indigo-600 transition-colors flex items-center gap-1.5 font-medium">
