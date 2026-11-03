@@ -88,7 +88,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
     e.stopPropagation()
     const { data, error } = await supabase
       .from('subjects')
-      .update({ is_active: !subject.is_active })
+      .update({ is_active: subject.is_active === false })
       .eq('id', subject.id)
       .select()
       .single()
@@ -236,7 +236,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
               const recurringProgress = recurringGoal ? Math.min(100, Math.round((periodDone / recurringGoal) * 100)) : null
 
               return (
-                <li key={subject.id} className={`rounded-2xl border border-indigo-50 overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all ${subject.is_active ? '' : 'opacity-60'}`}>
+                <li key={subject.id} className={`rounded-2xl border border-indigo-50 overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all ${subject.is_active !== false ? '' : 'opacity-60'}`}>
                   {/* Vak-rij */}
                   <div className="group">
                     <Link
@@ -272,12 +272,12 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
                       <button
                         onClick={(e) => toggleActive(subject, e)}
                         className={`text-xs font-medium px-2 py-0.5 rounded-full border transition-colors ${
-                          subject.is_active
+                          subject.is_active !== false
                             ? 'bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100'
                             : 'bg-gray-50 border-gray-200 text-gray-400 hover:bg-gray-100'
                         }`}
                       >
-                        {subject.is_active ? s.active : s.inactive}
+                        {subject.is_active !== false ? s.active : s.inactive}
                       </button>
                       <button
                         onClick={(e) => startGoalEdit(subject, e)}
