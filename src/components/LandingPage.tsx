@@ -1,10 +1,106 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import {
+  motion, MotionConfig, animate, useInView, useMotionTemplate, useMotionValue,
+  useScroll, useSpring, useTransform, type Variants,
+} from 'framer-motion'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { languages, type LangCode } from '@/lib/i18n/translations'
 import { useGuest } from '@/lib/GuestContext'
+
+const ease = [0.22, 1, 0.36, 1] as const
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 28 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease } },
+}
+
+const stagger = (delay = 0, gap = 0.08): Variants => ({
+  hidden: {},
+  show: { transition: { delayChildren: delay, staggerChildren: gap } },
+})
+
+const popIn: Variants = {
+  hidden: { opacity: 0, scale: 0.4 },
+  show: { opacity: 1, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 18 } },
+}
+
+function Reveal({ children, className, delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
+  return (
+    <motion.div
+      className={className}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: '-80px' }}
+      variants={stagger(delay, 0.1)}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+function AnimatedWords({ text, className, delay = 0 }: { text: string; className?: string; delay?: number }) {
+  return (
+    <motion.span className={className} initial="hidden" animate="show" variants={stagger(delay, 0.07)}>
+      {text.split(' ').map((word, i) => (
+        <span key={i} className="inline-block overflow-hidden align-bottom pb-1">
+          <motion.span
+            className="inline-block"
+            variants={{
+              hidden: { y: '110%', rotate: 6 },
+              show: { y: '0%', rotate: 0, transition: { duration: 0.8, ease } },
+            }}
+          >
+            {word}{' '}
+          </motion.span>
+        </span>
+      ))}
+    </motion.span>
+  )
+}
+
+function CountUp({ to, className }: { to: number; className?: string }) {
+  const ref = useRef<HTMLParagraphElement>(null)
+  const inView = useInView(ref, { once: true })
+  const [value, setValue] = useState(0)
+
+  useEffect(() => {
+    if (!inView) return
+    const controls = animate(0, to, { duration: 1.6, ease, onUpdate: v => setValue(Math.round(v)) })
+    return () => controls.stop()
+  }, [inView, to])
+
+  return <p ref={ref} className={className}>{value}</p>
+}
+
+function TiltCard({ children, className, float = 0 }: { children: ReactNode; className?: string; float?: number }) {
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [10, -10]), { stiffness: 200, damping: 20 })
+  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-10, 10]), { stiffness: 200, damping: 20 })
+
+  return (
+    <motion.div variants={fadeUp} style={{ perspective: 900 }}>
+      <div className="animate-float motion-reduce:animate-none" style={{ animationDelay: `${float}s` }}>
+        <motion.div
+          className={className}
+          style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
+          whileHover={{ scale: 1.03 }}
+          onMouseMove={e => {
+            const r = e.currentTarget.getBoundingClientRect()
+            x.set((e.clientX - r.left) / r.width - 0.5)
+            y.set((e.clientY - r.top) / r.height - 0.5)
+          }}
+          onMouseLeave={() => { x.set(0); y.set(0) }}
+        >
+          {children}
+        </motion.div>
+      </div>
+    </motion.div>
+  )
+}
 
 export default function LandingPage() {
   const { lang, setLang, tr } = useLanguage()
@@ -12,6 +108,21 @@ export default function LandingPage() {
   const { logGuestEvent } = useGuest()
   const currentLang = languages.find(l => l.code === lang)
   const l = tr.landing
+
+  const { scrollYProgress } = useScroll()
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30 })
+
+  const heroRef = useRef<HTMLElement>(null)
+  const { scrollYProgress: heroScroll } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
+  const heroTextY = useTransform(heroScroll, [0, 1], [0, 120])
+  const heroTextOpacity = useTransform(heroScroll, [0, 0.7], [1, 0])
+  const cardsY = useTransform(heroScroll, [0, 1], [0, -60])
+  const blobY1 = useTransform(heroScroll, [0, 1], [0, 200])
+  const blobY2 = useTransform(heroScroll, [0, 1], [0, 320])
+
+  const mouseX = useMotionValue(-500)
+  const mouseY = useMotionValue(-500)
+  const spotlight = useMotionTemplate`radial-gradient(500px circle at ${mouseX}px ${mouseY}px, rgba(129,140,248,0.18), transparent 70%)`
 
   const primaryFeatures = [
     { title: l.feat1title, desc: l.feat1desc, color: 'bg-gradient-to-br from-indigo-500 to-violet-600', icon: '🎯' },
@@ -33,26 +144,42 @@ export default function LandingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-white">
+    <MotionConfig reducedMotion="user">
+    <div className="min-h-screen bg-white overflow-x-clip">
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 z-30 origin-left bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-400"
+        style={{ scaleX: progress }}
+      />
+
       {/* Nav */}
-      <header className="fixed top-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-sm border-b border-indigo-100">
+      <motion.header
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease }}
+        className="fixed top-0 left-0 right-0 z-20 bg-white/80 backdrop-blur-md border-b border-indigo-100"
+      >
         <div className="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
-          <div className="flex items-center gap-2">
+          <motion.div className="flex items-center gap-2" whileHover={{ scale: 1.05 }}>
             <span className="text-xl font-bold text-indigo-700 tracking-tight">Knowl</span>
             <span className="hidden sm:inline text-xs text-indigo-300 font-normal">leertracker</span>
-          </div>
+          </motion.div>
           <div className="flex gap-2 items-center">
             <div className="relative">
               <button onClick={() => setShowLang(s => !s)}
                 className="flex items-center gap-1 text-sm text-indigo-400 hover:text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg px-2.5 py-1.5 transition-colors">
                 <span>{currentLang?.flag}</span>
                 <span className="font-medium text-xs">{currentLang?.code.toUpperCase()}</span>
-                <span className="text-xs opacity-60">▾</span>
+                <motion.span className="text-xs opacity-60" animate={{ rotate: showLang ? 180 : 0 }}>▾</motion.span>
               </button>
               {showLang && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setShowLang(false)} />
-                  <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl border border-indigo-100 shadow-xl py-2 z-20 min-w-[170px]">
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.18 }}
+                    className="absolute right-0 top-full mt-2 bg-white rounded-2xl border border-indigo-100 shadow-xl py-2 z-20 min-w-[170px] origin-top-right"
+                  >
                     {languages.map(lg => (
                       <button key={lg.code} onClick={() => { setLang(lg.code as LangCode); setShowLang(false) }}
                         className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-indigo-50 transition-colors ${lang === lg.code ? 'text-indigo-700 font-semibold' : 'text-gray-600'}`}>
@@ -60,83 +187,149 @@ export default function LandingPage() {
                         {lang === lg.code && <span className="ml-auto text-indigo-400">✓</span>}
                       </button>
                     ))}
-                  </div>
+                  </motion.div>
                 </>
               )}
             </div>
             <Link href="/login" onClick={() => logGuestEvent('signup_click')} className="hidden sm:block text-sm text-indigo-500 hover:text-indigo-700 font-medium transition-colors px-3 py-1.5">
               {l.login}
             </Link>
-            <Link href="/leermomenten" className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-indigo-700 active:scale-95 transition-all shadow-sm">
-              {l.cta}
-            </Link>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link href="/leermomenten" className="block text-sm bg-indigo-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-indigo-700 transition-colors shadow-sm">
+                {l.cta}
+              </Link>
+            </motion.div>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Hero */}
-      <section className="relative pt-24 pb-16 px-4 overflow-hidden bg-gradient-to-b from-indigo-50 via-white to-white">
-        <div className="absolute top-10 left-1/4 w-72 h-72 bg-indigo-200 rounded-full blur-3xl opacity-20 pointer-events-none" />
-        <div className="absolute top-20 right-1/4 w-64 h-64 bg-violet-200 rounded-full blur-3xl opacity-20 pointer-events-none" />
+      <section
+        ref={heroRef}
+        className="relative pt-28 pb-20 px-4 overflow-hidden bg-gradient-to-b from-indigo-50 via-white to-white"
+        onMouseMove={e => {
+          const r = e.currentTarget.getBoundingClientRect()
+          mouseX.set(e.clientX - r.left)
+          mouseY.set(e.clientY - r.top)
+        }}
+      >
+        <motion.div className="absolute inset-0 pointer-events-none" style={{ background: spotlight }} />
+        <motion.div
+          style={{ y: blobY1 }}
+          animate={{ x: [0, 60, -40, 0], scale: [1, 1.2, 0.9, 1] }}
+          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-10 left-[10%] w-80 h-80 bg-indigo-300 rounded-full blur-3xl opacity-30 pointer-events-none"
+        />
+        <motion.div
+          style={{ y: blobY2 }}
+          animate={{ x: [0, -70, 30, 0], scale: [1, 0.85, 1.15, 1] }}
+          transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-24 right-[10%] w-72 h-72 bg-violet-300 rounded-full blur-3xl opacity-30 pointer-events-none"
+        />
+        <motion.div
+          animate={{ x: [0, 40, -60, 0], y: [0, -30, 20, 0] }}
+          transition={{ duration: 26, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-64 left-1/2 w-64 h-64 bg-fuchsia-200 rounded-full blur-3xl opacity-25 pointer-events-none"
+        />
 
-        <div className="relative max-w-3xl mx-auto text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-white text-indigo-700 text-xs font-semibold px-4 py-2 rounded-full mb-6 border border-indigo-200 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-            {l.badge}
-          </div>
-
-          <h1 className="text-4xl md:text-5xl font-bold text-indigo-900 leading-tight tracking-tight">
-            {l.h1a}
-            <br />
-            <span className="bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">
-              {l.h1b}
+        <motion.div className="relative max-w-3xl mx-auto text-center" style={{ y: heroTextY, opacity: heroTextOpacity }}>
+          <motion.div
+            initial={{ opacity: 0, y: 16, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.6, ease, delay: 0.15 }}
+            className="inline-flex items-center gap-2 bg-white text-indigo-700 text-xs font-semibold px-4 py-2 rounded-full mb-6 border border-indigo-200 shadow-sm"
+          >
+            <span className="relative flex w-2 h-2 shrink-0">
+              <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-75" />
+              <span className="relative w-2 h-2 rounded-full bg-emerald-400" />
             </span>
+            {l.badge}
+          </motion.div>
+
+          <h1 key={lang} className="text-4xl md:text-6xl font-bold text-indigo-900 leading-tight tracking-tight">
+            <AnimatedWords text={l.h1a} delay={0.3} />
+            <br />
+            <motion.span
+              className="inline-block bg-gradient-to-r from-indigo-600 via-violet-500 to-indigo-600 bg-[length:200%_auto] bg-clip-text text-transparent"
+              initial={{ opacity: 0, y: 30, filter: 'blur(8px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)', backgroundPosition: ['0% 50%', '200% 50%'] }}
+              transition={{
+                opacity: { duration: 0.8, delay: 0.7 },
+                y: { duration: 0.8, delay: 0.7, ease },
+                filter: { duration: 0.8, delay: 0.7 },
+                backgroundPosition: { duration: 6, repeat: Infinity, ease: 'linear' },
+              }}
+            >
+              {l.h1b}
+            </motion.span>
           </h1>
 
-          <p className="text-base md:text-lg text-indigo-500 mt-5 leading-relaxed max-w-lg mx-auto">
-            {l.sub}
-          </p>
+          <motion.div initial="hidden" animate="show" variants={stagger(1, 0.12)}>
+            <motion.p variants={fadeUp} className="text-base md:text-lg text-indigo-500 mt-5 leading-relaxed max-w-lg mx-auto">
+              {l.sub}
+            </motion.p>
 
-          <p className="text-xs text-indigo-400 mt-3 font-medium">
-            {l.proof}
-          </p>
+            <motion.p variants={fadeUp} className="text-xs text-indigo-400 mt-3 font-medium">
+              {l.proof}
+            </motion.p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-7">
-            <Link href="/leermomenten"
-              className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-8 py-3.5 rounded-2xl font-bold text-base hover:from-indigo-700 hover:to-violet-700 active:scale-95 transition-all shadow-lg shadow-indigo-200/60 text-center">
-              {l.cta}
-            </Link>
-            <Link href="/login" onClick={() => logGuestEvent('signup_click')}
-              className="bg-white text-indigo-600 px-8 py-3.5 rounded-2xl font-bold text-base hover:bg-indigo-50 active:scale-95 transition-all border border-indigo-200 shadow-sm text-center">
-              {l.login}
-            </Link>
-          </div>
-        </div>
+            <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3 justify-center mt-7">
+              <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.96 }} className="relative group">
+                <span className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 blur-lg opacity-40 group-hover:opacity-70 transition-opacity" />
+                <Link href="/leermomenten"
+                  className="relative block overflow-hidden bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-8 py-3.5 rounded-2xl font-bold text-base shadow-lg shadow-indigo-200/60 text-center">
+                  <motion.span
+                    className="absolute inset-y-0 -left-1/2 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-20deg]"
+                    animate={{ x: ['0%', '450%'] }}
+                    transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 2.5, ease: 'easeInOut' }}
+                  />
+                  <span className="relative">{l.cta}</span>
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.96 }}>
+                <Link href="/login" onClick={() => logGuestEvent('signup_click')}
+                  className="block bg-white text-indigo-600 px-8 py-3.5 rounded-2xl font-bold text-base hover:bg-indigo-50 transition-colors border border-indigo-200 shadow-sm text-center">
+                  {l.login}
+                </Link>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
 
         {/* Preview kaarten */}
-        <div className="relative max-w-4xl mx-auto mt-14 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-lg p-5 hover:-translate-y-0.5 hover:shadow-xl transition-all">
+        <motion.div
+          style={{ y: cardsY }}
+          initial="hidden"
+          animate="show"
+          variants={stagger(1.3, 0.15)}
+          className="relative max-w-4xl mx-auto mt-16 grid grid-cols-1 md:grid-cols-3 gap-4"
+        >
+          <TiltCard float={0} className="bg-white rounded-2xl border border-indigo-100 shadow-lg p-5 hover:shadow-2xl transition-shadow">
             <div className="flex justify-between items-start mb-3">
               <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">{l.card1tag}</span>
               <span className="text-xs text-indigo-300">{l.card1today}</span>
             </div>
             <p className="font-bold text-indigo-900 text-sm">{l.card1title}</p>
             <p className="text-xs text-indigo-400 mt-2 leading-relaxed">{l.card1body}</p>
-            <div className="flex gap-2 mt-3">
-              <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-0.5 font-medium">{l.card1sub1}</span>
-              <span className="text-xs bg-violet-50 text-violet-600 rounded-full px-2.5 py-0.5 font-medium">{l.card1sub2}</span>
-            </div>
-          </div>
+            <motion.div className="flex gap-2 mt-3" variants={stagger(0.4, 0.15)}>
+              <motion.span variants={popIn} className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-0.5 font-medium">{l.card1sub1}</motion.span>
+              <motion.span variants={popIn} className="text-xs bg-violet-50 text-violet-600 rounded-full px-2.5 py-0.5 font-medium">{l.card1sub2}</motion.span>
+            </motion.div>
+          </TiltCard>
 
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-lg p-5 hover:-translate-y-0.5 hover:shadow-xl transition-all">
+          <TiltCard float={0.8} className="bg-white rounded-2xl border border-indigo-100 shadow-lg p-5 hover:shadow-2xl transition-shadow">
             <div className="flex justify-between items-start mb-1">
               <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">{l.card2tag}</span>
               <span className="text-xs font-bold text-red-400">{l.card2days}</span>
             </div>
             <p className="text-lg font-bold text-indigo-900 mt-1">{l.card2title}</p>
             <div className="mt-3 h-2 bg-indigo-100 rounded-full overflow-hidden">
-              <div className="h-full w-[62%] bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full" />
+              <motion.div
+                className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full"
+                initial={{ width: '0%' }}
+                animate={{ width: '62%' }}
+                transition={{ duration: 1.6, delay: 1.9, ease }}
+              />
             </div>
             <p className="text-xs text-indigo-400 mt-1.5">{l.card2progress}</p>
             <div className="grid grid-cols-2 gap-2 mt-3">
@@ -149,121 +342,190 @@ export default function LandingPage() {
                 <p className="text-xs text-violet-500">{l.card2stat2lab}</p>
               </div>
             </div>
-          </div>
+          </TiltCard>
 
-          <div className="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl shadow-lg p-5 text-white hover:-translate-y-0.5 hover:shadow-xl transition-all">
-            <span className="text-xs font-semibold text-indigo-200 uppercase tracking-wide">{l.card3tag}</span>
-            <p className="text-5xl font-bold mt-2">12</p>
-            <p className="text-indigo-200 text-sm">{l.card3days}</p>
-            <div className="flex gap-1 mt-4 flex-wrap">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="w-5 h-5 rounded-md bg-white/25 flex items-center justify-center">
-                  <div className="w-2.5 h-2.5 rounded-sm bg-white/90" />
-                </div>
-              ))}
+          <TiltCard float={1.6} className="relative overflow-hidden bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl shadow-lg p-5 text-white hover:shadow-2xl transition-shadow">
+            <motion.div
+              className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10"
+              animate={{ scale: [1, 1.3, 1] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <span className="relative text-xs font-semibold text-indigo-200 uppercase tracking-wide">{l.card3tag}</span>
+            <div className="relative flex items-center gap-2">
+              <CountUp to={12} className="text-5xl font-bold mt-2 tabular-nums" />
+              <motion.span
+                className="text-3xl mt-2"
+                animate={{ rotate: [-6, 6, -6], scale: [1, 1.15, 1] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                🔥
+              </motion.span>
             </div>
-            <p className="text-xs text-indigo-300 mt-3">{l.card3sub}</p>
-          </div>
-        </div>
+            <p className="relative text-indigo-200 text-sm">{l.card3days}</p>
+            <motion.div className="relative flex gap-1 mt-4 flex-wrap" variants={stagger(0.6, 0.07)}>
+              {Array.from({ length: 12 }).map((_, i) => (
+                <motion.div key={i} variants={popIn} className="w-5 h-5 rounded-md bg-white/25 flex items-center justify-center">
+                  <div className="w-2.5 h-2.5 rounded-sm bg-white/90" />
+                </motion.div>
+              ))}
+            </motion.div>
+            <p className="relative text-xs text-indigo-300 mt-3">{l.card3sub}</p>
+          </TiltCard>
+        </motion.div>
       </section>
 
       {/* Features */}
       <section className="max-w-5xl mx-auto px-4 py-16">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl md:text-3xl font-bold text-indigo-900">{l.featTitle}</h2>
-          <p className="text-indigo-400 mt-2 text-sm md:text-base">{l.featSub}</p>
-        </div>
+        <Reveal className="text-center mb-10">
+          <motion.h2 variants={fadeUp} className="text-2xl md:text-3xl font-bold text-indigo-900">{l.featTitle}</motion.h2>
+          <motion.p variants={fadeUp} className="text-indigo-400 mt-2 text-sm md:text-base">{l.featSub}</motion.p>
+        </Reveal>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
-          {primaryFeatures.map(f => (
-            <div key={f.title} className="rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all border border-indigo-100 group">
-              <div className={`h-32 flex items-end px-6 pb-5 ${f.color}`}>
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{f.icon}</span>
+        <Reveal className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+          {primaryFeatures.map((f, i) => (
+            <motion.div
+              key={f.title}
+              variants={{
+                hidden: { opacity: 0, x: i === 0 ? -60 : 60 },
+                show: { opacity: 1, x: 0, transition: { duration: 0.8, ease } },
+              }}
+              whileHover={{ y: -6 }}
+              className="rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow border border-indigo-100 group"
+            >
+              <div className={`relative overflow-hidden h-32 flex items-end px-6 pb-5 ${f.color}`}>
+                <motion.div
+                  className="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-white/10"
+                  animate={{ scale: [1, 1.25, 1], rotate: [0, 90, 0] }}
+                  transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: i }}
+                />
+                <div className="relative flex items-center gap-3">
+                  <span className="text-2xl inline-block transition-transform duration-500 group-hover:scale-125 group-hover:-rotate-12">{f.icon}</span>
                   <h3 className="text-lg font-bold text-white leading-tight">{f.title}</h3>
                 </div>
               </div>
               <div className="bg-white px-6 py-5">
                 <p className="text-sm text-indigo-500 leading-relaxed">{f.desc}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </Reveal>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Reveal className="grid grid-cols-2 md:grid-cols-4 gap-3" delay={0.1}>
           {secondaryFeatures.map(f => (
-            <div key={f.title} className="bg-white rounded-2xl border border-indigo-100 p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-              <span className="text-xl">{f.icon}</span>
+            <motion.div
+              key={f.title}
+              variants={{
+                hidden: { opacity: 0, y: 40, scale: 0.9 },
+                show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 220, damping: 20 } },
+              }}
+              whileHover={{ y: -6, rotate: -1 }}
+              className="bg-white rounded-2xl border border-indigo-100 p-4 shadow-sm hover:shadow-lg hover:border-indigo-200 transition-[box-shadow,border-color] group"
+            >
+              <span className="text-xl inline-block transition-transform duration-500 group-hover:scale-125 group-hover:rotate-12">{f.icon}</span>
               <h3 className="text-sm font-semibold text-indigo-900 mt-2">{f.title}</h3>
               <p className="text-xs text-indigo-400 mt-1 leading-relaxed">{f.desc}</p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </Reveal>
       </section>
 
       {/* Over Knowl */}
       <section className="max-w-4xl mx-auto px-4 py-16">
-        <div className="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-3xl p-8 md:p-12">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.8, ease }}
+          className="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-3xl p-8 md:p-12"
+        >
           <div className="grid md:grid-cols-2 gap-8 items-start">
-            <div>
-              <span className="text-xs font-semibold text-indigo-500 uppercase tracking-widest">{l.aboutTag}</span>
-              <h2 className="text-2xl md:text-3xl font-bold text-indigo-900 mt-2 leading-tight whitespace-pre-line">
+            <Reveal>
+              <motion.span variants={fadeUp} className="block text-xs font-semibold text-indigo-500 uppercase tracking-widest">{l.aboutTag}</motion.span>
+              <motion.h2 variants={fadeUp} className="text-2xl md:text-3xl font-bold text-indigo-900 mt-2 leading-tight whitespace-pre-line">
                 {l.aboutTitle}
-              </h2>
-              <p className="text-indigo-700 mt-4 leading-relaxed text-sm md:text-base">{l.aboutP1}</p>
-              <p className="text-indigo-500 mt-3 leading-relaxed text-sm md:text-base">{l.aboutP2}</p>
+              </motion.h2>
+              <motion.p variants={fadeUp} className="text-indigo-700 mt-4 leading-relaxed text-sm md:text-base">{l.aboutP1}</motion.p>
+              <motion.p variants={fadeUp} className="text-indigo-500 mt-3 leading-relaxed text-sm md:text-base">{l.aboutP2}</motion.p>
 
               {/* Privacy statement */}
-              <div className="mt-4 flex items-start gap-3 bg-white/70 rounded-2xl px-4 py-3 border border-indigo-100">
+              <motion.div variants={fadeUp} className="mt-4 flex items-start gap-3 bg-white/70 rounded-2xl px-4 py-3 border border-indigo-100">
                 <span className="text-emerald-500 mt-0.5 shrink-0 text-base">🔒</span>
                 <p className="text-xs text-indigo-500 leading-relaxed">
                   <span className="font-semibold text-indigo-700">Jouw data is van jou.</span> Geen tracking, geen advertenties, geen verkoop aan derden. Download alles als CSV, verwijder je account wanneer je wilt.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="flex gap-6 mt-6 flex-wrap">
-                <div>
-                  <p className="text-2xl font-bold text-indigo-700">{l.stat1val}</p>
-                  <p className="text-xs text-indigo-400">{l.stat1lab}</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-indigo-700">{l.stat2val}</p>
-                  <p className="text-xs text-indigo-400">{l.stat2lab}</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-indigo-700">{l.stat3val}</p>
-                  <p className="text-xs text-indigo-400">{l.stat3lab}</p>
-                </div>
-              </div>
-            </div>
+              <motion.div variants={stagger(0, 0.12)} className="flex gap-6 mt-6 flex-wrap">
+                {[[l.stat1val, l.stat1lab], [l.stat2val, l.stat2lab], [l.stat3val, l.stat3lab]].map(([val, lab]) => (
+                  <motion.div key={lab} variants={popIn}>
+                    <p className="text-2xl font-bold text-indigo-700">{val}</p>
+                    <p className="text-xs text-indigo-400">{lab}</p>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </Reveal>
 
-            <div className="space-y-3">
+            <Reveal className="space-y-3" delay={0.2}>
               {usps.map(item => (
-                <div key={item.title} className="bg-white rounded-2xl p-4 shadow-sm flex items-start gap-3">
+                <motion.div
+                  key={item.title}
+                  variants={{
+                    hidden: { opacity: 0, x: 50 },
+                    show: { opacity: 1, x: 0, transition: { duration: 0.6, ease } },
+                  }}
+                  whileHover={{ x: 6, scale: 1.02 }}
+                  className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow flex items-start gap-3"
+                >
                   <span className="text-lg shrink-0">{item.icon}</span>
                   <div>
                     <p className="font-semibold text-indigo-900 text-sm">{item.title}</p>
                     <p className="text-xs text-indigo-400 mt-0.5 leading-relaxed">{item.desc}</p>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </Reveal>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* CTA */}
       <section className="px-4 py-16">
-        <div className="max-w-3xl mx-auto bg-gradient-to-br from-indigo-600 to-violet-600 rounded-3xl px-8 py-12 text-center shadow-xl shadow-indigo-200/60">
-          <h2 className="text-2xl md:text-3xl font-bold text-white">{l.ctaTitle}</h2>
-          <p className="text-indigo-200 mt-3 mb-2 text-sm md:text-base">{l.ctaSub}</p>
-          <p className="text-xs text-indigo-300 mb-8">{l.ctaNote}</p>
-          <Link href="/leermomenten"
-            className="inline-block bg-white text-indigo-700 px-10 py-4 rounded-2xl font-bold text-base hover:bg-indigo-50 active:scale-95 transition-all shadow-lg">
-            {l.ctaBtn}
-          </Link>
-          <p className="text-xs text-indigo-300 mt-5">{l.ctaFooter}</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 60, scale: 0.95 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.9, ease }}
+          className="relative overflow-hidden max-w-3xl mx-auto bg-gradient-to-br from-indigo-600 to-violet-600 rounded-3xl px-8 py-12 text-center shadow-xl shadow-indigo-200/60"
+        >
+          <motion.div
+            className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-fuchsia-400/30 blur-3xl"
+            animate={{ x: [0, 200, 0], y: [0, 80, 0] }}
+            transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="absolute -bottom-20 -right-20 w-72 h-72 rounded-full bg-sky-400/25 blur-3xl"
+            animate={{ x: [0, -200, 0], y: [0, -60, 0] }}
+            transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <div className="relative">
+            <h2 className="text-2xl md:text-3xl font-bold text-white">{l.ctaTitle}</h2>
+            <p className="text-indigo-200 mt-3 mb-2 text-sm md:text-base">{l.ctaSub}</p>
+            <p className="text-xs text-indigo-300 mb-8">{l.ctaNote}</p>
+            <motion.div
+              className="inline-block"
+              animate={{ scale: [1, 1.04, 1] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Link href="/leermomenten"
+                className="inline-block bg-white text-indigo-700 px-10 py-4 rounded-2xl font-bold text-base hover:bg-indigo-50 transition-colors shadow-lg">
+                {l.ctaBtn}
+              </Link>
+            </motion.div>
+            <p className="text-xs text-indigo-300 mt-5">{l.ctaFooter}</p>
+          </div>
+        </motion.div>
       </section>
 
       {/* Footer */}
@@ -293,5 +555,6 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
+    </MotionConfig>
   )
 }

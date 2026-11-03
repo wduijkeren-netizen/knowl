@@ -15,8 +15,13 @@ const config: Config = {
       },
       animation: {
         aurora: "aurora 60s linear infinite",
+        float: "float 5s ease-in-out infinite",
       },
       keyframes: {
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
         aurora: {
           from: { backgroundPosition: "50% 50%, 50% 50%" },
           to: { backgroundPosition: "350% 50%, 350% 50%" },
