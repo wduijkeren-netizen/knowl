@@ -334,52 +334,39 @@ function ProgressDemo() {
 
 type Landing = typeof t.nl.landing
 
-type PublicStats = { users: number; moments: number; minutes: number }
+type PublicStats = { users: number }
 
 const MIN_USERS_SHOWN = 50
 
-function RealStats({ l }: { l: Landing }) {
-  const [stats, setStats] = useState<PublicStats | null>(null)
+function UsersBefore({ label }: { label: string }) {
+  const [users, setUsers] = useState<number | null>(null)
 
   useEffect(() => {
     createClient().rpc('public_stats').then(({ data, error }) => {
-      if (!error && data && (data as PublicStats).moments > 0) setStats(data as PublicStats)
+      if (!error && data && (data as PublicStats).users >= MIN_USERS_SHOWN) setUsers((data as PublicStats).users)
     })
   }, [])
 
-  if (!stats) return null
-
-  const items = [
-    ...(stats.users >= MIN_USERS_SHOWN ? [{ value: stats.users, label: l.statUsers, icon: 'target' as IconName }] : []),
-    { value: Math.round(stats.minutes / 60), label: l.statHours, icon: 'timer' as IconName },
-  ]
+  if (users === null) return null
 
   return (
-    <section className="max-w-4xl mx-auto px-4 pb-12">
-      <Reveal className={`grid gap-3 md:gap-5 ${items.length === 2 ? 'grid-cols-2 max-w-xl mx-auto' : 'grid-cols-1 max-w-xs mx-auto'}`}>
-        {items.map(item => (
-          <motion.div
-            key={item.label}
-            variants={popIn}
-            whileHover={{ y: -4 }}
-            className="relative overflow-hidden rounded-2xl bg-white border border-indigo-100 shadow-sm px-3 py-5 md:py-6 text-center"
-          >
-            <motion.div
-              className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-400 origin-left"
-              initial={{ scaleX: 0 }}
-              whileInView={{ scaleX: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.2, ease, delay: 0.3 }}
-            />
-            <span className="mx-auto mb-2 w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-              <Icon name={item.icon} className="w-5 h-5" />
-            </span>
-            <CountUp to={item.value} className="text-2xl md:text-4xl font-bold text-indigo-900 tabular-nums" />
-            <p className="text-[11px] md:text-sm text-indigo-400 mt-1 leading-snug">{item.label}</p>
-          </motion.div>
-        ))}
-      </Reveal>
-    </section>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      transition={{ type: 'spring', stiffness: 200, damping: 16 }}
+      className="mb-7"
+    >
+      <div className="relative inline-flex items-center justify-center">
+        <motion.span
+          className="absolute inset-0 rounded-full bg-white/20 blur-2xl"
+          animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.9, 0.5] }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <CountUp to={users} className="relative text-6xl md:text-7xl font-bold text-white tabular-nums tracking-tight" />
+      </div>
+      <p className="text-indigo-100 text-base md:text-lg font-medium mt-1">{label}</p>
+    </motion.div>
   )
 }
 
@@ -1379,8 +1366,6 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      <RealStats l={l} />
-
       <TryIt l={l} />
 
       {/* Features */}
@@ -1485,6 +1470,7 @@ export default function LandingPage() {
             <h2 className="text-2xl md:text-3xl font-bold text-white">{l.ctaTitle}</h2>
             <p className="text-indigo-200 mt-3 mb-2 text-sm md:text-base">{l.ctaSub}</p>
             <p className="text-xs text-indigo-300 mb-8">{l.ctaNote}</p>
+            <UsersBefore label={l.statUsers} />
             <motion.div
               className="inline-block"
               animate={{ scale: [1, 1.04, 1] }}
