@@ -1249,6 +1249,219 @@ function MonthDemo() {
   )
 }
 
+function rand(i: number, seed: number) {
+  let h = (i * 374761393 + seed * 668265263) | 0
+  h = Math.imul(h ^ (h >>> 13), 1274126177)
+  h ^= h >>> 16
+  return (h >>> 0) / 4294967296
+}
+
+function Scene({ className, decor, children, fade = true }: { className: string; decor: ReactNode; children: ReactNode; fade?: boolean }) {
+  return (
+    <div className={`relative overflow-hidden ${className}`}>
+      <div
+        className={`absolute inset-0 pointer-events-none ${fade ? '[mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)]' : ''}`}
+        aria-hidden
+      >
+        {decor}
+      </div>
+      <div className="relative">{children}</div>
+    </div>
+  )
+}
+
+function Wave({ fill, flip = false }: { fill: string; flip?: boolean }) {
+  return (
+    <div className={`absolute inset-x-0 h-16 md:h-20 overflow-hidden ${flip ? 'bottom-0 rotate-180' : 'top-0'}`}>
+      <motion.svg
+        viewBox="0 0 2880 80"
+        preserveAspectRatio="none"
+        className="h-full w-[200%]"
+        animate={{ x: ['0%', '-50%'] }}
+        transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+      >
+        <path
+          d="M0 0 H2880 V40 C2640 80 2400 80 2160 40 S1680 0 1440 40 S960 80 720 40 S240 0 0 40 Z"
+          fill={fill}
+        />
+      </motion.svg>
+    </div>
+  )
+}
+
+function NotebookDecor() {
+  return (
+    <>
+      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white to-transparent" />
+      {Array.from({ length: 16 }).map((_, i) => (
+        <motion.span
+          key={i}
+          className="absolute left-0 right-0 h-px bg-sky-300/40 origin-left"
+          style={{ top: 72 + i * 40 }}
+          initial={{ scaleX: 0 }}
+          whileInView={{ scaleX: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.1, ease, delay: i * 0.05 }}
+        />
+      ))}
+      <motion.span
+        className="absolute top-0 bottom-0 left-[6%] md:left-[12%] w-px bg-rose-300/70 origin-top"
+        initial={{ scaleY: 0 }}
+        whileInView={{ scaleY: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1.4, ease, delay: 0.3 }}
+      />
+      <motion.span
+        className="absolute -top-20 right-[8%] w-80 h-80 rounded-full bg-amber-200/40 blur-3xl"
+        animate={{ x: [0, -60, 0], y: [0, 40, 0] }}
+        transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.span
+        className="absolute bottom-0 left-[15%] w-72 h-72 rounded-full bg-rose-200/40 blur-3xl"
+        animate={{ x: [0, 70, 0], y: [0, -30, 0] }}
+        transition={{ duration: 17, repeat: Infinity, ease: 'easeInOut' }}
+      />
+    </>
+  )
+}
+
+function NightDecor() {
+  return (
+    <>
+      <motion.span
+        className="absolute top-[10%] -left-[10%] w-[60%] h-[50%] rounded-full bg-indigo-600/30 blur-[100px]"
+        animate={{ x: ['0%', '30%', '0%'], scale: [1, 1.2, 1] }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.span
+        className="absolute top-[35%] -right-[10%] w-[55%] h-[45%] rounded-full bg-fuchsia-600/20 blur-[100px]"
+        animate={{ x: ['0%', '-25%', '0%'], scale: [1, 0.9, 1] }}
+        transition={{ duration: 24, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.span
+        className="absolute bottom-[5%] left-[20%] w-[50%] h-[35%] rounded-full bg-teal-500/15 blur-[100px]"
+        animate={{ x: ['0%', '20%', '0%'] }}
+        transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      {Array.from({ length: 80 }).map((_, i) => {
+        const size = rand(i, 3) > 0.85 ? 3 : rand(i, 4) > 0.5 ? 2 : 1
+        return (
+          <span
+            key={i}
+            className="absolute rounded-full bg-white animate-twinkle motion-reduce:animate-none"
+            style={{
+              left: `${rand(i, 1) * 100}%`,
+              top: `${rand(i, 2) * 100}%`,
+              width: size,
+              height: size,
+              animationDelay: `${rand(i, 5) * 4}s`,
+              animationDuration: `${2.5 + rand(i, 6) * 3}s`,
+            }}
+          />
+        )
+      })}
+      <motion.span
+        className="absolute top-[12%] left-[70%] h-px w-32 bg-gradient-to-r from-transparent via-white to-transparent rotate-[-25deg]"
+        animate={{ x: [0, -500], y: [0, 230], opacity: [0, 1, 0] }}
+        transition={{ duration: 1.4, repeat: Infinity, repeatDelay: 6, ease: 'easeIn' }}
+      />
+    </>
+  )
+}
+
+function StageDecor() {
+  return (
+    <>
+      <motion.span
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-[radial-gradient(ellipse_at_top,rgba(167,139,250,0.45),transparent_65%)]"
+        animate={{ opacity: [0.7, 1, 0.7] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <div className="absolute inset-x-0 bottom-0 h-[55%] [perspective:500px] [mask-image:linear-gradient(to_top,black,transparent)]">
+        <div className="absolute -inset-x-1/2 bottom-0 h-[200%] origin-bottom [transform:rotateX(65deg)] bg-[linear-gradient(rgba(139,92,246,0.35)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.35)_1px,transparent_1px)] [background-size:56px_56px] animate-grid-move motion-reduce:animate-none" />
+      </div>
+    </>
+  )
+}
+
+function RaysDecor() {
+  return (
+    <motion.span
+      className="absolute left-1/2 top-1/2 -ml-[600px] -mt-[600px] w-[1200px] h-[1200px] rounded-full bg-[repeating-conic-gradient(from_0deg,rgba(217,70,239,0.13)_0deg_5deg,transparent_5deg_15deg)] [mask-image:radial-gradient(circle,black_10%,transparent_55%)]"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 80, repeat: Infinity, ease: 'linear' }}
+    />
+  )
+}
+
+function MintDecor() {
+  const blobs = [
+    { className: 'top-[5%] left-[-5%] w-96 h-96 bg-emerald-200/60', duration: 16 },
+    { className: 'bottom-[0%] right-[-5%] w-[28rem] h-[28rem] bg-teal-200/50', duration: 20 },
+    { className: 'top-[40%] left-[45%] w-64 h-64 bg-lime-200/40', duration: 13 },
+  ]
+  return (
+    <>
+      {blobs.map((b, i) => (
+        <motion.span
+          key={i}
+          className={`absolute blur-2xl ${b.className}`}
+          animate={{
+            borderRadius: ['42% 58% 70% 30% / 45% 45% 55% 55%', '70% 30% 46% 54% / 30% 39% 61% 70%', '42% 58% 70% 30% / 45% 45% 55% 55%'],
+            rotate: [0, 120, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{ duration: b.duration, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      ))}
+    </>
+  )
+}
+
+function QuestionDecor() {
+  return (
+    <>
+      {Array.from({ length: 14 }).map((_, i) => (
+        <motion.span
+          key={i}
+          className="absolute font-bold text-sky-200/70 select-none"
+          style={{ left: `${rand(i, 7) * 95}%`, fontSize: 28 + rand(i, 8) * 70 }}
+          initial={{ top: '110%' }}
+          animate={{ top: '-20%', rotate: [-15, 15, -15] }}
+          transition={{
+            top: { duration: 16 + rand(i, 9) * 14, repeat: Infinity, ease: 'linear', delay: -rand(i, 10) * 30 },
+            rotate: { duration: 6, repeat: Infinity, ease: 'easeInOut' },
+          }}
+        >
+          ?
+        </motion.span>
+      ))}
+    </>
+  )
+}
+
+function RiseDecor() {
+  return (
+    <>
+      <motion.span
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full bg-violet-600/25 blur-[120px]"
+        animate={{ scale: [1, 1.15, 1] }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      {Array.from({ length: 36 }).map((_, i) => (
+        <motion.span
+          key={i}
+          className={`absolute rounded-full ${i % 3 === 0 ? 'bg-fuchsia-300' : 'bg-white'}`}
+          style={{ left: `${rand(i, 11) * 100}%`, width: 2 + rand(i, 12) * 3, height: 2 + rand(i, 12) * 3 }}
+          initial={{ top: '105%', opacity: 0 }}
+          animate={{ top: '-5%', opacity: [0, 0.9, 0] }}
+          transition={{ duration: 9 + rand(i, 13) * 8, repeat: Infinity, ease: 'linear', delay: -rand(i, 14) * 15 }}
+        />
+      ))}
+    </>
+  )
+}
+
 export default function LandingPage() {
   const { lang, setLang, tr } = useLanguage()
   const [showLang, setShowLang] = useState(false)
@@ -1303,7 +1516,7 @@ export default function LandingPage() {
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease }}
-        className="fixed top-0 left-0 right-0 z-20 bg-white/80 backdrop-blur-md border-b border-indigo-100"
+        className="fixed top-0 left-0 right-0 z-20 bg-white border-b border-indigo-100"
       >
         <div className="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
           <motion.div className="flex items-center gap-2" whileHover={{ scale: 1.05 }}>
@@ -1534,13 +1747,17 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      <TryIt l={l} />
+      <Scene className="bg-[#fffaf3] pt-12" decor={<NotebookDecor />}>
+        <TryIt l={l} />
+      </Scene>
 
       {/* Features */}
-      <section className="max-w-5xl mx-auto px-4 py-16">
+      <Scene className="bg-[#0c0a29]" decor={<NightDecor />} fade={false}>
+      <Wave fill="#fffaf3" />
+      <section className="max-w-5xl mx-auto px-4 pt-32 pb-36">
         <Reveal className="text-center mb-10">
-          <motion.h2 variants={fadeUp} className="text-2xl md:text-3xl font-bold text-indigo-900">{l.featTitle}</motion.h2>
-          <motion.p variants={fadeUp} className="text-indigo-400 mt-2 text-sm md:text-base">{l.featSub}</motion.p>
+          <motion.h2 variants={fadeUp} className="text-2xl md:text-4xl font-bold text-white">{l.featTitle}</motion.h2>
+          <motion.p variants={fadeUp} className="text-indigo-200/80 mt-2 text-sm md:text-base">{l.featSub}</motion.p>
         </Reveal>
 
         <Reveal className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
@@ -1551,19 +1768,26 @@ export default function LandingPage() {
 
         <FeatureShowcase features={secondaryFeatures} />
       </section>
+      <Wave fill="#f5f3ff" flip />
+      </Scene>
 
-      <AppPreview l={l} />
+      <Scene className="bg-gradient-to-b from-[#f5f3ff] to-[#fdf4ff] pt-6 pb-10" decor={<StageDecor />}>
+        <AppPreview l={l} />
+      </Scene>
 
-      <UsersBefore label={l.statUsers} />
+      <Scene className="bg-gradient-to-b from-[#fdf4ff] to-[#ecfdf5] pt-10 pb-16" decor={<RaysDecor />}>
+        <UsersBefore label={l.statUsers} />
+      </Scene>
 
       {/* Over Knowl */}
+      <Scene className="bg-gradient-to-b from-[#ecfdf5] to-[#f0fdfa]" decor={<MintDecor />}>
       <section className="max-w-4xl mx-auto px-4 py-16">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.8, ease }}
-          className="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-3xl p-8 md:p-12"
+          className="bg-white/70 backdrop-blur-md border border-white rounded-3xl p-8 md:p-12 shadow-xl shadow-emerald-200/50"
         >
           <div className="grid md:grid-cols-2 gap-8 items-start">
             <Reveal>
@@ -1614,11 +1838,16 @@ export default function LandingPage() {
           </div>
         </motion.div>
       </section>
+      </Scene>
 
-      <Faq l={l} />
+      <Scene className="bg-gradient-to-b from-[#f0fdfa] to-[#f0f9ff] pb-12" decor={<QuestionDecor />}>
+        <Faq l={l} />
+      </Scene>
 
       {/* CTA */}
-      <section className="px-4 py-16">
+      <Scene className="bg-[#0c0a29]" decor={<RiseDecor />} fade={false}>
+      <Wave fill="#f0f9ff" />
+      <section className="px-4 pt-32 pb-36">
         <motion.div
           initial={{ opacity: 0, y: 60, scale: 0.95 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
@@ -1656,6 +1885,8 @@ export default function LandingPage() {
           </div>
         </motion.div>
       </section>
+      <Wave fill="#ffffff" flip />
+      </Scene>
 
       {/* Footer */}
       <footer className="border-t border-indigo-100 py-10 bg-white">

@@ -16,8 +16,18 @@ const config: Config = {
       animation: {
         aurora: "aurora 60s linear infinite",
         float: "float 5s ease-in-out infinite",
+        twinkle: "twinkle 3s ease-in-out infinite",
+        "grid-move": "grid-move 3s linear infinite",
       },
       keyframes: {
+        twinkle: {
+          "0%, 100%": { opacity: "0.2" },
+          "50%": { opacity: "1" },
+        },
+        "grid-move": {
+          from: { backgroundPosition: "0 0" },
+          to: { backgroundPosition: "0 56px" },
+        },
         "gradient-move": {
           from: { backgroundPosition: "0% 50%" },
           to: { backgroundPosition: "200% 50%" },
