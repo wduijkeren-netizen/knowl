@@ -175,7 +175,7 @@ function PrimaryFeatureCard({ title, desc, color, icon, Demo, index }: {
           transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: index }}
         />
         <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.35)_1px,transparent_1px)] [background-size:28px_28px] [mask-image:radial-gradient(ellipse_at_70%_40%,black,transparent_75%)]" />
-        <div className="absolute inset-y-0 right-0 w-[68%] flex items-center justify-center p-4">
+        <div className="absolute top-4 right-4 bottom-20 left-[30%] flex items-center justify-center">
           <Demo key={replay} />
         </div>
         <div className="absolute left-6 bottom-5 flex items-center gap-3">
