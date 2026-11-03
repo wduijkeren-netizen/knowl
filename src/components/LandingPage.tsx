@@ -143,6 +143,193 @@ function Icon({ name, className, strokeWidth = 2 }: { name: IconName; className?
 
 type ShowcaseFeature = { title: string; desc: string; icon: IconName; gradient: string; demo: ReactNode }
 
+function PrimaryFeatureCard({ title, desc, color, icon, Demo, index }: {
+  title: string; desc: string; color: string; icon: IconName; Demo: () => JSX.Element; index: number
+}) {
+  const [replay, setReplay] = useState(0)
+  const mx = useMotionValue(-300)
+  const my = useMotionValue(-300)
+  const glow = useMotionTemplate`radial-gradient(260px circle at ${mx}px ${my}px, rgba(255,255,255,0.28), transparent 70%)`
+
+  return (
+    <motion.div
+      variants={{
+        hidden: { opacity: 0, x: index === 0 ? -60 : 60 },
+        show: { opacity: 1, x: 0, transition: { duration: 0.8, ease } },
+      }}
+      whileHover={{ y: -8 }}
+      onMouseEnter={() => setReplay(r => r + 1)}
+      onMouseMove={e => {
+        const r = e.currentTarget.getBoundingClientRect()
+        mx.set(e.clientX - r.left)
+        my.set(e.clientY - r.top)
+      }}
+      onMouseLeave={() => { mx.set(-300); my.set(-300) }}
+      className="relative rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-indigo-200/70 transition-shadow border border-indigo-100 group"
+    >
+      <div className={`relative overflow-hidden h-56 ${color}`}>
+        <motion.div
+          className="absolute -left-16 -bottom-24 w-64 h-64 rounded-full bg-white/10 blur-2xl"
+          animate={{ x: [0, 40, 0], y: [0, -20, 0] }}
+          transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: index }}
+        />
+        <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.35)_1px,transparent_1px)] [background-size:28px_28px] [mask-image:radial-gradient(ellipse_at_70%_40%,black,transparent_75%)]" />
+        <div className="absolute inset-y-0 right-0 w-[68%] flex items-center justify-center p-4">
+          <Demo key={replay} />
+        </div>
+        <div className="absolute left-6 bottom-5 flex items-center gap-3">
+          <span className="w-11 h-11 rounded-2xl bg-white/15 border border-white/25 backdrop-blur-sm text-white flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6">
+            <Icon name={icon} className="w-6 h-6" />
+          </span>
+          <h3 className="text-lg md:text-xl font-bold text-white leading-tight max-w-[9rem]">{title}</h3>
+        </div>
+      </div>
+      <motion.div className="absolute inset-0 pointer-events-none" style={{ background: glow }} />
+      <div className="relative bg-white px-6 py-5">
+        <p className="text-sm text-indigo-500 leading-relaxed">{desc}</p>
+      </div>
+    </motion.div>
+  )
+}
+
+function GoalDemo() {
+  const rings = [52, 38, 24]
+  return (
+    <svg viewBox="0 0 220 160" className="w-full h-full max-w-[260px] overflow-visible">
+      {rings.map((r, i) => (
+        <motion.circle
+          key={r}
+          cx={140}
+          cy={80}
+          r={r}
+          fill="white"
+          fillOpacity={0.06 + i * 0.05}
+          stroke="white"
+          strokeOpacity={0.5 + i * 0.2}
+          strokeWidth={2}
+          initial={{ pathLength: 0, rotate: -90 }}
+          animate={{ pathLength: 1, rotate: -90 }}
+          transition={{ duration: 0.9, ease, delay: 0.1 + i * 0.15 }}
+          style={{ originX: '140px', originY: '80px' }}
+        />
+      ))}
+      <motion.circle
+        cx={140} cy={80} r={9} fill="white"
+        initial={{ scale: 0 }} animate={{ scale: 1 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 12, delay: 0.6 }}
+        style={{ originX: '140px', originY: '80px' }}
+      />
+      <motion.circle
+        cx={140} cy={80} fill="none" stroke="white" strokeWidth={2}
+        initial={{ r: 9, opacity: 0 }}
+        animate={{ r: [9, 70], opacity: [0.9, 0] }}
+        transition={{ duration: 1.1, ease: 'easeOut', delay: 1.25, repeat: Infinity, repeatDelay: 1.6 }}
+      />
+      <motion.g
+        initial={{ x: -170, y: -60, opacity: 0 }}
+        animate={{ x: 0, y: 0, opacity: 1 }}
+        transition={{ duration: 0.55, ease: [0.5, 0, 0.75, 0], delay: 0.7 }}
+      >
+        <motion.g
+          animate={{ rotate: [0, -6, 4, -2, 0] }}
+          transition={{ duration: 0.6, delay: 1.25 }}
+          style={{ originX: '140px', originY: '80px' }}
+        >
+          <line x1={140} y1={80} x2={86} y2={60} stroke="white" strokeWidth={3} strokeLinecap="round" />
+          <path d="M140 80 L130.5 71 L127 80.5 Z" fill="white" />
+          <path d="M90 61.5 L84.2 54 M90 61.5 L80.8 63.4 M97 64 L91.2 56.5 M97 64 L87.8 66" stroke="white" strokeWidth={2.5} strokeLinecap="round" />
+        </motion.g>
+      </motion.g>
+      <motion.g
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.5, duration: 0.5, ease }}
+      >
+        <rect x={6} y={8} width={74} height={30} rx={10} fill="white" fillOpacity={0.18} stroke="white" strokeOpacity={0.35} />
+        <rect x={16} y={27} width={54} height={4} rx={2} fill="white" fillOpacity={0.25} />
+        <motion.rect
+          x={16} y={27} height={4} rx={2} fill="white"
+          initial={{ width: 0 }} animate={{ width: 54 * 0.62 }}
+          transition={{ duration: 1.2, ease, delay: 1.7 }}
+        />
+        <foreignObject x={14} y={9} width={60} height={18}>
+          <CountUp to={62} className="text-[11px] font-bold text-white tabular-nums leading-[18px] after:content-['%']" />
+        </foreignObject>
+      </motion.g>
+    </svg>
+  )
+}
+
+const TREND_POINTS: [number, number][] = [[8, 120], [42, 104], [76, 110], [110, 80], [144, 86], [178, 50], [212, 28]]
+
+function ProgressDemo() {
+  const line = TREND_POINTS.map(([x, y], i) => `${i ? 'L' : 'M'}${x} ${y}`).join(' ')
+  const area = `${line} L212 150 L8 150 Z`
+  const [lastX, lastY] = TREND_POINTS[TREND_POINTS.length - 1]
+
+  return (
+    <svg viewBox="0 0 220 160" className="w-full h-full max-w-[270px] overflow-visible">
+      <defs>
+        <linearGradient id="trend-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="white" stopOpacity={0.45} />
+          <stop offset="100%" stopColor="white" stopOpacity={0} />
+        </linearGradient>
+      </defs>
+      {[40, 80, 120].map(y => (
+        <line key={y} x1={0} x2={220} y1={y} y2={y} stroke="white" strokeOpacity={0.15} strokeDasharray="3 5" />
+      ))}
+      <motion.path
+        d={area}
+        fill="url(#trend-fill)"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 1.3 }}
+      />
+      <motion.path
+        d={line}
+        fill="none"
+        stroke="white"
+        strokeWidth={3.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: 1 }}
+        transition={{ duration: 1.6, ease: 'easeInOut', delay: 0.2 }}
+      />
+      {TREND_POINTS.map(([x, y], i) => (
+        <motion.circle
+          key={x}
+          cx={x}
+          cy={y}
+          r={i === TREND_POINTS.length - 1 ? 6 : 4}
+          fill="white"
+          stroke="rgba(99,102,241,0.6)"
+          strokeWidth={2}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 14, delay: 0.2 + (i / (TREND_POINTS.length - 1)) * 1.6 }}
+          style={{ originX: `${x}px`, originY: `${y}px` }}
+        />
+      ))}
+      <motion.circle
+        cx={lastX} cy={lastY} fill="none" stroke="white" strokeWidth={2}
+        initial={{ r: 6, opacity: 0 }}
+        animate={{ r: [6, 22], opacity: [0.9, 0] }}
+        transition={{ duration: 1.4, repeat: Infinity, ease: 'easeOut', delay: 1.9 }}
+      />
+      <motion.g
+        initial={{ opacity: 0, y: 12, scale: 0.8 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 16, delay: 2 }}
+        style={{ originX: `${lastX - 30}px`, originY: `${lastY - 24}px` }}
+      >
+        <rect x={lastX - 62} y={lastY - 40} width={50} height={24} rx={8} fill="white" />
+        <text x={lastX - 37} y={lastY - 23.5} textAnchor="middle" fontSize={12} fontWeight={700} className="fill-violet-600">+18%</text>
+      </motion.g>
+    </svg>
+  )
+}
+
 const SHOWCASE_INTERVAL = 5
 
 function FeatureShowcase({ features }: { features: ShowcaseFeature[] }) {
@@ -492,8 +679,8 @@ export default function LandingPage() {
   const spotlight = useMotionTemplate`radial-gradient(500px circle at ${mouseX}px ${mouseY}px, rgba(129,140,248,0.18), transparent 70%)`
 
   const primaryFeatures = [
-    { title: l.feat1title, desc: l.feat1desc, color: 'bg-gradient-to-br from-indigo-500 to-violet-600', icon: 'target' as IconName },
-    { title: l.feat2title, desc: l.feat2desc, color: 'bg-gradient-to-br from-violet-500 to-indigo-600', icon: 'trend' as IconName },
+    { title: l.feat1title, desc: l.feat1desc, color: 'bg-gradient-to-br from-indigo-500 to-violet-600', icon: 'target' as IconName, Demo: GoalDemo },
+    { title: l.feat2title, desc: l.feat2desc, color: 'bg-gradient-to-br from-violet-500 to-indigo-600', icon: 'trend' as IconName, Demo: ProgressDemo },
   ]
 
   const secondaryFeatures: ShowcaseFeature[] = [
@@ -748,32 +935,9 @@ export default function LandingPage() {
           <motion.p variants={fadeUp} className="text-indigo-400 mt-2 text-sm md:text-base">{l.featSub}</motion.p>
         </Reveal>
 
-        <Reveal className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+        <Reveal className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
           {primaryFeatures.map((f, i) => (
-            <motion.div
-              key={f.title}
-              variants={{
-                hidden: { opacity: 0, x: i === 0 ? -60 : 60 },
-                show: { opacity: 1, x: 0, transition: { duration: 0.8, ease } },
-              }}
-              whileHover={{ y: -6 }}
-              className="rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow border border-indigo-100 group"
-            >
-              <div className={`relative overflow-hidden h-32 flex items-end px-6 pb-5 ${f.color}`}>
-                <motion.div
-                  className="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-white/10"
-                  animate={{ scale: [1, 1.25, 1], rotate: [0, 90, 0] }}
-                  transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: i }}
-                />
-                <div className="relative flex items-center gap-3">
-                  <span className="text-white inline-block transition-transform duration-500 group-hover:scale-125 group-hover:-rotate-12"><Icon name={f.icon} className="w-7 h-7" /></span>
-                  <h3 className="text-lg font-bold text-white leading-tight">{f.title}</h3>
-                </div>
-              </div>
-              <div className="bg-white px-6 py-5">
-                <p className="text-sm text-indigo-500 leading-relaxed">{f.desc}</p>
-              </div>
-            </motion.div>
+            <PrimaryFeatureCard key={f.title} index={i} {...f} />
           ))}
         </Reveal>
 
