@@ -336,6 +336,8 @@ type Landing = typeof t.nl.landing
 
 type PublicStats = { users: number; moments: number; minutes: number }
 
+const MIN_USERS_SHOWN = 50
+
 function RealStats({ l }: { l: Landing }) {
   const [stats, setStats] = useState<PublicStats | null>(null)
 
@@ -348,14 +350,14 @@ function RealStats({ l }: { l: Landing }) {
   if (!stats) return null
 
   const items = [
-    { value: stats.users, label: l.statUsers, icon: 'target' as IconName },
+    ...(stats.users >= MIN_USERS_SHOWN ? [{ value: stats.users, label: l.statUsers, icon: 'target' as IconName }] : []),
     { value: stats.moments, label: l.statMoments, icon: 'cards' as IconName },
     { value: Math.round(stats.minutes / 60), label: l.statHours, icon: 'timer' as IconName },
   ]
 
   return (
     <section className="max-w-4xl mx-auto px-4 pb-12">
-      <Reveal className="grid grid-cols-3 gap-3 md:gap-5">
+      <Reveal className={`grid gap-3 md:gap-5 ${items.length === 3 ? 'grid-cols-3' : 'grid-cols-2 max-w-xl mx-auto'}`}>
         {items.map(item => (
           <motion.div
             key={item.label}
