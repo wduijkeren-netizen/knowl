@@ -208,10 +208,10 @@ function GoalDemo() {
           stroke="white"
           strokeOpacity={0.5 + i * 0.2}
           strokeWidth={2}
-          initial={{ pathLength: 0, rotate: -90 }}
-          animate={{ pathLength: 1, rotate: -90 }}
+          transform="rotate(-90 140 80)"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
           transition={{ duration: 0.9, ease, delay: 0.1 + i * 0.15 }}
-          style={{ originX: '140px', originY: '80px' }}
         />
       ))}
       <motion.circle
