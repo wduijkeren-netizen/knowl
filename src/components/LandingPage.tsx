@@ -1,13 +1,14 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   AnimatePresence, motion, MotionConfig, animate, useInView, useMotionTemplate, useMotionValue,
   useScroll, useSpring, useTransform, type Variants,
 } from 'framer-motion'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
-import { languages, type LangCode } from '@/lib/i18n/translations'
+import t, { languages, type LangCode } from '@/lib/i18n/translations'
 import { useGuest } from '@/lib/GuestContext'
 
 const ease = [0.22, 1, 0.36, 1] as const
@@ -327,6 +328,391 @@ function ProgressDemo() {
         <text x={lastX - 37} y={lastY - 23.5} textAnchor="middle" fontSize={12} fontWeight={700} className="fill-violet-600">+18%</text>
       </motion.g>
     </svg>
+  )
+}
+
+type Landing = typeof t.nl.landing
+
+const TRY_MINUTES = [15, 30, 45, 60]
+
+function TryIt({ l }: { l: Landing }) {
+  const router = useRouter()
+  const { logGuestEvent } = useGuest()
+  const [title, setTitle] = useState('')
+  const [subject, setSubject] = useState('')
+  const [minutes, setMinutes] = useState(30)
+  const [shown, setShown] = useState<{ title: string; subject: string; minutes: number } | null>(null)
+
+  function show(e: React.FormEvent) {
+    e.preventDefault()
+    if (!title.trim()) return
+    setShown({ title: title.trim(), subject: subject.trim(), minutes })
+    logGuestEvent('landing_try')
+  }
+
+  function save() {
+    if (!shown) return
+    try {
+      const key = 'knowl_guest_moments'
+      const existing = JSON.parse(localStorage.getItem(key) ?? '[]')
+      localStorage.setItem(key, JSON.stringify([{
+        id: crypto.randomUUID(),
+        title: shown.title,
+        description: null,
+        category: shown.subject || null,
+        learned_at: new Date().toISOString().split('T')[0],
+        duration_minutes: shown.minutes,
+      }, ...existing]))
+    } catch {}
+    logGuestEvent('landing_try_save')
+    router.push('/leermomenten')
+  }
+
+  return (
+    <section className="max-w-4xl mx-auto px-4 pt-4 pb-16">
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-80px' }}
+        transition={{ duration: 0.8, ease }}
+        className="relative rounded-3xl p-[2px] bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-violet-500 bg-[length:200%_auto] animate-[gradient-move_6s_linear_infinite] shadow-xl shadow-indigo-200/60"
+      >
+        <div className="rounded-[22px] bg-white p-6 md:p-8 grid md:grid-cols-2 gap-6 md:gap-8 items-center">
+          <form onSubmit={show}>
+            <span className="text-xs font-semibold text-indigo-500 uppercase tracking-widest">{l.tryTag}</span>
+            <h2 className="text-2xl md:text-3xl font-bold text-indigo-900 mt-1">{l.tryTitle}</h2>
+            <p className="text-sm text-indigo-400 mt-1">{l.trySub}</p>
+            <input
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              placeholder={l.tryPlaceholder}
+              maxLength={80}
+              className="mt-5 w-full border border-indigo-100 bg-indigo-50/40 rounded-xl px-4 py-3 text-sm text-indigo-900 placeholder:text-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:bg-white transition"
+            />
+            <div className="grid grid-cols-[1fr_auto] gap-3 mt-3 items-end">
+              <label className="block">
+                <span className="block text-xs font-medium text-indigo-400 mb-1">{l.trySubject}</span>
+                <input
+                  value={subject}
+                  onChange={e => setSubject(e.target.value)}
+                  placeholder={l.trySubjectPlaceholder}
+                  maxLength={30}
+                  className="w-full border border-indigo-100 bg-indigo-50/40 rounded-xl px-3 py-2.5 text-sm text-indigo-900 placeholder:text-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:bg-white transition"
+                />
+              </label>
+              <div>
+                <span className="block text-xs font-medium text-indigo-400 mb-1">{l.tryMinutes}</span>
+                <div className="relative flex bg-indigo-50 rounded-xl p-1">
+                  {TRY_MINUTES.map(m => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setMinutes(m)}
+                      className={`relative z-10 px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-colors ${minutes === m ? 'text-white' : 'text-indigo-400 hover:text-indigo-600'}`}
+                    >
+                      {minutes === m && (
+                        <motion.span layoutId="try-minutes" className="absolute inset-0 -z-10 rounded-lg bg-indigo-600" transition={{ type: 'spring', stiffness: 500, damping: 35 }} />
+                      )}
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <motion.button
+              type="submit"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              disabled={!title.trim()}
+              className="mt-4 w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl py-3 text-sm font-bold shadow-lg shadow-indigo-200 disabled:opacity-40 disabled:shadow-none transition-opacity"
+            >
+              {l.tryBtn}
+            </motion.button>
+            <p className="text-[11px] text-indigo-300 mt-2 text-center">{l.tryHint}</p>
+          </form>
+
+          <div className="relative h-full min-h-[220px] flex items-center justify-center">
+            <AnimatePresence mode="wait">
+              {shown ? (
+                <motion.div
+                  key={shown.title + shown.minutes + shown.subject}
+                  className="relative w-full max-w-sm"
+                  initial={{ opacity: 0, y: 40, rotate: -4, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -30, scale: 0.95 }}
+                  transition={{ type: 'spring', stiffness: 200, damping: 18 }}
+                >
+                  {Array.from({ length: 14 }).map((_, i) => {
+                    const angle = (i / 14) * Math.PI * 2
+                    return (
+                      <motion.span
+                        key={i}
+                        className={`absolute left-1/2 top-1/2 w-2 h-2 rounded-full ${['bg-indigo-400', 'bg-fuchsia-400', 'bg-violet-400', 'bg-sky-400'][i % 4]}`}
+                        initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+                        animate={{ x: Math.cos(angle) * 190, y: Math.sin(angle) * 130, opacity: 0, scale: 0.4 }}
+                        transition={{ duration: 0.9, ease: 'easeOut', delay: 0.1 }}
+                      />
+                    )
+                  })}
+                  <div className="relative bg-white rounded-2xl border border-indigo-100 shadow-2xl shadow-indigo-200/70 p-5">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">{shown.subject || 'Knowl'}</span>
+                      <span className="text-xs text-indigo-300">{l.tryToday}</span>
+                    </div>
+                    <p className="font-bold text-indigo-900 break-words">{shown.title}</p>
+                    <div className="flex gap-2 mt-3">
+                      {shown.subject && <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-0.5 font-medium">{shown.subject}</span>}
+                      <span className="text-xs bg-violet-50 text-violet-600 rounded-full px-2.5 py-0.5 font-medium">{shown.minutes} min</span>
+                    </div>
+                  </div>
+                  <motion.div
+                    className="flex gap-2 mt-4"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    <motion.button
+                      onClick={save}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.96 }}
+                      className="flex-1 bg-indigo-600 text-white rounded-xl py-2.5 text-sm font-bold shadow-md shadow-indigo-200"
+                    >
+                      {l.trySave}
+                    </motion.button>
+                    <button
+                      onClick={() => setShown(null)}
+                      className="px-4 rounded-xl text-sm font-semibold text-indigo-500 bg-indigo-50 hover:bg-indigo-100 transition-colors"
+                    >
+                      {l.tryAgain}
+                    </button>
+                  </motion.div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="ghost"
+                  className="w-full max-w-sm rounded-2xl border-2 border-dashed border-indigo-100 p-5"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                >
+                  <div className="flex justify-between mb-3">
+                    <span className="h-3 w-16 rounded-full bg-indigo-50" />
+                    <span className="h-3 w-10 rounded-full bg-indigo-50" />
+                  </div>
+                  <p className={`font-bold break-words ${title ? 'text-indigo-900' : 'text-indigo-200'}`}>
+                    {title || l.tryPlaceholder}
+                    <motion.span
+                      className="inline-block w-0.5 h-4 bg-indigo-400 ml-0.5 align-middle"
+                      animate={{ opacity: [1, 0, 1] }}
+                      transition={{ duration: 1, repeat: Infinity }}
+                    />
+                  </p>
+                  <div className="flex gap-2 mt-3">
+                    <span className={`text-xs rounded-full px-2.5 py-0.5 font-medium ${subject ? 'bg-indigo-50 text-indigo-600' : 'bg-indigo-50/50 text-indigo-200'}`}>{subject || l.trySubject}</span>
+                    <motion.span
+                      key={minutes}
+                      initial={{ scale: 1.3 }}
+                      animate={{ scale: 1 }}
+                      className="text-xs bg-violet-50 text-violet-600 rounded-full px-2.5 py-0.5 font-medium"
+                    >
+                      {minutes} min
+                    </motion.span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </motion.div>
+    </section>
+  )
+}
+
+const APP_SCREENS = [
+  { src: '/landing/app-leermoment.webp', url: 'myknowl.com/leermomenten', ratio: 1472 / 934, cursor: { x: 50, y: 90 } },
+  { src: '/landing/app-resultaten.webp', url: 'myknowl.com/resultaten', ratio: 1472 / 880, cursor: { x: 19, y: 45 } },
+  { src: '/landing/app-timer.webp', url: 'myknowl.com/pomodoro', ratio: 832 / 868, cursor: { x: 39, y: 87 } },
+]
+
+const APP_INTERVAL = 4.5
+
+function AppPreview({ l }: { l: Landing }) {
+  const [active, setActive] = useState(0)
+  const [hovered, setHovered] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { margin: '-120px' })
+  const tabs = [l.appTab1, l.appTab2, l.appTab3]
+  const screen = APP_SCREENS[active]
+
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'center center'] })
+  const tilt = useTransform(scrollYProgress, [0, 1], [18, 0])
+  const scale = useTransform(scrollYProgress, [0, 1], [0.88, 1])
+
+  useEffect(() => {
+    if (hovered || !inView) return
+    const id = setTimeout(() => setActive(a => (a + 1) % APP_SCREENS.length), APP_INTERVAL * 1000)
+    return () => clearTimeout(id)
+  }, [active, hovered, inView])
+
+  return (
+    <section className="max-w-5xl mx-auto px-4 py-16">
+      <Reveal className="text-center mb-8">
+        <motion.span variants={fadeUp} className="block text-xs font-semibold text-indigo-500 uppercase tracking-widest">{l.appTag}</motion.span>
+        <motion.h2 variants={fadeUp} className="text-2xl md:text-3xl font-bold text-indigo-900 mt-1">{l.appTitle}</motion.h2>
+        <motion.p variants={fadeUp} className="text-indigo-400 mt-2 text-sm md:text-base">{l.appSub}</motion.p>
+      </Reveal>
+
+      <div className="flex justify-center gap-2 mb-6 flex-wrap">
+        {tabs.map((tab, i) => (
+          <button
+            key={tab}
+            onClick={() => setActive(i)}
+            className={`relative px-4 py-2 rounded-full text-sm font-semibold transition-colors ${active === i ? 'text-white' : 'text-indigo-500 hover:text-indigo-700 bg-indigo-50'}`}
+          >
+            {active === i && (
+              <motion.span layoutId="app-tab" className="absolute inset-0 rounded-full bg-indigo-600 overflow-hidden" transition={{ type: 'spring', stiffness: 400, damping: 32 }}>
+                {!hovered && inView && (
+                  <motion.span
+                    key={`p${active}`}
+                    className="absolute inset-y-0 left-0 bg-white/20"
+                    initial={{ width: '0%' }}
+                    animate={{ width: '100%' }}
+                    transition={{ duration: APP_INTERVAL, ease: 'linear' }}
+                  />
+                )}
+              </motion.span>
+            )}
+            <span className="relative">{tab}</span>
+          </button>
+        ))}
+      </div>
+
+      <div ref={ref} style={{ perspective: 1400 }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+        <motion.div
+          style={{ rotateX: tilt, scale }}
+          className="relative mx-auto max-w-4xl rounded-2xl bg-white border border-indigo-100 shadow-2xl shadow-indigo-300/40 overflow-hidden"
+        >
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-indigo-50 bg-indigo-50/40">
+            <div className="flex gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-rose-300" />
+              <span className="w-3 h-3 rounded-full bg-amber-300" />
+              <span className="w-3 h-3 rounded-full bg-emerald-300" />
+            </div>
+            <div className="flex-1 flex justify-center">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={screen.url}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.25 }}
+                  className="text-xs text-indigo-400 bg-white border border-indigo-100 rounded-lg px-4 py-1 font-medium"
+                >
+                  {screen.url}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+            <span className="w-12" />
+          </div>
+
+          <div className="relative aspect-[16/10] bg-[#f8f7ff] flex items-center justify-center p-4 md:p-8 overflow-hidden">
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.div
+                key={screen.src}
+                className="relative h-full max-w-full"
+                style={{ aspectRatio: screen.ratio }}
+                initial={{ opacity: 0, x: 80, scale: 0.96, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, x: 0, scale: 1, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, x: -80, scale: 0.96, filter: 'blur(8px)' }}
+                transition={{ duration: 0.6, ease }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={screen.src} alt={tabs[active]} className="w-full h-full object-contain drop-shadow-xl" draggable={false} />
+                <motion.div
+                  className="absolute z-10 pointer-events-none"
+                  initial={{ left: '85%', top: '20%', opacity: 0 }}
+                  animate={{ left: `${screen.cursor.x}%`, top: `${screen.cursor.y}%`, opacity: 1 }}
+                  transition={{ duration: 1.1, ease, delay: 0.5 }}
+                >
+                  <motion.span
+                    className="absolute -left-4 -top-4 w-8 h-8 rounded-full bg-indigo-500/30"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: [0, 1.8], opacity: [0.8, 0] }}
+                    transition={{ duration: 0.6, delay: 1.7 }}
+                  />
+                  <motion.svg
+                    viewBox="0 0 24 24"
+                    className="w-6 h-6 drop-shadow-md"
+                    animate={{ scale: [1, 0.8, 1] }}
+                    transition={{ duration: 0.25, delay: 1.65 }}
+                  >
+                    <path d="M4 2 L4 20 L9 15 L12.5 22 L15.5 20.5 L12 13.5 L19 13.5 Z" fill="#1e1b4b" stroke="white" strokeWidth={1.5} strokeLinejoin="round" />
+                  </motion.svg>
+                </motion.div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+function Faq({ l }: { l: Landing }) {
+  const [open, setOpen] = useState<number | null>(0)
+
+  return (
+    <section className="max-w-3xl mx-auto px-4 py-16">
+      <Reveal className="text-center mb-8">
+        <motion.h2 variants={fadeUp} className="text-2xl md:text-3xl font-bold text-indigo-900">{l.faqTitle}</motion.h2>
+      </Reveal>
+      <Reveal className="space-y-3">
+        {l.faq.map((item, i) => {
+          const isOpen = open === i
+          return (
+            <motion.div
+              key={item.q}
+              variants={fadeUp}
+              className={`rounded-2xl border transition-colors ${isOpen ? 'border-indigo-200 bg-gradient-to-br from-indigo-50 to-violet-50' : 'border-indigo-100 bg-white hover:border-indigo-200'}`}
+            >
+              <button
+                onClick={() => setOpen(isOpen ? null : i)}
+                aria-expanded={isOpen}
+                className="w-full flex items-center gap-4 text-left px-5 py-4"
+              >
+                <span className="flex-1 font-semibold text-indigo-900 text-sm md:text-base">{item.q}</span>
+                <motion.span
+                  animate={{ rotate: isOpen ? 45 : 0, backgroundColor: isOpen ? '#4f46e5' : '#eef2ff', color: isOpen ? '#ffffff' : '#4f46e5' }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
+                >
+                  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                </motion.span>
+              </button>
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.35, ease }}
+                    className="overflow-hidden"
+                  >
+                    <motion.p
+                      initial={{ y: -8 }}
+                      animate={{ y: 0 }}
+                      className="px-5 pb-5 text-sm text-indigo-600 leading-relaxed"
+                    >
+                      {item.a}
+                    </motion.p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          )
+        })}
+      </Reveal>
+    </section>
   )
 }
 
@@ -661,7 +1047,7 @@ export default function LandingPage() {
   const [showLang, setShowLang] = useState(false)
   const { logGuestEvent } = useGuest()
   const currentLang = languages.find(l => l.code === lang)
-  const l = tr.landing
+  const l = { ...t.nl.landing, ...tr.landing }
 
   const { scrollYProgress } = useScroll()
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30 })
@@ -827,6 +1213,19 @@ export default function LandingPage() {
               {l.proof}
             </motion.p>
 
+            <motion.div variants={stagger(0, 0.08)} className="flex flex-wrap justify-center gap-2 mt-2">
+              {l.audience.map(a => (
+                <motion.span
+                  key={a}
+                  variants={popIn}
+                  whileHover={{ y: -2, scale: 1.05 }}
+                  className="text-xs font-semibold text-indigo-600 bg-white border border-indigo-100 rounded-full px-3 py-1 shadow-sm"
+                >
+                  {a}
+                </motion.span>
+              ))}
+            </motion.div>
+
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3 justify-center mt-7">
               <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.96 }} className="relative group">
                 <span className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 blur-lg opacity-40 group-hover:opacity-70 transition-opacity" />
@@ -928,6 +1327,8 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
+      <TryIt l={l} />
+
       {/* Features */}
       <section className="max-w-5xl mx-auto px-4 py-16">
         <Reveal className="text-center mb-10">
@@ -943,6 +1344,8 @@ export default function LandingPage() {
 
         <FeatureShowcase features={secondaryFeatures} />
       </section>
+
+      <AppPreview l={l} />
 
       {/* Over Knowl */}
       <section className="max-w-4xl mx-auto px-4 py-16">
@@ -1002,6 +1405,8 @@ export default function LandingPage() {
           </div>
         </motion.div>
       </section>
+
+      <Faq l={l} />
 
       {/* CTA */}
       <section className="px-4 py-16">

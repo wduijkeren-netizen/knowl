@@ -18,6 +18,10 @@ const config: Config = {
         float: "float 5s ease-in-out infinite",
       },
       keyframes: {
+        "gradient-move": {
+          from: { backgroundPosition: "0% 50%" },
+          to: { backgroundPosition: "200% 50%" },
+        },
         float: {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-8px)" },
