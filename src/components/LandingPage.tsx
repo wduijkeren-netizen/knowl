@@ -1289,10 +1289,24 @@ function Wave({ fill, flip = false }: { fill: string; flip?: boolean }) {
   )
 }
 
+function SheetIn({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'start start'] })
+  const y = useTransform(scrollYProgress, [0, 1], [80, 0])
+  const scale = useTransform(scrollYProgress, [0, 1], [0.96, 1])
+
+  return (
+    <div ref={ref} className="relative z-10 -mt-16 bg-[#f3f5ff]">
+      <motion.div style={{ y, scale }} className="origin-top">
+        {children}
+      </motion.div>
+    </div>
+  )
+}
+
 function NotebookDecor() {
   return (
     <>
-      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white to-transparent" />
       {Array.from({ length: 16 }).map((_, i) => (
         <motion.span
           key={i}
@@ -1566,7 +1580,7 @@ export default function LandingPage() {
       {/* Hero */}
       <section
         ref={heroRef}
-        className="relative pt-28 pb-20 px-4 overflow-hidden bg-gradient-to-b from-indigo-50 via-white to-white"
+        className="relative pt-28 pb-28 px-4 overflow-hidden bg-gradient-to-b from-indigo-50 via-white to-[#f3f5ff]"
         onMouseMove={e => {
           const r = e.currentTarget.getBoundingClientRect()
           mouseX.set(e.clientX - r.left)
@@ -1747,9 +1761,11 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      <Scene className="bg-[#fffaf3] pt-12" decor={<NotebookDecor />}>
+      <SheetIn>
+      <Scene className="bg-[#fffaf3] pt-16 rounded-t-[40px] md:rounded-t-[64px] shadow-[0_-30px_60px_-30px_rgba(79,70,229,0.35)]" decor={<NotebookDecor />}>
         <TryIt l={l} />
       </Scene>
+      </SheetIn>
 
       {/* Features */}
       <Scene className="bg-[#0c0a29]" decor={<NightDecor />} fade={false}>
