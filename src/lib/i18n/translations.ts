@@ -201,7 +201,7 @@ const t = {
       tryPlaceholder: 'bijv. Hoofdstuk 4 economie: vraag en aanbod', trySubject: 'Vak', trySubjectPlaceholder: 'bijv. Economie', tryMinutes: 'Hoe lang?',
       tryBtn: 'Laat zien', trySave: 'Bewaar het in Knowl →', tryAgain: 'Nog een', tryToday: 'vandaag', tryHint: 'Je hebt geen account nodig. Het wordt in je browser bewaard.',
       appTag: 'Zo ziet het eruit', appTitle: 'Dit is de echte app', appSub: 'Geen illustraties: dit zijn schermen uit Knowl zelf.',
-      appTab1: 'Leermoment toevoegen', appTab2: 'Resultaten', appTab3: 'Timer',
+      appSaved: 'Leermoment opgeslagen!', appTab1: 'Leermoment toevoegen', appTab2: 'Resultaten', appTab3: 'Timer',
       faqTitle: 'Vragen die je misschien hebt',
       faq: [
         { q: 'Is Knowl echt gratis?', a: 'Ja. Er is geen betaalde versie en er staat geen reclame in. Ik heb Knowl gebouwd omdat ik zelf zo’n app zocht en hem niet kon vinden.' },

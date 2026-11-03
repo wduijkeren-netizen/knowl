@@ -350,23 +350,26 @@ function UsersBefore({ label }: { label: string }) {
   if (users === null) return null
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
-      transition={{ type: 'spring', stiffness: 200, damping: 16 }}
-      className="mb-7"
-    >
-      <div className="relative inline-flex items-center justify-center">
+    <section className="px-4 pb-16">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-80px' }}
+        transition={{ duration: 0.8, ease }}
+        className="relative max-w-xl mx-auto text-center py-10"
+      >
         <motion.span
-          className="absolute inset-0 rounded-full bg-white/20 blur-2xl"
-          animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.9, 0.5] }}
-          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-40 rounded-full bg-gradient-to-r from-indigo-300 via-violet-300 to-fuchsia-300 blur-3xl"
+          animate={{ scale: [1, 1.2, 1], opacity: [0.35, 0.6, 0.35] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
         />
-        <CountUp to={users} className="relative text-6xl md:text-7xl font-bold text-white tabular-nums tracking-tight" />
-      </div>
-      <p className="text-indigo-100 text-base md:text-lg font-medium mt-1">{label}</p>
-    </motion.div>
+        <CountUp
+          to={users}
+          className="relative text-7xl md:text-8xl font-bold tracking-tight tabular-nums bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-500 bg-clip-text text-transparent"
+        />
+        <p className="relative text-lg md:text-xl font-semibold text-indigo-900 mt-1">{label}</p>
+      </motion.div>
+    </section>
   )
 }
 
@@ -566,12 +569,129 @@ function TryIt({ l }: { l: Landing }) {
 }
 
 const APP_SCREENS = [
-  { src: '/landing/app-leermoment.webp', url: 'myknowl.com/leermomenten', ratio: 1472 / 934, cursor: { x: 50, y: 90 } },
-  { src: '/landing/app-resultaten.webp', url: 'myknowl.com/resultaten', ratio: 1472 / 880, cursor: { x: 19, y: 45 } },
-  { src: '/landing/app-timer.webp', url: 'myknowl.com/pomodoro', ratio: 832 / 868, cursor: { x: 39, y: 87 } },
-]
+  { src: '/landing/app-leermoment.webp', url: 'myknowl.com/leermomenten', w: 1472, h: 934, cursor: { x: 50, y: 90 }, effect: 'saved' },
+  { src: '/landing/app-resultaten.webp', url: 'myknowl.com/resultaten', w: 1472, h: 880, cursor: { x: 19, y: 45 }, effect: 'bar' },
+  { src: '/landing/app-timer.webp', url: 'myknowl.com/pomodoro', w: 832, h: 868, cursor: { x: 39, y: 87 }, effect: 'timer' },
+] as const
 
-const APP_INTERVAL = 4.5
+const APP_INTERVAL = 6
+const CLICK_AT = 1.75
+
+function SavedEffect({ label }: { label: string }) {
+  return (
+    <>
+      <motion.rect
+        x={50} y={797} width={1371} height={86} rx={22} fill="white"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 0.35, 0] }}
+        transition={{ duration: 0.5, delay: CLICK_AT }}
+      />
+      <motion.g
+        initial={{ opacity: 0, y: -40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 18, delay: CLICK_AT + 0.25 }}
+      >
+        <rect x={436} y={185} width={600} height={92} rx={24} fill="#ecfdf5" stroke="#6ee7b7" strokeWidth={3} />
+        <circle cx={496} cy={231} r={24} fill="#10b981" />
+        <motion.path
+          d="M484 231 l9 9 l17 -18"
+          fill="none"
+          stroke="white"
+          strokeWidth={6}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 0.4, delay: CLICK_AT + 0.55 }}
+        />
+        <text x={540} y={242} fontSize={32} fontWeight={600} fill="#047857">{label}</text>
+      </motion.g>
+    </>
+  )
+}
+
+function BarEffect() {
+  return (
+    <>
+      <motion.rect
+        x={176} y={270} width={201} height={500} rx={14} fill="white"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 0.35, 0.18] }}
+        transition={{ duration: 0.6, delay: CLICK_AT }}
+      />
+      <motion.g
+        initial={{ opacity: 0, scale: 0.6 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ type: 'spring', stiffness: 320, damping: 18, delay: CLICK_AT + 0.15 }}
+        style={{ originX: '400px', originY: '360px' }}
+      >
+        <path d="M400 360 l-18 -14 v28 z" fill="white" />
+        <rect x={398} y={300} width={300} height={124} rx={20} fill="white" stroke="#e0e7ff" strokeWidth={3} />
+        <circle cx={438} cy={345} r={10} fill="#6366f1" />
+        <text x={460} y={356} fontSize={32} fontWeight={600} fill="#312e81">Recht</text>
+        <text x={428} y={402} fontSize={30} fill="#6366f1">180 min</text>
+      </motion.g>
+    </>
+  )
+}
+
+function TimerEffect() {
+  const [seconds, setSeconds] = useState(25 * 60)
+  const [running, setRunning] = useState(false)
+
+  useEffect(() => {
+    const id = setTimeout(() => setRunning(true), CLICK_AT * 1000)
+    return () => clearTimeout(id)
+  }, [])
+
+  useEffect(() => {
+    if (!running) return
+    setSeconds(s => s - 1)
+    const id = setInterval(() => setSeconds(s => s - 1), 1000)
+    return () => clearInterval(id)
+  }, [running])
+
+  const mm = String(Math.floor(seconds / 60)).padStart(2, '0')
+  const ss = String(seconds % 60).padStart(2, '0')
+
+  return (
+    <>
+      <motion.circle
+        cx={416} cy={325} r={220} fill="none" stroke="#6366f1" strokeWidth={24} strokeLinecap="round"
+        transform="rotate(-90 416 325)"
+        initial={{ pathLength: 1, opacity: 0 }}
+        animate={running ? { pathLength: 0.93, opacity: 1 } : undefined}
+        transition={{ pathLength: { duration: 4, ease: 'linear' }, opacity: { duration: 0.3 } }}
+      />
+      {running && (
+        <>
+          <rect x={235} y={238} width={362} height={116} fill="white" />
+          <motion.text
+            key={seconds}
+            x={416} y={338} textAnchor="middle" fontSize={118} fontWeight={700} fill="#4338ca"
+            initial={{ opacity: 0.4, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-2px' }}
+          >
+            {mm}:{ss}
+          </motion.text>
+          <motion.circle
+            cx={336} cy={650} r={12} fill="#6366f1"
+            animate={{ opacity: [1, 0.3, 1] }}
+            transition={{ duration: 1, repeat: Infinity }}
+          />
+          <motion.rect
+            x={66} y={715} width={519} height={86} rx={26} fill="#4338ca"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
+          />
+          <text x={325} y={770} textAnchor="middle" fontSize={30} fontWeight={600} fill="white">Pauze</text>
+        </>
+      )}
+    </>
+  )
+}
 
 function AppPreview({ l }: { l: Landing }) {
   const [active, setActive] = useState(0)
@@ -657,7 +777,7 @@ function AppPreview({ l }: { l: Landing }) {
               <motion.div
                 key={screen.src}
                 className="relative h-full max-w-full"
-                style={{ aspectRatio: screen.ratio }}
+                style={{ aspectRatio: screen.w / screen.h }}
                 initial={{ opacity: 0, x: 80, scale: 0.96, filter: 'blur(8px)' }}
                 animate={{ opacity: 1, x: 0, scale: 1, filter: 'blur(0px)' }}
                 exit={{ opacity: 0, x: -80, scale: 0.96, filter: 'blur(8px)' }}
@@ -665,6 +785,11 @@ function AppPreview({ l }: { l: Landing }) {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={screen.src} alt={tabs[active]} className="w-full h-full object-contain drop-shadow-xl" draggable={false} />
+                <svg viewBox={`0 0 ${screen.w} ${screen.h}`} className="absolute inset-0 w-full h-full pointer-events-none">
+                  {screen.effect === 'saved' && <SavedEffect label={l.appSaved} />}
+                  {screen.effect === 'bar' && <BarEffect />}
+                  {screen.effect === 'timer' && <TimerEffect />}
+                </svg>
                 <motion.div
                   className="absolute z-10 pointer-events-none"
                   initial={{ left: '85%', top: '20%', opacity: 0 }}
@@ -675,13 +800,13 @@ function AppPreview({ l }: { l: Landing }) {
                     className="absolute -left-4 -top-4 w-8 h-8 rounded-full bg-indigo-500/30"
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: [0, 1.8], opacity: [0.8, 0] }}
-                    transition={{ duration: 0.6, delay: 1.7 }}
+                    transition={{ duration: 0.6, delay: CLICK_AT }}
                   />
                   <motion.svg
                     viewBox="0 0 24 24"
                     className="w-6 h-6 drop-shadow-md"
                     animate={{ scale: [1, 0.8, 1] }}
-                    transition={{ duration: 0.25, delay: 1.65 }}
+                    transition={{ duration: 0.25, delay: CLICK_AT - 0.05 }}
                   >
                     <path d="M4 2 L4 20 L9 15 L12.5 22 L15.5 20.5 L12 13.5 L19 13.5 Z" fill="#1e1b4b" stroke="white" strokeWidth={1.5} strokeLinejoin="round" />
                   </motion.svg>
@@ -1386,6 +1511,8 @@ export default function LandingPage() {
 
       <AppPreview l={l} />
 
+      <UsersBefore label={l.statUsers} />
+
       {/* Over Knowl */}
       <section className="max-w-4xl mx-auto px-4 py-16">
         <motion.div
@@ -1470,7 +1597,6 @@ export default function LandingPage() {
             <h2 className="text-2xl md:text-3xl font-bold text-white">{l.ctaTitle}</h2>
             <p className="text-indigo-200 mt-3 mb-2 text-sm md:text-base">{l.ctaSub}</p>
             <p className="text-xs text-indigo-300 mb-8">{l.ctaNote}</p>
-            <UsersBefore label={l.statUsers} />
             <motion.div
               className="inline-block"
               animate={{ scale: [1, 1.04, 1] }}
