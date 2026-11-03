@@ -351,13 +351,12 @@ function RealStats({ l }: { l: Landing }) {
 
   const items = [
     ...(stats.users >= MIN_USERS_SHOWN ? [{ value: stats.users, label: l.statUsers, icon: 'target' as IconName }] : []),
-    { value: stats.moments, label: l.statMoments, icon: 'cards' as IconName },
     { value: Math.round(stats.minutes / 60), label: l.statHours, icon: 'timer' as IconName },
   ]
 
   return (
     <section className="max-w-4xl mx-auto px-4 pb-12">
-      <Reveal className={`grid gap-3 md:gap-5 ${items.length === 3 ? 'grid-cols-3' : 'grid-cols-2 max-w-xl mx-auto'}`}>
+      <Reveal className={`grid gap-3 md:gap-5 ${items.length === 2 ? 'grid-cols-2 max-w-xl mx-auto' : 'grid-cols-1 max-w-xs mx-auto'}`}>
         {items.map(item => (
           <motion.div
             key={item.label}
