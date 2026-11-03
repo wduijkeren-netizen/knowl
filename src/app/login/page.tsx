@@ -128,10 +128,27 @@ function LoginForm() {
   )
 }
 
+function LoginIntro() {
+  return (
+    <div className="w-full max-w-sm px-4 text-center">
+      <h1 className="text-4xl font-bold text-indigo-700 tracking-tight">Knowl</h1>
+      <p className="text-indigo-400 mt-2 text-sm">Jouw persoonlijke leertracker</p>
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl shadow-indigo-100 border border-indigo-50 p-8 mt-8 text-left">
+        <h2 className="text-lg font-semibold text-indigo-900 mb-1">Inloggen of account aanmaken</h2>
+        <p className="text-sm text-gray-400">
+          Log in met je e-mailadres en wachtwoord om verder te gaan met leren, of maak gratis een account aan.
+          Met een account worden je leermomenten, vakken, doelen en flashcards bewaard en kun je ze op je telefoon
+          en laptop gebruiken. Je kunt Knowl ook zonder account proberen via Leermomenten.
+        </p>
+      </div>
+    </div>
+  )
+}
+
 export default function LoginPage() {
   return (
     <AuroraHero className="bg-[#f8f7ff] [--primary:theme(colors.indigo.500)] [--muted-foreground:theme(colors.violet.400)]">
-      <Suspense>
+      <Suspense fallback={<LoginIntro />}>
         <LoginForm />
       </Suspense>
     </AuroraHero>
