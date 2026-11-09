@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { Camera, PenLine, X } from 'lucide-react'
+import { Camera, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import SubjectSelect from '@/components/SubjectSelect'
 import { addDays, formatDay, localDateStr } from '@/lib/studyStats'
@@ -28,7 +28,7 @@ function readPomodoroMinutes() {
 }
 
 /**
- * Het ene formulier voor een nieuw leermoment: inline op Leermomenten (inklapbaar),
+ * Het ene formulier voor een nieuw leermoment: altijd open op Leermomenten,
  * als venster op Home en na een pomodoro-sessie.
  */
 export default function MomentForm({ userId, subjects, colors, variant, prefill, initialMinutes, minutesFromPomodoro = false, onSaved, onClose, useDraft = false }: {
@@ -45,7 +45,6 @@ export default function MomentForm({ userId, subjects, colors, variant, prefill,
 }) {
   const reduced = useReducedMotion()
   const today = localDateStr(new Date())
-  const [expanded, setExpanded] = useState(variant === 'modal')
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState('')
@@ -83,11 +82,11 @@ export default function MomentForm({ userId, subjects, colors, variant, prefill,
   }, [useDraft, title, description, category, minutes])
 
   useEffect(() => {
-    if (!expanded || initialMinutes || minutes) return
+    if (initialMinutes) return
     const pomodoro = readPomodoroMinutes()
     if (pomodoro) { setMinutes(String(pomodoro)); setFromPomodoro(true) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expanded])
+  }, [])
 
   useEffect(() => {
     if (!prefill) return
@@ -96,14 +95,13 @@ export default function MomentForm({ userId, subjects, colors, variant, prefill,
     setCategory(prefill.category ?? '')
     setMinutes(prefill.minutes ? String(prefill.minutes) : '')
     setDate(today)
-    setExpanded(true)
     setTimeout(() => titleRef.current?.focus(), 50)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prefill?.nonce])
 
   useEffect(() => {
-    if (expanded) setTimeout(() => titleRef.current?.focus(), 30)
-  }, [expanded])
+    if (variant === 'modal') setTimeout(() => titleRef.current?.focus(), 30)
+  }, [variant])
 
   function reset() {
     setTitle(''); setDescription(''); setCategory(''); setMinutes(''); setDate(today); setPhoto(null); setFromPomodoro(false); setError('')
@@ -111,7 +109,6 @@ export default function MomentForm({ userId, subjects, colors, variant, prefill,
   }
 
   function close() {
-    if (variant === 'inline') setExpanded(false)
     onClose?.()
   }
 
@@ -174,19 +171,6 @@ export default function MomentForm({ userId, subjects, colors, variant, prefill,
     `text-xs font-semibold rounded-lg px-2.5 py-1.5 border transition-colors ${active ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-gray-200 text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-white/5'}`
   const fieldLabel = 'block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5'
 
-  if (variant === 'inline' && !expanded) {
-    return (
-      <button
-        type="button"
-        onClick={() => setExpanded(true)}
-        className="w-full flex items-center gap-3 bg-white border border-indigo-100 rounded-2xl px-4 py-3.5 text-left shadow-sm hover:border-indigo-300 hover:shadow-md transition"
-      >
-        <span className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0"><PenLine className="w-4 h-4" strokeWidth={2} /></span>
-        <span className="text-sm text-slate-600 dark:text-slate-300">Wat heb je geleerd?</span>
-      </button>
-    )
-  }
-
   return (
       <motion.form
         ref={formRef}
@@ -195,16 +179,16 @@ export default function MomentForm({ userId, subjects, colors, variant, prefill,
           if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); save() }
           if (e.key === 'Escape' && !saving) close()
         }}
-        initial={{ opacity: 0, height: variant === 'inline' ? 0 : 'auto' }}
-        animate={{ opacity: 1, height: 'auto' }}
-        transition={{ duration: reduced ? 0 : 0.22, ease: 'easeOut' }}
-        className={`bg-white border border-indigo-100 rounded-2xl shadow-sm ${variant === 'inline' ? 'overflow-hidden' : ''}`}
+        initial={variant === 'modal' ? { opacity: 0, y: 8 } : false}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduced ? 0 : 0.2, ease: 'easeOut' }}
+        className="bg-white border border-indigo-100 rounded-2xl shadow-sm"
         aria-label="Nieuw leermoment"
       >
         <div className="p-4 md:p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Nieuw leermoment</h2>
-            <button type="button" onClick={close} aria-label="Sluiten" className="p-1 rounded-md text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"><X className="w-4 h-4" /></button>
+            {onClose && <button type="button" onClick={close} aria-label="Sluiten" className="p-1 rounded-md text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"><X className="w-4 h-4" /></button>}
           </div>
 
           <div>

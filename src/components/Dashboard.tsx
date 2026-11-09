@@ -92,7 +92,7 @@ export default function Dashboard({ user, subjects, statRows: initialStats, init
   const [loadError, setLoadError] = useState(initialPage.failed)
   const [searchInput, setSearchInput] = useState(initialSearch)
   const [filters, setFilters] = useState<MomentFilters>({ search: initialSearch, subject: '', year: '' })
-  const firstLoad = useRef(true)
+  const loadedKey = useRef(JSON.stringify({ search: initialSearch, subject: '', year: '' }))
   const requestId = useRef(0)
 
   const [prefill, setPrefill] = useState<MomentPrefill | null>(null)
@@ -150,7 +150,9 @@ export default function Dashboard({ user, subjects, statRows: initialStats, init
   }, [supabase])
 
   useEffect(() => {
-    if (firstLoad.current) { firstLoad.current = false; return }
+    const key = JSON.stringify(filters)
+    if (key === loadedKey.current) return
+    loadedKey.current = key
     load(filters)
   }, [filters, load])
 
