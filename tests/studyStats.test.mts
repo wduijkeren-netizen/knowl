@@ -1,8 +1,9 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  formatMinutes, addDays, weekStart, computeStreak, weekComparison, heatmapLevel, reviewOrder, minutesByDay,
+  formatMinutes, addDays, weekStart, computeStreak, weekComparison, heatmapLevel, minutesByDay, reviewSchedule, reviewQueue,
 } from '../src/lib/studyStats.ts'
+import { buildSubjectColors, SUBJECT_PALETTE } from '../src/lib/subjectColors.ts'
 
 test('formatMinutes gebruikt overal dezelfde notatie', () => {
   assert.equal(formatMinutes(0), '0 min')
@@ -64,12 +65,39 @@ test('alle kleurniveaus van de kalender zijn bereikbaar', () => {
   assert.deepEqual([0, 10, 45, 90, 200].map(heatmapLevel), [0, 1, 2, 3, 4])
 })
 
-test('herhalen gebruikt alleen eerdere leermomenten met een samenvatting', () => {
-  const list = reviewOrder([
-    { learned_at: '2026-11-09', description: 'vandaag' },
-    { learned_at: '2026-11-02', description: 'week geleden' },
-    { learned_at: '2026-10-20', description: '' },
-    { learned_at: '2026-11-05', description: 'vier dagen' },
-  ], '2026-11-09')
-  assert.deepEqual(list.map(m => m.description), ['week geleden', 'vier dagen'])
+test('herhaalschema: 1, 7 en 30 dagen na registratie, vergeten begint opnieuw', () => {
+  assert.equal(reviewSchedule('2026-11-01', []).due, '2026-11-02')
+  assert.equal(reviewSchedule('2026-11-01', [{ result: 'remembered', date: '2026-11-02' }]).due, '2026-11-08')
+  assert.equal(reviewSchedule('2026-11-01', [{ result: 'remembered', date: '2026-11-02' }, { result: 'remembered', date: '2026-11-08' }]).due, '2026-12-01')
+  assert.equal(reviewSchedule('2026-11-01', [{ result: 'remembered', date: '2026-11-02' }, { result: 'remembered', date: '2026-11-08' }, { result: 'remembered', date: '2026-12-01' }]).done, true)
+  assert.equal(reviewSchedule('2026-11-01', [{ result: 'remembered', date: '2026-11-02' }, { result: 'forgotten', date: '2026-11-09' }]).due, '2026-11-10')
+  assert.equal(reviewSchedule('2026-09-26', [], '2026-11-09').step, 2)
+  assert.equal(reviewSchedule('2026-10-30', [], '2026-11-09').step, 1)
+})
+
+test('herhaalwachtrij: alleen actieve vakken, met notitie, niet te oud, achterstallige eerst', () => {
+  const today = '2026-11-09'
+  const moments = [
+    { id: 'a', learned_at: '2026-11-08', description: 'gisteren', category: 'Statistiek' },
+    { id: 'b', learned_at: '2026-11-02', description: 'week geleden', category: 'Statistiek' },
+    { id: 'c', learned_at: '2026-11-01', description: 'oud vak', category: 'Geschiedenis' },
+    { id: 'd', learned_at: '2026-05-20', description: '173 dagen', category: 'Statistiek' },
+    { id: 'e', learned_at: '2026-11-07', description: '', category: 'Statistiek' },
+    { id: 'f', learned_at: '2026-11-09', description: 'vandaag', category: 'Statistiek' },
+  ]
+  const { due, nextDue } = reviewQueue(moments, [], new Set(['Statistiek']), today)
+  assert.deepEqual(due.map(d => d.moment.id), ['a', 'b'])
+  assert.deepEqual(due.map(d => d.step), [0, 1])
+  assert.equal(nextDue, '2026-11-10')
+  const after = reviewQueue(moments, [{ moment_id: 'b', result: 'remembered', reviewed_at: '2026-11-09T10:00:00' }], new Set(['Statistiek']), today)
+  assert.deepEqual(after.due.map(d => d.moment.id), ['a'])
+})
+
+test('vakkleuren zijn vast per vaknaam en uniek zolang er kleuren over zijn', () => {
+  const a = buildSubjectColors(['Statistiek', 'Recht', 'Marketing'])
+  const b = buildSubjectColors(['Marketing', 'Statistiek', 'Recht'])
+  assert.deepEqual(a, b)
+  assert.equal(new Set(Object.values(a)).size, 3)
+  const many = buildSubjectColors(SUBJECT_PALETTE.map((_, i) => `Vak ${i}`))
+  assert.equal(new Set(Object.values(many)).size, SUBJECT_PALETTE.length)
 })

@@ -92,18 +92,55 @@ export function heatmapLevel(minutes: number) {
   return 4
 }
 
-const REVIEW_INTERVALS = [1, 3, 7, 14, 30, 60, 120]
+export const REVIEW_STEPS = [1, 7, 30]
+export const REVIEW_MAX_AGE_DAYS = 45
 
-/** Leermomenten met een samenvatting, gesorteerd op hoe dicht ze bij een herhaalmoment zitten. */
-export function reviewOrder<T extends { learned_at: string; description?: string | null }>(moments: T[], today: string) {
-  const todayTime = new Date(`${today}T12:00:00`).getTime()
-  return moments
-    .filter(m => (m.description ?? '').trim().length > 0 && m.learned_at < today)
-    .map(m => {
-      const age = Math.round((todayTime - new Date(`${m.learned_at}T12:00:00`).getTime()) / 86400000)
-      const distance = Math.min(...REVIEW_INTERVALS.map(i => Math.abs(age - i)))
-      return { m, age, distance }
-    })
-    .sort((a, b) => a.distance - b.distance || b.age - a.age)
-    .map(x => x.m)
+export type ReviewResult = 'remembered' | 'forgotten'
+export type MomentReview = { moment_id: string; result: ReviewResult; reviewed_at: string }
+
+/**
+ * Herhaalschema per leermoment: 1, 7 en 30 dagen na de registratie. 'Vergeten' zet de
+ * teller terug; het schema start dan opnieuw vanaf de dag van die herhaling. Een volgende
+ * herhaling valt altijd minstens een dag na de vorige. Is een leermoment nog nooit herhaald,
+ * dan begint het bij de laatste stap die al bereikt is (een notitie van 10 dagen oud: de 7-dagenstap).
+ * Na drie keer 'Wist ik nog' is het leermoment klaar.
+ */
+export function reviewSchedule(learnedAt: string, reviews: { result: ReviewResult; date: string }[], today?: string) {
+  let base = learnedAt
+  let step = 0
+  if (reviews.length === 0 && today) {
+    const age = Math.round((new Date(`${today}T12:00:00`).getTime() - new Date(`${learnedAt}T12:00:00`).getTime()) / 86400000)
+    while (step + 1 < REVIEW_STEPS.length && REVIEW_STEPS[step + 1] <= age) step++
+  }
+  let last: string | null = null
+  for (const r of [...reviews].sort((a, b) => a.date.localeCompare(b.date))) {
+    if (r.result === 'forgotten') { base = r.date; step = 0 } else step++
+    last = r.date
+  }
+  if (step >= REVIEW_STEPS.length) return { done: true as const, step, due: null }
+  const planned = addDays(base, REVIEW_STEPS[step])
+  const earliest = last ? addDays(last, 1) : planned
+  return { done: false as const, step, due: planned > earliest ? planned : earliest }
+}
+
+/**
+ * Leermomenten om te herhalen: alleen met een notitie, uit een actief vak, en niet ouder
+ * dan REVIEW_MAX_AGE_DAYS tenzij ze al eerder herhaald zijn. Achterstallige eerst.
+ */
+export function reviewQueue<T extends { id?: string; learned_at: string; description?: string | null; category?: string | null }>(
+  moments: T[], reviews: MomentReview[], activeSubjects: Set<string>, today: string,
+) {
+  const byMoment: Record<string, { result: ReviewResult; date: string }[]> = {}
+  for (const r of reviews) (byMoment[r.moment_id] ??= []).push({ result: r.result, date: localDateStr(new Date(r.reviewed_at)) })
+  const oldest = addDays(today, -REVIEW_MAX_AGE_DAYS)
+
+  const planned = moments
+    .filter(m => m.id && (m.description ?? '').trim() && m.category && activeSubjects.has(m.category))
+    .filter(m => m.learned_at >= oldest || byMoment[m.id!])
+    .map(m => ({ moment: m, ...reviewSchedule(m.learned_at, byMoment[m.id!] ?? [], today) }))
+    .filter(p => !p.done) as { moment: T; done: false; step: number; due: string }[]
+
+  const due = planned.filter(p => p.due <= today).sort((a, b) => a.due.localeCompare(b.due) || b.moment.learned_at.localeCompare(a.moment.learned_at))
+  const upcoming = planned.filter(p => p.due > today).sort((a, b) => a.due.localeCompare(b.due))
+  return { due, nextDue: upcoming[0]?.due ?? null }
 }
