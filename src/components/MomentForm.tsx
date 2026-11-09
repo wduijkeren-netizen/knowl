@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { Camera, X } from 'lucide-react'
+import { Camera, PenLine, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import SubjectSelect from '@/components/SubjectSelect'
 import { addDays, formatDay, localDateStr } from '@/lib/studyStats'
@@ -182,14 +182,18 @@ export default function MomentForm({ userId, subjects, colors, variant, prefill,
         initial={variant === 'modal' ? { opacity: 0, y: 8 } : false}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: reduced ? 0 : 0.2, ease: 'easeOut' }}
-        className="bg-white border border-indigo-100 rounded-2xl shadow-sm"
+        className="bg-white border border-indigo-100 rounded-2xl shadow-sm overflow-hidden"
         aria-label="Nieuw leermoment"
       >
-        <div className="p-4 md:p-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Nieuw leermoment</h2>
-            {onClose && <button type="button" onClick={close} aria-label="Sluiten" className="p-1 rounded-md text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"><X className="w-4 h-4" /></button>}
+        <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-4 md:px-5 py-4 flex items-center gap-3">
+          <span className="w-9 h-9 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0"><PenLine className="w-4 h-4 text-white" strokeWidth={2} /></span>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-base font-semibold text-white">Nieuw leermoment</h2>
+            <p className="text-sm text-white/85">Wat heb je vandaag geleerd?</p>
           </div>
+          {onClose && <button type="button" onClick={close} aria-label="Sluiten" className="p-1.5 rounded-lg text-white/90 hover:text-white hover:bg-white/10"><X className="w-4 h-4" /></button>}
+        </div>
+        <div className="p-4 md:p-5 space-y-4">
 
           <div>
             <label htmlFor="lm-title" className={fieldLabel}>Titel</label>
@@ -248,7 +252,7 @@ export default function MomentForm({ userId, subjects, colors, variant, prefill,
             <button
               type="submit"
               disabled={saving || !title.trim()}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-semibold pl-5 pr-3 py-2.5 rounded-xl shadow-sm hover:from-indigo-700 hover:to-violet-700 disabled:opacity-50 active:scale-[0.98] transition"
+              className="inline-flex items-center gap-2 bg-indigo-600 text-white text-sm font-semibold pl-5 pr-3 py-2.5 rounded-xl shadow-sm hover:bg-indigo-700 disabled:opacity-50 active:scale-[0.98] transition"
             >
               {saving ? 'Opslaan…' : 'Opslaan'}
               <kbd className="text-[11px] font-medium bg-white/20 rounded px-1.5 py-0.5">{isMac ? '⌘↵' : 'Ctrl ↵'}</kbd>

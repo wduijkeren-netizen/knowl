@@ -407,12 +407,13 @@ export default function Dashboard({ user, subjects, statRows: initialStats, init
                 const editing = editingId === m.id
                 return (
                   <Fragment key={m.id}>
-                    {showHeader && <li className="pt-3 first:pt-0 pb-0.5 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">{label}</li>}
+                    {showHeader && <li className="pt-3 first:pt-0 pb-0.5 text-xs font-semibold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">{label}</li>}
                     <motion.li
                       initial={newIds.has(m.id) && !reduced ? { opacity: 0, y: -8 } : false}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.25, ease: 'easeOut' }}
-                      className="relative bg-white rounded-xl border border-indigo-100 hover:border-indigo-200 hover:shadow-sm transition-[border-color,box-shadow]"
+                      className="relative bg-white rounded-xl border hover:shadow-sm transition-shadow"
+                      style={{ backgroundImage: `linear-gradient(${color}14, ${color}14)`, borderColor: `${color}33` }}
                     >
                       <span className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" style={{ backgroundColor: color }} aria-hidden />
                       <div
