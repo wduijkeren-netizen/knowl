@@ -1,4 +1,5 @@
 'use client'
+import Glyph from '@/components/Glyph'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Nav from '@/components/Nav'
 import { createClient } from '@/lib/supabase/client'
@@ -129,7 +130,7 @@ export default function GroepSession({
                 await navigator.clipboard.writeText(`${window.location.origin}/pomodoro/groep/${session.code}`)
                 setCopied(true); setTimeout(() => setCopied(false), 2000)
               }} className="text-xs text-indigo-400 hover:text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg transition-colors">
-                {copied ? '✓' : '🔗 Delen'}
+                {copied ? <Glyph name="check" className="w-4 h-4" /> : <span className="inline-flex items-center gap-1"><Glyph name="link" className="w-3.5 h-3.5" />Delen</span>}
               </button>
             </div>
           </div>
@@ -141,7 +142,7 @@ export default function GroepSession({
           {['work', 'break'].map(mode => (
             <button key={mode} onClick={() => isHost && handleModeSwitch(mode)}
               className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-all ${session.mode === mode ? 'bg-white text-indigo-700 shadow-sm' : 'text-indigo-400'} ${!isHost ? 'cursor-default' : ''}`}>
-              {mode === 'work' ? '🎯 Focus' : '☕ Pauze'}
+              <span className="inline-flex items-center gap-1.5"><Glyph name={mode === 'work' ? 'target' : 'cup'} className="w-4 h-4" />{mode === 'work' ? 'Focus' : 'Pauze'}</span>
             </button>
           ))}
         </div>
@@ -175,7 +176,7 @@ export default function GroepSession({
               ) : (
                 <button onClick={handlePause}
                   className="bg-amber-100 text-amber-700 px-8 py-3 rounded-xl font-semibold hover:bg-amber-200 transition-colors active:scale-95">
-                  ⏸ Pauzeren
+                  <Glyph name="pause" className="w-4 h-4 mr-1" />Pauzeren
                 </button>
               )}
               <button onClick={handleReset}
@@ -190,11 +191,11 @@ export default function GroepSession({
         </div>
 
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-4 space-y-2">
-          <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">👥 Deelnemers ({participants.length})</p>
+          <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide"><Glyph name="users" className="w-3.5 h-3.5 -mt-0.5 mr-1" />Deelnemers ({participants.length})</p>
           <div className="flex flex-wrap gap-2">
             {participants.map((p, i) => (
               <span key={i} className={`text-sm px-3 py-1.5 rounded-xl font-medium ${p.userId === userId ? 'bg-indigo-600 text-white' : 'bg-indigo-50 text-indigo-700'}`}>
-                {p.name} {p.userId === session.host_id ? '👑' : ''}
+                {p.name} {p.userId === session.host_id ? <Glyph name="crown" className="w-3.5 h-3.5 text-amber-500" label="Host" /> : null}
               </span>
             ))}
           </div>

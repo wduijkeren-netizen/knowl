@@ -1,5 +1,6 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
@@ -137,7 +138,7 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
                 {inviteCopiedId === set.id ? fc.linkCopied : fc.invite}
               </button>
             )}
-            <button onClick={() => setConfirmDeleteId(set.id)} className="text-sm text-gray-300 hover:text-red-400 transition-colors px-2 py-1.5">✕</button>
+            <button onClick={() => setConfirmDeleteId(set.id)} className="text-sm text-gray-300 hover:text-red-400 transition-colors px-2 py-1.5"><Glyph name="close" className="w-4 h-4" /></button>
           </div>
         </div>
       </div>
@@ -205,7 +206,7 @@ export default function FlashcardOverzicht({ sets: initialSets, countMap, dueMap
 
         {sets.length === 0 ? (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-12 text-center">
-            <p className="text-5xl mb-4">🧠</p>
+            <Glyph name="cards" className="w-12 h-12 mx-auto mb-4 text-indigo-400" />
             <p className="font-bold text-indigo-900 text-lg mb-1">{fc.emptyTitle}</p>
             <p className="text-sm text-indigo-400 mb-6">{fc.emptyBody}</p>
             <Link href="/flashcards/nieuw" className="inline-block bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 transition-all shadow-sm shadow-indigo-200">{fc.emptyBtn}</Link>

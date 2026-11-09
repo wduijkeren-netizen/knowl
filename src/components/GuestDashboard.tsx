@@ -1,5 +1,7 @@
 'use client'
 
+import type { GlyphName } from '@/components/Glyph'
+import Glyph from '@/components/Glyph'
 import { formatMinutes, localDateStr, weekStart } from '@/lib/studyStats'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -147,14 +149,14 @@ export default function GuestDashboard() {
         {/* Snelkoppelingen — zelfde sfeer als echte HomePage */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { href: '/resultaten', label: tr.nav.results, icon: '📊' },
-            { href: '/pomodoro', label: tr.nav.timer, icon: '⏱️' },
-            { href: '/flashcards', label: tr.nav.flashcards ?? 'Flashcards', icon: '🃏' },
-            { href: '/login?signup=true', label: tr.nav.loginBtn, icon: '👤' },
+            { href: '/resultaten', label: tr.nav.results, icon: 'chart' as GlyphName },
+            { href: '/pomodoro', label: tr.nav.timer, icon: 'clock' as GlyphName },
+            { href: '/flashcards', label: tr.nav.flashcards ?? 'Flashcards', icon: 'cards' as GlyphName },
+            { href: '/login?signup=true', label: tr.nav.loginBtn, icon: 'user' as GlyphName },
           ].map(item => (
             <Link key={item.href} href={item.href}
               className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-4 flex flex-col items-center gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all text-center">
-              <span className="text-2xl">{item.icon}</span>
+              <Glyph name={item.icon} className="w-6 h-6 mx-auto text-indigo-600" />
               <span className="text-xs font-semibold text-indigo-700">{item.label}</span>
             </Link>
           ))}
@@ -179,7 +181,7 @@ export default function GuestDashboard() {
             <button
               onClick={handleCopyLink}
               className={`flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-xl active:scale-95 transition-all border ${linkCopied ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'}`}>
-              {linkCopied ? '✓ Gekopieerd!' : 'Link kopiëren'}
+              {linkCopied ? 'Gekopieerd!' : 'Link kopiëren'}
             </button>
           </div>
         </div>
@@ -225,7 +227,7 @@ export default function GuestDashboard() {
 
             {success && (
               <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-center gap-3">
-                <span className="text-emerald-500 text-lg shrink-0">✓</span>
+                <Glyph name="check" className="w-5 h-5 text-emerald-600" />
                 <p className="text-sm text-emerald-700 font-medium">{d.saved}</p>
               </div>
             )}
@@ -256,7 +258,7 @@ export default function GuestDashboard() {
 
           {moments.length === 0 && (
             <div className="bg-white rounded-2xl border border-indigo-100 p-10 text-center space-y-2">
-              <p className="text-5xl">🌱</p>
+              <Glyph name="sprout" className="w-12 h-12 mx-auto text-indigo-400" />
               <p className="text-indigo-900 font-semibold">{d.empty}</p>
               <p className="text-indigo-400 text-sm">Vul het formulier hierboven in — het duurt 30 seconden.</p>
             </div>

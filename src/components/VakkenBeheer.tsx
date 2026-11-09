@@ -171,7 +171,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, momentCo
 
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
           <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-4">
-            <h2 className="font-semibold text-white">📚 {s.addTitle}</h2>
+            <h2 className="font-semibold text-white">{s.addTitle}</h2>
           </div>
           <form onSubmit={handleAdd} className="p-6">
             <div className="flex flex-col sm:flex-row gap-3">

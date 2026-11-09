@@ -1,4 +1,5 @@
 'use client'
+import Glyph from '@/components/Glyph'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Nav from '@/components/Nav'
@@ -43,7 +44,7 @@ export default function GroepCreate({ userId }: { userId: string; userName: stri
       <Nav />
       <main className="max-w-md mx-auto px-4 py-16 space-y-6">
         <div className="text-center space-y-2">
-          <p className="text-5xl">👥</p>
+          <Glyph name="users" className="w-12 h-12 mx-auto text-indigo-500" />
           <h1 className="text-2xl font-bold text-indigo-900">Groepsstudie</h1>
           <p className="text-indigo-400">Studeer samen met vrienden in dezelfde Pomodoro-sessie.</p>
         </div>
@@ -51,7 +52,7 @@ export default function GroepCreate({ userId }: { userId: string; userName: stri
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6 space-y-4">
           <button onClick={createSession} disabled={loading}
             className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white py-4 rounded-2xl font-bold text-base hover:opacity-90 disabled:opacity-50 transition-all active:scale-95">
-            {loading ? 'Aanmaken...' : '🚀 Nieuwe sessie starten'}
+            {loading ? 'Aanmaken...' : 'Nieuwe sessie starten'}
           </button>
           <p className="text-center text-sm text-indigo-300">— of —</p>
           <div className="space-y-2">

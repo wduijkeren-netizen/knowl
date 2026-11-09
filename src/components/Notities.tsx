@@ -1,5 +1,6 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import Nav from '@/components/Nav'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -590,22 +591,22 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
                     'opacity-100 text-red-500'
                   }`}>
                     {saveStatus === 'saving' ? n.saving :
-                     saveStatus === 'saved' ? `${n.autoSaved} ✓` :
-                     saveStatus === 'error' ? '✗ Niet opgeslagen' : ''}
+                     saveStatus === 'saved' ? n.autoSaved :
+                     saveStatus === 'error' ? 'Niet opgeslagen' : ''}
                   </span>
 
                   <button
                     onClick={createFlashcardsFromNote}
                     title="Maak flashcards van H1/H2 kopteksten"
                     className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${flashcardDone ? 'bg-emerald-100 text-emerald-700' : flashcardError ? 'bg-red-100 text-red-600' : 'text-violet-500 hover:bg-violet-50'}`}>
-                    {flashcardDone ? '✓ Flashcards!' : flashcardError ? 'Geen koppen gevonden' : 'Flashcards'}
+                    {flashcardDone ? 'Flashcards gemaakt' : flashcardError ? 'Geen koppen gevonden' : 'Flashcards'}
                   </button>
                   <button onClick={handleShare}
                     className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${isPublic ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'text-indigo-400 hover:bg-indigo-50'}`}>
-                    {shareCopied ? '✓ Gekopieerd!' : isPublic ? '🔗 Link' : 'Delen'}
+                    {shareCopied ? 'Gekopieerd!' : isPublic ? 'Link' : 'Delen'}
                   </button>
                   {isPublic && (
-                    <button onClick={handleUnshare} className="text-xs text-gray-300 hover:text-gray-500 transition-colors px-1">✕</button>
+                    <button onClick={handleUnshare} className="text-xs text-gray-300 hover:text-gray-500 transition-colors px-1"><Glyph name="close" className="w-4 h-4" /></button>
                   )}
 
                   {confirmDelete ? (
@@ -629,7 +630,7 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
                   <div className="flex items-center gap-2 shrink-0">
                     <button onClick={async () => { await navigator.clipboard.writeText(shareUrl); setShareCopied(true); setTimeout(() => setShareCopied(false), 2000) }}
                       className="text-xs text-emerald-600 hover:text-emerald-800 font-medium">
-                      {shareCopied ? '✓' : 'Kopieer'}
+                      {shareCopied ? 'Gekopieerd' : 'Kopieer'}
                     </button>
                     <button onClick={handleUnshare} className="text-xs text-emerald-400 hover:text-emerald-600">Verwijder link</button>
                   </div>
@@ -699,19 +700,19 @@ export default function Notities({ userId, initialNotes, subjects }: Props) {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   {momentAdded && (
-                    <span className="text-xs text-emerald-500 font-medium">✓ Toegevoegd aan resultaten!</span>
+                    <span className="text-xs text-emerald-500 font-medium">Toegevoegd aan resultaten</span>
                   )}
                   {!momentAdded && sessionSeconds >= 60 && !showAddMoment && (
                     <button
                       onClick={openAddMoment}
                       className="flex items-center gap-1.5 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-xl font-medium hover:bg-indigo-700 transition-colors active:scale-95"
                     >
-                      <span>⏱ {Math.round(sessionSeconds / 60)} min</span>
+                      <span className="inline-flex items-center gap-1"><Glyph name="clock" className="w-3.5 h-3.5" />{Math.round(sessionSeconds / 60)} min</span>
                       <span>→ Leermoment</span>
                     </button>
                   )}
                   {!momentAdded && sessionSeconds < 60 && (
-                    <span className="text-xs text-indigo-200">⏱ {sessionSeconds}s</span>
+                    <span className="text-xs text-indigo-200"><Glyph name="clock" className="w-3 h-3 -mt-0.5 mr-1" />{sessionSeconds}s</span>
                   )}
                 </div>
               </div>

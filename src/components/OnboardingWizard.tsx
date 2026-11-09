@@ -1,5 +1,7 @@
 'use client'
 
+import type { GlyphName } from '@/components/Glyph'
+import Glyph from '@/components/Glyph'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
@@ -7,7 +9,7 @@ import { useLanguage } from '@/lib/i18n/LanguageContext'
 const STORAGE_KEY = 'knowl_onboarded_v2'
 
 type Step = {
-  icon: string
+  icon: GlyphName
   gradient: string
   title: string
   sub: string
@@ -38,14 +40,14 @@ export default function OnboardingWizard({ isNewUser }: { isNewUser: boolean }) 
 
   const steps: Step[] = [
     {
-      icon: '👋',
+      icon: 'sparkle',
       gradient: 'from-indigo-600 to-violet-600',
       title: o.welcome,
       sub: o.welcomeSub,
       tip: 'Knowl helpt je slimmer studeren door je voortgang bij te houden.',
     },
     {
-      icon: '📚',
+      icon: 'books',
       gradient: 'from-violet-600 to-purple-600',
       title: o.step1title,
       sub: o.step1sub,
@@ -54,7 +56,7 @@ export default function OnboardingWizard({ isNewUser }: { isNewUser: boolean }) 
       tip: 'Bijv. Wiskunde, Economie, Engels. Alles wordt per vak bijgehouden.',
     },
     {
-      icon: '✏️',
+      icon: 'pen',
       gradient: 'from-indigo-500 to-blue-600',
       title: o.step2title,
       sub: o.step2sub,
@@ -63,7 +65,7 @@ export default function OnboardingWizard({ isNewUser }: { isNewUser: boolean }) 
       tip: 'Vul in wat je hebt geleerd, hoe lang en welk vak. Dat is alles.',
     },
     {
-      icon: '📝',
+      icon: 'book',
       gradient: 'from-teal-500 to-emerald-600',
       title: 'Maak notities',
       sub: 'Schrijf samenvattingen en aantekeningen per vak, zoals in Apple Notes.',
@@ -72,7 +74,7 @@ export default function OnboardingWizard({ isNewUser }: { isNewUser: boolean }) 
       tip: 'Ctrl+B voor vet, Ctrl+I voor cursief. Tijd wordt automatisch bijgehouden.',
     },
     {
-      icon: '⏱️',
+      icon: 'clock',
       gradient: 'from-orange-500 to-amber-500',
       title: 'Gebruik de Pomodoro timer',
       sub: 'Studeer in blokken van 25 minuten met pauzes. Bewezen effectief.',
@@ -81,7 +83,7 @@ export default function OnboardingWizard({ isNewUser }: { isNewUser: boolean }) 
       tip: 'Start een sessie en het leermoment wordt automatisch voorgesteld.',
     },
     {
-      icon: '📊',
+      icon: 'chart',
       gradient: 'from-emerald-500 to-teal-600',
       title: o.step3title,
       sub: o.step3sub,
@@ -100,8 +102,8 @@ export default function OnboardingWizard({ isNewUser }: { isNewUser: boolean }) 
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden">
         {/* Header */}
         <div className={`bg-gradient-to-br ${current.gradient} p-7 text-center text-white relative`}>
-          <button onClick={dismiss} className="absolute top-4 right-4 text-white/60 hover:text-white text-xl leading-none transition-colors">✕</button>
-          <div className="text-5xl mb-3">{current.icon}</div>
+          <button onClick={dismiss} className="absolute top-4 right-4 text-white/60 hover:text-white text-xl leading-none transition-colors"><Glyph name="close" className="w-4 h-4" /></button>
+          <Glyph name={current.icon} className="w-12 h-12 mx-auto mb-3" />
           <h2 className="text-xl font-bold">{current.title}</h2>
           <p className="text-white/80 text-sm mt-2 leading-relaxed">{current.sub}</p>
         </div>
@@ -117,7 +119,7 @@ export default function OnboardingWizard({ isNewUser }: { isNewUser: boolean }) 
           {/* Tip */}
           {current.tip && (
             <div className="bg-indigo-50 rounded-2xl px-4 py-3 flex gap-2.5 items-start">
-              <span className="text-indigo-400 text-sm mt-0.5">💡</span>
+              <Glyph name="bulb" className="w-4 h-4 mt-0.5 text-indigo-500" />
               <p className="text-sm text-indigo-700">{current.tip}</p>
             </div>
           )}

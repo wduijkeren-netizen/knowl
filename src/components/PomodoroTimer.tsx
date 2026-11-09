@@ -1,5 +1,6 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import { useState, useEffect, useRef } from 'react'
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
@@ -247,11 +248,11 @@ export default function PomodoroTimer({ user, subjects }: Props) {
       {showSessionForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 space-y-5">
-            <div className="text-center"><div className="text-4xl mb-2">🎉</div>
+            <div className="text-center"><Glyph name="celebrate" className="w-10 h-10 mx-auto mb-2 text-indigo-500" />
               <h2 className="text-xl font-bold text-indigo-900">{p.sessionDone}</h2>
             </div>
             {sessionSaved ? (
-              <p className="text-center text-emerald-500 font-semibold py-4">{p.sessionSaved} ✓</p>
+              <p className="text-center text-emerald-500 font-semibold py-4">{p.sessionSaved} <Glyph name="check" className="w-4 h-4" /></p>
             ) : (
               <>
                 <div>
@@ -303,7 +304,7 @@ export default function PomodoroTimer({ user, subjects }: Props) {
             <div className="mt-3 flex justify-center">
               <Link href="/pomodoro/groep"
                 className="flex items-center gap-2 text-sm bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl font-medium hover:bg-indigo-100 transition-colors">
-                👥 Studeer samen
+                <Glyph name="users" className="w-4 h-4 -mt-0.5 mr-1" />Studeer samen
               </Link>
             </div>
           </div>

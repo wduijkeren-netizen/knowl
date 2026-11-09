@@ -1,5 +1,6 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
@@ -131,7 +132,7 @@ export default function FlashcardStudeer({ set, cards: initialCards, srMap, memb
 
         {done ? (
           <div className="bg-white rounded-3xl border border-indigo-100 shadow-sm p-8 text-center space-y-4">
-            <p className="text-5xl">🎉</p>
+            <Glyph name="celebrate" className="w-12 h-12 mx-auto text-indigo-500" />
             <h2 className="text-xl font-bold text-indigo-900">{fc.done}</h2>
             <div className="flex justify-center gap-6 py-2">
               <div className="text-center">

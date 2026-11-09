@@ -1,5 +1,6 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import { formatMinutes, localDateStr, weekStart } from '@/lib/studyStats'
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -294,7 +295,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-8 space-y-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-start gap-4">
               <h2 className="text-lg font-bold text-indigo-900 leading-tight">{detailMoment.title}</h2>
-              <button onClick={() => setDetailMoment(null)} className="text-gray-300 hover:text-gray-500 transition-colors shrink-0 text-xl leading-none">✕</button>
+              <button onClick={() => setDetailMoment(null)} className="text-gray-300 hover:text-gray-500 transition-colors shrink-0 text-xl leading-none"><Glyph name="close" className="w-4 h-4" /></button>
             </div>
             <div className="flex gap-2 flex-wrap">
               {detailMoment.category && <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-1 font-medium">{detailMoment.category}</span>}
@@ -339,12 +340,12 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
       {ratingMomentId && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center space-y-5">
-            <div className="text-5xl mb-1">🎉</div>
+            <Glyph name="celebrate" className="w-12 h-12 mx-auto mb-1 text-indigo-500" />
             <h2 className="text-xl font-bold text-indigo-900">{r.title}</h2>
             <p className="text-sm text-indigo-500">{r.question}</p>
 
             {ratingSaved ? (
-              <p className="text-emerald-500 font-semibold py-4">{r.saved} ✓</p>
+              <p className="text-emerald-500 font-semibold py-4">{r.saved} <Glyph name="check" className="w-4 h-4" /></p>
             ) : (
               <>
                 <div
@@ -358,7 +359,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
                       onClick={() => handleRate(star)}
                       className="text-4xl px-1 transition-transform hover:scale-125 focus:outline-none leading-none"
                     >
-                      {star <= ratingHover ? '⭐' : '☆'}
+                      <Glyph name="star" filled={star <= ratingHover} className="w-7 h-7 text-amber-500" />
                     </button>
                   ))}
                 </div>
@@ -422,7 +423,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
           <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-5">
             <div className="flex items-center gap-2">
-              <span className="text-2xl">✍️</span>
+              <Glyph name="pen" className="w-6 h-6" />
               <div>
                 <h2 className="font-bold text-white text-base">{d.newMoment}</h2>
                 <p className="text-indigo-200 text-xs mt-0.5">{d.newMomentSub}</p>
@@ -512,18 +513,18 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
             {/* Foto — verborgen achter subtiel knopje */}
             <div>
               <label className="inline-flex items-center gap-1.5 text-xs text-indigo-300 hover:text-indigo-500 cursor-pointer transition-colors">
-                <span>📷</span>
+                <Glyph name="camera" className="w-4 h-4" />
                 <span>{d.photo} <span className="text-gray-300">{d.summaryOptional}</span></span>
                 <input type="file" accept="image/*" className="hidden" onChange={e => setPhotoFile(e.target.files?.[0] ?? null)} />
               </label>
-              {photoFile && <p className="text-xs text-indigo-400 mt-1">📎 {photoFile.name}</p>}
+              {photoFile && <p className="text-xs text-indigo-400 mt-1"><Glyph name="paperclip" className="w-3.5 h-3.5 -mt-0.5 mr-1" />{photoFile.name}</p>}
             </div>
 
             {duplicateSuccess && <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-4 py-3"><p className="text-sm text-indigo-600 font-medium">{d.duplicateNote}</p></div>}
             {error && <div className="bg-red-50 border border-red-100 rounded-2xl px-4 py-3"><p className="text-sm text-red-600">{error}</p></div>}
             {success && (
               <div className="bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3 flex items-center gap-3">
-                <span className="text-emerald-500 text-lg shrink-0">✓</span>
+                <Glyph name="check" className="w-5 h-5 text-emerald-600" />
                 <p className="text-sm text-emerald-700 font-medium">{d.saved}</p>
               </div>
             )}
@@ -541,7 +542,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
         {moments.length === 0 && (
           <div className="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-6 text-white">
             <div className="flex items-start gap-3 mb-4">
-              <span className="text-3xl">👋</span>
+              <Glyph name="sparkle" className="w-8 h-8" />
               <div>
                 <h2 className="text-lg font-bold">{h.welcome}</h2>
                 <p className="text-indigo-200 text-sm mt-0.5">{h.welcomeSub}</p>
@@ -549,17 +550,17 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
             </div>
             <div className="grid grid-cols-3 gap-3 text-center">
               <Link href="/vakken" className="bg-white/10 hover:bg-white/25 active:scale-95 transition-all rounded-xl p-3 block">
-                <p className="text-2xl mb-1">📚</p>
+                <Glyph name="books" className="w-6 h-6 mx-auto mb-1" />
                 <p className="text-xs font-semibold text-white">{h.step1}</p>
                 <p className="text-xs text-indigo-300 mt-0.5">{h.manage}</p>
               </Link>
               <div className="bg-white/10 rounded-xl p-3">
-                <p className="text-2xl mb-1">✍️</p>
+                <Glyph name="pen" className="w-6 h-6 mx-auto mb-1" />
                 <p className="text-xs font-semibold text-white">{h.step2}</p>
                 <p className="text-xs text-indigo-300 mt-0.5">Formulier hierboven</p>
               </div>
               <div className="bg-white/10 rounded-xl p-3">
-                <p className="text-2xl mb-1">📊</p>
+                <Glyph name="chart" className="w-6 h-6 mx-auto mb-1" />
                 <p className="text-xs font-semibold text-white">{h.step3}</p>
                 <p className="text-xs text-indigo-300 mt-0.5">Automatisch</p>
               </div>
@@ -570,7 +571,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
         {/* Lijst */}
         <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <h2 className="font-semibold text-indigo-900 border-l-4 border-indigo-300 pl-3">📋 {d.recent}</h2>
+            <h2 className="font-semibold text-indigo-900 border-l-4 border-indigo-300 pl-3">{d.recent}</h2>
             <div className="flex items-center gap-2">
               {moments.length > 0 && (
                 <button
@@ -603,7 +604,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
 
           {moments.length === 0 && (
             <div className="bg-white rounded-2xl border border-indigo-100 p-10 text-center space-y-3">
-              <p className="text-5xl">🌱</p>
+              <Glyph name="sprout" className="w-12 h-12 mx-auto text-indigo-400" />
               <p className="font-semibold text-indigo-900">Nog geen leermomenten</p>
               <p className="text-sm text-indigo-400">Vul het formulier hierboven in — het duurt minder dan een minuut.</p>
               <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -673,7 +674,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
                       <div>
                         <button onClick={() => setDetailMoment(moment)} className="font-semibold text-indigo-900 hover:text-indigo-600 transition-colors text-left">{moment.title}</button>
                         {ratings[moment.id] && (
-                          <span className="text-xs text-amber-400">{'⭐'.repeat(ratings[moment.id])}</span>
+                          <span className="text-xs text-amber-400"><span className="inline-flex align-middle">{Array.from({ length: ratings[moment.id] }, (_, i) => <Glyph key={i} name="star" filled className="w-3 h-3" />)}</span></span>
                         )}
                       </div>
                       <div className="flex gap-2 shrink-0 items-center flex-wrap justify-end">

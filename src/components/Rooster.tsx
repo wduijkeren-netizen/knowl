@@ -1,4 +1,5 @@
 'use client'
+import Glyph from '@/components/Glyph'
 import { useState } from 'react'
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
@@ -166,7 +167,7 @@ export default function Rooster({ initialSlots, userId }: { initialSlots: Slot[]
             <div className="space-y-2">
               {freeBlocks.map((b, i) => (
                 <div key={i} className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
-                  <div className="text-3xl">📖</div>
+                  <Glyph name="book" className="w-8 h-8 text-indigo-500" />
                   <div>
                     <p className="font-semibold text-sm text-emerald-800">{b.start} – {b.end}</p>
                     <p className="text-xs text-emerald-500">{b.minutes} {r.minFree}</p>
@@ -179,13 +180,13 @@ export default function Rooster({ initialSlots, userId }: { initialSlots: Slot[]
         {/* iCal import */}
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 space-y-4">
           <div>
-            <h2 className="font-bold text-indigo-900">📅 Importeer vanuit Magister / SOMtoday</h2>
+            <h2 className="font-bold text-indigo-900">Importeer vanuit Magister / SOMtoday</h2>
             <p className="text-sm text-indigo-400 mt-0.5">Exporteer je rooster als .ics bestand en plak de inhoud hieronder, of upload het bestand.</p>
           </div>
 
           <div className="flex gap-3 flex-wrap">
             <label className="cursor-pointer text-sm bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl font-medium hover:bg-indigo-100 transition-colors">
-              📁 Bestand uploaden (.ics)
+              <Glyph name="folder" className="w-4 h-4 -mt-0.5 mr-1" />Bestand uploaden (.ics)
               <input type="file" accept=".ics" className="hidden" onChange={e => {
                 const file = e.target.files?.[0]
                 if (!file) return

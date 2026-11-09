@@ -1,3 +1,4 @@
+import Glyph from '@/components/Glyph'
 import Link from 'next/link'
 import { AuroraHero } from '@/components/AuroraHero'
 
@@ -11,7 +12,7 @@ export default function NotFound() {
         </div>
 
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl shadow-indigo-100 border border-indigo-50 p-8">
-          <p className="text-6xl mb-4">🔍</p>
+          <Glyph name="search" className="w-12 h-12 mx-auto mb-4 text-indigo-500" />
           <h2 className="text-xl font-semibold text-indigo-900 mb-2">Pagina niet gevonden</h2>
           <p className="text-sm text-gray-400 mb-6">
             Deze pagina bestaat niet of is verplaatst.

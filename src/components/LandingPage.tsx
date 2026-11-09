@@ -1,5 +1,6 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
@@ -1541,7 +1542,6 @@ export default function LandingPage() {
             <div className="relative">
               <button onClick={() => setShowLang(s => !s)}
                 className="flex items-center gap-1 text-sm text-indigo-400 hover:text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg px-2.5 py-1.5 transition-colors">
-                <span>{currentLang?.flag}</span>
                 <span className="font-medium text-xs">{currentLang?.code.toUpperCase()}</span>
                 <motion.span className="text-xs opacity-60" animate={{ rotate: showLang ? 180 : 0 }}>▾</motion.span>
               </button>
@@ -1557,8 +1557,8 @@ export default function LandingPage() {
                     {languages.map(lg => (
                       <button key={lg.code} onClick={() => { setLang(lg.code as LangCode); setShowLang(false) }}
                         className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-indigo-50 transition-colors ${lang === lg.code ? 'text-indigo-700 font-semibold' : 'text-gray-600'}`}>
-                        <span>{lg.flag}</span><span>{lg.label}</span>
-                        {lang === lg.code && <span className="ml-auto text-indigo-400">✓</span>}
+                        <span>{lg.label}</span>
+                        {lang === lg.code && <span className="ml-auto text-indigo-400"><Glyph name="check" className="w-4 h-4" /></span>}
                       </button>
                     ))}
                   </motion.div>

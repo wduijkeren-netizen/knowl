@@ -1,5 +1,6 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -115,7 +116,7 @@ export default function FlashcardBewerken({ set, cards: initialCards, subjects, 
                 placeholder={fc.backPlaceholder}
                 className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all" />
               <button onClick={() => removeCard(card.id)}
-                className="self-end sm:self-auto text-gray-300 hover:text-red-400 transition-colors p-2 min-w-[44px] min-h-[44px] flex items-center justify-center">✕</button>
+                className="self-end sm:self-auto text-gray-300 hover:text-red-400 transition-colors p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"><Glyph name="close" className="w-4 h-4" /></button>
             </div>
           ))}
           {cards.length === 0 && (

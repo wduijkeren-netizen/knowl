@@ -1,6 +1,8 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
@@ -8,6 +10,7 @@ export default function QuickLog() {
   const { tr } = useLanguage()
   const d = tr.dashboard
   const supabase = createClient()
+  const pathname = usePathname()
   const [userId, setUserId] = useState<string | null>(null)
   const [subjects, setSubjects] = useState<string[]>([])
   const [open, setOpen] = useState(false)
@@ -29,7 +32,7 @@ export default function QuickLog() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (!userId) return null
+  if (!userId || pathname === '/home') return null
 
   async function handleSave() {
     if (!title.trim() || !userId) return
@@ -79,7 +82,7 @@ export default function QuickLog() {
           <div className="bg-white rounded-t-3xl px-6 pt-5 pb-10 shadow-2xl space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="font-bold text-indigo-900 text-lg">Snel loggen</h2>
-              <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors">✕</button>
+              <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"><Glyph name="close" className="w-4 h-4" /></button>
             </div>
 
             <input
@@ -117,7 +120,7 @@ export default function QuickLog() {
               disabled={!title.trim() || saving}
               className={`w-full rounded-2xl py-4 font-bold text-sm disabled:opacity-50 transition-all active:scale-95 shadow-md ${saveError ? 'bg-red-500 text-white shadow-red-200' : 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-indigo-200'}`}
             >
-              {saved ? '✓ Opgeslagen!' : saving ? 'Opslaan...' : saveError ? 'Mislukt — probeer opnieuw' : 'Opslaan'}
+              {saved ? 'Opgeslagen!' : saving ? 'Opslaan...' : saveError ? 'Mislukt — probeer opnieuw' : 'Opslaan'}
             </button>
           </div>
         </div>

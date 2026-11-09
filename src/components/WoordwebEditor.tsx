@@ -1,5 +1,6 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -185,7 +186,7 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
       {confirmDelete && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center space-y-4">
-            <p className="text-4xl">🗑️</p>
+            <Glyph name="trash" className="w-10 h-10 mx-auto text-red-400" />
             <h2 className="text-lg font-bold text-indigo-900">{ww.deleteTitle}</h2>
             <p className="text-sm text-gray-400">{ww.deleteBody}</p>
             <div className="flex gap-3 justify-center pt-2">
@@ -290,7 +291,7 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
                 <circle cx={(a.x * 0.25 + b.x * 0.75)} cy={(a.y * 0.25 + b.y * 0.75)} r="7" fill="white" stroke="#fecdd3" strokeWidth="1.5"
                   className="cursor-pointer" style={{ pointerEvents: 'all' }}
                   onClick={e => { e.stopPropagation(); deleteEdge(edge.id) }} />
-                <text x={(a.x * 0.25 + b.x * 0.75)} y={(a.y * 0.25 + b.y * 0.75) + 4} textAnchor="middle" fontSize="9" fill="#fca5a5" style={{ pointerEvents: 'none' }}>✕</text>
+                <path d={`M${a.x * 0.25 + b.x * 0.75 - 2.5} ${a.y * 0.25 + b.y * 0.75 - 2.5}l5 5m0-5l-5 5`} stroke="#f87171" strokeWidth="1.5" strokeLinecap="round" style={{ pointerEvents: 'none' }} />
               </g>
             )
           })}
@@ -317,7 +318,7 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
                   className="text-sm px-2 py-1 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 w-32"
                 />
                 <button onClick={saveNodeEdit}
-                  className="text-xs bg-indigo-600 text-white px-2 py-1 rounded-lg hover:bg-indigo-700 transition-colors">✓</button>
+                  className="text-xs bg-indigo-600 text-white px-2 py-1 rounded-lg hover:bg-indigo-700 transition-colors"><Glyph name="check" className="w-4 h-4" /></button>
               </div>
             ) : (
               <div
@@ -328,12 +329,12 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
                 <span className="flex-1">{node.label}</span>
                 <div className="node-btns absolute -top-2 -right-2 flex gap-0.5" style={{ opacity: 1 }}>
                   <button onMouseDown={e => e.stopPropagation()} onClick={e => startEditNode(e, node)}
-                    className="w-5 h-5 bg-white rounded-full text-gray-500 hover:text-indigo-600 text-xs flex items-center justify-center shadow border border-gray-200 transition-colors" title="Bewerken">✎</button>
+                    className="w-5 h-5 bg-white rounded-full text-gray-500 hover:text-indigo-600 text-xs flex items-center justify-center shadow border border-gray-200 transition-colors" title="Bewerken"><Glyph name="pen" className="w-3 h-3" /></button>
                   <button onMouseDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); setConnecting(connecting === node.id ? null : node.id) }}
                     className={`w-5 h-5 rounded-full text-xs flex items-center justify-center shadow border transition-colors ${connecting === node.id ? 'bg-violet-500 text-white border-violet-500' : 'bg-white text-gray-500 hover:text-violet-600 border-gray-200'}`}
-                    title="Verbinden">⟷</button>
+                    title="Verbinden"><Glyph name="connect" className="w-3 h-3" /></button>
                   <button onMouseDown={e => e.stopPropagation()} onClick={e => deleteNode(e, node.id)}
-                    className="w-5 h-5 bg-white rounded-full text-gray-500 hover:text-red-500 text-xs flex items-center justify-center shadow border border-gray-200 transition-colors" title="Verwijderen">✕</button>
+                    className="w-5 h-5 bg-white rounded-full text-gray-500 hover:text-red-500 text-xs flex items-center justify-center shadow border border-gray-200 transition-colors" title="Verwijderen"><Glyph name="close" className="w-3 h-3" /></button>
                 </div>
               </div>
             )}
@@ -343,7 +344,7 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
         {nodes.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="text-center">
-              <p className="text-4xl mb-2">🕸️</p>
+              <Glyph name="web" className="w-10 h-10 mx-auto mb-2 text-indigo-400" />
               <p className="text-indigo-300 font-medium">{ww.emptyCanvas}</p>
               <p className="text-xs text-indigo-200 mt-1">{ww.hint}</p>
             </div>

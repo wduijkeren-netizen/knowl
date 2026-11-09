@@ -58,7 +58,7 @@ export default function DagelijkseHerinnering() {
           <div className="flex gap-2">
             <button onClick={slaOp}
               className="flex-1 bg-indigo-600 text-white rounded-xl py-2.5 text-sm font-semibold hover:bg-indigo-700 transition-colors">
-              {opgeslagen ? 'Opgeslagen ✓' : 'Opslaan'}
+              {opgeslagen ? 'Opgeslagen' : 'Opslaan'}
             </button>
             <button onClick={zetUit}
               className="text-sm text-gray-400 hover:text-gray-600 px-3 transition-colors">

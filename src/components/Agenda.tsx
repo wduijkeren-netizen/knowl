@@ -1,5 +1,6 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
 import { useState } from 'react'
@@ -253,7 +254,7 @@ export default function Agenda({ sessions, subjects, events: initialEvents, user
 
         {sessions.length === 0 && events.length === 0 && (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-8 text-center">
-            <p className="text-3xl mb-3">📅</p>
+            <Glyph name="calendar" className="w-9 h-9 mx-auto mb-3 text-indigo-400" />
             <p className="text-sm font-medium text-indigo-700">{a.selectDay}</p>
           </div>
         )}
@@ -309,7 +310,7 @@ export default function Agenda({ sessions, subjects, events: initialEvents, user
                           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ev.type === 'exam' ? 'bg-red-100 text-red-600' : 'bg-violet-100 text-violet-600'}`}>
                             {ev.type === 'exam' ? a.exam : a.planned}
                           </span>
-                          {ev.time && <span className="text-xs font-medium text-gray-500">🕐 {ev.time}</span>}
+                          {ev.time && <span className="text-xs font-medium text-gray-500"><Glyph name="clock" className="w-3.5 h-3.5 -mt-0.5 mr-1" />{ev.time}</span>}
                           {ev.subject && <span className="text-xs text-gray-400">{ev.subject}</span>}
                         </div>
                         <p className="text-sm font-medium text-gray-800 mt-1">{ev.title}</p>

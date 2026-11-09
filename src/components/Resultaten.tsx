@@ -1,5 +1,6 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import { formatMinutes } from '@/lib/studyStats'
 import { useEffect, useMemo, useState } from 'react'
 import Nav from '@/components/Nav'
@@ -129,7 +130,7 @@ export default function Resultaten({ moments, subjects, isGuest }: Props) {
 
         {!heeftData ? (
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-16 text-center space-y-3">
-            <p className="text-4xl">📊</p>
+            <Glyph name="chart" className="w-10 h-10 mx-auto text-indigo-400" />
             <p className="font-semibold text-indigo-900">Nog geen data</p>
             <p className="text-sm text-indigo-400 max-w-xs mx-auto">{r.empty}</p>
             <a href="/leermomenten" className="inline-block text-sm bg-indigo-600 text-white px-5 py-2 rounded-xl font-medium hover:bg-indigo-700 transition-colors">

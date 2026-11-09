@@ -1,5 +1,6 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import { useState, useEffect } from 'react'
 import { ALL_BADGES, computeMaxStreak, type BadgeData, type BadgeRarity } from '@/lib/badges'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
@@ -98,9 +99,9 @@ export default function BadgesSection({ moments, subjectCount, flashcardsSR, has
               className={`relative rounded-xl border p-3 flex flex-col items-center text-center gap-1 overflow-hidden ${rarityStyle(badge.rarity, isEarned)}`}
             >
               {isEarned && (
-                <span className="absolute top-1.5 right-1.5 text-xs text-emerald-500 font-bold">✓</span>
+                <span className="absolute top-1.5 right-1.5 text-xs text-emerald-500 font-bold"><Glyph name="check" className="w-4 h-4" /></span>
               )}
-              <span className="text-3xl">{badge.emoji}</span>
+              <Glyph name={badge.icon} className="w-8 h-8 mx-auto" />
               <p className="text-sm font-semibold text-indigo-900 leading-tight w-full">{badge.title}</p>
               <p className="text-xs text-gray-500 leading-tight w-full line-clamp-2 hyphens-auto" lang="nl">{badge.desc}</p>
               <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full mt-1 ${

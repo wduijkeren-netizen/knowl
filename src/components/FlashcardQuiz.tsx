@@ -1,5 +1,6 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
@@ -78,7 +79,7 @@ export default function FlashcardQuiz({ set, cards }: Props) {
 
         {done ? (
           <div className="bg-white rounded-3xl border border-indigo-100 shadow-sm p-8 text-center space-y-4">
-            <p className="text-5xl">{pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '📚'}</p>
+            <Glyph name={pct >= 80 ? 'trophy' : pct >= 50 ? 'check-circle' : 'books'} className="w-12 h-12 mx-auto text-indigo-500" />
             <h2 className="text-xl font-bold text-indigo-900">{fc.done}</h2>
             <div>
               <p className="text-5xl font-bold text-indigo-700">{pct}%</p>

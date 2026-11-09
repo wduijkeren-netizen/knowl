@@ -1,5 +1,6 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
@@ -79,7 +80,7 @@ export default function WoordwebOverzicht({ webs }: Props) {
 
         {webs.length === 0 ? (
           <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-12 text-center">
-            <p className="text-4xl mb-3">🕸️</p>
+            <Glyph name="web" className="w-10 h-10 mx-auto mb-3 text-indigo-400" />
             <p className="font-semibold text-indigo-900 mb-1">{ww.emptyTitle}</p>
             <p className="text-sm text-indigo-400 mb-5">{ww.emptyBody}</p>
             <Link href="/woordweb/nieuw" className="inline-block bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">{ww.emptyBtn}</Link>
@@ -100,7 +101,7 @@ export default function WoordwebOverzicht({ webs }: Props) {
                         <h2 className="font-semibold text-indigo-900">{web.title}</h2>
                         <div className="flex gap-2 shrink-0">
                           <Link href={`/woordweb/${web.id}`} className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors">{ww.open}</Link>
-                          <button onClick={() => setConfirmId(web.id)} className="text-sm text-gray-300 hover:text-red-400 transition-colors px-1">✕</button>
+                          <button onClick={() => setConfirmId(web.id)} className="text-sm text-gray-300 hover:text-red-400 transition-colors px-1"><Glyph name="close" className="w-4 h-4" /></button>
                         </div>
                       </div>
                     </div>

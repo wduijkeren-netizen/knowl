@@ -1,5 +1,6 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import Nav from '@/components/Nav'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -188,7 +189,7 @@ export default function Vrienden({ userId, following, myUsername, myIsPublic }: 
                 <p className="text-xs text-indigo-400">@{searchResult.username} · {searchResult.streak} {f.streakLabel} · {searchResult.hoursMonth} {f.hoursMonth}</p>
               </div>
               {isAlreadyFollowing(searchResult.id) ? (
-                <span className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-3 py-1.5 rounded-xl">{f.following} ✓</span>
+                <span className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-3 py-1.5 rounded-xl">{f.following} <Glyph name="check" className="w-4 h-4" /></span>
               ) : (
                 <button onClick={() => follow(searchResult as FriendStats)}
                   className="bg-indigo-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-indigo-700 transition-colors active:scale-95">

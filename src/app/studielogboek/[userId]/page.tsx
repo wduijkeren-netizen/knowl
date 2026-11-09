@@ -1,3 +1,4 @@
+import Glyph from '@/components/Glyph'
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -91,7 +92,7 @@ export default async function StudielogboekPage({ params, searchParams }: {
 
         {Object.keys(byDay).length === 0 ? (
           <div className="bg-white rounded-2xl border border-indigo-100 p-10 text-center">
-            <p className="text-4xl mb-3">📭</p>
+            <Glyph name="inbox" className="w-10 h-10 mx-auto mb-3 text-indigo-400" />
             <p className="text-indigo-400">Geen publieke leermomenten deze week.</p>
           </div>
         ) : (

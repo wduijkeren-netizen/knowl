@@ -1,5 +1,6 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
@@ -25,7 +26,7 @@ export default function CookieBanner() {
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6">
       <div className="max-w-3xl mx-auto bg-indigo-900 text-white rounded-2xl shadow-2xl px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <div className="flex-1 text-sm leading-relaxed">
-          <span className="font-semibold">🍪 Cookies</span>{' '}
+          <span className="font-semibold"><Glyph name="cookie" className="w-4 h-4 -mt-0.5 mr-1" />Cookies</span>{' '}
           Knowl gebruikt alleen functionele cookies die nodig zijn voor inloggen. Geen tracking, geen reclame.{' '}
           <Link href="/privacy" className="underline text-indigo-300 hover:text-white transition-colors">
             Meer lezen

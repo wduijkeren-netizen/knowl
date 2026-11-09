@@ -1,5 +1,6 @@
 'use client'
 
+import Glyph from '@/components/Glyph'
 import { formatMinutes } from '@/lib/studyStats'
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
@@ -84,7 +85,7 @@ export default function WeeklyOverview({ moments, weekStart, user }: Props) {
                 }}
                 className="text-sm bg-white/20 text-white px-3 py-1.5 rounded-xl font-medium hover:bg-white/30 transition-colors active:scale-95"
               >
-                {weekCopied ? '✓ Link gekopieerd!' : '🔗 Deel week'}
+                {weekCopied ? 'Link gekopieerd!' : <span className="inline-flex items-center gap-1"><Glyph name="link" className="w-3.5 h-3.5" />Deel week</span>}
               </button>
             </div>
           )}
