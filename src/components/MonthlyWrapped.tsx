@@ -1,5 +1,6 @@
 'use client'
 
+import { formatMinutes } from '@/lib/studyStats'
 import Nav from '@/components/Nav'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -48,7 +49,6 @@ export default function MonthlyWrapped({ thisMonth, lastMonth, isGuest, currentM
   }
   const totalMinutes = thisMonth.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
   const lastMonthMinutes = lastMonth.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
-  const totalHours = Math.floor(totalMinutes / 60)
   const diffMinutes = totalMinutes - lastMonthMinutes
   const diffPercent = lastMonthMinutes > 0 ? Math.round((diffMinutes / lastMonthMinutes) * 100) : null
 
@@ -140,7 +140,7 @@ export default function MonthlyWrapped({ thisMonth, lastMonth, isGuest, currentM
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
                 <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{w.hoursLearned}</p>
-                <p className="text-4xl font-bold text-indigo-700 mt-2">{totalHours}<span className="text-xl text-indigo-300">u</span></p>
+                <p className="text-4xl font-bold text-indigo-700 mt-2">{formatMinutes(totalMinutes)}</p>
                 {diffPercent !== null && (
                   <p className={`text-xs mt-1 font-medium ${diffPercent >= 0 ? 'text-emerald-500' : 'text-red-400'}`}>
                     {diffPercent >= 0 ? '+' : ''}{diffPercent}% {w.vsLastMonth}

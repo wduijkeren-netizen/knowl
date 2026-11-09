@@ -33,7 +33,7 @@ const t = {
     },
     results: {
       title: 'Jouw resultaten', subtitle: 'Zie hoe je de tijd hebt verdeeld over je vakken',
-      totalMinutes: 'Totaal minuten', subjectsTracked: 'Vakken bijgehouden',
+      totalMinutes: 'Totale studietijd', subjectsTracked: 'Vakken bijgehouden',
       barTitle: 'Minuten per vak', barSub: 'Zo zie je hoe homogeen je de tijd hebt verdeeld',
       radarTitle: 'Verdeling over vakken', radarSub: 'Hoe evenwichtig is je aandacht verdeeld?',
       empty: 'Voeg eerst leermomenten toe met een vak en minuten om je resultaten te zien.',
@@ -77,7 +77,7 @@ const t = {
       examPlanner: 'Tentamenplanner', examPlannerSub: 'Hoeveel minuten per dag moet je nog studeren?', daysLeft: 'dagen', minPerDay: 'min/dag', onTrack: 'Op schema ✓', noGoalSet: 'Geen doelminuten ingesteld', freeStudyTime: 'Vrije studeerblokken', freeStudyTimeSub: 'Op basis van jouw rooster van vandaag',
     },
     wrapped: {
-      title: 'Jouw maandoverzicht', hoursLearned: 'Uren geleerd', moments: 'Leermomenten',
+      title: 'Jouw maandoverzicht', hoursLearned: 'Studietijd', moments: 'Leermomenten',
       topSubject: 'Topvak', busiestDay: 'Drukste dag', streak: 'Streak', daysInRow: 'dagen op rij',
       distribution: 'Verdeling per vak', allMoments: 'Alle leermomenten deze maand',
       vsLastMonth: 'vs vorige maand', noMoments: 'Nog geen leermomenten deze maand.',

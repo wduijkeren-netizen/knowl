@@ -221,7 +221,7 @@ export default function Vrienden({ userId, following, myUsername, myIsPublic }: 
                       <p className="text-xs text-indigo-300">{f.streakLabel}</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-lg font-bold text-indigo-700">{friend.hoursMonth}u</p>
+                      <p className="text-lg font-bold text-indigo-700">{friend.hoursMonth} u</p>
                       <p className="text-xs text-indigo-300">{f.hoursMonth}</p>
                     </div>
                     <div className="text-center">

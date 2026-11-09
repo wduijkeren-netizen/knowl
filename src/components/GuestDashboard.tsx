@@ -1,5 +1,6 @@
 'use client'
 
+import { formatMinutes, localDateStr, weekStart } from '@/lib/studyStats'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
@@ -101,7 +102,8 @@ export default function GuestDashboard() {
   }
 
   const totalMinutes = moments.reduce((sum, m) => sum + (m.duration_minutes ?? 0), 0)
-  const totalHours = Math.floor(totalMinutes / 60)
+  const thisWeekStart = weekStart(localDateStr(new Date()))
+  const weekMinutes = moments.filter(m => m.learned_at >= thisWeekStart).reduce((sum, m) => sum + (m.duration_minutes ?? 0), 0)
   const filtered = search
     ? moments.filter(m => m.title.toLowerCase().includes(search.toLowerCase()) || (m.description ?? '').toLowerCase().includes(search.toLowerCase()))
     : moments
@@ -133,12 +135,12 @@ export default function GuestDashboard() {
             <p className="text-4xl font-bold text-indigo-700 mt-2">{moments.length}</p>
           </div>
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{d.minutesLearned}</p>
-            <p className="text-4xl font-bold text-indigo-700 mt-2">{totalMinutes}<span className="text-xl text-indigo-300">m</span></p>
+            <p className="text-xs font-medium text-slate-600 dark:text-slate-300">Studietijd</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">{formatMinutes(totalMinutes)}</p>
           </div>
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 col-span-2 md:col-span-1">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{d.inHours}</p>
-            <p className="text-4xl font-bold text-indigo-700 mt-2">{totalHours}<span className="text-xl text-indigo-300">u</span></p>
+            <p className="text-xs font-medium text-slate-600 dark:text-slate-300">Deze week</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">{formatMinutes(weekMinutes)}</p>
           </div>
         </div>
 

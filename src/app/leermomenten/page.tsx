@@ -3,7 +3,7 @@ import Dashboard from '@/components/Dashboard'
 import GuestDashboard from '@/components/GuestDashboard'
 import { buildSubjectYearMap, getCurrentSchoolYear } from '@/lib/schoolYear'
 
-export default async function LeerMomentenPage() {
+export default async function LeerMomentenPage({ searchParams }: { searchParams: { zoek?: string } }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -26,5 +26,5 @@ export default async function LeerMomentenPage() {
   const spacedCandidates = (moments ?? []).filter(m => m.learned_at <= sevenDaysAgo && isCurrentSubject(m.category))
   const spacedMoment = spacedCandidates.find(m => m.description) ?? spacedCandidates[0]
 
-  return <Dashboard user={user} moments={moments ?? []} subjects={subjects ?? []} spacedMoment={spacedMoment ?? null} />
+  return <Dashboard user={user} moments={moments ?? []} subjects={subjects ?? []} spacedMoment={spacedMoment ?? null} initialSearch={searchParams.zoek ?? ''} />
 }

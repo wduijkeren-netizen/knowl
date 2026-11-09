@@ -1,5 +1,6 @@
 'use client'
 
+import { formatMinutes } from '@/lib/studyStats'
 import { useEffect, useMemo, useState } from 'react'
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
@@ -140,7 +141,7 @@ export default function Resultaten({ moments, subjects, isGuest }: Props) {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 border-b-4 border-b-indigo-400 hover:shadow-md hover:-translate-y-0.5 transition-all">
                 <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{r.totalMinutes}</p>
-                <p className="text-4xl font-bold text-indigo-700 mt-2">{totaalMinuten}</p>
+                <p className="text-4xl font-bold text-indigo-700 mt-2">{formatMinutes(totaalMinuten)}</p>
               </div>
               <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 border-b-4 border-b-violet-400 hover:shadow-md hover:-translate-y-0.5 transition-all">
                 <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{r.subjectsTracked}</p>

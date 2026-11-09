@@ -1,5 +1,6 @@
 'use client'
 
+import { formatMinutes } from '@/lib/studyStats'
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
 import Link from 'next/link'
@@ -31,8 +32,6 @@ export default function WeeklyOverview({ moments, weekStart, user }: Props) {
   const locale = LOCALE_MAP[lang] ?? 'nl-NL'
 
   const totalMinutes = moments.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
-  const totalHours = Math.floor(totalMinutes / 60)
-  const restMinutes = totalMinutes % 60
 
   const perCategory: Record<string, number> = {}
   for (const m of moments) {
@@ -115,7 +114,7 @@ export default function WeeklyOverview({ moments, weekStart, user }: Props) {
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 text-center">
                 <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{w.hoursLearned}</p>
-                <p className="text-3xl font-bold text-indigo-700 mt-2">{totalHours}<span className="text-lg text-indigo-300">u {restMinutes}m</span></p>
+                <p className="text-3xl font-bold text-indigo-700 mt-2">{formatMinutes(totalMinutes)}</p>
               </div>
               <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 text-center">
                 <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">{w.moments}</p>
@@ -136,7 +135,7 @@ export default function WeeklyOverview({ moments, weekStart, user }: Props) {
                     <div className="w-full rounded-t-lg bg-gradient-to-t from-indigo-500 to-violet-500 transition-all"
                       style={{ height: `${Math.round((min / maxDay) * 96)}px`, minHeight: min > 0 ? '4px' : '0' }} />
                     <span className="text-xs text-indigo-400">{dayLabels[i]}</span>
-                    {min > 0 && <span className="text-xs font-medium text-indigo-600">{min}m</span>}
+                    {min > 0 && <span className="text-xs font-medium text-indigo-600">{formatMinutes(min)}</span>}
                   </div>
                 ))}
               </div>

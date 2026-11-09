@@ -1,35 +1,63 @@
 'use client'
 
 import Nav from '@/components/Nav'
-import PageInfo from '@/components/PageInfo'
 import SchoolYearTabs from '@/components/SchoolYearTabs'
+import OnboardingWizard from '@/components/OnboardingWizard'
 import Link from 'next/link'
 import { useState, useMemo, useEffect } from 'react'
 import type { User } from '@supabase/supabase-js'
-import { useLanguage } from '@/lib/i18n/LanguageContext'
-import { UNKNOWN_YEAR, getYearTabs } from '@/lib/schoolYear'
-import OnboardingWizard from '@/components/OnboardingWizard'
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-} from 'recharts'
+  AlertTriangle, ArrowRight, BookOpen, CalendarClock, Check, Clock, Eye, Flame, Info, Lightbulb,
+  Minus, Plus, RefreshCw, Shield, Target, Timer, TrendingDown, TrendingUp, X,
+} from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
+import { createClient } from '@/lib/supabase/client'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
+import { useTheme } from '@/lib/ThemeContext'
+import { UNKNOWN_YEAR, getYearTabs } from '@/lib/schoolYear'
+import {
+  DAYS_PER_SHIELD, MAX_SHIELDS, addDays, computeStreak, formatMinutes, heatmapLevel, localDateStr,
+  minutesByDay, reviewOrder, sumBetween, weekComparison, weekStart, weekdayIndex,
+} from '@/lib/studyStats'
 
+type Moment = { id?: string; title?: string; description?: string | null; duration_minutes: number | null; learned_at: string; category?: string | null }
+type Subject = { name: string; goal_minutes: number | null; goal_date: string | null; recurring_type: string | null; recurring_goal_minutes: number | null; school_year: string | null }
 type StudySession = { activity: string; duration_seconds: number; created_at: string }
+type Exam = { id: string; date: string; title: string; subject: string | null }
+type Slot = { id: string; day_of_week: number; start_time: string; end_time: string; label: string }
 
 type Props = {
   user: User
-  allMoments: { id?: string; title?: string; duration_minutes: number | null; learned_at: string; category?: string | null }[]
-  thisMonth: { category: string | null; duration_minutes: number | null }[]
-  subjects: { name: string; goal_minutes: number | null; goal_date: string | null; recurring_type: string | null; recurring_goal_minutes: number | null; school_year: string | null }[]
+  allMoments: Moment[]
+  subjects: Subject[]
   displayName: string | null
+  weeklyGoal: number | null
+  weeklyGoalSupported: boolean
   studySessions: StudySession[]
-  examEvents: { id: string; date: string; title: string; subject: string | null }[]
-  todaySlots: { id: string; day_of_week: number; start_time: string; end_time: string; label: string }[]
-  minutesThisWeek: Record<string, number>
+  examEvents: Exam[]
+  todaySlots: Slot[]
 }
 
-function getFreeBlocks(slots: { id: string; day_of_week: number; start_time: string; end_time: string; label: string }[]) {
+const card = 'bg-white rounded-2xl border border-indigo-100 shadow-sm'
+const heading = 'text-sm font-semibold text-slate-900 dark:text-slate-100'
+const muted = 'text-xs text-slate-500 dark:text-slate-400'
+const linkText = 'text-xs font-medium text-indigo-700 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-indigo-200'
+
+function shortDate(date: string) {
+  return new Date(`${date}T12:00:00`).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
+}
+
+function longDate(date: string) {
+  return new Date(`${date}T12:00:00`).toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' })
+}
+
+function daysUntil(date: string, today: string) {
+  return Math.round((new Date(`${date}T12:00:00`).getTime() - new Date(`${today}T12:00:00`).getTime()) / 86400000)
+}
+
+function getFreeBlocks(slots: Slot[]) {
   const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m }
-  const toStr = (m: number) => `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`
+  const toStr = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`
   const sorted = [...slots].sort((a, b) => a.start_time.localeCompare(b.start_time))
   const blocks: { start: string; end: string; minutes: number }[] = []
   let cur = 480
@@ -42,758 +70,675 @@ function getFreeBlocks(slots: { id: string; day_of_week: number; start_time: str
   return blocks.filter(b => b.minutes >= 30)
 }
 
-const TIMEFRAME_DAYS = [7, 30, 90, null]
+function KpiCard({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <div className={`${card} p-4 min-h-[112px] flex flex-col`}>
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-medium text-slate-600 dark:text-slate-300">{label}</p>
+        <span className="text-slate-400 dark:text-slate-500">{icon}</span>
+      </div>
+      <div className="mt-1.5 flex-1 flex flex-col">{children}</div>
+    </div>
+  )
+}
 
-export default function HomePage({ user, allMoments, thisMonth, subjects, displayName, studySessions, examEvents, todaySlots, minutesThisWeek }: Props) {
-  const { tr, lang } = useLanguage()
+function ShieldInfo({ shields }: { shields: number }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <span className="relative inline-flex items-center">
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        onBlur={() => setOpen(false)}
+        aria-label={`${shields} schild${shields === 1 ? '' : 'en'}, uitleg`}
+        className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300 rounded-md px-1 -mx-1 hover:bg-indigo-50 dark:hover:bg-white/5"
+      >
+        <Shield className="w-3.5 h-3.5" strokeWidth={2} />
+        {shields}/{MAX_SHIELDS}
+        <Info className="w-3 h-3 text-slate-400" strokeWidth={2} />
+      </button>
+      {open && (
+        <span role="tooltip" className="absolute left-0 top-full mt-1.5 z-20 w-60 rounded-xl bg-slate-900 text-white text-xs leading-relaxed p-3 shadow-xl">
+          Een schild beschermt je streak als je een dag niet studeert. Je verdient er één na elke {DAYS_PER_SHIELD} dagen op rij, en je kunt er maximaal {MAX_SHIELDS} hebben. Mis je een dag zonder schild, dan begint je streak opnieuw.
+        </span>
+      )}
+    </span>
+  )
+}
+
+function WeekCard({ thisWeek, goal, supported, userId, onGoalSaved }: {
+  thisWeek: number; goal: number | null; supported: boolean; userId: string; onGoalSaved: (g: number | null) => void
+}) {
+  const [editing, setEditing] = useState(false)
+  const [hours, setHours] = useState(goal ? String(Math.round((goal / 60) * 10) / 10) : '')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  async function save(minutes: number | null) {
+    setSaving(true)
+    setError('')
+    const { error } = await createClient().from('profiles').upsert({ id: userId, weekly_goal_minutes: minutes })
+    setSaving(false)
+    if (error) {
+      setError(supported ? 'Opslaan lukte niet. Probeer het opnieuw.' : 'Het weekdoel is nog niet ingeschakeld in de database.')
+      return
+    }
+    onGoalSaved(minutes)
+    setEditing(false)
+  }
+
+  const pct = goal ? Math.min(100, Math.round((thisWeek / goal) * 100)) : 0
+  const remaining = goal ? Math.max(0, goal - thisWeek) : 0
+
+  return (
+    <KpiCard label="Deze week" icon={<Clock className="w-4 h-4" strokeWidth={2} />}>
+      {editing ? (
+        <form
+          className="space-y-2"
+          onSubmit={e => {
+            e.preventDefault()
+            const h = parseFloat(hours.replace(',', '.'))
+            save(Number.isFinite(h) && h > 0 ? Math.round(h * 60) : null)
+          }}
+        >
+          <label className="block text-xs text-slate-600 dark:text-slate-300">
+            Weekdoel in uren
+            <input
+              type="number" min="0.5" step="0.5" value={hours} onChange={e => setHours(e.target.value)} autoFocus
+              className="mt-1 w-full border border-gray-200 rounded-lg px-2 py-1 text-sm"
+            />
+          </label>
+          <div className="flex gap-1.5">
+            <button disabled={saving} className="flex-1 text-xs font-semibold bg-indigo-600 text-white rounded-lg py-1.5 hover:bg-indigo-700 disabled:opacity-50">Opslaan</button>
+            {goal && <button type="button" onClick={() => save(null)} className="text-xs text-slate-600 dark:text-slate-300 px-2">Wis</button>}
+            <button type="button" onClick={() => setEditing(false)} aria-label="Annuleren" className="text-slate-500 px-1"><X className="w-4 h-4" /></button>
+          </div>
+          {error && <p className="text-xs text-red-700 dark:text-red-300">{error}</p>}
+        </form>
+      ) : (
+        <>
+          <p className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{formatMinutes(thisWeek)}</p>
+          {goal ? (
+            <button onClick={() => setEditing(true)} className="mt-auto text-left group" aria-label="Weekdoel aanpassen">
+              <div className="h-1.5 bg-indigo-50 rounded-full overflow-hidden mt-2">
+                <div className={`h-full rounded-full ${pct >= 100 ? 'bg-emerald-600' : 'bg-indigo-600'}`} style={{ width: `${pct}%` }} />
+              </div>
+              <p className={`${muted} mt-1 group-hover:text-slate-700 dark:group-hover:text-slate-200`}>
+                {remaining > 0 ? `Nog ${formatMinutes(remaining)} tot ${formatMinutes(goal)}` : `Weekdoel van ${formatMinutes(goal)} gehaald`}
+              </p>
+            </button>
+          ) : (
+            <button onClick={() => setEditing(true)} className={`${linkText} mt-auto text-left inline-flex items-center gap-1`}>
+              <Target className="w-3.5 h-3.5" strokeWidth={2} /> Weekdoel instellen
+            </button>
+          )}
+        </>
+      )}
+    </KpiCard>
+  )
+}
+
+function DailyChart({ byDay, today, dailyGoal }: { byDay: Record<string, number>; today: string; dailyGoal: number | null }) {
+  const [range, setRange] = useState<14 | 30>(14)
+  const { dark } = useTheme()
+  const axis = dark ? '#94a3b8' : '#64748b'
+  const data = useMemo(() => Array.from({ length: range }, (_, i) => {
+    const date = addDays(today, i - range + 1)
+    return { date, label: shortDate(date), minutes: byDay[date] ?? 0 }
+  }), [byDay, today, range])
+  const activeDays = data.filter(d => d.minutes > 0).length
+  const max = Math.max(...data.map(d => d.minutes), dailyGoal ?? 0, 30)
+  const step = max > 240 ? 120 : max > 90 ? 60 : 30
+  const top = Math.ceil(max / step) * step
+  const ticks = Array.from({ length: top / step + 1 }, (_, i) => i * step)
+
+  return (
+    <div className={`${card} p-5`}>
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <div>
+          <h2 className={heading}>Minuten per dag</h2>
+          <p className={`${muted} mt-0.5`}>{activeDays} van {range} dagen gestudeerd</p>
+        </div>
+        <div className="flex bg-indigo-50 rounded-lg p-0.5" role="group" aria-label="Periode">
+          {([14, 30] as const).map(r => (
+            <button key={r} onClick={() => setRange(r)} aria-pressed={range === r}
+              className={`text-xs font-medium px-2.5 py-1 rounded-md ${range === r ? 'bg-white text-indigo-700 shadow-sm dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}>
+              {r} dagen
+            </button>
+          ))}
+        </div>
+      </div>
+      <ResponsiveContainer width="100%" height={200}>
+        <BarChart data={data} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke={dark ? '#2a2a45' : '#e2e8f0'} vertical={false} />
+          <XAxis dataKey="label" tick={{ fontSize: 11, fill: axis }} tickLine={false} axisLine={{ stroke: dark ? '#334155' : '#cbd5e1' }} interval={range === 14 ? 1 : 4} />
+          <YAxis domain={[0, top]} ticks={ticks} tick={{ fontSize: 11, fill: axis }} tickLine={false} axisLine={false} width={58} tickFormatter={v => (v === 0 ? '0' : formatMinutes(v))} />
+          <Tooltip
+            cursor={{ fill: 'rgba(99,102,241,0.06)' }}
+            contentStyle={{ borderRadius: 12, border: '1px solid #e0e7ff', fontSize: 12 }}
+            labelFormatter={(_, payload) => (payload?.[0] ? longDate(payload[0].payload.date) : '')}
+            formatter={v => [Number(v) > 0 ? formatMinutes(Number(v)) : 'Geen registratie', 'Studietijd']}
+          />
+          <Bar dataKey="minutes" fill={dark ? '#818cf8' : '#4f46e5'} radius={[4, 4, 0, 0]} maxBarSize={22} background={{ fill: dark ? '#22223a' : '#f1f5f9', radius: 4 }} isAnimationActive={false} />
+          {dailyGoal ? (
+            <ReferenceLine y={dailyGoal} stroke={axis} strokeDasharray="5 4" label={{ value: `Dagdoel ${formatMinutes(dailyGoal)}`, position: 'insideTopRight', fontSize: 11, fill: dark ? '#cbd5e1' : '#475569' }} />
+          ) : null}
+        </BarChart>
+      </ResponsiveContainer>
+      {!dailyGoal && <p className={`${muted} mt-2`}>Stel een weekdoel in om je dagdoel als lijn te zien.</p>}
+    </div>
+  )
+}
+
+function SubjectBars({ moments, today }: { moments: Moment[]; today: string }) {
+  const [range, setRange] = useState<30 | 90>(30)
+  const rows = useMemo(() => {
+    const from = addDays(today, -range + 1)
+    const per: Record<string, number> = {}
+    for (const m of moments) {
+      if (m.learned_at < from || m.learned_at > today || !m.duration_minutes) continue
+      const key = m.category || 'Zonder vak'
+      per[key] = (per[key] ?? 0) + m.duration_minutes
+    }
+    return Object.entries(per).sort((a, b) => b[1] - a[1])
+  }, [moments, today, range])
+  const max = rows[0]?.[1] ?? 0
+  const visible = rows.slice(0, 8)
+
+  return (
+    <div className={`${card} p-5`}>
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <div>
+          <h2 className={heading}>Studietijd per vak</h2>
+          <p className={`${muted} mt-0.5`}>Laatste {range} dagen</p>
+        </div>
+        <div className="flex bg-indigo-50 rounded-lg p-0.5" role="group" aria-label="Periode">
+          {([30, 90] as const).map(r => (
+            <button key={r} onClick={() => setRange(r)} aria-pressed={range === r}
+              className={`text-xs font-medium px-2.5 py-1 rounded-md ${range === r ? 'bg-white text-indigo-700 shadow-sm dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}>
+              {r} dagen
+            </button>
+          ))}
+        </div>
+      </div>
+      {visible.length === 0 ? (
+        <p className={`${muted} py-10 text-center`}>Nog geen leermomenten met minuten in deze periode.</p>
+      ) : (
+        <ul className="space-y-3">
+          {visible.map(([name, minutes], i) => (
+            <li key={name}>
+              <div className="flex items-baseline justify-between gap-3 text-sm">
+                <span className="text-slate-800 dark:text-slate-100 min-w-0 truncate" title={name}>
+                  {name}
+                  {i === 0 && rows.length > 1 && <span className="ml-2 text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 rounded px-1.5 py-0.5 align-middle">Topvak</span>}
+                </span>
+                <span className="text-slate-600 dark:text-slate-300 tabular-nums shrink-0">{formatMinutes(minutes)}</span>
+              </div>
+              <div className="h-2 bg-indigo-50 rounded-full overflow-hidden mt-1">
+                <div className="h-full bg-indigo-600 rounded-full" style={{ width: `${Math.max(2, Math.round((minutes / max) * 100))}%` }} />
+              </div>
+            </li>
+          ))}
+          {rows.length > visible.length && <li className={muted}>+ {rows.length - visible.length} andere vakken · <Link href="/resultaten" className={linkText}>alle resultaten</Link></li>}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+function RecentMoments({ moments }: { moments: Moment[] }) {
+  const recent = moments.slice(0, 5)
+  return (
+    <div className={`${card} p-5`}>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className={heading}>Recente leermomenten</h2>
+        <Link href="/leermomenten" className={`${linkText} inline-flex items-center gap-1`}>Alle leermomenten <ArrowRight className="w-3.5 h-3.5" /></Link>
+      </div>
+      {recent.length === 0 ? (
+        <p className={`${muted} py-6 text-center`}>Je hebt nog geen leermomenten gelogd.</p>
+      ) : (
+        <ul className="divide-y divide-indigo-50">
+          {recent.map((m, i) => (
+            <li key={m.id ?? i} className="py-2.5 flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">{m.title ?? 'Zonder titel'}</p>
+                <p className={`${muted} mt-0.5 truncate`}>{longDate(m.learned_at)}{m.category ? ` · ${m.category}` : ''}</p>
+              </div>
+              {m.duration_minutes ? <span className="text-xs text-slate-700 dark:text-slate-200 tabular-nums shrink-0 mt-0.5">{formatMinutes(m.duration_minutes)}</span> : null}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+function ReviewCard({ moments, today }: { moments: Moment[]; today: string }) {
+  const queue = useMemo(() => reviewOrder(moments, today), [moments, today])
+  const [index, setIndex] = useState(0)
+  const [revealed, setRevealed] = useState(false)
+  const current = queue[index % Math.max(queue.length, 1)]
+
+  return (
+    <div className={`${card} p-5 flex flex-col`}>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className={`${heading} inline-flex items-center gap-2`}><Lightbulb className="w-4 h-4 text-indigo-600 dark:text-indigo-300" strokeWidth={2} /> Weet je dit nog?</h2>
+        {queue.length > 1 && <span className={muted}>{(index % queue.length) + 1} / {queue.length}</span>}
+      </div>
+      {!current ? (
+        <p className={`${muted} py-6 text-center`}>Leermomenten met een samenvatting komen hier terug zodra ze minstens een dag oud zijn, zodat je ze uit je hoofd kunt ophalen.</p>
+      ) : (
+        <>
+          <p className={muted}>
+            {current.category ? `${current.category} · ` : ''}{shortDate(current.learned_at)} ({daysUntil(today, current.learned_at) === 0 ? 'vandaag' : `${-daysUntil(current.learned_at, today)} dagen geleden`})
+          </p>
+          <p className="text-base font-semibold text-slate-900 dark:text-white mt-1">{current.title}</p>
+          {revealed ? (
+            <p className="mt-3 text-sm text-slate-700 dark:text-slate-200 leading-relaxed bg-indigo-50 rounded-xl p-3 max-h-40 overflow-y-auto whitespace-pre-line">{current.description}</p>
+          ) : (
+            <p className={`${muted} mt-3`}>Probeer eerst zelf te bedenken wat je hierover hebt geleerd. Kijk daarna wat je opschreef.</p>
+          )}
+          <div className="flex gap-2 mt-auto pt-4">
+            {!revealed && (
+              <button onClick={() => setRevealed(true)} className="flex-1 inline-flex items-center justify-center gap-1.5 text-sm font-semibold bg-indigo-600 text-white rounded-xl py-2 hover:bg-indigo-700">
+                <Eye className="w-4 h-4" strokeWidth={2} /> Toon wat ik opschreef
+              </button>
+            )}
+            {queue.length > 1 && (
+              <button onClick={() => { setIndex(i => i + 1); setRevealed(false) }}
+                className={`${revealed ? 'flex-1' : ''} inline-flex items-center justify-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 border border-indigo-100 rounded-xl px-3 py-2 hover:bg-indigo-50 dark:hover:bg-white/5`}>
+                <RefreshCw className="w-4 h-4" strokeWidth={2} /> Ander leermoment
+              </button>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+const LEVEL_CLASS = [
+  'bg-slate-100 dark:bg-white/5',
+  'bg-indigo-200 dark:bg-indigo-900',
+  'bg-indigo-400 dark:bg-indigo-700',
+  'bg-indigo-600 dark:bg-indigo-500',
+  'bg-indigo-800 dark:bg-indigo-300',
+]
+const LEVEL_LABEL = ['Geen registratie', 'Minder dan 30 min', '30–59 min', '1–2 uur', '2 uur of meer']
+const MONTHS = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
+const WEEKS = 16
+
+function Heatmap({ byDay, today }: { byDay: Record<string, number>; today: string }) {
+  const [hover, setHover] = useState<{ date: string; minutes: number; x: number; y: number } | null>(null)
+  const start = addDays(weekStart(today), -(WEEKS - 1) * 7)
+  const columns = Array.from({ length: WEEKS }, (_, w) => Array.from({ length: 7 }, (_, d) => addDays(start, w * 7 + d)))
+  const studied = columns.flat().filter(d => d <= today && (byDay[d] ?? 0) > 0).length
+
+  return (
+    <div className={`${card} p-5`}>
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <h2 className={heading}>Studiekalender</h2>
+          <p className={`${muted} mt-0.5`}>Laatste {WEEKS} weken · {studied} dagen met studietijd</p>
+        </div>
+      </div>
+      <div className="relative inline-block max-w-full overflow-x-auto" onMouseLeave={() => setHover(null)}>
+        <div className="flex gap-[3px] pl-7 mb-1 h-3">
+          {columns.map((col, w) => {
+            const first = new Date(`${col[0]}T12:00:00`)
+            const month = first.getMonth()
+            const show = w === 0
+              ? new Date(`${columns[2][0]}T12:00:00`).getMonth() === month
+              : new Date(`${columns[w - 1][0]}T12:00:00`).getMonth() !== month
+            return <span key={w} className="w-[13px] text-[10px] leading-3 text-slate-500 dark:text-slate-400 overflow-visible whitespace-nowrap">{show ? MONTHS[month] : ''}</span>
+          })}
+        </div>
+        <div className="flex gap-[3px]">
+          <div className="flex flex-col gap-[3px] w-6 mr-1">
+            {['Ma', '', 'Wo', '', 'Vr', '', ''].map((l, i) => (
+              <span key={i} className="h-[13px] text-[10px] leading-[13px] text-slate-500 dark:text-slate-400">{l}</span>
+            ))}
+          </div>
+          {columns.map((col, w) => (
+            <div key={w} className="flex flex-col gap-[3px]">
+              {col.map(date => {
+                if (date > today) return <span key={date} className="w-[13px] h-[13px]" />
+                const minutes = byDay[date] ?? 0
+                return (
+                  <span
+                    key={date}
+                    aria-label={`${longDate(date)}: ${minutes > 0 ? formatMinutes(minutes) : 'geen registratie'}`}
+                    onMouseEnter={e => {
+                      const parent = (e.currentTarget.closest('.relative') as HTMLElement).getBoundingClientRect()
+                      const r = e.currentTarget.getBoundingClientRect()
+                      setHover({ date, minutes, x: r.left - parent.left + 6, y: r.top - parent.top })
+                    }}
+                    className={`w-[13px] h-[13px] rounded-[3px] ${LEVEL_CLASS[heatmapLevel(minutes)]} ${date === today ? 'ring-1 ring-slate-500' : ''}`}
+                  />
+                )
+              })}
+            </div>
+          ))}
+        </div>
+        {hover && (
+          <span role="tooltip" className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full -mt-1 whitespace-nowrap rounded-lg bg-slate-900 text-white text-[11px] px-2 py-1 shadow-lg"
+            style={{ left: hover.x, top: hover.y - 4 }}>
+            {longDate(hover.date)} · {hover.minutes > 0 ? formatMinutes(hover.minutes) : 'geen registratie'}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-1.5 mt-3">
+        <span className={muted}>Minder</span>
+        {LEVEL_CLASS.map((c, i) => <span key={i} title={LEVEL_LABEL[i]} className={`w-[13px] h-[13px] rounded-[3px] ${c}`} />)}
+        <span className={muted}>Meer</span>
+      </div>
+    </div>
+  )
+}
+
+export default function HomePage({ user, allMoments, subjects, displayName, weeklyGoal, weeklyGoalSupported, studySessions, examEvents, todaySlots }: Props) {
+  const { tr } = useLanguage()
   const h = tr.home
-  const r = tr.rooster
   const sj = tr.subjects
+  const [today, setToday] = useState(() => localDateStr(new Date()))
+  useEffect(() => setToday(localDateStr(new Date())), [])
+  const [goal, setGoal] = useState<number | null>(weeklyGoal)
+
+  const byDay = useMemo(() => minutesByDay(allMoments), [allMoments])
+  const { streak, shields, studiedToday, atRisk } = useMemo(() => computeStreak(allMoments.map(m => m.learned_at), today), [allMoments, today])
+  const week = useMemo(() => weekComparison(byDay, today), [byDay, today])
+  const todayMinutes = byDay[today] ?? 0
+  const monthStart = `${today.slice(0, 7)}-01`
+  const monthMinutes = sumBetween(byDay, monthStart, today)
+  const monthMoments = allMoments.filter(m => m.learned_at >= monthStart && m.learned_at <= today).length
+  const timed = allMoments.filter(m => (m.duration_minutes ?? 0) > 0)
+  const avgSession = timed.length ? timed.reduce((s, m) => s + (m.duration_minutes ?? 0), 0) / timed.length : 0
+  const dailyGoal = goal ? Math.round(goal / 7) : null
+
+  const minutesPerSubject = useMemo(() => {
+    const acc: Record<string, number> = {}
+    for (const m of allMoments) if (m.category && m.duration_minutes) acc[m.category] = (acc[m.category] ?? 0) + m.duration_minutes
+    return acc
+  }, [allMoments])
+  const minutesThisWeekPerSubject = useMemo(() => {
+    const acc: Record<string, number> = {}
+    const from = weekStart(today)
+    for (const m of allMoments) if (m.category && m.learned_at >= from && m.learned_at <= today) acc[m.category] = (acc[m.category] ?? 0) + (m.duration_minutes ?? 0)
+    return acc
+  }, [allMoments, today])
 
   const goalSubjects = useMemo(() => subjects.filter(s => s.goal_minutes || s.recurring_goal_minutes), [subjects])
   const goalYearTabs = useMemo(() => getYearTabs(goalSubjects.map(s => s.school_year)), [goalSubjects])
   const [goalActiveYear, setGoalActiveYear] = useState(() => goalYearTabs[0] ?? UNKNOWN_YEAR)
   useEffect(() => {
-    if (goalYearTabs.length > 0 && !goalYearTabs.includes(goalActiveYear)) {
-      setGoalActiveYear(goalYearTabs[0])
-    }
+    if (goalYearTabs.length > 0 && !goalYearTabs.includes(goalActiveYear)) setGoalActiveYear(goalYearTabs[0])
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [goalYearTabs])
   const goalSubjectsInYear = goalSubjects.filter(s => (s.school_year ?? UNKNOWN_YEAR) === goalActiveYear)
-  const [timeframe, setTimeframe] = useState<number | null>(30)
-  const [search, setSearch] = useState('')
-  const searchResults = search.trim() ? allMoments.filter(m => (m.title ?? '').toLowerCase().includes(search.toLowerCase()) || (m.category ?? '').toLowerCase().includes(search.toLowerCase())).slice(0, 8) : []
-
-  const totalMinutes = allMoments.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
-  const totalHours = Math.floor(totalMinutes / 60)
-  const monthMinutes = thisMonth.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
-
-  const [usedShields, setUsedShields] = useState(0)
-  useEffect(() => {
-    try {
-      const s = parseInt(localStorage.getItem('knowl_used_shields') ?? '0')
-      setUsedShields(isNaN(s) ? 0 : s)
-    } catch {}
-  }, [])
-
-  // Streak + shields calculation
-  const { streak, shields } = useMemo(() => {
-    const days = Array.from(new Set(allMoments.map(m => m.learned_at))).sort()
-    if (!days.length) return { streak: 0, shields: 0 }
-
-    const today = new Date().toISOString().split('T')[0]
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
-
-    // Count shields earned: every 3 consecutive days = 1 shield
-    let earnedShields = 0
-    let run = 1
-    for (let i = 1; i < days.length; i++) {
-      const diff = (new Date(days[i]).getTime() - new Date(days[i - 1]).getTime()) / 86400000
-      if (Math.round(diff) === 1) { run++; if (run % 3 === 0) earnedShields++ }
-      else run = 1
-    }
-    const availableShields = Math.max(0, earnedShields - usedShields)
-
-    // Streak: consecutive days from today (or yesterday), with 1 free day per 7 exempt
-    const rev = [...days].reverse()
-    if (rev[0] !== today && rev[0] !== yesterday) {
-      // Potentially broken — check if shields cover the gap
-      if (availableShields > 0) return { streak: 1, shields: availableShields }
-      return { streak: 0, shields: availableShields }
-    }
-
-    let count = 1
-    let freeUsed = 0
-    const maxFree = Math.floor(days.length / 7) // 1 free day per 7 days
-
-    for (let i = 1; i < rev.length; i++) {
-      const diff = (new Date(rev[i - 1]).getTime() - new Date(rev[i]).getTime()) / 86400000
-      if (Math.round(diff) === 1) count++
-      else if (Math.round(diff) === 2 && freeUsed < maxFree) { count++; freeUsed++ }
-      else { break }
-    }
-    return { streak: count, shields: availableShields }
-  }, [allMoments, usedShields])
 
   const [burnoutDismissed, setBurnoutDismissed] = useState(false)
-  const [milestoneDismissed, setMilestoneDismissed] = useState(false)
-  const streakMilestone = !milestoneDismissed && [7, 30, 100].includes(streak) ? streak : null
-
   const burnoutWarning = useMemo(() => {
-    if (burnoutDismissed) return false
-    const last14 = Array.from({ length: 14 }, (_, i) => {
-      const d = new Date()
-      d.setDate(d.getDate() - i)
-      return d.toISOString().slice(0, 10)
-    })
-    const studiedDays = new Set(allMoments.map(m => m.learned_at))
-    if (!last14.every(d => studiedDays.has(d))) return false
-    const totalMin = allMoments
-      .filter(m => last14.includes(m.learned_at))
-      .reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
-    return totalMin / 14 > 180
-  }, [allMoments, burnoutDismissed])
+    const last14 = Array.from({ length: 14 }, (_, i) => addDays(today, -i))
+    if (!last14.every(d => (byDay[d] ?? 0) > 0)) return false
+    return last14.reduce((s, d) => s + byDay[d], 0) / 14 > 180
+  }, [byDay, today])
 
-  const perCategory: Record<string, number> = {}
-  for (const m of thisMonth) {
-    const key = m.category || 'Overig'
-    perCategory[key] = (perCategory[key] ?? 0) + (m.duration_minutes ?? 0)
-  }
-  const topVak = Object.entries(perCategory).sort((a, b) => b[1] - a[1])[0]
-
-  // Week comparison
-  const todayStr = new Date().toISOString().slice(0, 10)
-  const thisWeekStartDate = new Date()
-  thisWeekStartDate.setDate(thisWeekStartDate.getDate() - ((thisWeekStartDate.getDay() + 6) % 7))
-  const thisWeekStart = thisWeekStartDate.toISOString().slice(0, 10)
-  const lastWeekStart = new Date(thisWeekStartDate)
-  lastWeekStart.setDate(lastWeekStart.getDate() - 7)
-  const lastWeekStartStr = lastWeekStart.toISOString().slice(0, 10)
-
-  const thisWeekMin = allMoments
-    .filter(m => m.learned_at >= thisWeekStart)
-    .reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
-  const lastWeekMin = allMoments
-    .filter(m => m.learned_at >= lastWeekStartStr && m.learned_at < thisWeekStart)
-    .reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
-  const weekChangePercent = lastWeekMin > 0
-    ? Math.round(((thisWeekMin - lastWeekMin) / lastWeekMin) * 100)
-    : null
-
-  // Average session length
-  const sessionsWithMin = allMoments.filter(m => (m.duration_minutes ?? 0) > 0)
-  const avgSessionMin = sessionsWithMin.length > 0
-    ? Math.round(sessionsWithMin.reduce((s, m) => s + (m.duration_minutes ?? 0), 0) / sessionsWithMin.length)
-    : 0
-
-  // Today's moments
-  const todayMoments = allMoments.filter(m => m.learned_at === todayStr)
-  const todayMinutes = todayMoments.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
-
-  const minutesPerSubject = allMoments.reduce((acc, m) => {
-    if (m.category && m.duration_minutes) acc[m.category] = (acc[m.category] ?? 0) + m.duration_minutes
-    return acc
-  }, {} as Record<string, number>)
-
-  // Slimme studiesuggestie
-  const studySuggestion = useMemo(() => {
-    // Prio 1: tentamen binnen 7 dagen met onvoldaan doel
-    const urgentExam = examEvents.find(exam => {
-      const daysLeft = Math.ceil((new Date(exam.date + 'T12:00:00').getTime() - Date.now()) / 86400000)
-      if (daysLeft > 7 || daysLeft < 0 || !exam.subject) return false
+  const suggestion = useMemo(() => {
+    const urgent = examEvents.find(exam => {
+      const left = daysUntil(exam.date, today)
+      if (left > 7 || left < 0 || !exam.subject) return false
       const subj = subjects.find(s => s.name === exam.subject)
-      if (!subj?.goal_minutes) return false
-      return (minutesPerSubject[exam.subject] ?? 0) < subj.goal_minutes
+      return !!subj?.goal_minutes && (minutesPerSubject[exam.subject] ?? 0) < subj.goal_minutes
     })
-    if (urgentExam) {
-      const daysLeft = Math.max(1, Math.ceil((new Date(urgentExam.date + 'T12:00:00').getTime() - Date.now()) / 86400000))
-      const subj = subjects.find(s => s.name === urgentExam.subject)!
-      const remaining = Math.max(0, (subj.goal_minutes ?? 0) - (minutesPerSubject[urgentExam.subject!] ?? 0))
-      return { subject: urgentExam.subject!, minutes: Math.ceil(remaining / daysLeft), reason: `Tentamen "${urgentExam.title}" over ${daysLeft} dag${daysLeft === 1 ? '' : 'en'}`, urgent: true }
+    if (urgent) {
+      const left = Math.max(1, daysUntil(urgent.date, today))
+      const subj = subjects.find(s => s.name === urgent.subject)!
+      const remaining = Math.max(0, (subj.goal_minutes ?? 0) - (minutesPerSubject[urgent.subject!] ?? 0))
+      return { subject: urgent.subject!, minutes: Math.ceil(remaining / left), reason: `${urgent.title} over ${left} dag${left === 1 ? '' : 'en'}`, urgent: true }
     }
-    // Prio 2: vak meest achter op wekelijks doel
     const behind = subjects
-      .filter(s => s.recurring_type === 'weekly' && (s.recurring_goal_minutes ?? 0) > (minutesThisWeek[s.name] ?? 0))
-      .sort((a, b) => ((b.recurring_goal_minutes ?? 0) - (minutesThisWeek[b.name] ?? 0)) - ((a.recurring_goal_minutes ?? 0) - (minutesThisWeek[a.name] ?? 0)))[0]
+      .filter(s => s.recurring_type === 'weekly' && (s.recurring_goal_minutes ?? 0) > (minutesThisWeekPerSubject[s.name] ?? 0))
+      .sort((a, b) => ((b.recurring_goal_minutes ?? 0) - (minutesThisWeekPerSubject[b.name] ?? 0)) - ((a.recurring_goal_minutes ?? 0) - (minutesThisWeekPerSubject[a.name] ?? 0)))[0]
     if (behind) {
-      const daysLeftWeek = Math.max(1, 7 - ((new Date().getDay() + 6) % 7))
-      const remaining = (behind.recurring_goal_minutes ?? 0) - (minutesThisWeek[behind.name] ?? 0)
-      return { subject: behind.name, minutes: Math.ceil(remaining / daysLeftWeek), reason: `Wekelijks doel: nog ${remaining} min te gaan`, urgent: false }
+      const left = 7 - weekdayIndex(today)
+      const remaining = (behind.recurring_goal_minutes ?? 0) - (minutesThisWeekPerSubject[behind.name] ?? 0)
+      return { subject: behind.name, minutes: Math.ceil(remaining / left), reason: `Weekdoel voor dit vak: nog ${formatMinutes(remaining)}`, urgent: false }
     }
     return null
-  }, [examEvents, subjects, minutesPerSubject, minutesThisWeek])
+  }, [examEvents, subjects, minutesPerSubject, minutesThisWeekPerSubject, today])
 
-  // Heatmap data: laatste 16 weken (past op elk scherm zonder scrollen)
-  const heatmapData = useMemo(() => {
-    const perDay: Record<string, number> = {}
-    for (const m of allMoments) perDay[m.learned_at] = (perDay[m.learned_at] ?? 0) + (m.duration_minutes ?? 0)
-    const today = new Date()
-    const days: { date: string; minutes: number }[] = []
-    for (let i = 111; i >= 0; i--) {
-      const d = new Date(today); d.setDate(d.getDate() - i)
-      days.push({ date: d.toISOString().split('T')[0], minutes: perDay[d.toISOString().split('T')[0]] ?? 0 })
-    }
-    // Groepeer in weken (kolommen van 7), pad begin tot maandag
-    const firstDay = new Date(days[0].date + 'T12:00:00')
-    const pad = (firstDay.getDay() + 6) % 7
-    const padded: (typeof days[0] | null)[] = [...Array(pad).fill(null), ...days]
-    const weeks: (typeof days[0] | null)[][] = []
-    for (let i = 0; i < padded.length; i += 7) weeks.push(padded.slice(i, i + 7))
-    // Maandlabels
-    const monthLabels: { label: string; col: number }[] = []
-    let lastMonth = -1
-    weeks.forEach((week, wi) => {
-      const firstReal = week.find(d => d !== null)
-      if (firstReal) {
-        const m = new Date(firstReal.date + 'T12:00:00').getMonth()
-        if (m !== lastMonth) { monthLabels.push({ label: ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'][m], col: wi }); lastMonth = m }
-      }
-    })
-    return { weeks, monthLabels }
-  }, [allMoments])
+  const firstName = displayName ?? user.email?.split('@')[0]?.split('+')[0] ?? ''
+  const statusText = studiedToday
+    ? `Je hebt vandaag ${todayMinutes > 0 ? formatMinutes(todayMinutes) : 'al iets'} gelogd.${goal && week.thisWeek < goal ? ` Nog ${formatMinutes(goal - week.thisWeek)} tot je weekdoel.` : ''}`
+    : streak > 0
+      ? `Je hebt vandaag nog niets gelogd. Log een leermoment om je streak van ${streak} ${streak === 1 ? 'dag' : 'dagen'} te behouden.`
+      : allMoments.length === 0
+        ? 'Log je eerste leermoment om je voortgang te zien.'
+        : 'Je hebt vandaag nog niets gelogd. Log een leermoment om een nieuwe streak te beginnen.'
 
-  const chartData = useMemo(() => {
-    const cutoff = timeframe
-      ? new Date(Date.now() - timeframe * 86400000).toISOString().split('T')[0]
-      : null
-
-    const filtered = cutoff
-      ? allMoments.filter(m => m.learned_at >= cutoff)
-      : allMoments
-
-    if (!filtered.length) return []
-
-    const perDay: Record<string, number> = {}
-    for (const m of filtered) {
-      perDay[m.learned_at] = (perDay[m.learned_at] ?? 0) + (m.duration_minutes ?? 0)
-    }
-
-    const sorted = Object.entries(perDay).sort((a, b) => a[0].localeCompare(b[0]))
-    let cumulative = 0
-    return sorted.map(([date, minutes]) => {
-      cumulative += minutes
-      const d = new Date(date)
-      const label = `${d.getDate()}/${d.getMonth() + 1}`
-      return { label, cumulative }
-    })
-  }, [allMoments, timeframe])
-
-  const firstName = displayName ?? user.email?.split('@')[0]?.split('+')[0] ?? 'daar'
-  const hour = new Date().getHours()
-  const timeGreetings: Record<string, [string, string, string]> = {
-    nl: ['Goedemorgen', 'Hoi', 'Goedenavond'],
-    en: ['Good morning', 'Hey', 'Good evening'],
-    de: ['Guten Morgen', 'Hallo', 'Guten Abend'],
-    fr: ['Bonjour', 'Salut', 'Bonsoir'],
-    es: ['Buenos días', 'Hola', 'Buenas noches'],
-    pt: ['Bom dia', 'Olá', 'Boa noite'],
-    da: ['God morgen', 'Hej', 'God aften'],
-    sv: ['God morgon', 'Hej', 'God kväll'],
-    no: ['God morgen', 'Hei', 'God kveld'],
-  }
-  const [greetMorning, greetDay, greetEvening] = timeGreetings[lang] ?? timeGreetings.nl
-  const timeGreeting = hour < 12 ? greetMorning : hour < 18 ? greetDay : greetEvening
-
-  const studyMinutesThisWeek = Math.round(
-    studySessions.reduce((s, x) => s + x.duration_seconds, 0) / 60
-  )
-  const activityLabels: Record<string, string> = {
-    'flashcards': 'Flashcards',
-    'flashcards-sr': 'Herhalen',
-    'quiz': 'Quiz',
-    'woordweb': 'Woordweb',
-  }
-
-  const shortcuts = [
-    { href: '/leermomenten', label: h.s1label, sub: h.s1sub, gradient: true, emoji: '📝' },
-    { href: '/pomodoro', label: h.s2label, sub: h.s2sub, gradient: false, emoji: '⏰' },
-    { href: '/resultaten', label: h.s3label, sub: h.s3sub, gradient: false, emoji: '📊' },
-    { href: '/wrapped', label: h.s4label, sub: h.s4sub, gradient: false, emoji: '📅' },
-  ]
-
-  const timeframeLabels = [`7 ${h.days}`, `30 ${h.days}`, `3 ${h.months}`, h.all]
+  const freeBlocks = getFreeBlocks(todaySlots)
+  const behindSubject = subjects
+    .filter(s => s.goal_minutes && s.goal_minutes > (minutesPerSubject[s.name] ?? 0))
+    .sort((a, b) => ((b.goal_minutes ?? 0) - (minutesPerSubject[b.name] ?? 0)) - ((a.goal_minutes ?? 0) - (minutesPerSubject[a.name] ?? 0)))[0]
+  const practiceSeconds = studySessions.reduce((s, x) => s + x.duration_seconds, 0)
+  const activityLabels: Record<string, string> = { 'flashcards': 'Flashcards', 'flashcards-sr': 'Herhalen', 'quiz': 'Quiz', 'woordweb': 'Woordweb' }
 
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
-      <Nav />
+      <Nav loggedIn width="max-w-5xl" />
       <OnboardingWizard isNewUser={allMoments.length === 0} />
 
-      <main className="max-w-3xl mx-auto px-4 py-10 space-y-8">
-
+      <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
         {burnoutWarning && !burnoutDismissed && (
           <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 items-start">
-            <span className="text-2xl">😴</span>
+            <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" strokeWidth={2} />
             <div className="flex-1">
-              <p className="font-semibold text-amber-800">Let op je rust!</p>
-              <p className="text-sm text-amber-600 mt-0.5">Je hebt 14 dagen op rij meer dan 3 uur per dag gestudeerd. Je brein heeft een pauzedag nodig — studeer vandaag even niet.</p>
+              <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">Neem ook rust</p>
+              <p className="text-sm text-amber-800 dark:text-amber-300 mt-0.5">Je hebt 14 dagen op rij gemiddeld meer dan 3 uur per dag gestudeerd. Een rustdag helpt je brein om het te onthouden.</p>
             </div>
-            <button onClick={() => setBurnoutDismissed(true)} className="text-amber-400 hover:text-amber-600 text-xl leading-none">×</button>
+            <button onClick={() => setBurnoutDismissed(true)} aria-label="Sluiten" className="text-amber-700"><X className="w-4 h-4" /></button>
           </div>
         )}
 
-        {streakMilestone && (
-          <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-4 flex items-center gap-3 text-white">
-            <span className="text-3xl">🔥</span>
-            <div className="flex-1">
-              <p className="font-bold">{streakMilestone} dagen streak bereikt!</p>
-              <p className="text-orange-100 text-sm mt-0.5">
-                {streakMilestone === 7 ? 'Een week op rij — je bent goed bezig!' : streakMilestone === 30 ? 'Een maand op rij — echt indrukwekkend!' : 'Honderd dagen! Je bent een legende.'}
-              </p>
-            </div>
-            <button onClick={() => setMilestoneDismissed(true)} className="text-orange-200 hover:text-white text-xl leading-none">×</button>
+        <section className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">Hoi{firstName ? `, ${firstName}` : ''}</h1>
+            <p className={`mt-1 text-sm ${atRisk ? 'text-amber-800 dark:text-amber-300' : 'text-slate-600 dark:text-slate-300'}`}>{statusText}</p>
           </div>
-        )}
-
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-bold text-indigo-900">{`${timeGreeting}, ${firstName}`}</h1>
-            <PageInfo text="Dit is jouw persoonlijk dashboard. Je ziet je streak, totale studietijd, grafiek en recente leermomenten in één overzicht." />
-          </div>
-          <p className="text-indigo-400 mt-1">{h.greetingSub ?? 'Welkom terug bij Knowl. Hier is je overzicht.'}</p>
-        </div>
-
-        {/* Zoekbalk */}
-        <div className="relative">
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Zoek leermomenten..."
-            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 pl-9 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all bg-white"
-          />
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-300 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          {search && <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors text-lg leading-none">✕</button>}
-        </div>
-
-        {/* Zoekresultaten */}
-        {search.trim() && (
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
-            {searchResults.length === 0 ? (
-              <p className="text-sm text-indigo-300 text-center py-6">Geen momenten gevonden voor &ldquo;{search}&rdquo;</p>
-            ) : (
-              <div className="divide-y divide-indigo-50">
-                {searchResults.map((m, i) => (
-                  <div key={m.id ?? i} className="flex items-center justify-between px-4 py-3 gap-3 hover:bg-indigo-50/50 transition-colors">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-indigo-900 truncate">{m.title ?? '—'}</p>
-                      <p className="text-xs text-indigo-400 mt-0.5">{m.learned_at}{m.category ? ` · ${m.category}` : ''}</p>
-                    </div>
-                    {m.duration_minutes && <span className="text-xs bg-violet-50 text-violet-500 rounded-full px-2 py-0.5 font-medium shrink-0">{m.duration_minutes} min</span>}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Tentamen countdown widget — alleen bij < 14 dagen */}
-        {(() => {
-          const next = examEvents[0]
-          if (!next) return null
-          const daysLeft = Math.max(0, Math.ceil((new Date(next.date).getTime() - Date.now()) / 86400000))
-          if (daysLeft > 14) return null
-          const urgent = daysLeft <= 3
-          return (
-            <div className={`rounded-2xl p-5 flex items-center gap-5 border ${urgent ? 'bg-gradient-to-r from-red-50 to-rose-50 border-red-200' : daysLeft <= 7 ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200' : 'bg-gradient-to-r from-indigo-50 to-violet-50 border-indigo-200'}`}>
-              <div className="text-center shrink-0">
-                <p className={`text-5xl font-black leading-none ${urgent ? 'text-red-600' : daysLeft <= 7 ? 'text-amber-600' : 'text-indigo-700'}`}>{daysLeft}</p>
-                <p className={`text-xs font-semibold mt-1 ${urgent ? 'text-red-400' : daysLeft <= 7 ? 'text-amber-500' : 'text-indigo-400'}`}>{h.daysLeft}</p>
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className={`font-bold text-base truncate ${urgent ? 'text-red-800' : daysLeft <= 7 ? 'text-amber-800' : 'text-indigo-900'}`}>{next.title}</p>
-                {next.subject && <p className={`text-sm ${urgent ? 'text-red-500' : daysLeft <= 7 ? 'text-amber-500' : 'text-indigo-400'}`}>{next.subject}</p>}
-                <p className={`text-xs mt-1 ${urgent ? 'text-red-400' : daysLeft <= 7 ? 'text-amber-400' : 'text-indigo-300'}`}>{new Date(next.date).toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
-              </div>
-              <a href="/agenda" className={`text-xs font-semibold px-3 py-1.5 rounded-xl shrink-0 transition-colors ${urgent ? 'bg-red-100 text-red-700 hover:bg-red-200' : daysLeft <= 7 ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'}`}>
-                Agenda →
-              </a>
-            </div>
-          )
-        })()}
-
-        {/* Statistieken */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
-          {/* Totaal uren */}
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
-            <div className="h-1 bg-gradient-to-r from-indigo-400 to-indigo-600" />
-            <div className="p-5">
-              <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">{h.totalHours}</p>
-              <p className="text-4xl font-bold text-indigo-700 mt-2">{totalHours}<span className="text-xl text-indigo-300">u</span></p>
-            </div>
-          </div>
-          {/* Deze maand */}
-          <div className="bg-white rounded-2xl border border-violet-100 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
-            <div className="h-1 bg-gradient-to-r from-violet-400 to-violet-600" />
-            <div className="p-5">
-              <p className="text-xs font-semibold text-violet-400 uppercase tracking-wide">{h.thisMonth}</p>
-              <p className="text-4xl font-bold text-violet-700 mt-2">{monthMinutes}<span className="text-xl text-violet-300">m</span></p>
-            </div>
-          </div>
-          {/* Streak */}
-          <div className={`rounded-2xl border shadow-sm overflow-hidden transition-all cursor-default hover:shadow-md hover:-translate-y-0.5 ${streak >= 7 ? 'border-orange-200' : 'border-amber-100'}`}>
-            <div className={`h-1 bg-gradient-to-r ${streak >= 7 ? 'from-orange-400 to-red-500' : 'from-amber-300 to-amber-500'}`} />
-            <div className={`p-5 ${streak >= 7 ? 'bg-gradient-to-br from-orange-50 to-amber-50' : 'bg-white'}`}>
-              <p className={`text-xs font-semibold uppercase tracking-wide ${streak >= 7 ? 'text-orange-400' : 'text-amber-500'}`}>{h.streak}</p>
-              <div className="flex items-end gap-1 mt-2">
-                <p className={`text-4xl font-bold ${streak >= 7 ? 'text-orange-500' : 'text-amber-600'}`}>{streak}</p>
-                <span className={`text-xl pb-1 ${streak >= 7 ? 'text-orange-300' : 'text-amber-300'}`}>d</span>
-                {streak >= 1 && <span className="text-2xl pb-1 ml-1">{streak >= 30 ? '🔥🔥🔥' : streak >= 14 ? '🔥🔥' : '🔥'}</span>}
-              </div>
-              <p className={`text-xs mt-1 font-medium ${streak >= 7 ? 'text-orange-500' : 'text-amber-500'}`}>
-                {streak === 0 ? 'Begin vandaag!' : streak >= 30 ? 'Legendarisch! 🏆' : streak >= 14 ? 'Je bent niet te stoppen!' : streak >= 7 ? 'Een week! Ga zo door!' : 'Goed bezig!'}
-              </p>
-              {shields > 0 && (
-                <p className="text-xs text-amber-500 mt-1 font-medium">{'🛡️'.repeat(Math.min(shields, 5))} {h.shields}</p>
-              )}
-            </div>
-          </div>
-          {/* Topvak */}
-          <div className="bg-white rounded-2xl border border-purple-100 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
-            <div className="h-1 bg-gradient-to-r from-purple-400 to-purple-600" />
-            <div className="p-5">
-              <p className="text-xs font-semibold text-purple-400 uppercase tracking-wide">{h.topSubject}</p>
-              <p className="text-sm font-bold text-purple-700 mt-2 break-words hyphens-auto leading-snug" lang="nl">{topVak?.[0] ?? '—'}</p>
-              {topVak && <p className="text-xs text-purple-300 mt-1">{topVak[1]} min</p>}
-            </div>
-          </div>
-        </div>
-
-        {/* Slimme studiesuggestie */}
-        {studySuggestion && (
-          <div className={`rounded-2xl border p-4 flex items-center gap-4 ${studySuggestion.urgent ? 'bg-red-50 border-red-200' : 'bg-indigo-50 border-indigo-200'}`}>
-            <div className={`shrink-0 text-2xl w-10 h-10 rounded-xl flex items-center justify-center ${studySuggestion.urgent ? 'bg-red-100' : 'bg-indigo-100'}`}>
-              {studySuggestion.urgent ? '⚡' : '🎯'}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className={`text-xs font-semibold uppercase tracking-wide ${studySuggestion.urgent ? 'text-red-400' : 'text-indigo-400'}`}>Studiesuggestie</p>
-              <p className={`font-bold truncate ${studySuggestion.urgent ? 'text-red-800' : 'text-indigo-900'}`}>
-                Studeer vandaag <span className={studySuggestion.urgent ? 'text-red-600' : 'text-indigo-600'}>{studySuggestion.minutes} min</span> {studySuggestion.subject}
-              </p>
-              <p className={`text-xs mt-0.5 ${studySuggestion.urgent ? 'text-red-400' : 'text-indigo-400'}`}>{studySuggestion.reason}</p>
-            </div>
-            <Link href="/leermomenten" className={`text-sm font-semibold px-3 py-2 rounded-xl shrink-0 transition-all active:scale-95 ${studySuggestion.urgent ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}>
-              Loggen
+          <div className="flex gap-2 shrink-0">
+            <Link href="/leermomenten" className="inline-flex items-center gap-1.5 bg-indigo-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-indigo-700 shadow-sm">
+              <Plus className="w-4 h-4" strokeWidth={2.5} /> Leermoment loggen
+            </Link>
+            <Link href="/pomodoro" className="inline-flex items-center gap-1.5 bg-white text-slate-800 dark:text-slate-100 text-sm font-semibold px-4 py-2.5 rounded-xl border border-indigo-100 hover:bg-indigo-50">
+              <Timer className="w-4 h-4" strokeWidth={2} /> Pomodoro
             </Link>
           </div>
-        )}
+        </section>
 
-        {/* Vandaag */}
-        <div className={`rounded-2xl border p-4 flex items-center justify-between gap-4 ${todayMoments.length > 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-white border-indigo-100 shadow-sm'}`}>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-400">Vandaag</p>
-            <p className={`font-bold mt-0.5 ${todayMoments.length > 0 ? 'text-emerald-800' : 'text-indigo-400'}`}>
-              {todayMoments.length > 0 ? `${todayMoments.length} moment${todayMoments.length > 1 ? 'en' : ''} · ${todayMinutes} min` : 'Nog niets gelogd vandaag'}
-            </p>
-          </div>
-          <Link href="/leermomenten" className={`text-sm font-semibold px-4 py-2 rounded-xl transition-all active:scale-95 shrink-0 ${todayMoments.length > 0 ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}>
-            {todayMoments.length > 0 ? '+ Meer' : '+ Loggen'}
-          </Link>
-        </div>
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3" aria-label="Kerncijfers">
+          <WeekCard thisWeek={week.thisWeek} goal={goal} supported={weeklyGoalSupported} userId={user.id} onGoalSaved={setGoal} />
 
-        {/* Gemiddelde sessie + week vergelijking */}
-        {(avgSessionMin > 0 || weekChangePercent !== null) && (
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 flex flex-col sm:flex-row gap-4 sm:gap-8 hover:shadow-md transition-all">
-            {avgSessionMin > 0 && (
-              <div>
-                <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">Gemiddelde sessie</p>
-                <p className="text-3xl font-bold text-indigo-700 mt-1">{avgSessionMin}<span className="text-lg text-indigo-300">m</span></p>
-              </div>
-            )}
-            {weekChangePercent !== null && (
-              <div>
-                <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide">Week vs vorige week</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <p className="text-3xl font-bold text-indigo-700">{thisWeekMin}<span className="text-lg text-indigo-300">m</span></p>
-                  <span className={`text-sm font-bold px-2.5 py-1 rounded-xl ${weekChangePercent >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'}`}>
-                    {weekChangePercent >= 0 ? '+' : ''}{weekChangePercent}%
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Studietijd deze week */}
-        {studySessions.length > 0 && (
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
-            <div className="flex justify-between items-center mb-3">
-              <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">⏱ Studietijd deze week</p>
-              <span className="text-sm font-bold text-indigo-700">{studyMinutesThisWeek} min</span>
+          <KpiCard label="Streak" icon={<Flame className="w-4 h-4" strokeWidth={2} />}>
+            <p className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{streak} <span className="text-base font-semibold text-slate-600 dark:text-slate-300">{streak === 1 ? 'dag' : 'dagen'}</span></p>
+            <div className="mt-auto space-y-1">
+              {atRisk ? (
+                <p className="text-xs font-medium text-amber-800 dark:text-amber-300 inline-flex items-center gap-1"><AlertTriangle className="w-3.5 h-3.5" strokeWidth={2} /> Vandaag nog niet gelogd</p>
+              ) : studiedToday ? (
+                <p className="text-xs text-slate-600 dark:text-slate-300 inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" strokeWidth={2} /> Vandaag gelogd</p>
+              ) : null}
+              <div><ShieldInfo shields={shields} /></div>
             </div>
-            <div className="space-y-2">
-              {Object.entries(
-                studySessions.reduce((acc, s) => {
+          </KpiCard>
+
+          <KpiCard label="Deze maand" icon={<CalendarClock className="w-4 h-4" strokeWidth={2} />}>
+            <p className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{formatMinutes(monthMinutes)}</p>
+            <p className={`${muted} mt-auto`}>{monthMoments} leermoment{monthMoments === 1 ? '' : 'en'}</p>
+          </KpiCard>
+
+          <KpiCard label="Gemiddelde sessie" icon={<BookOpen className="w-4 h-4" strokeWidth={2} />}>
+            <p className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{timed.length ? formatMinutes(avgSession) : '–'}</p>
+            <p className={`${muted} mt-auto`}>{timed.length ? `Over ${timed.length} sessie${timed.length === 1 ? '' : 's'} met tijd` : 'Nog geen sessies met tijd'}</p>
+          </KpiCard>
+        </section>
+
+        {week.comparable && (
+          <p className="text-sm text-slate-600 dark:text-slate-300 inline-flex items-center gap-2 -mt-2">
+            {week.diff > 0 ? <TrendingUp className="w-4 h-4" strokeWidth={2} /> : week.diff < 0 ? <TrendingDown className="w-4 h-4" strokeWidth={2} /> : <Minus className="w-4 h-4" strokeWidth={2} />}
+            {week.diff === 0
+              ? 'Evenveel als vorige week op dit moment'
+              : `${formatMinutes(Math.abs(week.diff))} ${week.diff > 0 ? 'meer' : 'minder'} dan vorige week op dit moment`}
+            <span className="text-slate-500 dark:text-slate-400">({formatMinutes(week.thisWeek)} tegen {formatMinutes(week.lastWeek)})</span>
+          </p>
+        )}
+
+        {suggestion && (
+          <div className={`${card} p-4 flex items-center gap-3 ${suggestion.urgent ? 'border-amber-200' : ''}`}>
+            <Target className={`w-5 h-5 shrink-0 ${suggestion.urgent ? 'text-amber-700' : 'text-indigo-600 dark:text-indigo-300'}`} strokeWidth={2} />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-slate-900 dark:text-white">Studeer vandaag <strong>{formatMinutes(suggestion.minutes)}</strong> {suggestion.subject}</p>
+              <p className={`text-xs mt-0.5 ${suggestion.urgent ? 'text-amber-800 dark:text-amber-300' : 'text-slate-500 dark:text-slate-400'}`}>{suggestion.reason}</p>
+            </div>
+          </div>
+        )}
+
+        <section className="grid lg:grid-cols-2 gap-4">
+          <DailyChart byDay={byDay} today={today} dailyGoal={dailyGoal} />
+          <SubjectBars moments={allMoments} today={today} />
+        </section>
+
+        <section className="grid lg:grid-cols-2 gap-4">
+          <RecentMoments moments={allMoments} />
+          <ReviewCard moments={allMoments} today={today} />
+        </section>
+
+        <section className="grid lg:grid-cols-2 gap-4 items-start">
+          <Heatmap byDay={byDay} today={today} />
+
+          {examEvents.length > 0 && (
+            <div className={`${card} p-5`}>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className={heading}>Komende tentamens</h2>
+                <Link href="/agenda" className={linkText}>Agenda</Link>
+              </div>
+              <ul className="space-y-3">
+                {examEvents.map(exam => {
+                  const left = Math.max(0, daysUntil(exam.date, today))
+                  const subj = exam.subject ? subjects.find(s => s.name === exam.subject) : undefined
+                  const goalMin = subj?.goal_minutes ?? 0
+                  const done = exam.subject ? (minutesPerSubject[exam.subject] ?? 0) : 0
+                  const onTrack = goalMin > 0 && done >= goalMin
+                  const perDay = goalMin > 0 && !onTrack && left > 0 ? Math.ceil((goalMin - done) / left) : null
+                  const warn = left <= 7 && goalMin > 0 && !onTrack
+                  return (
+                    <li key={exam.id}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">{exam.title}</p>
+                          <p className={muted}>{longDate(exam.date)}{exam.subject ? ` · ${exam.subject}` : ''}</p>
+                        </div>
+                        <span className={`text-xs font-semibold shrink-0 ${warn ? 'text-amber-800 dark:text-amber-300' : 'text-slate-700 dark:text-slate-200'}`}>
+                          {left === 0 ? 'Vandaag' : `over ${left} dag${left === 1 ? '' : 'en'}`}
+                        </span>
+                      </div>
+                      {goalMin > 0 ? (
+                        <>
+                          <div className="h-1.5 bg-indigo-50 rounded-full overflow-hidden mt-1.5">
+                            <div className={`h-full rounded-full ${onTrack ? 'bg-emerald-600' : 'bg-indigo-600'}`} style={{ width: `${Math.min(100, Math.round((done / goalMin) * 100))}%` }} />
+                          </div>
+                          <p className={`${muted} mt-1`}>{formatMinutes(done)} van {formatMinutes(goalMin)}{onTrack ? ' · op schema' : perDay ? ` · nog ${formatMinutes(perDay)} per dag` : ''}</p>
+                        </>
+                      ) : (
+                        <p className={`${muted} mt-1`}>{h.noGoalSet}</p>
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          )}
+
+          {goalSubjects.length > 0 && (
+            <div className={`${card} p-5`}>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className={heading}>{h.goalProgress}</h2>
+                <Link href="/vakken" className={linkText}>Vakken beheren</Link>
+              </div>
+              <SchoolYearTabs years={goalYearTabs} active={goalActiveYear} onChange={setGoalActiveYear} unknownLabel={sj.unknownYear} />
+              {goalSubjectsInYear.length === 0 && <p className={`${muted} text-center py-4`}>Geen doelen in dit schooljaar.</p>}
+              <ul className="space-y-4">
+                {goalSubjectsInYear.map(subject => {
+                  const done = minutesPerSubject[subject.name] ?? 0
+                  const weekDone = minutesThisWeekPerSubject[subject.name] ?? 0
+                  const left = subject.goal_date ? daysUntil(subject.goal_date, today) : null
+                  return (
+                    <li key={subject.name} className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="font-medium text-slate-900 dark:text-slate-100 truncate" title={subject.name}>{subject.name}</span>
+                        {left !== null && <span className={`text-xs ${left >= 0 && left < 7 ? 'text-amber-800 dark:text-amber-300 font-medium' : 'text-slate-500 dark:text-slate-400'}`}>{left >= 0 ? `nog ${left} dagen` : 'datum voorbij'}</span>}
+                      </div>
+                      {subject.goal_minutes ? (
+                        <div>
+                          <div className="flex justify-between text-xs mb-1"><span className="text-slate-600 dark:text-slate-300">Totaal</span><span className="text-slate-700 dark:text-slate-200 tabular-nums">{formatMinutes(done)} / {formatMinutes(subject.goal_minutes)}</span></div>
+                          <div className="h-1.5 bg-indigo-50 rounded-full overflow-hidden"><div className={`h-full rounded-full ${done >= subject.goal_minutes ? 'bg-emerald-600' : 'bg-indigo-600'}`} style={{ width: `${Math.min(100, Math.round((done / subject.goal_minutes) * 100))}%` }} /></div>
+                        </div>
+                      ) : null}
+                      {subject.recurring_goal_minutes && subject.recurring_type === 'weekly' ? (
+                        <div>
+                          <div className="flex justify-between text-xs mb-1"><span className="text-slate-600 dark:text-slate-300">Deze week</span><span className="text-slate-700 dark:text-slate-200 tabular-nums">{formatMinutes(weekDone)} / {formatMinutes(subject.recurring_goal_minutes)}</span></div>
+                          <div className="h-1.5 bg-indigo-50 rounded-full overflow-hidden"><div className={`h-full rounded-full ${weekDone >= subject.recurring_goal_minutes ? 'bg-emerald-600' : 'bg-indigo-600'}`} style={{ width: `${Math.min(100, Math.round((weekDone / subject.recurring_goal_minutes) * 100))}%` }} /></div>
+                        </div>
+                      ) : null}
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          )}
+
+          {freeBlocks.length > 0 && todaySlots.length > 0 && (
+            <div className={`${card} p-5`}>
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h2 className={heading}>{h.freeStudyTime}</h2>
+                  <p className={`${muted} mt-0.5`}>{h.freeStudyTimeSub}</p>
+                </div>
+                <Link href="/rooster" className={linkText}>Rooster</Link>
+              </div>
+              <ul className="space-y-2">
+                {freeBlocks.slice(0, 3).map((b, i) => (
+                  <li key={i} className="flex items-center justify-between rounded-xl border border-indigo-100 px-3 py-2">
+                    <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{b.start} – {b.end}</span>
+                    <span className={muted}>{formatMinutes(b.minutes)} vrij{behindSubject ? ` · ${behindSubject.name}` : ''}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {studySessions.length > 0 && (
+            <div className={`${card} p-5`}>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className={heading}>Oefentijd afgelopen 7 dagen</h2>
+                <span className="text-sm font-semibold text-slate-900 dark:text-white">{formatMinutes(practiceSeconds / 60)}</span>
+              </div>
+              <ul className="space-y-2">
+                {Object.entries(studySessions.reduce((acc, s) => {
                   const key = activityLabels[s.activity] ?? s.activity
                   acc[key] = (acc[key] ?? 0) + s.duration_seconds
                   return acc
-                }, {} as Record<string, number>)
-              ).sort((a, b) => b[1] - a[1]).map(([label, secs]) => (
-                <div key={label} className="flex items-center gap-3">
-                  <span className="text-xs text-gray-500 w-24 shrink-0">{label}</span>
-                  <div className="flex-1 bg-indigo-50 rounded-full h-2">
-                    <div className="bg-gradient-to-r from-indigo-400 to-violet-400 h-2 rounded-full"
-                      style={{ width: `${Math.round((secs / studySessions.reduce((s, x) => s + x.duration_seconds, 0)) * 100)}%` }} />
-                  </div>
-                  <span className="text-xs text-indigo-400 w-10 text-right">{Math.round(secs / 60)}m</span>
-                </div>
-              ))}
+                }, {} as Record<string, number>)).sort((a, b) => b[1] - a[1]).map(([label, secs]) => (
+                  <li key={label} className="flex items-center gap-3">
+                    <span className="text-xs text-slate-700 dark:text-slate-200 w-20 shrink-0">{label}</span>
+                    <div className="flex-1 bg-indigo-50 rounded-full h-1.5"><div className="bg-indigo-600 h-1.5 rounded-full" style={{ width: `${Math.round((secs / practiceSeconds) * 100)}%` }} /></div>
+                    <span className="text-xs text-slate-600 dark:text-slate-300 w-16 text-right tabular-nums">{formatMinutes(secs / 60)}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
-        )}
-
-        {/* Cumulatieve grafiek */}
-        <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
-          <div className="flex justify-between items-center mb-5 flex-wrap gap-3">
-            <div>
-              <h2 className="font-semibold text-indigo-900 border-l-4 border-indigo-300 pl-3">{h.cumulative}</h2>
-              <p className="text-xs text-indigo-400 mt-0.5">{h.cumulativeSub}</p>
-            </div>
-            <div className="flex gap-1 bg-indigo-50 rounded-xl p-1">
-              {TIMEFRAME_DAYS.map((days, i) => (
-                <button
-                  key={i}
-                  onClick={() => setTimeframe(days)}
-                  className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-all ${
-                    timeframe === days
-                      ? 'bg-white text-indigo-700 shadow-sm'
-                      : 'text-indigo-400 hover:text-indigo-600'
-                  }`}
-                >
-                  {timeframeLabels[i]}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {chartData.length === 0 ? (
-            <div className="h-48 flex flex-col items-center justify-center gap-2">
-              <p className="text-4xl">📈</p>
-              <p className="text-indigo-400 text-sm font-medium">{h.noData}</p>
-              <p className="text-indigo-300 text-xs">Voeg je eerste leermoment toe om je grafiek te zien</p>
-            </div>
-          ) : (
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
-                <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#a5b4fc' }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: '#a5b4fc' }} tickLine={false} axisLine={false} />
-                <Tooltip
-                  contentStyle={{ borderRadius: '12px', border: '1px solid #e0e7ff', fontSize: 12 }}
-                  formatter={(v) => [`${v} min`, 'Cumulatief']}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="cumulative"
-                  stroke="url(#lineGradient)"
-                  strokeWidth={2.5}
-                  dot={false}
-                  activeDot={{ r: 4, fill: '#6366f1' }}
-                />
-                <defs>
-                  <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#6366f1" />
-                    <stop offset="100%" stopColor="#8b5cf6" />
-                  </linearGradient>
-                </defs>
-              </LineChart>
-            </ResponsiveContainer>
           )}
-        </div>
-
-        {/* Studiekalender heatmap — laatste 16 weken */}
-        {allMoments.length > 0 && (
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="font-semibold text-indigo-900 border-l-4 border-indigo-300 pl-3">Studiekalender</h2>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs text-indigo-300">Minder</span>
-                {['bg-gray-100','bg-emerald-200','bg-emerald-400','bg-emerald-600'].map(c => (
-                  <div key={c} className={`w-2.5 h-2.5 rounded-sm ${c}`} />
-                ))}
-                <span className="text-xs text-indigo-300">Meer</span>
-              </div>
-            </div>
-            {/* Maandlabels */}
-            <div className="flex mb-1" style={{ gap: '3px' }}>
-              {heatmapData.weeks.map((_, wi) => {
-                const lbl = heatmapData.monthLabels.find(m => m.col === wi)
-                return <div key={wi} className="flex-1 text-center" style={{ minWidth: 0 }}>
-                  <span className="text-[10px] text-indigo-300 leading-none">{lbl?.label ?? ''}</span>
-                </div>
-              })}
-            </div>
-            {/* Grid: 7 rijen (ma–zo), N kolommen (weken) */}
-            <div className="flex flex-col gap-[3px]">
-              {[0,1,2,3,4,5,6].map(di => (
-                <div key={di} className="flex" style={{ gap: '3px' }}>
-                  {heatmapData.weeks.map((week, wi) => {
-                    const day = week[di]
-                    return (
-                      <div key={wi}
-                        title={day ? `${day.date}: ${day.minutes} min` : ''}
-                        style={{
-                          flex: '1 1 0', minWidth: 0, aspectRatio: '1',
-                          borderRadius: '3px',
-                          backgroundColor: !day ? 'transparent' :
-                            day.minutes === 0 ? '#f1f5f9' :
-                            day.minutes < 30 ? '#6ee7b7' :
-                            day.minutes < 90 ? '#34d399' :
-                            '#059669'
-                        }}
-                      />
-                    )
-                  })}
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-between mt-2">
-              <span className="text-[10px] text-indigo-300">Ma</span>
-              <span className="text-[10px] text-indigo-300">Zo</span>
-            </div>
-          </div>
-        )}
-
-        {/* Snelkoppelingen */}
-        <div className="grid grid-cols-2 gap-4">
-          {shortcuts.map(s => (
-            <Link
-              key={s.href}
-              href={s.href}
-              className={`rounded-2xl p-5 transition-all active:scale-95 ${
-                s.gradient
-                  ? 'bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 text-white hover:opacity-90'
-                  : 'bg-white border border-indigo-100 shadow-sm hover:shadow-md hover:-translate-y-0.5'
-              }`}
-            >
-              <p className="text-2xl mb-2">{s.emoji}</p>
-              <p className={`font-semibold text-sm ${s.gradient ? 'text-white' : 'text-indigo-900'}`}>{s.label}</p>
-              <p className={`text-xs mt-0.5 ${s.gradient ? 'text-indigo-200' : 'text-indigo-400'}`}>{s.sub}</p>
-            </Link>
-          ))}
-        </div>
-
-        {/* Vakken doelen */}
-        {goalSubjects.length > 0 && (
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="font-semibold text-indigo-900 border-l-4 border-indigo-300 pl-3">{h.goalProgress}</h2>
-              <Link href="/vakken" className="text-xs text-indigo-400 hover:text-indigo-600">{h.manage}</Link>
-            </div>
-            <SchoolYearTabs years={goalYearTabs} active={goalActiveYear} onChange={setGoalActiveYear} unknownLabel={sj.unknownYear} />
-            {goalSubjectsInYear.length === 0 && (
-              <p className="text-sm text-indigo-300 text-center py-4">Geen doelen in dit schooljaar.</p>
-            )}
-            <div className="space-y-5">
-              {goalSubjectsInYear.map(subject => {
-                const done = allMoments.filter(m => m.category === subject.name).reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
-                const weekDone = minutesThisWeek[subject.name] ?? 0
-                const days = subject.goal_date ? Math.ceil((new Date(subject.goal_date).getTime() - Date.now()) / 86400000) : null
-                return (
-                  <div key={subject.name} className="space-y-2">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="font-medium text-indigo-800">{subject.name}</span>
-                      {days !== null && (
-                        <span className={`text-xs ${days < 7 ? 'text-red-400' : 'text-indigo-300'}`}>{days}d</span>
-                      )}
-                    </div>
-                    {subject.goal_minutes && (
-                      <div>
-                        <div className="flex justify-between text-xs mb-0.5">
-                          <span className="text-indigo-400">Totaal doel</span>
-                          <span className="font-bold text-indigo-600">{Math.min(100, Math.round((done / subject.goal_minutes) * 100))}% · {done}/{subject.goal_minutes} min</span>
-                        </div>
-                        <div className="h-2 bg-indigo-50 rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${done >= subject.goal_minutes ? 'bg-emerald-500' : 'bg-gradient-to-r from-indigo-500 to-violet-500'}`}
-                            style={{ width: `${Math.min(100, Math.round((done / subject.goal_minutes) * 100))}%` }} />
-                        </div>
-                      </div>
-                    )}
-                    {subject.recurring_goal_minutes && subject.recurring_type === 'weekly' && (
-                      <div>
-                        <div className="flex justify-between text-xs mb-0.5">
-                          <span className="text-violet-400">Per week</span>
-                          <span className="font-bold text-violet-600">{Math.min(100, Math.round((weekDone / subject.recurring_goal_minutes) * 100))}% · {weekDone}/{subject.recurring_goal_minutes} min</span>
-                        </div>
-                        <div className="h-2 bg-violet-50 rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${weekDone >= subject.recurring_goal_minutes ? 'bg-emerald-500' : 'bg-gradient-to-r from-violet-400 to-purple-500'}`}
-                            style={{ width: `${Math.min(100, Math.round((weekDone / subject.recurring_goal_minutes) * 100))}%` }} />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Tentamenplanner */}
-        {examEvents.length > 0 && (
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 space-y-3">
-            <h2 className="font-bold text-indigo-900">{h.examPlanner}</h2>
-            <p className="text-xs text-indigo-400 -mt-2">{h.examPlannerSub}</p>
-            <div className="space-y-2">
-              {examEvents.map(exam => {
-                const daysLeft = Math.max(0, Math.ceil((new Date(exam.date).getTime() - Date.now()) / 86400000))
-                const subject = exam.subject ? subjects.find(s => s.name === exam.subject) : undefined
-                const goalMin = subject?.goal_minutes ?? 0
-                const studiedMin = exam.subject ? (minutesPerSubject[exam.subject] ?? 0) : 0
-                const remaining = Math.max(0, goalMin - studiedMin)
-                const perDay = daysLeft > 0 && goalMin > 0 ? Math.ceil(remaining / daysLeft) : null
-                const onTrack = goalMin === 0 || studiedMin >= goalMin
-                const urgent = daysLeft <= 3
-                return (
-                  <div key={exam.id} className={`rounded-xl p-4 border ${onTrack ? 'bg-emerald-50 border-emerald-100' : urgent ? 'bg-red-50 border-red-100' : 'bg-indigo-50 border-indigo-100'}`}>
-                    <div className="flex justify-between items-start gap-2">
-                      <div className="min-w-0">
-                        <p className="font-semibold text-sm text-indigo-900 truncate">{exam.title}</p>
-                        <p className="text-xs text-indigo-400">{exam.subject}</p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className={`text-xl font-bold ${urgent ? 'text-red-600' : 'text-indigo-700'}`}>{daysLeft}</p>
-                        <p className="text-xs text-indigo-300">{h.daysLeft}</p>
-                      </div>
-                    </div>
-                    {goalMin > 0 && (
-                      <div className="mt-3 space-y-1.5">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-indigo-400">{studiedMin} / {goalMin} min</span>
-                          {!onTrack && perDay !== null && <span className="font-semibold text-amber-600">{perDay} {h.minPerDay}</span>}
-                          {onTrack && <span className="font-semibold text-emerald-600">{h.onTrack}</span>}
-                        </div>
-                        <div className="h-1.5 bg-white rounded-full overflow-hidden">
-                          <div className="h-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500" style={{ width: `${Math.min(100, Math.round(studiedMin / goalMin * 100))}%` }} />
-                        </div>
-                      </div>
-                    )}
-                    {goalMin === 0 && <p className="text-xs text-indigo-300 mt-1">{h.noGoalSet}</p>}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Rooster vrije blokken */}
-        {todaySlots.length > 0 && (() => {
-          const freeBlocks = getFreeBlocks(todaySlots)
-          if (freeBlocks.length === 0) return null
-          const behindSubject = subjects
-            .filter(s => s.goal_minutes && s.goal_minutes > (minutesPerSubject[s.name] ?? 0))
-            .sort((a, b) => {
-              const remA = (a.goal_minutes ?? 0) - (minutesPerSubject[a.name] ?? 0)
-              const remB = (b.goal_minutes ?? 0) - (minutesPerSubject[b.name] ?? 0)
-              return remB - remA
-            })[0]
-          return (
-            <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 space-y-3">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="font-bold text-indigo-900">{h.freeStudyTime}</h2>
-                  <p className="text-xs text-indigo-400">{h.freeStudyTimeSub}</p>
-                </div>
-                <a href="/rooster" className="text-xs text-indigo-400 hover:text-indigo-600 transition-colors">{r.schedule}</a>
-              </div>
-              <div className="space-y-2">
-                {freeBlocks.slice(0, 3).map((block, i) => (
-                  <div key={i} className="flex items-center justify-between bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
-                    <div>
-                      <p className="text-sm font-semibold text-emerald-800">{block.start} – {block.end}</p>
-                      <p className="text-xs text-emerald-500">{Math.round(block.minutes / 60 * 10) / 10} uur vrij</p>
-                    </div>
-                    {behindSubject && (
-                      <div className="text-right">
-                        <p className="text-xs text-emerald-600 font-medium">{r.suggestion}</p>
-                        <p className="text-xs text-emerald-500 truncate max-w-[120px]">{behindSubject.name}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )
-        })()}
+        </section>
       </main>
     </div>
   )

@@ -1,5 +1,6 @@
 'use client'
 
+import { formatMinutes, localDateStr, weekStart } from '@/lib/studyStats'
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
@@ -30,6 +31,7 @@ type Props = {
   moments: Moment[]
   subjects: Subject[]
   spacedMoment: Moment | null
+  initialSearch?: string
 }
 
 const RATINGS_KEY = 'knowl_ratings'
@@ -64,7 +66,7 @@ function exportCsv(moments: Moment[], ratings: Record<string, number>) {
   URL.revokeObjectURL(url)
 }
 
-export default function Dashboard({ user, moments: initialMoments, subjects, spacedMoment }: Props) {
+export default function Dashboard({ user, moments: initialMoments, subjects, spacedMoment, initialSearch = '' }: Props) {
   const { tr } = useLanguage()
   const d = tr.dashboard
   const r = tr.rating
@@ -111,7 +113,7 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
     return () => clearTimeout(t)
   }, [title, description, category, duration])
 
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(initialSearch)
 
   const subjectYearMap = useMemo(() => buildSubjectYearMap(subjects), [subjects])
   const yearTabs = useMemo(
@@ -277,7 +279,8 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
   }
 
   const totalMinutes = moments.reduce((sum, m) => sum + (m.duration_minutes ?? 0), 0)
-  const totalHours = Math.floor(totalMinutes / 60)
+  const thisWeekStart = weekStart(localDateStr(new Date()))
+  const weekMinutes = moments.filter(m => m.learned_at >= thisWeekStart).reduce((sum, m) => sum + (m.duration_minutes ?? 0), 0)
 
   const starLabels = r.labels
 
@@ -401,19 +404,17 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
 
         {/* Statistieken */}
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4 border-b-4 border-b-indigo-400 hover:shadow-md hover:-translate-y-0.5 transition-all">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide leading-tight">{d.momentsCount}</p>
-            <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-indigo-700 mt-1">{moments.length}</p>
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4">
+            <p className="text-xs font-medium text-slate-600 dark:text-slate-300 leading-tight">{d.momentsCount}</p>
+            <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">{moments.length}</p>
           </div>
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4 border-b-4 border-b-violet-400 hover:shadow-md hover:-translate-y-0.5 transition-all">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide leading-tight">{d.minutesLearned}</p>
-            <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-indigo-700 mt-1">{totalMinutes}</p>
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4">
+            <p className="text-xs font-medium text-slate-600 dark:text-slate-300 leading-tight">Studietijd</p>
+            <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">{formatMinutes(totalMinutes)}</p>
           </div>
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4 border-b-4 border-b-purple-400 hover:shadow-md hover:-translate-y-0.5 transition-all">
-            <p className="text-xs font-medium text-indigo-400 uppercase tracking-wide leading-tight">{d.inHours}</p>
-            <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-indigo-700 mt-1">
-              {totalHours}<span className="text-base sm:text-lg font-medium text-indigo-300">u</span>
-            </p>
+          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4">
+            <p className="text-xs font-medium text-slate-600 dark:text-slate-300 leading-tight">Deze week</p>
+            <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">{formatMinutes(weekMinutes)}</p>
           </div>
         </div>
 
