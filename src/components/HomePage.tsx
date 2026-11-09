@@ -4,6 +4,7 @@ import Nav from '@/components/Nav'
 import SchoolYearTabs from '@/components/SchoolYearTabs'
 import OnboardingWizard from '@/components/OnboardingWizard'
 import Glyph from '@/components/Glyph'
+import MomentForm from '@/components/MomentForm'
 import Link from 'next/link'
 import { useState, useMemo, useEffect } from 'react'
 import type { User } from '@supabase/supabase-js'
@@ -591,99 +592,6 @@ function ReviewCard({ moments, initialReviews, supported, activeSubjects, today,
   )
 }
 
-const QUICK_MINUTES = [15, 30, 45, 60, 90]
-
-function QuickAdd({ userId, subjects, today, onSaved, onClose }: {
-  userId: string; subjects: string[]; today: string; onSaved: (m: Moment) => void; onClose: () => void
-}) {
-  const [title, setTitle] = useState('')
-  const [category, setCategory] = useState('')
-  const [minutes, setMinutes] = useState<number | null>(30)
-  const [custom, setCustom] = useState('')
-  const [date, setDate] = useState(today)
-  const [note, setNote] = useState('')
-  const [showNote, setShowNote] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
-
-  async function save(e: React.FormEvent) {
-    e.preventDefault()
-    if (!title.trim()) return
-    setSaving(true)
-    setError('')
-    const customMinutes = parseInt(custom)
-    const duration = custom ? (Number.isFinite(customMinutes) && customMinutes > 0 ? customMinutes : null) : minutes
-    const { data, error } = await createClient()
-      .from('learning_moments')
-      .insert({
-        id: crypto.randomUUID(),
-        user_id: userId,
-        title: title.trim(),
-        description: note.trim() || null,
-        category: category || null,
-        duration_minutes: duration,
-        learned_at: date,
-      })
-      .select('id, title, description, duration_minutes, learned_at, category')
-      .single()
-    setSaving(false)
-    if (error || !data) {
-      setError('Opslaan lukte niet. Probeer het opnieuw.')
-      return
-    }
-    onSaved(data)
-    onClose()
-  }
-
-  return (
-    <form onSubmit={save} className="bg-white rounded-2xl border border-indigo-200 shadow-md p-4 md:p-5 space-y-3" aria-label="Snel een leermoment loggen">
-      <div className="flex items-center justify-between">
-        <h2 className={heading}>Snel een leermoment loggen</h2>
-        <button type="button" onClick={onClose} aria-label="Sluiten" className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 p-1"><X className="w-4 h-4" /></button>
-      </div>
-      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_200px]">
-        <input
-          value={title} onChange={e => setTitle(e.target.value)} required autoFocus maxLength={200}
-          placeholder="Wat heb je geleerd?"
-          className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        />
-        <select value={category} onChange={e => setCategory(e.target.value)} aria-label="Vak"
-          className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400">
-          <option value="">Geen vak</option>
-          {subjects.map(n => <option key={n} value={n}>{n}</option>)}
-        </select>
-      </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-slate-600 dark:text-slate-300 mr-1">Hoe lang?</span>
-        {QUICK_MINUTES.map(m => (
-          <button key={m} type="button" onClick={() => { setMinutes(m); setCustom('') }} aria-pressed={!custom && minutes === m}
-            className={`text-xs font-semibold rounded-lg px-2.5 py-1.5 border transition-colors ${!custom && minutes === m ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-indigo-100 text-slate-700 dark:text-slate-200 hover:bg-indigo-50'}`}>
-            {formatMinutes(m)}
-          </button>
-        ))}
-        <input type="number" min="1" value={custom} onChange={e => setCustom(e.target.value)} placeholder="anders" aria-label="Aantal minuten"
-          className="w-20 border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-        <input type="date" value={date} max={today} onChange={e => setDate(e.target.value || today)} aria-label="Datum"
-          className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-      </div>
-      {showNote ? (
-        <textarea value={note} onChange={e => setNote(e.target.value)} rows={3} placeholder="Notitie: wat wil je onthouden? Deze komt later terug bij 'Weet je dit nog?'"
-          className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-      ) : (
-        <button type="button" onClick={() => setShowNote(true)} className={`${linkText} inline-flex items-center gap-1`}>
-          <Plus className="w-3.5 h-3.5" strokeWidth={2.5} /> Notitie toevoegen
-        </button>
-      )}
-      {error && <p className="text-xs text-red-700 dark:text-red-300">{error}</p>}
-      <div className="flex items-center justify-between gap-3 pt-1">
-        <Link href="/leermomenten" className={linkText}>Uitgebreid formulier</Link>
-        <button disabled={saving || !title.trim()} className="inline-flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:from-indigo-700 hover:to-violet-700 disabled:opacity-50 active:scale-[0.98] transition">
-          {saving ? 'Opslaan…' : 'Opslaan'}
-        </button>
-      </div>
-    </form>
-  )
-}
 
 const LEVEL_CLASS = [
   'bg-slate-100 dark:bg-white/5',
@@ -932,7 +840,7 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
             <p className={`mt-1 text-sm ${atRisk ? 'text-orange-800 dark:text-orange-300' : 'text-slate-600 dark:text-slate-300'}`}>{statusText}</p>
           </div>
           <div className="flex gap-2 shrink-0">
-            <button onClick={() => setQuickOpen(o => !o)} aria-expanded={quickOpen} className="inline-flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm shadow-indigo-200 hover:from-indigo-700 hover:to-violet-700 active:scale-[0.98] transition">
+            <button onClick={() => setQuickOpen(true)} aria-haspopup="dialog" className="inline-flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm shadow-indigo-200 hover:from-indigo-700 hover:to-violet-700 active:scale-[0.98] transition">
               <Plus className="w-4 h-4" strokeWidth={2.5} /> Leermoment loggen
             </button>
             <Link href="/pomodoro" className="inline-flex items-center gap-1.5 bg-white text-slate-800 dark:text-slate-100 text-sm font-semibold px-4 py-2.5 rounded-xl border border-indigo-100 hover:bg-indigo-50 active:scale-[0.98] transition">
@@ -940,26 +848,6 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
             </Link>
           </div>
         </motion.section>
-
-        <AnimatePresence initial={false}>
-          {quickOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: reduced ? 0 : 0.2 }} className="overflow-hidden"
-            >
-              <QuickAdd
-                userId={user.id}
-                subjects={subjects.filter(s => s.is_active !== false).map(s => s.name).sort((a, b) => a.localeCompare(b))}
-                today={today}
-                onClose={() => setQuickOpen(false)}
-                onSaved={m => {
-                  setFeedback({ streak, week: week.thisWeek })
-                  setMoments(list => [m, ...list].sort((a, b) => b.learned_at.localeCompare(a.learned_at)))
-                }}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         <motion.div {...fade(1)} className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_250px]">
           <HeroCard
@@ -1134,12 +1022,31 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
         </motion.section>
       </main>
 
+      {quickOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 flex items-start sm:items-center justify-center p-4 overflow-y-auto" onClick={() => setQuickOpen(false)}>
+          <div role="dialog" aria-modal="true" aria-label="Nieuw leermoment" className="w-full max-w-2xl my-8" onClick={e => e.stopPropagation()}>
+            <MomentForm
+              userId={user.id}
+              subjects={subjects.filter(s => s.is_active !== false).map(s => s.name).sort((a, b) => a.localeCompare(b))}
+              colors={colors}
+              variant="modal"
+              onClose={() => setQuickOpen(false)}
+              onSaved={m => {
+                setFeedback({ streak, week: week.thisWeek })
+                setMoments(list => [m, ...list].sort((a, b) => b.learned_at.localeCompare(a.learned_at)))
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       <AnimatePresence>
         {feedback && (
+          <div className="fixed inset-x-0 bottom-5 z-40 flex justify-center px-4 pointer-events-none">
           <motion.div
             role="status"
             initial={{ opacity: 0, y: reduced ? 0 : 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: reduced ? 0 : 24 }} transition={{ duration: reduced ? 0 : 0.25 }}
-            className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 bg-white rounded-2xl border border-indigo-100 shadow-xl pl-3 pr-4 py-2.5"
+            className="pointer-events-auto flex items-center gap-3 bg-white rounded-2xl border border-indigo-100 shadow-xl pl-3 pr-4 py-2.5"
           >
             <span className="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center"><Glyph name="check" className="w-5 h-5" strokeWidth={2.2} /></span>
             <div>
@@ -1147,6 +1054,7 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
               <p className={muted}>{streak > feedback.streak ? `Je streak staat nu op ${streak} ${streak === 1 ? 'dag' : 'dagen'}.` : `Deze week: ${formatMinutes(week.thisWeek)}${goal ? ` van ${formatMinutes(goal)}` : ''}.`}</p>
             </div>
           </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

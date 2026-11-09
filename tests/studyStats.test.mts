@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  formatMinutes, addDays, weekStart, computeStreak, weekComparison, heatmapLevel, minutesByDay, reviewSchedule, reviewQueue,
+  formatMinutes, addDays, weekStart, computeStreak, weekComparison, heatmapLevel, minutesByDay, reviewSchedule, reviewQueue, formatDay, schoolYearOf, schoolYearRange, groupLabel,
 } from '../src/lib/studyStats.ts'
 import { buildSubjectColors, SUBJECT_PALETTE } from '../src/lib/subjectColors.ts'
 
@@ -100,4 +100,18 @@ test('vakkleuren zijn vast per vaknaam en uniek zolang er kleuren over zijn', ()
   assert.equal(new Set(Object.values(a)).size, 3)
   const many = buildSubjectColors(SUBJECT_PALETTE.map((_, i) => `Vak ${i}`))
   assert.equal(new Set(Object.values(many)).size, SUBJECT_PALETTE.length)
+})
+
+test('datums, schooljaren en tussenkopjes', () => {
+  assert.equal(formatDay('2026-11-05'), 'do 5 nov')
+  assert.equal(schoolYearOf('2026-08-01'), '2026-2027')
+  assert.equal(schoolYearOf('2026-07-31'), '2025-2026')
+  assert.equal(schoolYearOf(''), null)
+  assert.deepEqual(schoolYearRange('2025-2026'), ['2025-08-01', '2026-07-31'])
+  const today = '2026-11-12'
+  assert.equal(groupLabel('2026-11-12', today), 'Vandaag')
+  assert.equal(groupLabel('2026-11-11', today), 'Gisteren')
+  assert.equal(groupLabel('2026-11-09', today), 'Deze week')
+  assert.equal(groupLabel('2026-11-03', today), 'November 2026')
+  assert.equal(groupLabel('2026-10-20', today), 'Oktober 2026')
 })

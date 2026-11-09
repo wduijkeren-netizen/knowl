@@ -1,42 +1,35 @@
 'use client'
 
-import Glyph from '@/components/Glyph'
-import { formatMinutes, localDateStr, weekStart } from '@/lib/studyStats'
-import { useState, useEffect, useMemo } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import Link from 'next/link'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { User } from '@supabase/supabase-js'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { Check, Copy, Download, Link2, MoreHorizontal, Pencil, Search, Star, Trash2, X } from 'lucide-react'
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
-import SchoolYearTabs from '@/components/SchoolYearTabs'
-import type { User } from '@supabase/supabase-js'
-import { useLanguage } from '@/lib/i18n/LanguageContext'
-import { UNKNOWN_YEAR, buildSubjectYearMap, getYearTabs, momentYear, momentYearOrNull } from '@/lib/schoolYear'
-
-type Moment = {
-  id: string
-  title: string
-  description: string | null
-  category: string | null
-  learned_at: string
-  duration_minutes: number | null
-  photo_url: string | null
-  is_public: boolean
-  share_token: string
-  notes?: string | null
-}
+import Glyph from '@/components/Glyph'
+import SubjectSelect from '@/components/SubjectSelect'
+import MomentForm, { type MomentPrefill, type SavedInfo } from '@/components/MomentForm'
+import { createClient } from '@/lib/supabase/client'
+import { NO_SUBJECT_COLOR, buildSubjectColors } from '@/lib/subjectColors'
+import { formatDay, formatMinutes, groupLabel, localDateStr, schoolYearOf, schoolYearRange } from '@/lib/studyStats'
+import {
+  NO_SUBJECT, OTHER_YEAR, fetchAllMoments, fetchMomentsPage, type LearningMoment, type MomentFilters,
+} from '@/lib/moments'
 
 type Subject = { id: string; name: string; school_year: string | null; is_active: boolean }
+type StatRow = { id: string; category: string | null; duration_minutes: number | null; learned_at: string }
 
 type Props = {
   user: User
-  moments: Moment[]
   subjects: Subject[]
-  spacedMoment: Moment | null
-  initialSearch?: string
+  statRows: StatRow[]
+  initialPage: { moments: LearningMoment[]; total: number; failed: boolean }
+  initialSearch: string
+  initialMinutes: number | null
+  spacedMoment: LearningMoment | null
 }
 
 const RATINGS_KEY = 'knowl_ratings'
-const DRAFT_KEY = 'knowl_lm_draft'
 
 function getRatings(): Record<string, number> {
   try { return JSON.parse(localStorage.getItem(RATINGS_KEY) ?? '{}') } catch { return {} }
@@ -47,191 +40,179 @@ function saveRating(id: string, stars: number) {
   try { localStorage.setItem(RATINGS_KEY, JSON.stringify(r)) } catch {}
 }
 
-function exportCsv(moments: Moment[], ratings: Record<string, number>) {
-  const header = ['Datum', 'Titel', 'Vak', 'Minuten', 'Beoordeling (1-5)', 'Samenvatting']
-  const rows = moments.map(m => [
-    m.learned_at,
-    `"${(m.title ?? '').replace(/"/g, '""')}"`,
-    m.category ?? '',
-    m.duration_minutes ?? '',
-    ratings[m.id] ?? '',
-    `"${(m.description ?? '').replace(/"/g, '""')}"`,
-  ])
-  const csv = [header, ...rows].map(r => r.join(',')).join('\n')
+function csvCell(v: string | number | null | undefined) {
+  return `"${String(v ?? '').replace(/"/g, '""')}"`
+}
+
+function downloadCsv(moments: LearningMoment[], ratings: Record<string, number>) {
+  const header = ['Datum', 'Titel', 'Vak', 'Minuten', 'Beoordeling (1-5)', 'Samenvatting', 'Notities']
+  const rows = moments.map(m => [m.learned_at, m.title, m.category, m.duration_minutes, ratings[m.id], m.description, m.notes].map(csvCell))
+  const csv = [header.map(csvCell), ...rows].map(r => r.join(',')).join('\n')
   const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `knowl-leermomenten-${new Date().toISOString().split('T')[0]}.csv`
+  a.download = `knowl-leermomenten-${localDateStr(new Date())}.csv`
   a.click()
   URL.revokeObjectURL(url)
 }
 
-export default function Dashboard({ user, moments: initialMoments, subjects, spacedMoment, initialSearch = '' }: Props) {
-  const { tr } = useLanguage()
-  const d = tr.dashboard
-  const r = tr.rating
-  const h = tr.home
-  const s = tr.subjects
-  const [moments, setMoments] = useState(initialMoments)
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [category, setCategory] = useState('')
-  const [duration, setDuration] = useState('')
-  const [learnedAt, setLearnedAt] = useState(new Date().toISOString().split('T')[0])
-  const [photoFile, setPhotoFile] = useState<File | null>(null)
+function matches(m: LearningMoment, f: MomentFilters) {
+  const term = f.search.trim().toLowerCase()
+  if (term && ![m.title, m.description, m.category].some(v => (v ?? '').toLowerCase().includes(term))) return false
+  if (f.subject === NO_SUBJECT ? m.category : f.subject && m.category !== f.subject) return false
+  if (f.year === OTHER_YEAR) return !m.learned_at
+  if (f.year) {
+    const [from, to] = schoolYearRange(f.year)
+    if (m.learned_at < from || m.learned_at > to) return false
+  }
+  return true
+}
+
+function SubjectPill({ name, color }: { name: string; color: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-800 dark:text-slate-100 rounded-full px-2 py-0.5 border max-w-[160px]"
+      style={{ backgroundColor: `${color}14`, borderColor: `${color}40` }} title={name}>
+      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} aria-hidden />
+      <span className="truncate">{name}</span>
+    </span>
+  )
+}
+
+export default function Dashboard({ user, subjects, statRows: initialStats, initialPage, initialSearch, initialMinutes, spacedMoment }: Props) {
+  const reduced = useReducedMotion()
+  const supabase = useMemo(() => createClient(), [])
+  const today = localDateStr(new Date())
+
+  const [stats, setStats] = useState(initialStats)
+  const [moments, setMoments] = useState(initialPage.moments)
+  const [total, setTotal] = useState(initialPage.total)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [loadError, setLoadError] = useState(initialPage.failed)
+  const [searchInput, setSearchInput] = useState(initialSearch)
+  const [filters, setFilters] = useState<MomentFilters>({ search: initialSearch, subject: '', year: '' })
+  const firstLoad = useRef(true)
+  const requestId = useRef(0)
+
+  const [prefill, setPrefill] = useState<MomentPrefill | null>(null)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [menuId, setMenuId] = useState<string | null>(null)
+  const [filterMenu, setFilterMenu] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [editData, setEditData] = useState<Partial<Moment>>({})
-  const [copiedId, setCopiedId] = useState<string | null>(null)
-  const spacedKey = spacedMoment ? `knowl_spaced_dismissed_${spacedMoment.id}` : null
+  const [editData, setEditData] = useState<Partial<LearningMoment>>({})
+  const [editError, setEditError] = useState('')
+  const [deleting, setDeleting] = useState<LearningMoment | null>(null)
+  const [deleteBusy, setDeleteBusy] = useState(false)
+  const [newIds, setNewIds] = useState<Set<string>>(new Set())
+  const [toast, setToast] = useState<{ text: string; streak?: boolean; rateId?: string; rated?: boolean } | null>(null)
+  const [exporting, setExporting] = useState(false)
+  const [ratings, setRatings] = useState<Record<string, number>>({})
   const [showSpaced, setShowSpaced] = useState(false)
+  const spacedKey = spacedMoment ? `knowl_spaced_dismissed_${spacedMoment.id}` : null
+
+  useEffect(() => { setRatings(getRatings()) }, [])
   useEffect(() => {
     if (!spacedKey) return
     try { if (!localStorage.getItem(spacedKey)) setShowSpaced(true) } catch {}
   }, [spacedKey])
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(DRAFT_KEY)
-      if (raw) {
-        const draft = JSON.parse(raw)
-        if (draft.title) setTitle(draft.title)
-        if (draft.description) setDescription(draft.description)
-        if (draft.category) setCategory(draft.category)
-        if (draft.duration) setDuration(draft.duration)
-      }
-    } catch {}
-  }, [])
-
-  useEffect(() => {
-    if (!title && !description && !category && !duration) return
-    const t = setTimeout(() => {
-      try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ title, description, category, duration })) } catch {}
-    }, 600)
+    const t = setTimeout(() => setFilters(f => (f.search === searchInput ? f : { ...f, search: searchInput })), 250)
     return () => clearTimeout(t)
-  }, [title, description, category, duration])
-
-  const [search, setSearch] = useState(initialSearch)
-
-  const subjectYearMap = useMemo(() => buildSubjectYearMap(subjects), [subjects])
-  const yearTabs = useMemo(
-    () => getYearTabs(moments.map(m => momentYearOrNull(m.category, subjectYearMap))),
-    [moments, subjectYearMap]
-  )
-  const [activeYear, setActiveYear] = useState(() => yearTabs[0] ?? UNKNOWN_YEAR)
+  }, [searchInput])
 
   useEffect(() => {
-    if (yearTabs.length > 0 && !yearTabs.includes(activeYear)) {
-      setActiveYear(yearTabs[0])
+    if (!menuId && !filterMenu) return
+    function onDown(e: MouseEvent) {
+      if (!(e.target as HTMLElement).closest('[data-menu]')) { setMenuId(null); setFilterMenu(false) }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [yearTabs])
+    document.addEventListener('mousedown', onDown)
+    return () => document.removeEventListener('mousedown', onDown)
+  }, [menuId, filterMenu])
 
-  const yearFilteredMoments = moments.filter(m => momentYear(m.category, subjectYearMap) === activeYear)
-  const activeSubjects = subjects.filter(s => s.is_active !== false)
+  useEffect(() => {
+    if (!toast) return
+    const t = setTimeout(() => setToast(null), toast.rateId && !toast.rated ? 9000 : 3500)
+    return () => clearTimeout(t)
+  }, [toast])
 
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
-  const [detailMoment, setDetailMoment] = useState<Moment | null>(null)
-  const [duplicateSuccess, setDuplicateSuccess] = useState(false)
-
-  // Rating modal state
-  const [ratingMomentId, setRatingMomentId] = useState<string | null>(null)
-  const [ratingHover, setRatingHover] = useState(0)
-  const [ratingSaved, setRatingSaved] = useState(false)
-  const [ratings, setRatings] = useState<Record<string, number>>({})
-  useEffect(() => { setRatings(getRatings()) }, [])
-
-  const supabase = createClient()
-
-  async function uploadPhoto(file: File, userId: string): Promise<string | null> {
-    const ext = file.name.split('.').pop()
-    const path = `${userId}/${crypto.randomUUID()}.${ext}`
-    const { error } = await supabase.storage.from('moment-photos').upload(path, file)
-    if (error) return null
-    const { data } = supabase.storage.from('moment-photos').getPublicUrl(path)
-    return data.publicUrl
-  }
-
-  async function handleAdd(e: React.FormEvent) {
-    e.preventDefault()
-    setError('')
-    setSuccess(false)
+  const load = useCallback(async (f: MomentFilters) => {
+    const id = ++requestId.current
     setLoading(true)
-
-    let photo_url: string | null = null
-    if (photoFile) photo_url = await uploadPhoto(photoFile, user.id)
-
-    const { data, error } = await supabase
-      .from('learning_moments')
-      .insert({
-        id: crypto.randomUUID(),
-        title,
-        description: description || null,
-        category: category || null,
-        learned_at: learnedAt,
-        duration_minutes: duration ? Math.max(1, parseInt(duration) || 1) : null,
-        user_id: user.id,
-        photo_url,
-      })
-      .select()
-      .single()
-
-    if (error) {
-      setError(d.saveError + error.message)
-    } else if (data) {
-      setMoments([data, ...moments])
-      setTitle('')
-      setDescription('')
-      setCategory('')
-      setDuration('')
-      setLearnedAt(new Date().toISOString().split('T')[0])
-      setPhotoFile(null)
-      try { localStorage.removeItem(DRAFT_KEY) } catch {}
-      setSuccess(true)
-      setTimeout(() => setSuccess(false), 3000)
-      // Show rating modal
-      setRatingMomentId(data.id)
-      setRatingSaved(false)
-      setRatingHover(0)
-    }
+    setLoadError(false)
+    const res = await fetchMomentsPage(supabase, f, 0)
+    if (id !== requestId.current) return
     setLoading(false)
+    if (res.error) { setLoadError(true); return }
+    setMoments(res.moments)
+    setTotal(res.total)
+  }, [supabase])
+
+  useEffect(() => {
+    if (firstLoad.current) { firstLoad.current = false; return }
+    load(filters)
+  }, [filters, load])
+
+  async function loadMore() {
+    setLoadingMore(true)
+    const res = await fetchMomentsPage(supabase, filters, moments.length)
+    setLoadingMore(false)
+    if (res.error) { setToast({ text: 'Meer leermomenten laden lukte niet. Probeer het opnieuw.' }); return }
+    setMoments(list => [...list, ...res.moments.filter(m => !list.some(x => x.id === m.id))])
+    setTotal(res.total)
   }
 
-  function handleRate(stars: number) {
-    if (!ratingMomentId) return
-    saveRating(ratingMomentId, stars)
+  const colors = useMemo(() => buildSubjectColors([
+    ...subjects.map(s => s.name),
+    ...stats.map(s => s.category).filter((c): c is string => !!c),
+  ]), [subjects, stats])
+  const activeSubjects = useMemo(() => subjects.filter(s => s.is_active !== false).map(s => s.name), [subjects])
+  const subjectOptions = useMemo(() => {
+    const names = Array.from(new Set([...subjects.map(s => s.name), ...stats.map(s => s.category).filter((c): c is string => !!c)]))
+      .sort((a, b) => a.localeCompare(b))
+    const opts = names.map(n => ({ value: n, label: n }))
+    if (stats.some(s => !s.category)) opts.push({ value: NO_SUBJECT, label: 'Zonder vak', color: NO_SUBJECT_COLOR } as { value: string; label: string; color?: string })
+    return opts
+  }, [subjects, stats])
+  const yearOptions = useMemo(() => {
+    const years = Array.from(new Set(stats.map(s => schoolYearOf(s.learned_at ?? '')).filter((y): y is string => !!y))).sort((a, b) => b.localeCompare(a))
+    return { years, hasOther: stats.some(s => !schoolYearOf(s.learned_at ?? '')) }
+  }, [stats])
+
+  const totalMinutes = stats.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
+  const filtersActive = !!(filters.search.trim() || filters.subject || filters.year)
+
+  function onSaved(m: LearningMoment, info: SavedInfo) {
+    setStats(s => [{ id: m.id, category: m.category, duration_minutes: m.duration_minutes, learned_at: m.learned_at }, ...s])
+    if (matches(m, filters)) {
+      setMoments(list => [m, ...list].sort((a, b) => b.learned_at.localeCompare(a.learned_at)))
+      setTotal(t => t + 1)
+      setNewIds(ids => new Set(ids).add(m.id))
+    }
+    setToast({ text: info.startedStreak ? 'Streak gestart' : 'Leermoment opgeslagen', streak: info.startedStreak, rateId: m.id })
+  }
+
+  function rate(id: string, stars: number) {
+    saveRating(id, stars)
     setRatings(getRatings())
-    setRatingSaved(true)
-    setTimeout(() => { setRatingMomentId(null); setRatingSaved(false) }, 1200)
+    setToast(t => (t ? { ...t, rated: true } : t))
   }
 
-  async function handleDelete(id: string) {
-    const { error } = await supabase.from('learning_moments').delete().eq('id', id)
-    if (error) alert(d.deleteError + error.message)
-    else { setMoments(moments.filter(m => m.id !== id)); setConfirmDeleteId(null) }
+  function startEdit(m: LearningMoment) {
+    setMenuId(null)
+    setExpandedId(m.id)
+    setEditingId(m.id)
+    setEditError('')
+    setEditData({ title: m.title, description: m.description ?? '', category: m.category ?? '', learned_at: m.learned_at, duration_minutes: m.duration_minutes, notes: m.notes ?? '' })
   }
 
-  function startEdit(moment: Moment) {
-    setEditingId(moment.id)
-    setEditData({
-      title: moment.title,
-      description: moment.description ?? '',
-      category: moment.category ?? '',
-      learned_at: moment.learned_at,
-      duration_minutes: moment.duration_minutes,
-      notes: moment.notes ?? '',
-    })
-  }
-
-  async function handleSaveEdit(id: string) {
+  async function saveEdit(id: string) {
     if (!editData.title?.trim()) return
     const { data, error } = await supabase
       .from('learning_moments')
       .update({
-        title: editData.title,
+        title: editData.title.trim(),
         description: editData.description || null,
         category: editData.category || null,
         learned_at: editData.learned_at,
@@ -241,478 +222,369 @@ export default function Dashboard({ user, moments: initialMoments, subjects, spa
       .eq('id', id)
       .select()
       .single()
+    if (error || !data) { setEditError('Opslaan lukte niet. Probeer het opnieuw.'); return }
+    setMoments(list => list.map(m => (m.id === id ? data : m)))
+    setStats(s => s.map(r => (r.id === id ? { id, category: data.category, duration_minutes: data.duration_minutes, learned_at: data.learned_at } : r)))
+    setEditingId(null)
+    setToast({ text: 'Wijzigingen opgeslagen' })
+  }
 
-    if (!error && data) {
-      setMoments(moments.map(m => m.id === id ? data : m))
-      setEditingId(null)
+  function duplicate(m: LearningMoment) {
+    setMenuId(null)
+    setPrefill({ nonce: Date.now(), title: m.title, description: m.description, category: m.category, minutes: m.duration_minutes })
+    window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' })
+  }
+
+  async function share(m: LearningMoment, stop = false) {
+    setMenuId(null)
+    const isPublic = stop ? false : true
+    let current = m
+    if (m.is_public !== isPublic) {
+      const { data, error } = await supabase.from('learning_moments').update({ is_public: isPublic }).eq('id', m.id).select().single()
+      if (error || !data) { setToast({ text: 'Delen lukte niet. Probeer het opnieuw.' }); return }
+      current = data
+      setMoments(list => list.map(x => (x.id === m.id ? data : x)))
+    }
+    if (stop) { setToast({ text: 'Dit leermoment wordt niet meer gedeeld' }); return }
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/deel/${current.share_token}`)
+      setToast({ text: 'Deellink gekopieerd' })
+    } catch {
+      setToast({ text: `Deellink: ${window.location.origin}/deel/${current.share_token}` })
     }
   }
 
-  function duplicateMoment(moment: Moment) {
-    setTitle(moment.title)
-    setDescription(moment.description ?? '')
-    setCategory(moment.category ?? '')
-    setDuration(moment.duration_minutes ? String(moment.duration_minutes) : '')
-    setLearnedAt(new Date().toISOString().split('T')[0])
-    setDuplicateSuccess(true)
-    setTimeout(() => setDuplicateSuccess(false), 3000)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+  async function confirmDelete() {
+    if (!deleting) return
+    setDeleteBusy(true)
+    const { error } = await supabase.from('learning_moments').delete().eq('id', deleting.id)
+    setDeleteBusy(false)
+    if (error) { setToast({ text: 'Verwijderen lukte niet. Probeer het opnieuw.' }); return }
+    setMoments(list => list.filter(m => m.id !== deleting.id))
+    setStats(s => s.filter(r => r.id !== deleting.id))
+    setTotal(t => Math.max(0, t - 1))
+    setDeleting(null)
+    setToast({ text: 'Leermoment verwijderd' })
   }
 
-  async function handleShare(moment: Moment) {
-    const isPublic = !moment.is_public
-    const { data } = await supabase
-      .from('learning_moments')
-      .update({ is_public: isPublic })
-      .eq('id', moment.id)
-      .select()
-      .single()
-
-    if (data) {
-      setMoments(moments.map(m => m.id === moment.id ? data : m))
-      if (isPublic) {
-        const url = `${window.location.origin}/deel/${moment.share_token}`
-        await navigator.clipboard.writeText(url)
-        setCopiedId(moment.id)
-        setTimeout(() => setCopiedId(null), 3000)
-      }
-    }
+  async function exportCsv() {
+    setFilterMenu(false)
+    setExporting(true)
+    const { moments: all, error } = await fetchAllMoments(supabase, filters)
+    setExporting(false)
+    if (error) { setToast({ text: 'Downloaden lukte niet. Probeer het opnieuw.' }); return }
+    downloadCsv(all, getRatings())
   }
 
-  const totalMinutes = moments.reduce((sum, m) => sum + (m.duration_minutes ?? 0), 0)
-  const thisWeekStart = weekStart(localDateStr(new Date()))
-  const weekMinutes = moments.filter(m => m.learned_at >= thisWeekStart).reduce((sum, m) => sum + (m.duration_minutes ?? 0), 0)
-
-  const starLabels = r.labels
+  const menuItem = 'w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-white/5'
 
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
-      <Nav />
+      <Nav loggedIn width="max-w-4xl" />
 
-      {/* Detail modal */}
-      {detailMoment && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setDetailMoment(null)}>
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-8 space-y-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-start gap-4">
-              <h2 className="text-lg font-bold text-indigo-900 leading-tight">{detailMoment.title}</h2>
-              <button onClick={() => setDetailMoment(null)} className="text-gray-300 hover:text-gray-500 transition-colors shrink-0 text-xl leading-none"><Glyph name="close" className="w-4 h-4" /></button>
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              {detailMoment.category && <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-1 font-medium">{detailMoment.category}</span>}
-              {detailMoment.duration_minutes && <span className="text-xs bg-violet-50 text-violet-600 rounded-full px-2.5 py-1 font-medium">{detailMoment.duration_minutes} min</span>}
-              <span className="text-xs bg-gray-50 text-gray-400 rounded-full px-2.5 py-1">{detailMoment.learned_at}</span>
-            </div>
-            {detailMoment.photo_url && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={detailMoment.photo_url} alt={detailMoment.title} className="w-full max-h-64 object-cover rounded-2xl" />
-            )}
-            {detailMoment.description ? (
-              <div className="bg-indigo-50 rounded-2xl p-4">
-                <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-2">{d.summary}</p>
-                <p className="text-sm text-indigo-800 leading-relaxed whitespace-pre-wrap">{detailMoment.description}</p>
-              </div>
-            ) : (
-              <p className="text-sm text-indigo-300 italic">Geen samenvatting toegevoegd.</p>
-            )}
-            {detailMoment.notes && (
-              <div className="space-y-1">
-                <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">{d.notes}</p>
-                <div className="text-sm text-indigo-800 leading-relaxed bg-indigo-50 rounded-xl p-3 whitespace-pre-wrap">
-                  {detailMoment.notes}
-                </div>
-              </div>
-            )}
-            <div className="flex gap-3 pt-2">
-              <button onClick={() => { startEdit(detailMoment); setDetailMoment(null) }}
-                className="flex-1 bg-indigo-600 text-white rounded-xl py-2.5 text-sm font-semibold hover:bg-indigo-700 transition-colors">
-                {d.edit}
-              </button>
-              <button onClick={() => setDetailMoment(null)}
-                className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 transition-colors">
-                {d.cancel}
-              </button>
-            </div>
+      <main className="max-w-4xl mx-auto px-4 py-8 space-y-5">
+        <header>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-indigo-950 dark:text-white">Leermomenten</h1>
+            <PageInfo text="Hier log je wat je hebt geleerd en vind je alles terug. Zoek, filter op vak of schooljaar en download je leermomenten als CSV." />
           </div>
-        </div>
-      )}
+          <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+            {stats.length} leermoment{stats.length === 1 ? '' : 'en'} · {formatMinutes(totalMinutes)} in totaal
+          </p>
+        </header>
 
-      {/* Rating modal */}
-      {ratingMomentId && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center space-y-5">
-            <Glyph name="celebrate" className="w-12 h-12 mx-auto mb-1 text-indigo-500" />
-            <h2 className="text-xl font-bold text-indigo-900">{r.title}</h2>
-            <p className="text-sm text-indigo-500">{r.question}</p>
-
-            {ratingSaved ? (
-              <p className="text-emerald-500 font-semibold py-4">{r.saved} <Glyph name="check" className="w-4 h-4" /></p>
-            ) : (
-              <>
-                <div
-                  className="flex justify-center gap-1 py-2 px-2"
-                  onMouseLeave={() => setRatingHover(0)}
-                >
-                  {[1, 2, 3, 4, 5].map(star => (
-                    <button
-                      key={star}
-                      onMouseEnter={() => setRatingHover(star)}
-                      onClick={() => handleRate(star)}
-                      className="text-4xl px-1 transition-transform hover:scale-125 focus:outline-none leading-none"
-                    >
-                      <Glyph name="star" filled={star <= ratingHover} className="w-7 h-7 text-amber-500" />
-                    </button>
-                  ))}
-                </div>
-                {ratingHover > 0 && (
-                  <p className="text-xs text-indigo-400 -mt-2 text-center">{starLabels[ratingHover - 1]}</p>
-                )}
-                <button
-                  onClick={() => setRatingMomentId(null)}
-                  className="text-sm text-indigo-300 hover:text-indigo-500 transition-colors">
-                  {r.skip}
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-indigo-900">{tr.nav.moments}</h1>
-          <PageInfo text="Hier log je wat je hebt geleerd. Voeg een titel, vak en minuten toe — Knowl houdt bij hoe je de tijd verdeelt per vak." />
-        </div>
-
-        {/* Spaced repetition kaart */}
         {showSpaced && spacedMoment && (
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-5">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-xs font-semibold text-amber-600 uppercase tracking-wide mb-1">{d.spacedTitle}</p>
-                <p className="text-sm font-medium text-amber-900">{d.spacedSub} {spacedMoment.learned_at}:</p>
-                <p className="font-bold text-amber-800 mt-1">{spacedMoment.title}</p>
-                {spacedMoment.description && (
-                  <p className="text-sm text-amber-700 mt-2 line-clamp-2">{spacedMoment.description}</p>
-                )}
-              </div>
-              <button onClick={() => {
-                setShowSpaced(false)
-                if (spacedKey) try { localStorage.setItem(spacedKey, '1') } catch {}
-              }} className="text-amber-400 hover:text-amber-600 text-lg ml-4">×</button>
+          <div className="bg-white border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+            <Glyph name="bulb" className="w-5 h-5 text-amber-700 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">Weet je het nog? Je leerde dit op {formatDay(spacedMoment.learned_at)}</p>
+              <p className="text-sm font-semibold text-slate-900 dark:text-white mt-0.5">{spacedMoment.title}</p>
+              {spacedMoment.description && <p className="text-sm text-slate-600 dark:text-slate-300 mt-1 line-clamp-2">{spacedMoment.description}</p>}
             </div>
+            <button onClick={() => { setShowSpaced(false); if (spacedKey) try { localStorage.setItem(spacedKey, '1') } catch {} }}
+              aria-label="Verbergen" className="text-slate-500 hover:text-slate-800 p-1"><X className="w-4 h-4" /></button>
           </div>
         )}
 
-        {/* Statistieken */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4">
-            <p className="text-xs font-medium text-slate-600 dark:text-slate-300 leading-tight">{d.momentsCount}</p>
-            <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">{moments.length}</p>
+        <MomentForm
+          userId={user.id}
+          subjects={activeSubjects}
+          colors={colors}
+          variant="inline"
+          prefill={prefill}
+          initialMinutes={initialMinutes}
+          onSaved={onSaved}
+          useDraft
+        />
+
+        <section aria-label="Filters" className="flex flex-wrap items-center gap-2">
+          <div className="relative w-full sm:w-auto sm:flex-[2] min-w-0">
+            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" strokeWidth={2} />
+            <input
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
+              placeholder="Zoek in titels en samenvattingen"
+              aria-label="Zoek in leermomenten"
+              className="w-full border border-gray-200 bg-white rounded-xl pl-9 pr-8 py-2.5 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            />
+            {searchInput && (
+              <button onClick={() => setSearchInput('')} aria-label="Zoekterm wissen" className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-800"><X className="w-3.5 h-3.5" /></button>
+            )}
           </div>
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4">
-            <p className="text-xs font-medium text-slate-600 dark:text-slate-300 leading-tight">Studietijd</p>
-            <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">{formatMinutes(totalMinutes)}</p>
-          </div>
-          <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-3 sm:p-4">
-            <p className="text-xs font-medium text-slate-600 dark:text-slate-300 leading-tight">Deze week</p>
-            <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">{formatMinutes(weekMinutes)}</p>
-          </div>
-        </div>
-
-        {/* Formulier */}
-        <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
-          <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-5">
-            <div className="flex items-center gap-2">
-              <Glyph name="pen" className="w-6 h-6" />
-              <div>
-                <h2 className="font-bold text-white text-base">{d.newMoment}</h2>
-                <p className="text-indigo-200 text-xs mt-0.5">{d.newMomentSub}</p>
-              </div>
-            </div>
-          </div>
-
-          <form onSubmit={handleAdd} className="p-5 space-y-4">
-            {/* Titel */}
-            <div>
-              <div className="flex items-center mb-1.5">
-                <label className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">{d.title}</label>
-                {title && <span className="text-xs text-gray-300 ml-auto">opgeslagen</span>}
-              </div>
-              <input
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                required
-                placeholder={d.titlePlaceholder}
-                className="w-full border-2 border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-300 bg-gray-50 focus:bg-white transition-all placeholder:text-gray-300"
-              />
-            </div>
-
-            {/* Samenvatting */}
-            <div>
-              <label className="text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1.5 block">
-                {d.summary} <span className="text-gray-300 normal-case font-normal">{d.summaryOptional}</span>
-              </label>
-              <textarea
-                value={description}
-                onChange={e => {
-                  setDescription(e.target.value)
-                  e.target.style.height = 'auto'
-                  e.target.style.height = e.target.scrollHeight + 'px'
-                }}
-                onFocus={e => {
-                  e.target.style.height = 'auto'
-                  e.target.style.height = Math.max(e.target.scrollHeight, 120) + 'px'
-                }}
-                placeholder={d.summaryPlaceholder}
-                rows={3}
-                className="w-full border-2 border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-300 bg-gray-50 focus:bg-white transition-all resize-none placeholder:text-gray-300 min-h-[76px] focus:min-h-[120px]"
-              />
-            </div>
-
-            {/* Vak + Minuten + Datum */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="block text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1.5">{d.subject}</label>
-                {activeSubjects.length > 0 ? (
-                  <div className="relative">
-                    <select
-                      value={category}
-                      onChange={e => setCategory(e.target.value)}
-                      className="w-full appearance-none border-2 border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-300 bg-gray-50 focus:bg-white transition-all text-gray-700 cursor-pointer pr-8"
-                    >
-                      <option value="">{d.chooseSubject}</option>
-                      {activeSubjects.map(s => (
-                        <option key={s.id} value={s.name}>{s.name}</option>
-                      ))}
-                    </select>
-                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
-                  </div>
-                ) : (
-                  <Link href="/vakken" className="flex items-center justify-center w-full border-2 border-dashed border-indigo-200 rounded-2xl px-3 py-3 text-sm text-indigo-400 hover:text-indigo-600 hover:border-indigo-400 transition-colors">
-                    {d.manageSubjects}
-                  </Link>
-                )}
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1.5">{d.minutes}</label>
-                <input
-                  type="number" min="1" value={duration} onChange={e => setDuration(e.target.value)}
-                  placeholder={d.minutesPlaceholder}
-                  className="w-full border-2 border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-300 bg-gray-50 focus:bg-white transition-all placeholder:text-gray-300"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1.5">{d.date}</label>
-                <input
-                  type="date" value={learnedAt} onChange={e => setLearnedAt(e.target.value)} required
-                  className="w-full border-2 border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-300 bg-gray-50 focus:bg-white transition-all text-gray-700"
-                />
-              </div>
-            </div>
-
-            {/* Foto — verborgen achter subtiel knopje */}
-            <div>
-              <label className="inline-flex items-center gap-1.5 text-xs text-indigo-300 hover:text-indigo-500 cursor-pointer transition-colors">
-                <Glyph name="camera" className="w-4 h-4" />
-                <span>{d.photo} <span className="text-gray-300">{d.summaryOptional}</span></span>
-                <input type="file" accept="image/*" className="hidden" onChange={e => setPhotoFile(e.target.files?.[0] ?? null)} />
-              </label>
-              {photoFile && <p className="text-xs text-indigo-400 mt-1"><Glyph name="paperclip" className="w-3.5 h-3.5 -mt-0.5 mr-1" />{photoFile.name}</p>}
-            </div>
-
-            {duplicateSuccess && <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-4 py-3"><p className="text-sm text-indigo-600 font-medium">{d.duplicateNote}</p></div>}
-            {error && <div className="bg-red-50 border border-red-100 rounded-2xl px-4 py-3"><p className="text-sm text-red-600">{error}</p></div>}
-            {success && (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3 flex items-center gap-3">
-                <Glyph name="check" className="w-5 h-5 text-emerald-600" />
-                <p className="text-sm text-emerald-700 font-medium">{d.saved}</p>
+          <SubjectSelect
+            className="flex-1 min-w-[140px]"
+            value={filters.subject}
+            onChange={v => setFilters(f => ({ ...f, subject: v }))}
+            options={subjectOptions}
+            colors={colors}
+            emptyLabel="Alle vakken"
+            label="Filter op vak"
+          />
+          <select
+            value={filters.year}
+            onChange={e => setFilters(f => ({ ...f, year: e.target.value }))}
+            aria-label="Filter op schooljaar"
+            className="flex-1 min-w-[140px] border border-gray-200 bg-white rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          >
+            <option value="">Alle schooljaren</option>
+            {yearOptions.years.map(y => <option key={y} value={y}>{y}</option>)}
+            {yearOptions.hasOther && <option value={OTHER_YEAR}>Overig</option>}
+          </select>
+          <div className="relative" data-menu>
+            <button onClick={() => setFilterMenu(o => !o)} aria-label="Meer opties" aria-expanded={filterMenu}
+              className="w-10 h-10 flex items-center justify-center border border-gray-200 bg-white rounded-xl text-slate-700 dark:text-slate-200 hover:bg-indigo-50">
+              <MoreHorizontal className="w-4 h-4" strokeWidth={2} />
+            </button>
+            {filterMenu && (
+              <div className="absolute right-0 top-full mt-1 z-30 w-64 bg-white rounded-xl border border-indigo-100 shadow-xl py-1">
+                <button onClick={exportCsv} disabled={exporting} className={menuItem}>
+                  <Download className="w-4 h-4" strokeWidth={2} />
+                  {exporting ? 'Bezig met downloaden…' : filtersActive ? 'Gefilterde lijst downloaden (CSV)' : 'Downloaden als CSV'}
+                </button>
               </div>
             )}
-
-            <button
-              type="submit" disabled={loading}
-              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl py-3.5 text-sm font-bold hover:from-indigo-700 hover:to-violet-700 active:scale-95 disabled:opacity-50 transition-all shadow-md shadow-indigo-100"
-            >
-              {loading ? d.saving : d.add}
-            </button>
-          </form>
-        </div>
-
-        {/* Welkomstbanner voor nieuwe gebruikers */}
-        {moments.length === 0 && (
-          <div className="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-6 text-white">
-            <div className="flex items-start gap-3 mb-4">
-              <Glyph name="sparkle" className="w-8 h-8" />
-              <div>
-                <h2 className="text-lg font-bold">{h.welcome}</h2>
-                <p className="text-indigo-200 text-sm mt-0.5">{h.welcomeSub}</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <Link href="/vakken" className="bg-white/10 hover:bg-white/25 active:scale-95 transition-all rounded-xl p-3 block">
-                <Glyph name="books" className="w-6 h-6 mx-auto mb-1" />
-                <p className="text-xs font-semibold text-white">{h.step1}</p>
-                <p className="text-xs text-indigo-300 mt-0.5">{h.manage}</p>
-              </Link>
-              <div className="bg-white/10 rounded-xl p-3">
-                <Glyph name="pen" className="w-6 h-6 mx-auto mb-1" />
-                <p className="text-xs font-semibold text-white">{h.step2}</p>
-                <p className="text-xs text-indigo-300 mt-0.5">Formulier hierboven</p>
-              </div>
-              <div className="bg-white/10 rounded-xl p-3">
-                <Glyph name="chart" className="w-6 h-6 mx-auto mb-1" />
-                <p className="text-xs font-semibold text-white">{h.step3}</p>
-                <p className="text-xs text-indigo-300 mt-0.5">Automatisch</p>
-              </div>
-            </div>
           </div>
+        </section>
+
+        {filtersActive && !loading && !loadError && (
+          <p className="text-xs text-slate-600 dark:text-slate-300 -mt-2">
+            {total} van {stats.length} leermomenten
+            <button onClick={() => { setSearchInput(''); setFilters({ search: '', subject: '', year: '' }) }} className="ml-2 font-medium text-indigo-700 hover:text-indigo-900 dark:text-indigo-300">Filters wissen</button>
+          </p>
         )}
 
-        {/* Lijst */}
-        <div className="space-y-3">
-          <div className="flex justify-between items-center">
-            <h2 className="font-semibold text-indigo-900 border-l-4 border-indigo-300 pl-3">{d.recent}</h2>
-            <div className="flex items-center gap-2">
-              {moments.length > 0 && (
-                <button
-                  onClick={() => exportCsv(moments, ratings)}
-                  className="text-xs text-indigo-400 hover:text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg transition-colors font-medium">
-                  {r.exportCsv} ↓
-                </button>
-              )}
-              <span className="text-xs text-indigo-400 bg-indigo-50 px-2.5 py-1 rounded-full">{yearFilteredMoments.length} {d.total}</span>
+        <section aria-label="Alle leermomenten" aria-busy={loading}>
+          {loadError ? (
+            <div className="bg-white border border-red-100 rounded-2xl p-6 text-center">
+              <p className="text-sm text-slate-800 dark:text-slate-100">De leermomenten konden niet worden geladen.</p>
+              <button onClick={() => load(filters)} className="mt-3 text-sm font-semibold text-indigo-700 hover:text-indigo-900 dark:text-indigo-300">Opnieuw proberen</button>
             </div>
-          </div>
+          ) : loading && moments.length === 0 ? (
+            <ul className="space-y-2" aria-label="Laden">
+              {[0, 1, 2, 3].map(i => <li key={i} className="h-[72px] rounded-xl bg-white border border-indigo-100 animate-pulse" />)}
+            </ul>
+          ) : stats.length === 0 ? (
+            <div className="bg-white border border-indigo-100 rounded-2xl p-10 text-center">
+              <span className="w-12 h-12 mx-auto rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><Glyph name="pen" className="w-6 h-6" /></span>
+              <p className="text-sm font-semibold text-slate-900 dark:text-white mt-3">Je eerste leermoment wacht op je</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Schrijf na het studeren op wat je deed. Het kost een halve minuut.</p>
+              <button onClick={() => setPrefill({ nonce: Date.now() })} className="mt-4 text-sm font-semibold bg-indigo-600 text-white rounded-xl px-4 py-2 hover:bg-indigo-700">Leermoment toevoegen</button>
+            </div>
+          ) : moments.length === 0 ? (
+            <div className="bg-white border border-dashed border-indigo-200 rounded-2xl p-8 text-center">
+              <p className="text-sm text-slate-800 dark:text-slate-100">Geen leermomenten gevonden met deze filters.</p>
+              <button onClick={() => { setSearchInput(''); setFilters({ search: '', subject: '', year: '' }) }} className="mt-2 text-sm font-semibold text-indigo-700 hover:text-indigo-900 dark:text-indigo-300">Filters wissen</button>
+            </div>
+          ) : (
+            <ul className={`space-y-2 transition-opacity ${loading ? 'opacity-60' : ''}`}>
+              {moments.map((m, i) => {
+                const label = groupLabel(m.learned_at, today)
+                const showHeader = i === 0 || groupLabel(moments[i - 1].learned_at, today) !== label
+                const color = m.category ? colors[m.category] ?? NO_SUBJECT_COLOR : NO_SUBJECT_COLOR
+                const open = expandedId === m.id
+                const editing = editingId === m.id
+                return (
+                  <Fragment key={m.id}>
+                    {showHeader && <li className="pt-3 first:pt-0 pb-0.5 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">{label}</li>}
+                    <motion.li
+                      initial={newIds.has(m.id) && !reduced ? { opacity: 0, y: -8 } : false}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25, ease: 'easeOut' }}
+                      className="relative bg-white rounded-xl border border-indigo-100 hover:border-indigo-200 hover:shadow-sm transition-[border-color,box-shadow]"
+                    >
+                      <span className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" style={{ backgroundColor: color }} aria-hidden />
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        aria-expanded={open}
+                        onClick={() => { if (!editing) setExpandedId(open ? null : m.id) }}
+                        onKeyDown={e => { if (!editing && (e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) { e.preventDefault(); setExpandedId(open ? null : m.id) } }}
+                        className="pl-4 pr-2 py-3 flex items-start gap-3 cursor-pointer rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+                            {m.title}
+                            {ratings[m.id] ? (
+                              <span className="inline-flex ml-2 align-middle text-amber-500" aria-label={`${ratings[m.id]} van 5 sterren`}>
+                                {Array.from({ length: ratings[m.id] }, (_, k) => <Star key={k} className="w-3 h-3 fill-current" strokeWidth={0} />)}
+                              </span>
+                            ) : null}
+                          </p>
+                          {!open && <p className="text-sm text-slate-600 dark:text-slate-300 truncate mt-0.5">{m.description || <span className="italic text-slate-500">Nog geen samenvatting</span>}</p>}
+                          <p className="sm:hidden mt-1.5 flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                            {m.category && <SubjectPill name={m.category} color={color} />}
+                            <span>{formatDay(m.learned_at)}</span>
+                            {m.duration_minutes ? <span>· {formatMinutes(m.duration_minutes)}</span> : null}
+                          </p>
+                        </div>
+                        <div className="hidden sm:flex items-center gap-3 shrink-0 pt-0.5">
+                          {m.category && <SubjectPill name={m.category} color={color} />}
+                          <span className="text-xs text-slate-600 dark:text-slate-300 tabular-nums w-[72px] text-right">{m.duration_minutes ? formatMinutes(m.duration_minutes) : '—'}</span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400 w-[68px] text-right">{formatDay(m.learned_at)}</span>
+                        </div>
+                        <div className="relative shrink-0" data-menu onClick={e => e.stopPropagation()}>
+                          <button onClick={() => setMenuId(menuId === m.id ? null : m.id)} aria-label={`Acties voor ${m.title}`} aria-expanded={menuId === m.id}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-600 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-white/5">
+                            <MoreHorizontal className="w-4 h-4" strokeWidth={2} />
+                          </button>
+                          {menuId === m.id && (
+                            <div role="menu" className="absolute right-0 top-full mt-1 z-30 w-52 bg-white rounded-xl border border-indigo-100 shadow-xl py-1">
+                              <button role="menuitem" onClick={() => startEdit(m)} className={menuItem}><Pencil className="w-4 h-4" strokeWidth={2} /> Wijzigen</button>
+                              <button role="menuitem" onClick={() => duplicate(m)} className={menuItem}><Copy className="w-4 h-4" strokeWidth={2} /> Dupliceren</button>
+                              <button role="menuitem" onClick={() => share(m)} className={menuItem}><Link2 className="w-4 h-4" strokeWidth={2} /> {m.is_public ? 'Deellink kopiëren' : 'Delen'}</button>
+                              {m.is_public && <button role="menuitem" onClick={() => share(m, true)} className={menuItem}><X className="w-4 h-4" strokeWidth={2} /> Delen stoppen</button>}
+                              <div className="my-1 border-t border-indigo-100" role="separator" />
+                              <button role="menuitem" onClick={() => { setMenuId(null); setDeleting(m) }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-red-700 dark:text-red-300 hover:bg-red-50">
+                                <Trash2 className="w-4 h-4" strokeWidth={2} /> Verwijderen
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
 
-          {moments.length > 0 && (
-            <SchoolYearTabs years={yearTabs} active={activeYear} onChange={setActiveYear} unknownLabel={s.unknownYear} />
+                      <AnimatePresence initial={false}>
+                        {open && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: reduced ? 0 : 0.2 }} className="overflow-hidden"
+                          >
+                            <div className="pl-4 pr-4 pb-4 space-y-3">
+                              {editing ? (
+                                <div className="space-y-3" onKeyDown={e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') saveEdit(m.id) }}>
+                                  <input value={editData.title ?? ''} onChange={e => setEditData({ ...editData, title: e.target.value })} aria-label="Titel"
+                                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                                  <textarea value={editData.description ?? ''} onChange={e => setEditData({ ...editData, description: e.target.value })} rows={3} aria-label="Samenvatting"
+                                    placeholder="Leg in 2–3 zinnen uit wat je nu snapt."
+                                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-y placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <SubjectSelect value={editData.category ?? ''} onChange={v => setEditData({ ...editData, category: v })}
+                                      options={Array.from(new Set([...activeSubjects, ...(m.category ? [m.category] : [])])).map(n => ({ value: n, label: n }))}
+                                      colors={colors} emptyLabel="Geen vak" label="Vak" />
+                                    <input type="number" min="1" value={editData.duration_minutes ?? ''} aria-label="Minuten" placeholder="Minuten"
+                                      onChange={e => { const v = parseInt(e.target.value); setEditData({ ...editData, duration_minutes: v > 0 ? v : null }) }}
+                                      className="border border-gray-200 rounded-xl px-3 py-2 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                                    <input type="date" value={editData.learned_at ?? ''} max={today} aria-label="Datum"
+                                      onChange={e => setEditData({ ...editData, learned_at: e.target.value })}
+                                      className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                                  </div>
+                                  <textarea value={editData.notes ?? ''} onChange={e => setEditData({ ...editData, notes: e.target.value })} rows={2} aria-label="Notities"
+                                    placeholder="Extra notities"
+                                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-y placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                                  {editError && <p className="text-sm text-red-700">{editError}</p>}
+                                  <div className="flex justify-end gap-2">
+                                    <button onClick={() => setEditingId(null)} className="text-sm text-slate-700 dark:text-slate-200 px-3 py-2 rounded-xl hover:bg-indigo-50">Annuleren</button>
+                                    <button onClick={() => saveEdit(m.id)} disabled={!editData.title?.trim()} className="text-sm font-semibold bg-indigo-600 text-white rounded-xl px-4 py-2 hover:bg-indigo-700 disabled:opacity-50">Opslaan</button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <>
+                                  <p className="hidden sm:block text-xs text-slate-600 dark:text-slate-300">{formatDay(m.learned_at)}{m.duration_minutes ? ` · ${formatMinutes(m.duration_minutes)}` : ''}{m.category ? ` · ${m.category}` : ''}</p>
+                                  {m.description ? (
+                                    <p className="text-sm text-slate-800 dark:text-slate-100 leading-relaxed whitespace-pre-wrap">{m.description}</p>
+                                  ) : (
+                                    <p className="text-sm text-slate-500 italic">Nog geen samenvatting. <button onClick={() => startEdit(m)} className="not-italic font-medium text-indigo-700 dark:text-indigo-300">Voeg er een toe</button></p>
+                                  )}
+                                  {m.notes && <div className="text-sm text-slate-700 dark:text-slate-200 bg-indigo-50 rounded-xl p-3 whitespace-pre-wrap"><span className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Notities</span>{m.notes}</div>}
+                                  {m.photo_url && (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={m.photo_url} alt={`Foto bij ${m.title}`} className="w-full max-h-72 object-contain rounded-xl bg-slate-50" />
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.li>
+                  </Fragment>
+                )
+              })}
+            </ul>
           )}
 
-          {/* Zoekbalk */}
-          {yearFilteredMoments.length > 0 && (
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder={d.search}
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all"
-            />
+          {!loadError && moments.length > 0 && moments.length < total && (
+            <div className="flex flex-col items-center gap-1 pt-4">
+              <button onClick={loadMore} disabled={loadingMore}
+                className="text-sm font-semibold text-indigo-700 dark:text-indigo-300 bg-white border border-indigo-200 rounded-xl px-5 py-2.5 hover:bg-indigo-50 disabled:opacity-60">
+                {loadingMore ? 'Laden…' : 'Meer laden'}
+              </button>
+              <span className="text-xs text-slate-500 dark:text-slate-400">{moments.length} van {total} getoond</span>
+            </div>
           )}
+        </section>
+      </main>
 
-          {!search && yearFilteredMoments.length > 0 && (
-            <p className="text-xs text-indigo-300">{d.lastFive}</p>
-          )}
-
-          {moments.length === 0 && (
-            <div className="bg-white rounded-2xl border border-indigo-100 p-10 text-center space-y-3">
-              <Glyph name="sprout" className="w-12 h-12 mx-auto text-indigo-400" />
-              <p className="font-semibold text-indigo-900">Nog geen leermomenten</p>
-              <p className="text-sm text-indigo-400">Vul het formulier hierboven in — het duurt minder dan een minuut.</p>
-              <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
-                ↑ Moment toevoegen
+      {deleting && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4" onClick={() => !deleteBusy && setDeleting(null)}>
+          <div role="alertdialog" aria-modal="true" aria-labelledby="delete-title" className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+            <h2 id="delete-title" className="text-base font-semibold text-slate-900 dark:text-white">Leermoment verwijderen?</h2>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-2">&lsquo;{deleting.title}&rsquo; wordt definitief verwijderd. Dit kun je niet ongedaan maken.</p>
+            <div className="flex justify-end gap-2 mt-5">
+              <button onClick={() => setDeleting(null)} disabled={deleteBusy} autoFocus className="text-sm text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl hover:bg-indigo-50">Annuleren</button>
+              <button onClick={confirmDelete} disabled={deleteBusy} className="text-sm font-semibold bg-red-600 text-white rounded-xl px-4 py-2 hover:bg-red-700 disabled:opacity-60">
+                {deleteBusy ? 'Verwijderen…' : 'Verwijderen'}
               </button>
             </div>
-          )}
-
-          {moments.length > 0 && yearFilteredMoments.length === 0 && (
-            <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-8 text-center">
-              <p className="text-indigo-300 text-sm">Geen leermomenten in dit schooljaar.</p>
-            </div>
-          )}
-
-          {search && yearFilteredMoments.filter(m => m.title.toLowerCase().includes(search.toLowerCase()) || m.description?.toLowerCase().includes(search.toLowerCase())).length === 0 && (
-            <div className="bg-white rounded-2xl border border-dashed border-indigo-200 p-8 text-center">
-              <p className="text-indigo-300 text-sm">{tr.flashcards.searchNoResultsMoments} &ldquo;{search}&rdquo;</p>
-            </div>
-          )}
-
-          {(search
-            ? yearFilteredMoments.filter(m => m.title.toLowerCase().includes(search.toLowerCase()) || m.description?.toLowerCase().includes(search.toLowerCase()))
-            : yearFilteredMoments.slice(0, 5)
-          ).map((moment) => (
-            <div key={moment.id} className="bg-white rounded-2xl border border-indigo-50 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all border-l-4 border-l-indigo-200 hover:border-l-indigo-400">
-              {moment.photo_url && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={moment.photo_url} alt="Foto" className="w-full max-h-48 object-cover rounded-t-2xl" />
-              )}
-              <div className="p-5">
-                {editingId === moment.id ? (
-                  <div className="space-y-3">
-                    <input value={editData.title ?? ''} onChange={e => setEditData({ ...editData, title: e.target.value })}
-                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-                    <textarea value={editData.description ?? ''} onChange={e => setEditData({ ...editData, description: e.target.value })}
-                      rows={2} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none" />
-                    <div className="grid grid-cols-3 gap-2">
-                      <select value={editData.category ?? ''} onChange={e => setEditData({ ...editData, category: e.target.value })}
-                        className="border border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
-                        <option value="">{d.noSubject}</option>
-                        {activeSubjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
-                      </select>
-                      <input type="number" min="1" value={editData.duration_minutes ?? ''} placeholder={d.minutes}
-                        onChange={e => { const v = parseInt(e.target.value); setEditData({ ...editData, duration_minutes: v > 0 ? v : null }) }}
-                        className="border border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-                      <input type="date" value={editData.learned_at ?? ''}
-                        onChange={e => setEditData({ ...editData, learned_at: e.target.value })}
-                        className="border border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-                    </div>
-                    <textarea
-                      value={editData.notes ?? ''}
-                      onChange={e => setEditData({ ...editData, notes: e.target.value })}
-                      placeholder={d.notesPlaceholder}
-                      rows={3}
-                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
-                    />
-                    <div className="flex gap-2">
-                      <button onClick={() => handleSaveEdit(moment.id)}
-                        className="text-sm bg-indigo-600 text-white rounded-xl px-4 py-2 hover:bg-indigo-700 transition-colors font-medium">{d.save}</button>
-                      <button onClick={() => setEditingId(null)} className="text-sm text-gray-400 hover:text-gray-600 px-3 py-2">{d.cancel}</button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex justify-between items-start gap-4">
-                      <div>
-                        <button onClick={() => setDetailMoment(moment)} className="font-semibold text-indigo-900 hover:text-indigo-600 transition-colors text-left">{moment.title}</button>
-                        {ratings[moment.id] && (
-                          <span className="text-xs text-amber-400"><span className="inline-flex align-middle">{Array.from({ length: ratings[moment.id] }, (_, i) => <Glyph key={i} name="star" filled className="w-3 h-3" />)}</span></span>
-                        )}
-                      </div>
-                      <div className="flex gap-2 shrink-0 items-center flex-wrap justify-end">
-                        <span className="text-xs text-indigo-300">{moment.learned_at}</span>
-                        <button onClick={() => startEdit(moment)} className="text-xs text-gray-300 hover:text-indigo-500 transition-colors">{d.edit}</button>
-                        <button onClick={() => duplicateMoment(moment)} className="text-xs text-gray-300 hover:text-indigo-500 transition-colors">{d.duplicate}</button>
-                        <button onClick={() => handleShare(moment)}
-                          className={`text-xs transition-colors ${moment.is_public ? 'text-emerald-500 hover:text-emerald-700' : 'text-gray-300 hover:text-indigo-500'}`}>
-                          {copiedId === moment.id ? d.linkCopied : moment.is_public ? d.shared : d.share}
-                        </button>
-                        {confirmDeleteId === moment.id ? (
-                          <span className="flex items-center gap-1">
-                            <button onClick={() => handleDelete(moment.id)} className="text-xs text-red-500 hover:text-red-700 font-medium">{d.confirmYes}</button>
-                            <span className="text-xs text-gray-300">·</span>
-                            <button onClick={() => setConfirmDeleteId(null)} className="text-xs text-gray-400 hover:text-gray-600">{d.confirmNo}</button>
-                          </span>
-                        ) : (
-                          <button onClick={() => setConfirmDeleteId(moment.id)} className="text-xs text-gray-300 hover:text-red-400 transition-colors">{d.delete}</button>
-                        )}
-                      </div>
-                    </div>
-                    {moment.description && (
-                      <div className="mt-3 bg-indigo-50 rounded-xl p-3">
-                        <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide mb-1">{d.summary}</p>
-                        <p className="text-sm text-indigo-800 leading-relaxed">{moment.description}</p>
-                      </div>
-                    )}
-                    <div className="flex gap-2 mt-3">
-                      {moment.category && <span className="text-xs bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-0.5 font-medium">{moment.category}</span>}
-                      {moment.duration_minutes && <span className="text-xs bg-violet-50 text-violet-500 rounded-full px-2.5 py-0.5 font-medium">{moment.duration_minutes} min</span>}
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          ))}
+          </div>
         </div>
-      </main>
+      )}
+
+      <AnimatePresence>
+        {toast && (
+          <div className="fixed inset-x-0 bottom-5 z-40 flex justify-center px-4 pointer-events-none">
+          <motion.div
+            role="status"
+            initial={{ opacity: 0, y: reduced ? 0 : 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: reduced ? 0 : 16 }}
+            transition={{ duration: reduced ? 0 : 0.2 }}
+            className="pointer-events-auto w-full max-w-sm bg-white rounded-2xl border border-indigo-100 shadow-xl p-3.5"
+          >
+            <div className="flex items-center gap-3">
+              <span className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${toast.streak ? 'bg-orange-50 text-orange-600' : 'bg-emerald-50 text-emerald-700'}`}>
+                {toast.streak ? <Glyph name="flame" className="w-5 h-5" /> : <Check className="w-4 h-4" strokeWidth={2.5} />}
+              </span>
+              <p className="flex-1 text-sm font-semibold text-slate-900 dark:text-white">{toast.text}</p>
+              <button onClick={() => setToast(null)} aria-label="Sluiten" className="text-slate-500 hover:text-slate-800 p-1"><X className="w-4 h-4" /></button>
+            </div>
+            {toast.rateId && (
+              toast.rated ? (
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 pl-11">Bedankt, je beoordeling is bewaard.</p>
+              ) : (
+                <div className="flex items-center gap-2 mt-2 pl-11">
+                  <span className="text-xs text-slate-600 dark:text-slate-300">Hoe goed begreep je het?</span>
+                  <div className="flex" role="group" aria-label="Beoordeling">
+                    {[1, 2, 3, 4, 5].map(s => (
+                      <button key={s} onClick={() => rate(toast.rateId!, s)} aria-label={`${s} van 5`} className="p-0.5 text-amber-500 hover:scale-110 transition-transform">
+                        <Star className="w-4 h-4" strokeWidth={1.8} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )
+            )}
+          </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

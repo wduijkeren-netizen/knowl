@@ -144,3 +144,31 @@ export function reviewQueue<T extends { id?: string; learned_at: string; descrip
   const upcoming = planned.filter(p => p.due > today).sort((a, b) => a.due.localeCompare(b.due))
   return { due, nextDue: upcoming[0]?.due ?? null }
 }
+
+const MONTH_NAMES = ['Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December']
+
+/** Vaste datumnotatie in de app: 'do 5 nov'. */
+export function formatDay(date: string) {
+  return new Date(`${date}T12:00:00`).toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' }).replace(/\./g, '')
+}
+
+/** Schooljaar loopt van 1 augustus t/m 31 juli. */
+export function schoolYearOf(date: string) {
+  const y = Number(date.slice(0, 4))
+  const m = Number(date.slice(5, 7))
+  if (!y || !m) return null
+  return m >= 8 ? `${y}-${y + 1}` : `${y - 1}-${y}`
+}
+
+export function schoolYearRange(year: string): [string, string] {
+  const start = Number(year.slice(0, 4))
+  return [`${start}-08-01`, `${start + 1}-07-31`]
+}
+
+/** Tussenkopje voor de lijst: Vandaag, Gisteren, Deze week of maand + jaar. */
+export function groupLabel(date: string, today: string) {
+  if (date === today) return 'Vandaag'
+  if (date === addDays(today, -1)) return 'Gisteren'
+  if (date < today && date >= weekStart(today)) return 'Deze week'
+  return `${MONTH_NAMES[Number(date.slice(5, 7)) - 1]} ${date.slice(0, 4)}`
+}

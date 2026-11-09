@@ -5,9 +5,10 @@ import { useState, useEffect, useRef } from 'react'
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
-import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
+import MomentForm, { POMODORO_UNLOGGED_KEY } from '@/components/MomentForm'
+import { buildSubjectColors } from '@/lib/subjectColors'
 
 type Mode = 'work' | 'break'
 type Style = 'circle' | 'minimal' | 'retro'
@@ -69,12 +70,6 @@ export default function PomodoroTimer({ user, subjects }: Props) {
   }, [mode, customWork, customBreak, seconds, completed, sessionMode, timerStyle, hydrated])
 
   const [showSessionForm, setShowSessionForm] = useState(false)
-  const [sessionTitle, setSessionTitle] = useState('')
-  const [sessionSubject, setSessionSubject] = useState('')
-  const [sessionMinutes, setSessionMinutes] = useState('')
-  const [sessionSaving, setSessionSaving] = useState(false)
-  const [sessionSaved, setSessionSaved] = useState(false)
-  const supabase = createClient()
 
   const total = (mode === 'work' ? customWork : customBreak) * 60
   const progress = ((total - seconds) / total) * 100
@@ -93,11 +88,12 @@ export default function PomodoroTimer({ user, subjects }: Props) {
             setRunning(false)
             if (mode === 'work') {
               setCompleted(c => c + 1)
-              if (sessionMode && user) {
-                setSessionTitle(''); setSessionSubject('')
-                setSessionMinutes(String(customWork))
-                setSessionSaved(false); setShowSessionForm(true)
-              }
+              try {
+                const prev = JSON.parse(localStorage.getItem(POMODORO_UNLOGGED_KEY) ?? 'null') as { minutes: number; at: number } | null
+                const fresh = prev && Date.now() - prev.at < 12 * 60 * 60 * 1000 ? prev.minutes : 0
+                localStorage.setItem(POMODORO_UNLOGGED_KEY, JSON.stringify({ minutes: fresh + customWork, at: Date.now() }))
+              } catch {}
+              if (sessionMode && user) setShowSessionForm(true)
             }
             try {
               const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
@@ -128,21 +124,6 @@ export default function PomodoroTimer({ user, subjects }: Props) {
   function reset() {
     setRunning(false)
     setSeconds((mode === 'work' ? customWork : customBreak) * 60)
-  }
-
-  async function saveSessionMoment() {
-    if (!sessionTitle.trim() || !user) return
-    setSessionSaving(true)
-    await supabase.from('learning_moments').insert({
-      id: crypto.randomUUID(),
-      title: sessionTitle.trim(),
-      category: sessionSubject || null,
-      duration_minutes: parseInt(sessionMinutes) || null,
-      learned_at: new Date().toISOString().split('T')[0],
-      user_id: user.id,
-    })
-    setSessionSaving(false); setSessionSaved(true)
-    setTimeout(() => { setShowSessionForm(false); setSessionSaved(false) }, 1500)
   }
 
   // Cirkel stijl
@@ -245,51 +226,20 @@ export default function PomodoroTimer({ user, subjects }: Props) {
         <Nav />
       </div>
 
-      {showSessionForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 space-y-5">
-            <div className="text-center"><Glyph name="celebrate" className="w-10 h-10 mx-auto mb-2 text-indigo-500" />
-              <h2 className="text-xl font-bold text-indigo-900">{p.sessionDone}</h2>
-            </div>
-            {sessionSaved ? (
-              <p className="text-center text-emerald-500 font-semibold py-4">{p.sessionSaved} <Glyph name="check" className="w-4 h-4" /></p>
-            ) : (
-              <>
-                <div>
-                  <label className="text-xs font-medium text-indigo-400 uppercase tracking-wide block mb-1">{p.sessionTitleLabel}</label>
-                  <input value={sessionTitle} onChange={e => setSessionTitle(e.target.value)} placeholder={p.sessionTitle} autoFocus
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs font-medium text-indigo-400 uppercase tracking-wide block mb-1">{p.sessionSubject}</label>
-                    {subjects.length > 0 ? (
-                      <select value={sessionSubject} onChange={e => setSessionSubject(e.target.value)}
-                        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
-                        <option value="">—</option>
-                        {subjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
-                      </select>
-                    ) : (
-                      <input type="text" value={sessionSubject} onChange={e => setSessionSubject(e.target.value)}
-                        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-                    )}
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-indigo-400 uppercase tracking-wide block mb-1">{p.sessionMinutes}</label>
-                    <input type="number" value={sessionMinutes} onChange={e => setSessionMinutes(e.target.value)}
-                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <button onClick={() => setShowSessionForm(false)}
-                    className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 hover:bg-gray-50">{p.sessionSkip}</button>
-                  <button onClick={saveSessionMoment} disabled={sessionSaving || !sessionTitle.trim()}
-                    className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50">
-                    {sessionSaving ? '...' : p.sessionAdd}
-                  </button>
-                </div>
-              </>
-            )}
+      {showSessionForm && user && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-start sm:items-center justify-center p-4 overflow-y-auto" onClick={() => setShowSessionForm(false)}>
+          <div className="w-full max-w-2xl my-8" onClick={e => e.stopPropagation()}>
+            <p className="text-center text-white font-semibold mb-3 inline-flex items-center justify-center gap-2 w-full"><Glyph name="celebrate" className="w-5 h-5" /> {p.sessionDone}</p>
+            <MomentForm
+              userId={user.id}
+              subjects={subjects.map(s => s.name)}
+              colors={buildSubjectColors(subjects.map(s => s.name))}
+              variant="modal"
+              initialMinutes={customWork}
+              minutesFromPomodoro
+              onClose={() => setShowSessionForm(false)}
+              onSaved={() => setShowSessionForm(false)}
+            />
           </div>
         </div>
       )}
