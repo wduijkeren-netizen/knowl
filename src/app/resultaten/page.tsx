@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Resultaten from '@/components/Resultaten'
+import { fetchAllMoments } from '@/lib/moments'
 
 export default async function ResultatenPage() {
   const supabase = await createClient()
@@ -7,10 +8,10 @@ export default async function ResultatenPage() {
 
   if (!user) return <Resultaten moments={[]} subjects={[]} isGuest />
 
-  const [{ data: moments }, { data: subjects }] = await Promise.all([
-    supabase.from('learning_moments').select('category, duration_minutes, learned_at'),
-    supabase.from('subjects').select('name, school_year'),
+  const [moments, { data: subjects }] = await Promise.all([
+    fetchAllMoments(supabase, { search: '', subject: '', year: '' }),
+    supabase.from('subjects').select('id, name, school_year, is_active, goal_minutes, goal_date').order('name'),
   ])
 
-  return <Resultaten moments={moments ?? []} subjects={subjects ?? []} />
+  return <Resultaten userId={user.id} moments={moments.moments} subjects={subjects ?? []} loadFailed={!!moments.error} />
 }

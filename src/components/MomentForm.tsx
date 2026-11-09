@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { Camera, PenLine, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import SubjectSelect from '@/components/SubjectSelect'
-import { addDays, formatDay, localDateStr } from '@/lib/studyStats'
+import { MOMENT_TYPES, addDays, formatDay, localDateStr, type MomentType } from '@/lib/studyStats'
 import type { LearningMoment } from '@/lib/moments'
 
 export const POMODORO_UNLOGGED_KEY = 'knowl_pomodoro_unlogged'
@@ -52,6 +52,8 @@ export default function MomentForm({ userId, subjects, colors, variant, prefill,
   const [fromPomodoro, setFromPomodoro] = useState(minutesFromPomodoro && !!initialMinutes)
   const [date, setDate] = useState(today)
   const [photo, setPhoto] = useState<File | null>(null)
+  const [momentType, setMomentType] = useState<MomentType | ''>('')
+  const [startTime, setStartTime] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const savingRef = useRef(false)
@@ -104,7 +106,7 @@ export default function MomentForm({ userId, subjects, colors, variant, prefill,
   }, [variant])
 
   function reset() {
-    setTitle(''); setDescription(''); setCategory(''); setMinutes(''); setDate(today); setPhoto(null); setFromPomodoro(false); setError('')
+    setTitle(''); setDescription(''); setCategory(''); setMinutes(''); setDate(today); setPhoto(null); setFromPomodoro(false); setError(''); setMomentType(''); setStartTime('')
     if (useDraft) try { localStorage.removeItem(DRAFT_KEY) } catch {}
   }
 
@@ -133,20 +135,22 @@ export default function MomentForm({ userId, subjects, colors, variant, prefill,
     }
 
     const m = parseInt(minutes)
-    const { data, error } = await supabase
-      .from('learning_moments')
-      .insert({
-        id: crypto.randomUUID(),
-        user_id: userId,
-        title: title.trim(),
-        description: description.trim() || null,
-        category: category || null,
-        learned_at: date,
-        duration_minutes: Number.isFinite(m) && m > 0 ? m : null,
-        photo_url,
-      })
-      .select(MOMENT_COLUMNS)
-      .single()
+    const base = {
+      id: crypto.randomUUID(),
+      user_id: userId,
+      title: title.trim(),
+      description: description.trim() || null,
+      category: category || null,
+      learned_at: date,
+      duration_minutes: Number.isFinite(m) && m > 0 ? m : null,
+      photo_url,
+    }
+    const extra = { ...(momentType ? { moment_type: momentType } : {}), ...(startTime ? { start_time: startTime } : {}) }
+    let { data, error } = await supabase.from('learning_moments').insert({ ...base, ...extra }).select(MOMENT_COLUMNS).single()
+    if (error && Object.keys(extra).length > 0 && /moment_type|start_time|column/i.test(error.message)) {
+      // Nieuwe kolommen bestaan nog niet in de database: sla het leermoment toch op, zonder type en tijdstip.
+      ({ data, error } = await supabase.from('learning_moments').insert(base).select(MOMENT_COLUMNS).single())
+    }
 
     if (error || !data) {
       setError('Opslaan lukte niet. Controleer je verbinding en probeer het opnieuw.')
@@ -228,6 +232,22 @@ export default function MomentForm({ userId, subjects, colors, variant, prefill,
                 <input id="lm-date" type="date" value={date} max={today} onChange={e => setDate(e.target.value || today)} aria-label={`Datum, nu ${formatDay(date)}`}
                   className="border border-gray-200 rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400" />
               </div>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+            <div>
+              <span className={fieldLabel}>Type leermoment <span className="font-normal text-slate-500">(niet verplicht)</span></span>
+              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Type leermoment">
+                {(Object.keys(MOMENT_TYPES) as MomentType[]).map(t => (
+                  <button key={t} type="button" onClick={() => setMomentType(momentType === t ? '' : t)} aria-pressed={momentType === t} className={chip(momentType === t)}>{MOMENT_TYPES[t]}</button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label htmlFor="lm-start" className={fieldLabel}>Begonnen om <span className="font-normal text-slate-500">(niet verplicht)</span></label>
+              <input id="lm-start" type="time" value={startTime} onChange={e => setStartTime(e.target.value)}
+                className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400" />
             </div>
           </div>
 

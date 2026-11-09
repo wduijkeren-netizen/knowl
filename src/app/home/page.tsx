@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import HomePage from '@/components/HomePage'
+import { fetchAllMoments } from '@/lib/moments'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -12,8 +13,8 @@ export default async function Home() {
   const today = now.toISOString().slice(0, 10)
   const todayDow = (now.getDay() + 6) % 7
 
-  const [{ data: allMoments }, { data: subjects }, { data: profile }, goalRes, reviewRes, { data: studySessions }, examRes, slotsRes] = await Promise.all([
-    supabase.from('learning_moments').select('id, title, description, duration_minutes, learned_at, category').order('learned_at', { ascending: false }),
+  const [allMomentsRes, { data: subjects }, { data: profile }, goalRes, reviewRes, { data: studySessions }, examRes, slotsRes] = await Promise.all([
+    fetchAllMoments(supabase, { search: '', subject: '', year: '' }, 'id, title, description, duration_minutes, learned_at, category'),
     supabase.from('subjects').select('name, goal_minutes, goal_date, recurring_type, recurring_goal_minutes, school_year, is_active'),
     supabase.from('profiles').select('voornaam').eq('id', user.id).maybeSingle(),
     supabase.from('profiles').select('weekly_goal_minutes').eq('id', user.id).maybeSingle(),
@@ -26,7 +27,7 @@ export default async function Home() {
   return (
     <HomePage
       user={user}
-      allMoments={allMoments ?? []}
+      allMoments={allMomentsRes.moments}
       subjects={subjects ?? []}
       displayName={profile?.voornaam ?? null}
       weeklyGoal={goalRes.error ? null : (goalRes.data?.weekly_goal_minutes ?? null)}

@@ -2,6 +2,8 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   formatMinutes, addDays, weekStart, computeStreak, weekComparison, heatmapLevel, minutesByDay, reviewSchedule, reviewQueue, formatDay, schoolYearOf, schoolYearRange, groupLabel,
+  selectionRange, percentages, subjectTotals, weeklyBySubject, weekdayTotals, dayPartOf, isoWeek,
+  subjectInsight, trendInsight, weekdayInsight, typeInsight,
 } from '../src/lib/studyStats.ts'
 import { buildSubjectColors, SUBJECT_PALETTE } from '../src/lib/subjectColors.ts'
 
@@ -114,4 +116,56 @@ test('datums, schooljaren en tussenkopjes', () => {
   assert.equal(groupLabel('2026-11-09', today), 'Deze week')
   assert.equal(groupLabel('2026-11-03', today), 'November 2026')
   assert.equal(groupLabel('2026-10-20', today), 'Oktober 2026')
+})
+
+test('periodes binnen een schooljaar', () => {
+  const today = '2026-11-12'
+  assert.deepEqual(selectionRange('', 'alles', today), { from: null, to: null })
+  assert.deepEqual(selectionRange('2026-2027', 'alles', today), { from: '2026-08-01', to: '2027-07-31' })
+  assert.deepEqual(selectionRange('2026-2027', 'jaar', today), { from: '2026-08-01', to: '2026-11-12' })
+  assert.deepEqual(selectionRange('', 'jaar', today), { from: '2026-01-01', to: '2026-11-12' })
+  assert.deepEqual(selectionRange('', 'periode', today), { from: '2026-09-07', to: '2026-11-12' })
+  const old = selectionRange('2024-2025', 'periode', today)
+  assert.ok(old.from! > old.to!, 'oud schooljaar + deze periode is leeg')
+})
+
+test('percentages tellen op tot 100', () => {
+  assert.deepEqual(percentages([1, 1, 1]), [34, 33, 33])
+  assert.deepEqual(percentages([530, 380, 340, 65]), [40, 29, 26, 5])
+  assert.deepEqual(percentages([0, 0]), [0, 0])
+})
+
+test('tijd per vak, per week en per weekdag', () => {
+  const ms = [
+    { learned_at: '2026-11-09', duration_minutes: 60, category: 'EBR' },
+    { learned_at: '2026-11-10', duration_minutes: 30, category: 'IBR' },
+    { learned_at: '2026-11-03', duration_minutes: 45, category: null },
+    { learned_at: '2026-11-04', duration_minutes: null, category: 'EBR' },
+  ]
+  assert.deepEqual(subjectTotals(ms), [{ name: 'EBR', minutes: 60 }, { name: 'Zonder vak', minutes: 45 }, { name: 'IBR', minutes: 30 }])
+  const weeks = weeklyBySubject(ms, '2026-11-12', 3)
+  assert.deepEqual(weeks.map(w => [w.start, w.total]), [['2026-10-26', 0], ['2026-11-02', 45], ['2026-11-09', 90]])
+  assert.equal(weeks[2].week, isoWeek('2026-11-09'))
+  assert.equal(isoWeek('2026-11-09'), 46)
+  assert.deepEqual(weekdayTotals(ms), [60, 75, 0, 0, 0, 0, 0])
+})
+
+test('dagdelen alleen met een echt tijdstip', () => {
+  assert.equal(dayPartOf('08:30'), 'Ochtend')
+  assert.equal(dayPartOf('12:00'), 'Middag')
+  assert.equal(dayPartOf('23:59:00'), 'Avond')
+  assert.equal(dayPartOf('02:15'), 'Nacht')
+  assert.equal(dayPartOf(null), null)
+  assert.equal(dayPartOf(''), null)
+})
+
+test('conclusies volgen de gegevens', () => {
+  assert.equal(subjectInsight([]), null)
+  assert.equal(subjectInsight([{ name: 'EBR', minutes: 530 }, { name: 'IBR', minutes: 380 }, { name: 'BTW', minutes: 340 }, { name: 'EXV', minutes: 65 }]), 'EXV krijgt 5% van je studietijd, terwijl EBR 40% krijgt.')
+  assert.equal(subjectInsight([{ name: 'EBR', minutes: 60 }]), 'Al je studietijd ging naar EBR.')
+  assert.equal(trendInsight([{ start: '2026-10-05', total: 0 }, { start: '2026-10-12', total: 30 }]), null)
+  assert.match(trendInsight([30, 40, 30, 35, 90, 100, 80, 120].map((t, i) => ({ start: `2026-09-${String(7 + i * 3).padStart(2, '0')}`, total: t })))!, /toegenomen/)
+  assert.equal(weekdayInsight([0, 0, 0, 0, 0, 0, 0]), null)
+  assert.equal(weekdayInsight([60, 40, 50, 120, 5, 0, 30]), 'Je sterkste studiedag is donderdag. Op vrijdag en zaterdag studeer je nauwelijks.')
+  assert.match(typeInsight({ new: 70, practice: 10, review: 20 })!, /70% naar nieuwe stof/)
 })
