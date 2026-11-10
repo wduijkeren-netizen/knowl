@@ -19,14 +19,15 @@ import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { useTheme } from '@/lib/ThemeContext'
 import { UNKNOWN_YEAR, getYearTabs } from '@/lib/schoolYear'
 import { NO_SUBJECT_COLOR, buildSubjectColors } from '@/lib/subjectColors'
+import { currentTerm, periodOptions, selectableSubjects, type SchoolTerm } from '@/lib/terms'
 import {
   DAYS_PER_SHIELD, MAX_SHIELDS, REVIEW_STEPS, addDays, computeStreak, formatMinutes, heatmapLevel, localDateStr,
-  minutesByDay, reviewQueue, sumBetween, weekComparison, weekStart, weekdayIndex,
+  minutesByDay, reviewQueue, schoolYearOf, weekComparison, weekStart, weekdayIndex,
   type MomentReview, type ReviewResult,
 } from '@/lib/studyStats'
 
 type Moment = { id?: string; title?: string; description?: string | null; duration_minutes: number | null; learned_at: string; category?: string | null }
-type Subject = { name: string; goal_minutes: number | null; goal_date: string | null; recurring_type: string | null; recurring_goal_minutes: number | null; school_year: string | null; is_active?: boolean | null }
+type Subject = { name: string; goal_minutes: number | null; goal_date: string | null; recurring_type: string | null; recurring_goal_minutes: number | null; school_year: string | null; is_active?: boolean | null; terms?: number[] | null }
 type StudySession = { activity: string; duration_seconds: number; created_at: string }
 type Exam = { id: string; date: string; title: string; subject: string | null }
 type Slot = { id: string; day_of_week: number; start_time: string; end_time: string; label: string }
@@ -43,11 +44,14 @@ type Props = {
   studySessions: StudySession[]
   examEvents: Exam[]
   todaySlots: Slot[]
+  terms: SchoolTerm[]
 }
 
 const INTRO_KEY = 'knowl_dash_intro'
 const SNAPSHOT_KEY = 'knowl_dash_snapshot'
 const CELEBRATED_KEY = 'knowl_goal_celebrated'
+const SCOPE_KEY = 'knowl_dash_scope'
+const ALL = 'alles'
 
 const card = 'bg-white rounded-2xl border border-indigo-100 shadow-sm transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md motion-reduce:transform-none'
 const heading = 'text-sm font-semibold text-slate-900 dark:text-slate-100'
@@ -669,7 +673,7 @@ function Heatmap({ byDay, today }: { byDay: Record<string, number>; today: strin
   )
 }
 
-export default function HomePage({ user, allMoments: initialMoments, subjects, displayName, weeklyGoal, weeklyGoalSupported, reviews, reviewsSupported, studySessions, examEvents, todaySlots }: Props) {
+export default function HomePage({ user, allMoments: initialMoments, subjects, displayName, weeklyGoal, weeklyGoalSupported, reviews, reviewsSupported, studySessions, examEvents, todaySlots, terms }: Props) {
   const { tr } = useLanguage()
   const h = tr.home
   const sj = tr.subjects
@@ -683,15 +687,34 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
   const [celebrate, setCelebrate] = useState(false)
   const [burnoutDismissed, setBurnoutDismissed] = useState(false)
 
+  const now = currentTerm(terms, today)
+  const scopeOptions = useMemo(() => {
+    const years = Array.from(new Set([now.year, ...moments.map(m => schoolYearOf(m.learned_at)).filter((y): y is string => !!y)])).sort((a, b) => b.localeCompare(a))
+    const list = periodOptions(terms, years, today).map(o => ({
+      ...o,
+      label: o.value === `${now.year}#${now.term}` ? `Dit trimester (${now.term})` : o.value === now.year ? `Dit schooljaar (${now.year})` : o.label,
+    }))
+    return [...list, { value: ALL, label: 'Alles', from: '', to: '' }]
+  }, [terms, moments, today, now.year, now.term])
+  const defaultScope = scopeOptions.some(o => o.value === `${now.year}#${now.term}`) ? `${now.year}#${now.term}` : now.year
+  const [scopeChoice, setScopeChoice] = useState<string | null>(null)
+  const scopeValue = scopeChoice && scopeOptions.some(o => o.value === scopeChoice) ? scopeChoice : defaultScope
+  const scope = scopeOptions.find(o => o.value === scopeValue)!
+  const scopeEnd = scope.value === ALL || scope.to > today ? today : scope.to
+  const scoped = useMemo(() => (scope.value === ALL ? moments : moments.filter(m => m.learned_at >= scope.from && m.learned_at <= scope.to)), [moments, scope])
+  const scopedByDay = useMemo(() => minutesByDay(scoped), [scoped])
+  function chooseScope(value: string) {
+    setScopeChoice(value)
+    try { localStorage.setItem(SCOPE_KEY, value) } catch {}
+  }
+
   const byDay = useMemo(() => minutesByDay(moments), [moments])
   const { streak, shields, studiedToday, atRisk } = useMemo(() => computeStreak(moments.map(m => m.learned_at), today), [moments, today])
   const week = useMemo(() => weekComparison(byDay, today), [byDay, today])
   const weekKey = weekStart(today)
   const todayMinutes = byDay[today] ?? 0
-  const monthStart = `${today.slice(0, 7)}-01`
-  const monthMinutes = sumBetween(byDay, monthStart, today)
-  const monthMoments = moments.filter(m => m.learned_at >= monthStart && m.learned_at <= today).length
-  const timed = moments.filter(m => (m.duration_minutes ?? 0) > 0)
+  const scopeMinutes = scoped.reduce((sum, m) => sum + (m.duration_minutes ?? 0), 0)
+  const timed = scoped.filter(m => (m.duration_minutes ?? 0) > 0)
   const avgSession = timed.length ? timed.reduce((s, m) => s + (m.duration_minutes ?? 0), 0) / timed.length : 0
   const dailyGoal = goal ? Math.round(goal / 7) : null
   const goalReached = !!goal && week.thisWeek >= goal
@@ -711,6 +734,7 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
     const now = localDateStr(new Date())
     setToday(now)
     try {
+      setScopeChoice(localStorage.getItem(SCOPE_KEY))
       const raw = localStorage.getItem(SNAPSHOT_KEY)
       const prev = raw ? JSON.parse(raw) as { count: number; streak: number; week: number; weekKey: string } : null
       if (prev && prev.count < moments.length) {
@@ -849,6 +873,15 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
           </div>
         </motion.section>
 
+        <motion.div {...fade(1)} className="flex flex-wrap items-center gap-2">
+          <label htmlFor="dash-scope" className="text-sm text-slate-600 dark:text-slate-300">Je bekijkt</label>
+          <select id="dash-scope" value={scopeValue} onChange={e => chooseScope(e.target.value)}
+            className="border border-indigo-100 bg-white rounded-xl pl-3 pr-8 py-1.5 text-sm font-medium text-indigo-900 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 max-w-full">
+            {scopeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+          <span className="text-xs text-slate-500 dark:text-slate-400">Je week en streak blijven altijd actueel.</span>
+        </motion.div>
+
         <motion.div {...fade(1)} className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_250px]">
           <HeroCard
             thisWeek={week.thisWeek} goal={goal} week={week} streak={streak} shields={shields} studiedToday={studiedToday} atRisk={atRisk}
@@ -857,9 +890,9 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
           />
           <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
             <SmallStat
-              label="Deze maand" icon={<CalendarClock className="w-4 h-4" strokeWidth={2} />}
-              value={monthMinutes > 0 ? <CountUp value={monthMinutes} run={intro} format={formatMinutes} /> : 'Nog niets'}
-              sub={monthMoments > 0 ? `${monthMoments} leermoment${monthMoments === 1 ? '' : 'en'}` : 'Deze maand begint bij je eerste leermoment'}
+              label={scope.value === ALL ? 'In totaal' : scope.label} icon={<CalendarClock className="w-4 h-4" strokeWidth={2} />}
+              value={scopeMinutes > 0 ? <CountUp value={scopeMinutes} run={intro} format={formatMinutes} /> : 'Nog niets'}
+              sub={scoped.length > 0 ? `${scoped.length} leermoment${scoped.length === 1 ? '' : 'en'}` : 'Nog geen leermomenten in deze periode'}
             />
             <SmallStat
               label="Gemiddelde sessie" icon={<BookOpen className="w-4 h-4" strokeWidth={2} />}
@@ -883,17 +916,17 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
         )}
 
         <motion.section {...fade(3)} className="grid lg:grid-cols-2 gap-4">
-          <DailyChart moments={moments} today={today} dailyGoal={dailyGoal} colors={colors} intro={intro} />
-          <SubjectBars moments={moments} today={today} colors={colors} intro={intro} />
+          <DailyChart moments={scoped} today={scopeEnd} dailyGoal={dailyGoal} colors={colors} intro={intro} />
+          <SubjectBars moments={scoped} today={scopeEnd} colors={colors} intro={intro} />
         </motion.section>
 
         <motion.section {...fade(4)} className="grid lg:grid-cols-2 gap-4">
-          <RecentMoments moments={moments} colors={colors} />
+          <RecentMoments moments={scoped} colors={colors} />
           <ReviewCard moments={moments} initialReviews={reviews} supported={reviewsSupported} activeSubjects={activeSubjects} today={today} colors={colors} />
         </motion.section>
 
         <motion.section {...fade(5)} className="grid lg:grid-cols-2 gap-4 items-start">
-          <Heatmap byDay={byDay} today={today} />
+          <Heatmap byDay={scopedByDay} today={scopeEnd} />
 
           {examEvents.length > 0 && (
             <div className={`${card} p-5`}>
@@ -1027,7 +1060,7 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
           <div role="dialog" aria-modal="true" aria-label="Nieuw leermoment" className="w-full max-w-2xl my-8" onClick={e => e.stopPropagation()}>
             <MomentForm
               userId={user.id}
-              subjects={subjects.filter(s => s.is_active !== false).map(s => s.name).sort((a, b) => a.localeCompare(b))}
+              subjects={selectableSubjects(subjects, terms, today).map(s => s.name).sort((a, b) => a.localeCompare(b))}
               colors={colors}
               variant="modal"
               onClose={() => setQuickOpen(false)}

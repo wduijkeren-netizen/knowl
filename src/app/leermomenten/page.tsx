@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import Dashboard from '@/components/Dashboard'
 import GuestDashboard from '@/components/GuestDashboard'
 import { buildSubjectYearMap, getCurrentSchoolYear } from '@/lib/schoolYear'
+import { fetchTerms } from '@/lib/termsDb'
 import { fetchAllMoments, fetchMomentsPage, type LearningMoment } from '@/lib/moments'
 
 export default async function LeerMomentenPage({ searchParams }: { searchParams: { zoek?: string; minuten?: string } }) {
@@ -12,11 +13,12 @@ export default async function LeerMomentenPage({ searchParams }: { searchParams:
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0]
   const initialSearch = searchParams.zoek ?? ''
-  const [{ data: subjects }, stats, firstPage, { data: spacedRows }] = await Promise.all([
-    supabase.from('subjects').select('id, name, school_year, is_active').order('name'),
+  const [{ data: subjects }, stats, firstPage, { data: spacedRows }, { terms }] = await Promise.all([
+    supabase.from('subjects').select('*').order('name'),
     fetchAllMoments(supabase, { search: '', subject: '', year: '' }, 'id, category, duration_minutes, learned_at'),
     fetchMomentsPage(supabase, { search: initialSearch, subject: '', year: '' }, 0),
     supabase.from('learning_moments').select('*').lte('learned_at', sevenDaysAgo).order('learned_at', { ascending: false }).limit(100),
+    fetchTerms(supabase),
   ])
 
   const subjectYearMap = buildSubjectYearMap(subjects ?? [])
@@ -39,6 +41,7 @@ export default async function LeerMomentenPage({ searchParams }: { searchParams:
       initialSearch={initialSearch}
       initialMinutes={Number.isFinite(minutes) && minutes > 0 ? minutes : null}
       spacedMoment={spacedMoment}
+      terms={terms}
     />
   )
 }

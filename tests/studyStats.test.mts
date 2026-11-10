@@ -6,6 +6,7 @@ import {
   subjectInsight, trendInsight, weekdayInsight, typeInsight,
 } from '../src/lib/studyStats.ts'
 import { buildSubjectColors, SUBJECT_PALETTE } from '../src/lib/subjectColors.ts'
+import { termsOfYear, termRange, currentTerm, termOfDate, subjectInTerm, selectableSubjects, periodOptions } from '../src/lib/terms.ts'
 
 test('formatMinutes gebruikt overal dezelfde notatie', () => {
   assert.equal(formatMinutes(0), '0 min')
@@ -168,4 +169,32 @@ test('conclusies volgen de gegevens', () => {
   assert.equal(weekdayInsight([0, 0, 0, 0, 0, 0, 0]), null)
   assert.equal(weekdayInsight([60, 40, 50, 120, 5, 0, 30]), 'Je sterkste studiedag is donderdag. Op vrijdag en zaterdag studeer je nauwelijks.')
   assert.match(typeInsight({ new: 70, practice: 10, review: 20 })!, /70% naar nieuwe stof/)
+})
+
+test('trimesters: bereik, huidig trimester en vakken per trimester', () => {
+  const terms = [{ school_year: '2026-2027', term: 2, starts_on: '2026-11-09' }]
+  assert.deepEqual(termsOfYear(terms, '2026-2027').map(t => [t.term, t.starts_on]), [[1, '2026-08-01'], [2, '2026-11-09']])
+  assert.deepEqual(termRange(terms, '2026-2027', 1), { from: '2026-08-01', to: '2026-11-08' })
+  assert.deepEqual(termRange(terms, '2026-2027', 2), { from: '2026-11-09', to: '2027-07-31' })
+  assert.deepEqual(currentTerm(terms, '2026-11-10'), { year: '2026-2027', term: 2 })
+  assert.deepEqual(currentTerm(terms, '2026-11-01'), { year: '2026-2027', term: 1 })
+  assert.deepEqual(currentTerm([], '2026-11-10'), { year: '2026-2027', term: 1 })
+  assert.deepEqual(termOfDate(terms, '2026-10-01'), { year: '2026-2027', term: 1 })
+  const jaarvak = { name: 'EBR', school_year: '2026-2027', terms: null }
+  const tri1 = { name: 'IBR', school_year: '2026-2027', terms: [1] }
+  const tri12 = { name: 'BTW', school_year: '2026-2027', terms: [1, 2] }
+  assert.equal(subjectInTerm(jaarvak, '2026-2027', 2), true)
+  assert.equal(subjectInTerm(tri1, '2026-2027', 2), false)
+  assert.equal(subjectInTerm(tri12, '2026-2027', 2), true)
+  assert.deepEqual(selectableSubjects([jaarvak, tri1, tri12, { name: 'Oud', is_active: false }], terms, '2026-11-10').map(s => s.name), ['EBR', 'BTW'])
+})
+
+test('keuzes per schooljaar en trimester', () => {
+  const terms = [{ school_year: '2026-2027', term: 2, starts_on: '2026-11-03' }]
+  assert.deepEqual(periodOptions([], ['2026-2027'], '2026-11-10').map(o => o.value), ['2026-2027'])
+  const opts = periodOptions(terms, ['2026-2027', '2025-2026'], '2026-11-10')
+  assert.deepEqual(opts.map(o => o.value), ['2026-2027', '2026-2027#1', '2026-2027#2', '2025-2026'])
+  assert.deepEqual([opts[1].from, opts[1].to], ['2026-08-01', '2026-11-02'])
+  assert.deepEqual([opts[2].from, opts[2].to], ['2026-11-03', '2027-07-31'])
+  assert.equal(periodOptions(terms, ['2026-2027'], '2026-11-01').length, 1)
 })

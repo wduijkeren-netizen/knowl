@@ -10,6 +10,7 @@ import PageInfo from '@/components/PageInfo'
 import MomentForm from '@/components/MomentForm'
 import { createClient } from '@/lib/supabase/client'
 import { useTheme } from '@/lib/ThemeContext'
+import { periodOptions, selectableSubjects, type SchoolTerm } from '@/lib/terms'
 import { NO_SUBJECT_COLOR, buildSubjectColors } from '@/lib/subjectColors'
 import {
   DAY_PARTS, MOMENT_TYPES, NO_SUBJECT_LABEL, PERIOD_WEEKS, addDays, dayPartInsight, dayPartOf, formatDay, formatMinutes,
@@ -20,9 +21,9 @@ import {
 import type { LearningMoment } from '@/lib/moments'
 
 type ResultMoment = Pick<LearningMoment, 'learned_at' | 'duration_minutes' | 'category'> & { id?: string; moment_type?: string | null; start_time?: string | null }
-type Subject = { id?: string; name: string; school_year: string | null; is_active?: boolean | null; goal_minutes?: number | null; goal_date?: string | null }
+type Subject = { id?: string; name: string; school_year: string | null; is_active?: boolean | null; goal_minutes?: number | null; goal_date?: string | null; terms?: number[] | null }
 
-type Props = { moments: ResultMoment[]; subjects: Subject[]; isGuest?: boolean; userId?: string; loadFailed?: boolean }
+type Props = { moments: ResultMoment[]; subjects: Subject[]; isGuest?: boolean; userId?: string; loadFailed?: boolean; terms?: SchoolTerm[] }
 
 const MIN_MOMENTS = 5
 const WEEKDAYS = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
@@ -92,7 +93,7 @@ function MeterRow({ label, dot, pct, color, value, delay, reduced, opacity = 1, 
   )
 }
 
-export default function Resultaten({ moments, subjects: initialSubjects, isGuest, userId, loadFailed }: Props) {
+export default function Resultaten({ moments, subjects: initialSubjects, isGuest, userId, loadFailed, terms = [] }: Props) {
   const reduced = useReducedMotion()
   const { dark } = useTheme()
   const today = localDateStr(new Date())
@@ -112,7 +113,17 @@ export default function Resultaten({ moments, subjects: initialSubjects, isGuest
   const [goalInput, setGoalInput] = useState('')
   const [goalError, setGoalError] = useState('')
 
-  const range = useMemo(() => selectionRange(year, period, today), [year, period, today])
+  const yearOptions = useMemo(() => periodOptions(terms, years, today), [terms, years, today])
+  const yearOption = yearOptions.find(o => o.value === year)
+  const yearLabel = yearOption?.label ?? year
+  const range = useMemo(() => {
+    const r = selectionRange(year.split('#')[0], period, today)
+    if (!yearOption || !year.includes('#')) return r
+    return {
+      from: !r.from || r.from < yearOption.from ? yearOption.from : r.from,
+      to: !r.to || r.to > yearOption.to ? yearOption.to : r.to,
+    }
+  }, [year, yearOption, period, today])
   const selected = useMemo(() => all.filter(m => m.learned_at && inRange(m.learned_at, range)), [all, range])
   const total = totalMinutes(selected)
   const perSubject = useMemo(() => subjectTotals(selected), [selected])
@@ -160,14 +171,14 @@ export default function Resultaten({ moments, subjects: initialSubjects, isGuest
 
   const selectionText = (() => {
     if (total === 0) {
-      if (period === 'periode') return `De afgelopen ${PERIOD_WEEKS} weken${year ? ` (schooljaar ${year})` : ''} heb je nog geen studietijd geregistreerd.`
-      if (period === 'jaar') return `In ${today.slice(0, 4)}${year ? ` (schooljaar ${year})` : ''} heb je nog geen studietijd geregistreerd.`
-      return year ? `In ${year} heb je nog geen studietijd geregistreerd.` : 'Je hebt nog geen studietijd geregistreerd.'
+      if (period === 'periode') return `De afgelopen ${PERIOD_WEEKS} weken${year ? ` (${yearLabel})` : ''} heb je nog geen studietijd geregistreerd.`
+      if (period === 'jaar') return `In ${today.slice(0, 4)}${year ? ` (${yearLabel})` : ''} heb je nog geen studietijd geregistreerd.`
+      return year ? `In ${yearLabel} heb je nog geen studietijd geregistreerd.` : 'Je hebt nog geen studietijd geregistreerd.'
     }
     const amount = `${formatMinutes(total)} verdeeld over ${namedSubjects} ${namedSubjects === 1 ? 'vak' : 'vakken'}`
-    if (period === 'periode') return `De afgelopen ${PERIOD_WEEKS} weken${year ? ` (schooljaar ${year})` : ''} heb je ${amount}.`
-    if (period === 'jaar') return `In ${today.slice(0, 4)}${year ? ` (schooljaar ${year})` : ''} heb je ${amount}.`
-    return year ? `In ${year} heb je ${amount}.` : `In totaal heb je ${amount}.`
+    if (period === 'periode') return `De afgelopen ${PERIOD_WEEKS} weken${year ? ` (${yearLabel})` : ''} heb je ${amount}.`
+    if (period === 'jaar') return `In ${today.slice(0, 4)}${year ? ` (${yearLabel})` : ''} heb je ${amount}.`
+    return year ? `In ${yearLabel} heb je ${amount}.` : `In totaal heb je ${amount}.`
   })()
 
   async function saveGoal(subject: Subject) {
@@ -209,10 +220,10 @@ export default function Resultaten({ moments, subjects: initialSubjects, isGuest
 
         {!isGuest && (
           <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-            <select value={year} onChange={e => setYear(e.target.value)} aria-label="Schooljaar"
+            <select value={year} onChange={e => setYear(e.target.value)} aria-label="Schooljaar of trimester"
               className="border border-gray-200 bg-white rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 sm:w-48">
               <option value="">Alle schooljaren</option>
-              {years.map(y => <option key={y} value={y}>{y}</option>)}
+              {yearOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
             <div className="flex bg-indigo-50 rounded-xl p-1 self-start" role="group" aria-label="Periode">
               {PERIODS.map(p => (
@@ -448,7 +459,7 @@ export default function Resultaten({ moments, subjects: initialSubjects, isGuest
           <div role="dialog" aria-modal="true" aria-label="Nieuw leermoment" className="w-full max-w-2xl my-8" onClick={e => e.stopPropagation()}>
             <MomentForm
               userId={userId}
-              subjects={subjects.filter(s => s.is_active !== false).map(s => s.name)}
+              subjects={selectableSubjects(subjects, terms, today).map(s => s.name)}
               colors={colors}
               variant="modal"
               onClose={() => setFormOpen(false)}

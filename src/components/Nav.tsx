@@ -3,14 +3,17 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
-import { Check, ChevronDown, LogOut, Mail, Menu, Moon, Search, Sun, User as UserIcon, X } from 'lucide-react'
+import {
+  BarChart3, BookOpen, Calculator, CalendarClock, CalendarDays, Check, ChevronDown, House, Layers, LogOut, Mail, Menu, Moon,
+  Network, NotebookPen, PenLine, Search, Sun, Timer, User as UserIcon, Users, UsersRound, X, type LucideIcon,
+} from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { languages, type LangCode } from '@/lib/i18n/translations'
 import { useTheme } from '@/lib/ThemeContext'
 import SearchDialog from '@/components/SearchDialog'
 
-type NavLink = { href: string; label: string }
+type NavLink = { href: string; label: string; icon: LucideIcon }
 
 function useClickOutside(onOutside: () => void) {
   const ref = useRef<HTMLDivElement>(null)
@@ -51,17 +54,16 @@ export default function Nav({ loggedIn, width = 'max-w-3xl' }: { loggedIn?: bool
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  useEffect(() => { setMobileOpen(false) }, [pathname])
+
   useEffect(() => {
-    if (!isLoggedIn) return
-    function onKey(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault()
-        setSearchOpen(true)
-      }
-    }
+    if (!mobileOpen) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') setMobileOpen(false) }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [isLoggedIn])
+    return () => { document.body.style.overflow = previous; window.removeEventListener('keydown', onKey) }
+  }, [mobileOpen])
 
   const isActive = (href: string) => pathname === href || (href !== '/home' && pathname.startsWith(href + '/'))
 
@@ -72,34 +74,32 @@ export default function Nav({ loggedIn, width = 'max-w-3xl' }: { loggedIn?: bool
 
   const mainLinks: NavLink[] = isLoggedIn
     ? [
-        { href: '/home', label: tr.nav.home },
-        { href: '/leermomenten', label: tr.nav.moments },
-        { href: '/resultaten', label: tr.nav.results },
-        { href: '/vakken', label: tr.nav.subjects },
+        { href: '/home', label: tr.nav.home, icon: House },
+        { href: '/leermomenten', label: tr.nav.moments, icon: PenLine },
+        { href: '/resultaten', label: tr.nav.results, icon: BarChart3 },
+        { href: '/vakken', label: tr.nav.subjects, icon: BookOpen },
       ]
     : [
-        { href: '/leermomenten', label: tr.nav.moments },
-        { href: '/resultaten', label: tr.nav.results },
-        { href: '/pomodoro', label: tr.nav.timer },
+        { href: '/leermomenten', label: tr.nav.moments, icon: PenLine },
+        { href: '/resultaten', label: tr.nav.results, icon: BarChart3 },
+        { href: '/pomodoro', label: tr.nav.timer, icon: Timer },
       ]
 
   const moreGroups: { label: string; links: NavLink[] }[] = [
     { label: tr.nav.learn, links: [
-      { href: '/pomodoro', label: tr.nav.timer },
-      { href: '/pomodoro/groep', label: tr.nav.group ?? 'Groepsstudie' },
-      { href: '/flashcards', label: tr.nav.flashcards ?? 'Flashcards' },
-      { href: '/woordweb', label: tr.nav.woordweb ?? 'Woordweb' },
+      { href: '/pomodoro', label: tr.nav.timer, icon: Timer },
+      { href: '/pomodoro/groep', label: tr.nav.group ?? 'Groepsstudie', icon: UsersRound },
+      { href: '/flashcards', label: tr.nav.flashcards ?? 'Flashcards', icon: Layers },
+      { href: '/woordweb', label: tr.nav.woordweb ?? 'Woordweb', icon: Network },
+      { href: '/notities', label: tr.nav.notities ?? 'Notities', icon: NotebookPen },
     ] },
-    { label: tr.nav.overview, links: [
-      { href: '/wrapped', label: tr.nav.monthly },
-      { href: '/week', label: tr.nav.week },
-      { href: '/agenda', label: tr.nav.agenda },
-      { href: '/rooster', label: tr.nav.schedule },
-      { href: '/notities', label: tr.nav.notities ?? 'Notities' },
+    { label: lang === 'nl' ? 'Plannen' : tr.nav.overview, links: [
+      { href: '/agenda', label: tr.nav.agenda, icon: CalendarDays },
+      { href: '/rooster', label: tr.nav.schedule, icon: CalendarClock },
     ] },
     { label: tr.nav.more, links: [
-      { href: '/vrienden', label: tr.nav.friends ?? 'Vrienden' },
-      { href: '/cijfers', label: tr.nav.grades ?? 'Cijferberekening' },
+      { href: '/vrienden', label: tr.nav.friends ?? 'Vrienden', icon: Users },
+      { href: '/cijfers', label: tr.nav.grades ?? 'Cijferberekening', icon: Calculator },
     ] },
   ]
   const moreActive = moreGroups.some(g => g.links.some(l => isActive(l.href)))
@@ -115,6 +115,7 @@ export default function Nav({ loggedIn, width = 'max-w-3xl' }: { loggedIn?: bool
   const currentLang = languages.find(l => l.code === lang)
 
   return (
+    <>
     <header className="bg-white/90 backdrop-blur-sm border-b border-indigo-100 sticky top-0 z-30">
       <div className={`${width} mx-auto px-4 py-2.5 flex justify-between items-center gap-3`}>
         <div className="flex items-center gap-3 min-w-0">
@@ -156,9 +157,8 @@ export default function Nav({ loggedIn, width = 'max-w-3xl' }: { loggedIn?: bool
 
         <div className="flex items-center gap-1">
           {isLoggedIn && (
-            <button onClick={() => setSearchOpen(true)} className={`${iconBtn} md:w-auto md:px-2.5 md:gap-2`} aria-label="Zoeken (Ctrl of Cmd + K)" title="Zoeken (⌘K)">
+            <button onClick={() => setSearchOpen(true)} className={iconBtn} aria-label="Zoeken" title="Zoeken">
               <Search className="w-4 h-4" strokeWidth={2} />
-              <kbd className="hidden lg:inline text-[11px] font-medium text-slate-500 dark:text-slate-400 border border-indigo-100 rounded px-1">⌘K</kbd>
             </button>
           )}
 
@@ -229,56 +229,76 @@ export default function Nav({ loggedIn, width = 'max-w-3xl' }: { loggedIn?: bool
         </div>
       </div>
 
+      <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
+    </header>
       {mobileOpen && (
-        <div className="md:hidden border-t border-indigo-100 bg-white px-4 py-3 space-y-4 max-h-[80vh] overflow-y-auto">
-          <div className="space-y-0.5">
-            {mainLinks.map(l => (
-              <Link key={l.href} href={l.href} onClick={() => setMobileOpen(false)}
-                className={`block px-3 py-2.5 rounded-xl text-sm font-medium ${isActive(l.href) ? 'bg-indigo-50 text-indigo-700 dark:text-white' : 'text-slate-700 dark:text-slate-200'}`}>
-                {l.label}
-              </Link>
+        <div className="md:hidden fixed inset-x-0 top-[57px] bottom-0 z-40 bg-[#f8f7ff] overflow-y-auto overscroll-contain" role="dialog" aria-modal="true" aria-label="Menu">
+          <div className="px-4 pt-4 pb-10 space-y-5">
+            <nav aria-label="Hoofdmenu" className="grid grid-cols-2 gap-2">
+              {mainLinks.map(l => {
+                const Icon = l.icon
+                const active = isActive(l.href)
+                return (
+                  <Link key={l.href} href={l.href} aria-current={active ? 'page' : undefined}
+                    className={`flex items-center gap-3 rounded-2xl border px-3.5 py-3 text-sm font-semibold transition-colors ${active ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white border-indigo-100 text-slate-800 dark:text-slate-100'}`}>
+                    <Icon className="w-5 h-5 shrink-0" strokeWidth={2} />
+                    <span className="truncate">{l.label}</span>
+                  </Link>
+                )
+              })}
+            </nav>
+
+            {isLoggedIn && moreGroups.map(g => (
+              <section key={g.label}>
+                <h2 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2 px-1">{g.label}</h2>
+                <div className="bg-white rounded-2xl border border-indigo-100 divide-y divide-indigo-50 dark:divide-white/5 overflow-hidden">
+                  {g.links.map(l => {
+                    const Icon = l.icon
+                    const active = isActive(l.href)
+                    return (
+                      <Link key={l.href} href={l.href} aria-current={active ? 'page' : undefined}
+                        className={`flex items-center gap-3 px-3.5 py-3 text-sm ${active ? 'text-indigo-700 font-semibold dark:text-white bg-indigo-50' : 'text-slate-800 dark:text-slate-100'}`}>
+                        <span className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-700 dark:text-indigo-300 flex items-center justify-center shrink-0"><Icon className="w-4 h-4" strokeWidth={2} /></span>
+                        {l.label}
+                      </Link>
+                    )
+                  })}
+                </div>
+              </section>
             ))}
-          </div>
-          {isLoggedIn && moreGroups.map(g => (
-            <div key={g.label}>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1 px-3">{g.label}</p>
-              {g.links.map(l => (
-                <Link key={l.href} href={l.href} onClick={() => setMobileOpen(false)}
-                  className={`block px-3 py-2 rounded-xl text-sm ${isActive(l.href) ? 'bg-indigo-50 text-indigo-700 font-medium dark:text-white' : 'text-slate-700 dark:text-slate-200'}`}>
-                  {l.label}
+
+            <section className="bg-white rounded-2xl border border-indigo-100 divide-y divide-indigo-50 dark:divide-white/5 overflow-hidden">
+              {isLoggedIn && (
+                <Link href="/profiel" className="flex items-center gap-3 px-3.5 py-3 text-sm text-slate-800 dark:text-slate-100">
+                  <UserIcon className="w-4 h-4 text-slate-500" strokeWidth={2} /> {tr.nav.profile}
+                  {email && <span className="ml-auto text-xs text-slate-500 dark:text-slate-400 truncate max-w-[50%]">{email}</span>}
                 </Link>
-              ))}
-            </div>
-          ))}
-          <div className="pt-3 border-t border-indigo-100 space-y-2">
-            {isLoggedIn && (
-              <Link href="/profiel" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 dark:text-slate-200">
-                <UserIcon className="w-4 h-4" strokeWidth={2} /> {tr.nav.profile}
-              </Link>
-            )}
-            <div className="flex items-center justify-between gap-2 px-3">
-              <select value={lang} onChange={e => setLang(e.target.value as LangCode)} aria-label="Taal"
-                className="text-sm text-slate-700 bg-indigo-50 rounded-lg px-2 py-1.5 border-0 focus:outline-none">
-                {languages.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
-              </select>
-              <a href="mailto:myknowl@hotmail.com?subject=Feedback Knowl" className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
-                <Mail className="w-4 h-4" strokeWidth={2} /> {tr.nav.feedback}
+              )}
+              <label className="flex items-center gap-3 px-3.5 py-3 text-sm text-slate-800 dark:text-slate-100">
+                <span className="w-4 text-center text-xs font-bold text-slate-500">{currentLang?.code.toUpperCase()}</span> Taal
+                <select value={lang} onChange={e => setLang(e.target.value as LangCode)} aria-label="Taal"
+                  className="ml-auto text-sm text-slate-700 bg-indigo-50 rounded-lg px-2 py-1.5 border-0 focus:outline-none">
+                  {languages.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
+                </select>
+              </label>
+              <a href="mailto:myknowl@hotmail.com?subject=Feedback Knowl" className="flex items-center gap-3 px-3.5 py-3 text-sm text-slate-800 dark:text-slate-100">
+                <Mail className="w-4 h-4 text-slate-500" strokeWidth={2} /> {tr.nav.feedback}
               </a>
-            </div>
-            {isLoggedIn ? (
-              <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 dark:text-slate-200">
-                <LogOut className="w-4 h-4" strokeWidth={2} /> {tr.nav.logout}
-              </button>
-            ) : (
-              <Link href="/login" onClick={() => setMobileOpen(false)} className="block text-center text-sm bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium">
+              {isLoggedIn && (
+                <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3.5 py-3 text-sm text-red-700 dark:text-red-300">
+                  <LogOut className="w-4 h-4" strokeWidth={2} /> {tr.nav.logout}
+                </button>
+              )}
+            </section>
+
+            {!isLoggedIn && (
+              <Link href="/login" className="block text-center text-sm bg-indigo-600 text-white px-4 py-3 rounded-xl font-semibold">
                 {tr.nav.loginLink}
               </Link>
             )}
           </div>
         </div>
       )}
-
-      <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
-    </header>
+    </>
   )
 }

@@ -15,8 +15,9 @@ import { formatDay, formatMinutes, groupLabel, localDateStr, schoolYearOf, schoo
 import {
   NO_SUBJECT, OTHER_YEAR, fetchAllMoments, fetchMomentsPage, type LearningMoment, type MomentFilters,
 } from '@/lib/moments'
+import { periodOptions, selectableSubjects, type SchoolTerm } from '@/lib/terms'
 
-type Subject = { id: string; name: string; school_year: string | null; is_active: boolean }
+type Subject = { id: string; name: string; school_year: string | null; is_active: boolean; terms?: number[] | null }
 type StatRow = { id: string; category: string | null; duration_minutes: number | null; learned_at: string }
 
 type Props = {
@@ -27,6 +28,7 @@ type Props = {
   initialSearch: string
   initialMinutes: number | null
   spacedMoment: LearningMoment | null
+  terms: SchoolTerm[]
 }
 
 const RATINGS_KEY = 'knowl_ratings'
@@ -63,7 +65,7 @@ function matches(m: LearningMoment, f: MomentFilters) {
   if (f.subject === NO_SUBJECT ? m.category : f.subject && m.category !== f.subject) return false
   if (f.year === OTHER_YEAR) return !m.learned_at
   if (f.year) {
-    const [from, to] = schoolYearRange(f.year)
+    const [from, to] = f.from && f.to ? [f.from, f.to] : schoolYearRange(f.year)
     if (m.learned_at < from || m.learned_at > to) return false
   }
   return true
@@ -79,7 +81,7 @@ function SubjectPill({ name, color }: { name: string; color: string }) {
   )
 }
 
-export default function Dashboard({ user, subjects, statRows: initialStats, initialPage, initialSearch, initialMinutes, spacedMoment }: Props) {
+export default function Dashboard({ user, subjects, statRows: initialStats, initialPage, initialSearch, initialMinutes, spacedMoment, terms }: Props) {
   const reduced = useReducedMotion()
   const supabase = useMemo(() => createClient(), [])
   const today = localDateStr(new Date())
@@ -169,7 +171,7 @@ export default function Dashboard({ user, subjects, statRows: initialStats, init
     ...subjects.map(s => s.name),
     ...stats.map(s => s.category).filter((c): c is string => !!c),
   ]), [subjects, stats])
-  const activeSubjects = useMemo(() => subjects.filter(s => s.is_active !== false).map(s => s.name), [subjects])
+  const activeSubjects = useMemo(() => selectableSubjects(subjects, terms, today).map(s => s.name), [subjects, terms, today])
   const subjectOptions = useMemo(() => {
     const names = Array.from(new Set([...subjects.map(s => s.name), ...stats.map(s => s.category).filter((c): c is string => !!c)]))
       .sort((a, b) => a.localeCompare(b))
@@ -179,8 +181,8 @@ export default function Dashboard({ user, subjects, statRows: initialStats, init
   }, [subjects, stats])
   const yearOptions = useMemo(() => {
     const years = Array.from(new Set(stats.map(s => schoolYearOf(s.learned_at ?? '')).filter((y): y is string => !!y))).sort((a, b) => b.localeCompare(a))
-    return { years, hasOther: stats.some(s => !schoolYearOf(s.learned_at ?? '')) }
-  }, [stats])
+    return { options: periodOptions(terms, years, today), hasOther: stats.some(s => !schoolYearOf(s.learned_at ?? '')) }
+  }, [stats, terms, today])
 
   const totalMinutes = stats.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
   const filtersActive = !!(filters.search.trim() || filters.subject || filters.year)
@@ -344,12 +346,15 @@ export default function Dashboard({ user, subjects, statRows: initialStats, init
           />
           <select
             value={filters.year}
-            onChange={e => setFilters(f => ({ ...f, year: e.target.value }))}
-            aria-label="Filter op schooljaar"
+            onChange={e => {
+              const option = yearOptions.options.find(o => o.value === e.target.value)
+              setFilters(f => ({ ...f, year: e.target.value, from: option?.from, to: option?.to }))
+            }}
+            aria-label="Filter op schooljaar of trimester"
             className="flex-1 min-w-[140px] border border-gray-200 bg-white rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
             <option value="">Alle schooljaren</option>
-            {yearOptions.years.map(y => <option key={y} value={y}>{y}</option>)}
+            {yearOptions.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             {yearOptions.hasOther && <option value={OTHER_YEAR}>Overig</option>}
           </select>
           <div className="relative" data-menu>

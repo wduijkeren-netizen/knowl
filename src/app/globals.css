@@ -7,6 +7,11 @@
   --foreground: #1e1b4b;
 }
 
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);

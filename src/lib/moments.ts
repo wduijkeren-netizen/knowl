@@ -14,7 +14,7 @@ export type LearningMoment = {
   notes?: string | null
 }
 
-export type MomentFilters = { search: string; subject: string; year: string }
+export type MomentFilters = { search: string; subject: string; year: string; from?: string; to?: string }
 
 export const PAGE_SIZE = 20
 export const NO_SUBJECT = '__geen_vak__'
@@ -32,6 +32,7 @@ function filteredQuery(supabase: SupabaseClient, columns: string, filters: Momen
   if (filters.subject === NO_SUBJECT) q = q.is('category', null)
   else if (filters.subject) q = q.eq('category', filters.subject)
   if (filters.year === OTHER_YEAR) q = q.is('learned_at', null)
+  else if (filters.from && filters.to) q = q.gte('learned_at', filters.from).lte('learned_at', filters.to)
   else if (filters.year) {
     const [from, to] = schoolYearRange(filters.year)
     q = q.gte('learned_at', from).lte('learned_at', to)

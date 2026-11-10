@@ -5,6 +5,9 @@ import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import { fetchTerms } from '@/lib/termsDb'
+import { selectableSubjects } from '@/lib/terms'
+import { localDateStr } from '@/lib/studyStats'
 
 export default function QuickLog() {
   const { tr } = useLanguage()
@@ -25,8 +28,8 @@ export default function QuickLog() {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) return
       setUserId(data.user.id)
-      supabase.from('subjects').select('name').not('is_active', 'is', false).order('name').then(({ data: subs }) => {
-        setSubjects((subs ?? []).map(s => s.name))
+      Promise.all([supabase.from('subjects').select('*').order('name'), fetchTerms(supabase)]).then(([{ data: subs }, { terms }]) => {
+        setSubjects(selectableSubjects(subs ?? [], terms, localDateStr(new Date())).map(s => s.name))
       })
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
