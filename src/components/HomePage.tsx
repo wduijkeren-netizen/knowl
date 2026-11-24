@@ -21,8 +21,9 @@ import { useTheme } from '@/lib/ThemeContext'
 import { UNKNOWN_YEAR, getYearTabs } from '@/lib/schoolYear'
 import { NO_SUBJECT_COLOR, buildSubjectColors } from '@/lib/subjectColors'
 import { currentTerm, periodOptions, selectableSubjects, type SchoolTerm } from '@/lib/terms'
+import { PHASE_COLORS, buildPlan, minutesByDayFor, type StudyGoal } from '@/lib/examPlan'
 import {
-  DAYS_PER_SHIELD, MAX_SHIELDS, REVIEW_STEPS, addDays, computeStreak, formatMinutes, heatmapLevel, localDateStr,
+  DAYS_PER_SHIELD, MAX_SHIELDS, MOMENT_TYPES, REVIEW_STEPS, addDays, computeStreak, formatMinutes, heatmapLevel, localDateStr,
   minutesByDay, reviewQueue, schoolYearOf, weekComparison, weekStart, weekdayIndex,
   type MomentReview, type ReviewResult,
 } from '@/lib/studyStats'
@@ -46,6 +47,7 @@ type Props = {
   examEvents: Exam[]
   todaySlots: Slot[]
   terms: SchoolTerm[]
+  studyGoals?: StudyGoal[]
 }
 
 const INTRO_KEY = 'knowl_dash_intro'
@@ -237,7 +239,7 @@ function HeroCard({
         {celebrate && !reduced && <Confetti colors={confettiColors} />}
       </div>
 
-      <div className="relative grid gap-5 md:grid-cols-[auto_1fr_auto] md:items-center">
+      <div className="relative grid grid-cols-1 gap-5 md:grid-cols-[auto_1fr_auto] md:items-center">
         <div className="relative w-[148px] h-[148px] mx-auto md:mx-0" role="img" aria-label={goal ? `${formatMinutes(thisWeek)} van je weekdoel van ${formatMinutes(goal)}` : `${formatMinutes(thisWeek)} deze week`}>
           <svg viewBox="0 0 148 148" className={`w-full h-full -rotate-90 ${almost ? 'drop-shadow-[0_0_12px_rgba(253,186,116,0.55)]' : ''}`}>
             <circle cx={74} cy={74} r={R} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth={12} />
@@ -674,7 +676,7 @@ function Heatmap({ byDay, today }: { byDay: Record<string, number>; today: strin
   )
 }
 
-export default function HomePage({ user, allMoments: initialMoments, subjects, displayName, weeklyGoal, weeklyGoalSupported, reviews, reviewsSupported, studySessions, examEvents, todaySlots, terms }: Props) {
+export default function HomePage({ user, allMoments: initialMoments, subjects, displayName, weeklyGoal, weeklyGoalSupported, reviews, reviewsSupported, studySessions, examEvents, todaySlots, terms, studyGoals = [] }: Props) {
   const { tr } = useLanguage()
   const h = tr.home
   const sj = tr.subjects
@@ -825,6 +827,11 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
     return null
   }, [examEvents, subjects, minutesPerSubject, minutesThisWeekPerSubject, today])
 
+  const examPlans = useMemo(() => studyGoals
+    .filter(g => g.exam_date >= today)
+    .map(g => ({ goal: g, ...buildPlan(g, minutesByDayFor(moments, g.subject), today) }))
+    .slice(0, 3), [studyGoals, moments, today])
+
   const firstName = displayName ?? user.email?.split('@')[0]?.split('+')[0] ?? ''
   const statusText = studiedToday
     ? `Je hebt vandaag ${todayMinutes > 0 ? formatMinutes(todayMinutes) : 'al iets'} gelogd.`
@@ -880,7 +887,7 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
           <span className="text-xs text-slate-500 dark:text-slate-400">Je week en streak blijven altijd actueel.</span>
         </motion.div>
 
-        <motion.div {...fade(1)} className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_250px]">
+        <motion.div {...fade(1)} className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_250px]">
           <HeroCard
             thisWeek={week.thisWeek} goal={goal} week={week} streak={streak} shields={shields} studiedToday={studiedToday} atRisk={atRisk}
             hasMoments={moments.length > 0} intro={intro} feedback={feedback} celebrate={celebrate} confettiColors={weekColors}
@@ -900,7 +907,43 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
           </div>
         </motion.div>
 
-        {suggestion && (
+        {examPlans.length > 0 && (
+          <motion.div {...fade(2)} className={`${card} p-5`}>
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <h2 className={heading}>Vandaag voor je toetsen</h2>
+              <Link href="/toetsen" className={`${linkText} inline-flex items-center gap-1`}>Toetsplanner <ArrowRight className="w-3.5 h-3.5" /></Link>
+            </div>
+            <ul className="divide-y divide-indigo-50 dark:divide-white/5">
+              {examPlans.map(p => {
+                const t = p.today && p.today.planned > 0 ? p.today : null
+                const color = colors[p.goal.subject] ?? NO_SUBJECT_COLOR
+                return (
+                  <li key={p.goal.id} className="py-2.5 flex items-center gap-3">
+                    <SubjectDot color={color} />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{p.goal.title}</p>
+                      <p className={`${muted} mt-0.5`}>{p.goal.subject} · {p.daysLeft === 0 ? 'vandaag' : p.daysLeft === 1 ? 'morgen' : `over ${p.daysLeft} dagen`} · {p.pct}% gedaan</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      {p.status === 'klaar' ? (
+                        <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">Doel gehaald</span>
+                      ) : t ? (
+                        <>
+                          <p className="text-sm font-semibold text-slate-900 dark:text-white tabular-nums">{t.open === 0 ? <Check className="inline w-4 h-4 text-emerald-600" strokeWidth={2.5} /> : formatMinutes(t.open)}</p>
+                          <p className="text-xs font-medium" style={{ color: PHASE_COLORS[t.phase] }}>{MOMENT_TYPES[t.phase]}</p>
+                        </>
+                      ) : (
+                        <span className={muted}>Geen studiedag</span>
+                      )}
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          </motion.div>
+        )}
+
+        {examPlans.length === 0 && suggestion && (
           <motion.div {...fade(2)} className={`${card} p-4 flex items-center gap-3 ${suggestion.urgent ? 'border-orange-200' : ''}`}>
             <Target className={`w-5 h-5 shrink-0 ${suggestion.urgent ? 'text-orange-700' : 'text-indigo-600 dark:text-indigo-300'}`} strokeWidth={2} />
             <div className="flex-1 min-w-0">
@@ -913,17 +956,17 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
           </motion.div>
         )}
 
-        <motion.section {...fade(3)} className="grid lg:grid-cols-2 gap-4">
+        <motion.section {...fade(3)} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <DailyChart moments={scoped} today={scopeEnd} dailyGoal={dailyGoal} colors={colors} intro={intro} />
           <SubjectBars moments={scoped} today={scopeEnd} colors={colors} intro={intro} />
         </motion.section>
 
-        <motion.section {...fade(4)} className="grid lg:grid-cols-2 gap-4">
+        <motion.section {...fade(4)} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <RecentMoments moments={scoped} colors={colors} />
           <ReviewCard moments={moments} initialReviews={reviews} supported={reviewsSupported} activeSubjects={activeSubjects} today={today} colors={colors} />
         </motion.section>
 
-        <motion.section {...fade(5)} className="grid lg:grid-cols-2 gap-4 items-start">
+        <motion.section {...fade(5)} className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
           <Heatmap byDay={scopedByDay} today={scopeEnd} />
 
           {examEvents.length > 0 && (

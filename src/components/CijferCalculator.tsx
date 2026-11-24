@@ -157,8 +157,8 @@ export default function CijferCalculator() {
     <div className="min-h-screen bg-[#f8f7ff]">
       <Nav />
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-        <div className="flex justify-between items-start">
-          <div>
+        <div className="flex flex-wrap justify-between items-start gap-3">
+          <div className="min-w-0">
             <div className="flex items-center gap-2"><h1 className="text-2xl font-bold text-indigo-900">{c.title}</h1><PageInfo text="Bereken je huidige gemiddelde of wat je moet halen voor je doelcijfer. Vul je cijfers en wegingen in — de rest doet Knowl." /></div>
             <p className="text-sm text-indigo-400 mt-0.5">{c.subtitle}</p>
           </div>

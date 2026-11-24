@@ -10,7 +10,7 @@ const PUBLIC_PREFIXES = ['/deel/', '/flashcards/deel/', '/flashcards/lid-worden/
 const KNOWN_SECTIONS = [
   'about', 'admin', 'agenda', 'api', 'cijfers', 'contact', 'deel', 'flashcards', 'home', 'leermomenten', 'login',
   'notities', 'pomodoro', 'privacy', 'profiel', 'reset-wachtwoord', 'resultaten', 'rooster', 'studielogboek',
-  'vakken', 'voorwaarden', 'vrienden', 'week', 'woordweb', 'wrapped',
+  'toetsen', 'vakken', 'voorwaarden', 'vrienden', 'week', 'woordweb', 'wrapped',
 ]
 
 function wantsMarkdown(request: NextRequest) {

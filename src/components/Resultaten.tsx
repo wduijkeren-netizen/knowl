@@ -317,7 +317,7 @@ export default function Resultaten({ moments, subjects: initialSubjects, isGuest
               </Card>
 
               <Card title="Wanneer studeer je?" subtitle="Op welke dagen en momenten je studeert in deze selectie">
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Studietijd per weekdag</h3>
                     <p className="text-xs text-slate-600 dark:text-slate-300">Opgetelde studietijd per dag van de week</p>

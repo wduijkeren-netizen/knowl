@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import HomePage from '@/components/HomePage'
 import { fetchAllMoments } from '@/lib/moments'
 import { fetchTerms } from '@/lib/termsDb'
+import type { StudyGoal } from '@/lib/examPlan'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -14,7 +15,8 @@ export default async function Home() {
   const today = now.toISOString().slice(0, 10)
   const todayDow = (now.getDay() + 6) % 7
 
-  const [allMomentsRes, { data: subjects }, { data: profile }, goalRes, reviewRes, { data: studySessions }, examRes, slotsRes, { terms }] = await Promise.all([
+  const [allMomentsRes, { data: subjects }, { data: profile }, goalRes, reviewRes, { data: studySessions }, examRes, slotsRes, { terms }, goalsRes] = await Promise.all([
+
     fetchAllMoments(supabase, { search: '', subject: '', year: '' }, 'id, title, description, duration_minutes, learned_at, category'),
     supabase.from('subjects').select('*'),
     supabase.from('profiles').select('voornaam').eq('id', user.id).maybeSingle(),
@@ -24,6 +26,7 @@ export default async function Home() {
     supabase.from('agenda_events').select('id, date, title, subject').eq('type', 'exam').gte('date', today).order('date', { ascending: true }).limit(5),
     supabase.from('schedule_slots').select('id, day_of_week, start_time, end_time, label').eq('day_of_week', todayDow).order('start_time'),
     fetchTerms(supabase),
+    supabase.from('study_goals').select('*').gte('exam_date', today).order('exam_date'),
   ])
 
   return (
@@ -40,6 +43,7 @@ export default async function Home() {
       examEvents={examRes.data ?? []}
       todaySlots={slotsRes.data ?? []}
       terms={terms}
+      studyGoals={goalsRes.error ? [] : (goalsRes.data ?? []) as StudyGoal[]}
     />
   )
 }

@@ -461,7 +461,7 @@ function TryIt({ l }: { l: Landing }) {
         transition={{ duration: 0.8, ease }}
         className="relative rounded-3xl p-[2px] bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-violet-500 bg-[length:200%_auto] animate-[gradient-move_6s_linear_infinite] shadow-xl shadow-indigo-200/60"
       >
-        <div className="rounded-[22px] bg-white p-6 md:p-8 grid md:grid-cols-2 gap-6 md:gap-8 items-center">
+        <div className="rounded-[22px] bg-white p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center">
           <form onSubmit={show}>
             <span className="text-xs font-semibold text-indigo-500 uppercase tracking-widest">{l.tryTag}</span>
             <h2 className="text-2xl md:text-3xl font-bold text-indigo-900 mt-1">{l.tryTitle}</h2>
@@ -985,7 +985,7 @@ function FeatureShowcase({ features }: { features: ShowcaseFeature[] }) {
               {isActive ? (
                 <motion.div
                   key="open"
-                  className="absolute inset-0 p-6 md:p-8 grid md:grid-cols-2 gap-4 md:gap-6 items-center text-white"
+                  className="absolute inset-0 p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-center text-white"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1, transition: { delay: 0.2, duration: 0.4 } }}
                   exit={{ opacity: 0, transition: { duration: 0.15 } }}
@@ -1805,7 +1805,7 @@ export default function LandingPage() {
           transition={{ duration: 0.8, ease }}
           className="bg-white/70 backdrop-blur-md border border-white rounded-3xl p-8 md:p-12 shadow-xl shadow-emerald-200/50"
         >
-          <div className="grid md:grid-cols-2 gap-8 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
             <Reveal>
               <motion.span variants={fadeUp} className="block text-xs font-semibold text-indigo-500 uppercase tracking-widest">{l.aboutTag}</motion.span>
               <motion.h2 variants={fadeUp} className="text-2xl md:text-3xl font-bold text-indigo-900 mt-2 leading-tight whitespace-pre-line">

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import {
-  BarChart3, BookOpen, Calculator, CalendarClock, CalendarDays, Check, ChevronDown, House, Layers, LogOut, Mail, Menu, Moon,
+  BarChart3, BookOpen, Calculator, CalendarClock, CalendarDays, Check, GraduationCap, ChevronDown, House, Layers, LogOut, Mail, Menu, Moon,
   Network, NotebookPen, PenLine, Search, Sun, Timer, User as UserIcon, Users, UsersRound, X, type LucideIcon,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -94,6 +94,7 @@ export default function Nav({ loggedIn, width = 'max-w-3xl' }: { loggedIn?: bool
       { href: '/notities', label: tr.nav.notities ?? 'Notities', icon: NotebookPen },
     ] },
     { label: lang === 'nl' ? 'Plannen' : tr.nav.overview, links: [
+      { href: '/toetsen', label: lang === 'nl' ? 'Toetsplanner' : 'Exam planner', icon: GraduationCap },
       { href: '/agenda', label: tr.nav.agenda, icon: CalendarDays },
       { href: '/rooster', label: tr.nav.schedule, icon: CalendarClock },
     ] },
