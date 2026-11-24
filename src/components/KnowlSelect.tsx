@@ -62,7 +62,7 @@ export default function KnowlSelect({ value, onChange, options, label, className
       </button>
       {open && (
         <ul ref={listRef} role="listbox" aria-label={label}
-          className="absolute z-40 mt-1.5 w-full min-w-[12rem] max-h-72 overflow-y-auto bg-white rounded-xl border border-indigo-100 shadow-xl shadow-indigo-900/10 p-1">
+          className="absolute z-40 mt-1.5 w-max min-w-full max-w-[90vw] max-h-72 overflow-y-auto bg-white rounded-xl border border-indigo-100 shadow-xl shadow-indigo-900/10 p-1">
           {options.map((o, i) => {
             const selected = o.value === value
             return (

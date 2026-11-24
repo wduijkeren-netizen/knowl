@@ -1,7 +1,7 @@
 'use client'
 
 import Nav from '@/components/Nav'
-import KnowlSelect from '@/components/KnowlSelect'
+import PeriodPicker from '@/components/PeriodPicker'
 import SchoolYearTabs from '@/components/SchoolYearTabs'
 import OnboardingWizard from '@/components/OnboardingWizard'
 import Glyph from '@/components/Glyph'
@@ -689,14 +689,14 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
   const [burnoutDismissed, setBurnoutDismissed] = useState(false)
 
   const now = currentTerm(terms, today)
+  const scopeYears = useMemo(() => Array.from(new Set([now.year, ...moments.map(m => schoolYearOf(m.learned_at)).filter((y): y is string => !!y)])).sort((a, b) => b.localeCompare(a)), [moments, now.year])
   const scopeOptions = useMemo(() => {
-    const years = Array.from(new Set([now.year, ...moments.map(m => schoolYearOf(m.learned_at)).filter((y): y is string => !!y)])).sort((a, b) => b.localeCompare(a))
-    const list = periodOptions(terms, years, today).map(o => ({
+    const list = periodOptions(terms, scopeYears, today).map(o => ({
       ...o,
       label: o.value === `${now.year}#${now.term}` ? `Dit trimester (${now.term})` : o.value === now.year ? `Dit schooljaar (${now.year})` : o.label,
     }))
     return [...list, { value: ALL, label: 'Alles', from: '', to: '' }]
-  }, [terms, moments, today, now.year, now.term])
+  }, [terms, scopeYears, today, now.year, now.term])
   const defaultScope = scopeOptions.some(o => o.value === `${now.year}#${now.term}`) ? `${now.year}#${now.term}` : now.year
   const [scopeChoice, setScopeChoice] = useState<string | null>(null)
   const scopeValue = scopeChoice && scopeOptions.some(o => o.value === scopeChoice) ? scopeChoice : defaultScope
@@ -876,7 +876,7 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
 
         <motion.div {...fade(1)} className="flex flex-wrap items-center gap-2">
           <span id="dash-scope-label" className="text-sm text-slate-600 dark:text-slate-300">Je bekijkt</span>
-          <KnowlSelect id="dash-scope" value={scopeValue} onChange={chooseScope} label="Je bekijkt" size="sm" className="w-60 max-w-full" options={scopeOptions} />
+          <PeriodPicker years={scopeYears} terms={terms} today={today} value={scopeValue} onChange={chooseScope} allValue={ALL} allLabel="Alles" label="Je bekijkt" />
           <span className="text-xs text-slate-500 dark:text-slate-400">Je week en streak blijven altijd actueel.</span>
         </motion.div>
 

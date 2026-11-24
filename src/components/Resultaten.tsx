@@ -6,7 +6,7 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { Pencil, Plus, Target, X } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import Nav from '@/components/Nav'
-import KnowlSelect from '@/components/KnowlSelect'
+import PeriodPicker from '@/components/PeriodPicker'
 import PageInfo from '@/components/PageInfo'
 import MomentForm from '@/components/MomentForm'
 import { createClient } from '@/lib/supabase/client'
@@ -30,9 +30,9 @@ const MIN_MOMENTS = 5
 const WEEKDAYS = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
 const WEEKDAY_FULL = ['maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag', 'zondag']
 const PERIODS: { value: Period; label: string }[] = [
-  { value: 'periode', label: 'Deze periode' },
-  { value: 'jaar', label: 'Dit jaar' },
-  { value: 'alles', label: 'Alles' },
+  { value: 'periode', label: `Laatste ${PERIOD_WEEKS} weken` },
+  { value: 'jaar', label: 'Dit kalenderjaar' },
+  { value: 'alles', label: 'Hele periode' },
 ]
 
 function demoMoments(today: string): ResultMoment[] {
@@ -195,7 +195,7 @@ export default function Resultaten({ moments, subjects: initialSubjects, isGuest
 
   const axis = dark ? '#94a3b8' : '#64748b'
   const enough = selected.length >= MIN_MOMENTS
-  const segment = (active: boolean) => `text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${active ? 'bg-white text-indigo-700 shadow-sm dark:text-white' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'}`
+  const segment = (active: boolean) => `text-sm font-medium px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap ${active ? 'bg-white text-indigo-700 shadow-sm dark:text-white' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'}`
 
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
@@ -220,10 +220,9 @@ export default function Resultaten({ moments, subjects: initialSubjects, isGuest
         {loadFailed && <p className="text-sm text-red-700 bg-red-50 border border-red-100 rounded-xl px-4 py-3">Niet al je leermomenten konden worden geladen. Ververs de pagina om het opnieuw te proberen.</p>}
 
         {!isGuest && (
-          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-            <KnowlSelect value={year} onChange={setYear} label="Schooljaar of trimester" size="sm" className="sm:w-60"
-              options={[{ value: '', label: 'Alle schooljaren' }, ...yearOptions]} />
-            <div className="flex bg-indigo-50 rounded-xl p-1 self-start" role="group" aria-label="Periode">
+          <div className="flex flex-wrap gap-2 items-center">
+            <PeriodPicker years={years} terms={terms} today={today} value={year} onChange={setYear} allValue="" allLabel="Alle schooljaren" />
+            <div className="flex bg-indigo-50 rounded-xl p-1 overflow-x-auto max-w-full" role="group" aria-label="Periode">
               {PERIODS.map(p => (
                 <button key={p.value} onClick={() => setPeriod(p.value)} aria-pressed={period === p.value} className={segment(period === p.value)}>{p.label}</button>
               ))}

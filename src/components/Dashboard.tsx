@@ -5,7 +5,7 @@ import type { User } from '@supabase/supabase-js'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Check, Copy, Download, Link2, MoreHorizontal, Pencil, Search, Star, Trash2, X } from 'lucide-react'
 import Nav from '@/components/Nav'
-import KnowlSelect from '@/components/KnowlSelect'
+import PeriodPicker from '@/components/PeriodPicker'
 import PageInfo from '@/components/PageInfo'
 import Glyph from '@/components/Glyph'
 import SubjectSelect from '@/components/SubjectSelect'
@@ -182,7 +182,7 @@ export default function Dashboard({ user, subjects, statRows: initialStats, init
   }, [subjects, stats])
   const yearOptions = useMemo(() => {
     const years = Array.from(new Set(stats.map(s => schoolYearOf(s.learned_at ?? '')).filter((y): y is string => !!y))).sort((a, b) => b.localeCompare(a))
-    return { options: periodOptions(terms, years, today), hasOther: stats.some(s => !schoolYearOf(s.learned_at ?? '')) }
+    return { years, options: periodOptions(terms, years, today), hasOther: stats.some(s => !schoolYearOf(s.learned_at ?? '')) }
   }, [stats, terms, today])
 
   const totalMinutes = stats.reduce((s, m) => s + (m.duration_minutes ?? 0), 0)
@@ -345,19 +345,19 @@ export default function Dashboard({ user, subjects, statRows: initialStats, init
             emptyLabel="Alle vakken"
             label="Filter op vak"
           />
-          <KnowlSelect
-            className="flex-1 min-w-[140px]"
+          <PeriodPicker
+            years={yearOptions.years}
+            terms={terms}
+            today={today}
             value={filters.year}
             onChange={v => {
               const option = yearOptions.options.find(o => o.value === v)
               setFilters(f => ({ ...f, year: v, from: option?.from, to: option?.to }))
             }}
-            label="Filter op schooljaar of trimester"
-            options={[
-              { value: '', label: 'Alle schooljaren' },
-              ...yearOptions.options,
-              ...(yearOptions.hasOther ? [{ value: OTHER_YEAR, label: 'Overig' }] : []),
-            ]}
+            allValue=""
+            allLabel="Alle schooljaren"
+            extra={yearOptions.hasOther ? [{ value: OTHER_YEAR, label: 'Overig' }] : []}
+            label="Filter op schooljaar"
           />
           <div className="relative" data-menu>
             <button onClick={() => setFilterMenu(o => !o)} aria-label="Meer opties" aria-expanded={filterMenu}
