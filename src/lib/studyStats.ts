@@ -273,7 +273,7 @@ export function dayPartOf(time: string | null | undefined): DayPart | null {
   return 'Nacht'
 }
 
-export const MOMENT_TYPES = { new: 'Nieuwe stof', practice: 'Oefenen', review: 'Herhalen' } as const
+export const MOMENT_TYPES = { new: 'Nieuwe stof', practice: 'Oefenen', review: 'Herhalen', assignment: 'Opdracht' } as const
 export type MomentType = keyof typeof MOMENT_TYPES
 
 const WEEKDAY_NAMES = ['maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag', 'zondag']
@@ -330,7 +330,7 @@ export function typeInsight(totals: Record<MomentType, number>) {
   const pct = percentages(keys.map(k => totals[k]))
   if (pct.every(p => p === 0)) return null
   const byKey = Object.fromEntries(keys.map((k, i) => [k, pct[i]])) as Record<MomentType, number>
-  const base = `Van de tijd waarbij je het type invulde, ging ${byKey.new}% naar nieuwe stof, ${byKey.practice}% naar oefenen en ${byKey.review}% naar herhalen.`
+  const base = `Van de tijd waarbij je het type invulde, ging ${byKey.new}% naar nieuwe stof, ${byKey.practice}% naar oefenen, ${byKey.review}% naar herhalen en ${byKey.assignment}% naar opdrachten.`
   if (byKey.new >= 60 && byKey.review < 15) return `${base} Plan wat vaker een herhaling in, dan blijft de stof beter hangen.`
   return base
 }

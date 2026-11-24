@@ -168,7 +168,7 @@ test('conclusies volgen de gegevens', () => {
   assert.match(trendInsight([30, 40, 30, 35, 90, 100, 80, 120].map((t, i) => ({ start: `2026-09-${String(7 + i * 3).padStart(2, '0')}`, total: t })))!, /toegenomen/)
   assert.equal(weekdayInsight([0, 0, 0, 0, 0, 0, 0]), null)
   assert.equal(weekdayInsight([60, 40, 50, 120, 5, 0, 30]), 'Je sterkste studiedag is donderdag. Op vrijdag en zaterdag studeer je nauwelijks.')
-  assert.match(typeInsight({ new: 70, practice: 10, review: 20 })!, /70% naar nieuwe stof/)
+  assert.match(typeInsight({ new: 70, practice: 10, review: 10, assignment: 10 })!, /70% naar nieuwe stof.*10% naar opdrachten/)
 })
 
 test('trimesters: bereik, huidig trimester en vakken per trimester', () => {

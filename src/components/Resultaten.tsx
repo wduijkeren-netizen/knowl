@@ -41,7 +41,7 @@ function demoMoments(today: string): ResultMoment[] {
     learned_at: addDays(today, -i * 2),
     duration_minutes: [45, 30, 60, 25, 90][i % 5],
     category: vakken[(i * 7) % 4 === 3 && i % 3 ? 0 : i % 4],
-    moment_type: (['new', 'practice', 'review', 'new'] as const)[i % 4],
+    moment_type: (['new', 'practice', 'review', 'assignment', 'new'] as const)[i % 5],
     start_time: ['09:30', '14:00', '20:15', '19:00', '16:30'][i % 5],
   }))
 }
