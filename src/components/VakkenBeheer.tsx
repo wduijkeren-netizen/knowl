@@ -60,6 +60,8 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, moments,
   const [deleting, setDeleting] = useState<Subject | null>(null)
   const [switchOpen, setSwitchOpen] = useState(false)
   const [search, setSearch] = useState('')
+  const [startEdit, setStartEdit] = useState<string | null>(null)
+  const [startError, setStartError] = useState('')
 
   useEffect(() => {
     if (!menuId) return
@@ -96,6 +98,22 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, moments,
     .filter(s => !search.trim() || s.name.toLowerCase().includes(search.toLowerCase()))
   const yearChoices = getSchoolYearOptions().map(y => ({ value: y, label: y }))
   const currentStart = termsOfYear(terms, now.year).find(t => t.term === now.term)?.starts_on
+  const previousStart = termsOfYear(terms, now.year).find(t => t.term === now.term - 1)?.starts_on
+
+  async function saveStart(e: React.FormEvent) {
+    e.preventDefault()
+    if (!startEdit || !user) return
+    if ((previousStart && startEdit <= previousStart) || startEdit > today) {
+      setStartError(`Kies een datum na ${previousStart ? formatDay(previousStart) : 'het vorige trimester'} en uiterlijk vandaag.`)
+      return
+    }
+    const row = { school_year: now.year, term: now.term, starts_on: startEdit }
+    const { error } = await supabase.from('school_terms').upsert({ ...row, user_id: user.id }, { onConflict: 'user_id,school_year,term' })
+    if (error) { setStartError('Opslaan lukte niet. Probeer het opnieuw.'); return }
+    setTerms(list => [...list.filter(t => !(t.school_year === row.school_year && t.term === row.term)), row])
+    setStartEdit(null)
+    setStartError('')
+  }
 
   async function addSubject(e: React.FormEvent) {
     e.preventDefault()
@@ -181,7 +199,24 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, moments,
             <span className="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0"><CalendarRange className="w-5 h-5" strokeWidth={2} /></span>
             <div className="flex-1 min-w-0">
               <p className="text-base font-semibold text-slate-900 dark:text-white">Trimester {now.term} · {now.year}</p>
-              <p className="text-sm text-slate-600 dark:text-slate-300">{currentStart ? `Gestart op ${formatDay(currentStart)}.` : ''} Is dit trimester voorbij? Ga door naar het volgende, met dezelfde of nieuwe vakken.</p>
+              {startEdit !== null ? (
+                <form className="mt-2 flex flex-wrap items-center gap-2" onSubmit={saveStart}>
+                  <label className="text-sm text-slate-700 dark:text-slate-200" htmlFor="term-start">Trimester {now.term} begon op</label>
+                  <input id="term-start" type="date" value={startEdit} min={previousStart ? addDays(previousStart, 1) : undefined} max={today}
+                    onChange={e => setStartEdit(e.target.value)} className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm" />
+                  <button className="text-sm font-semibold bg-indigo-600 text-white rounded-lg px-3 py-1.5 hover:bg-indigo-700">Opslaan</button>
+                  <button type="button" onClick={() => { setStartEdit(null); setStartError('') }} className="text-sm text-slate-700 dark:text-slate-200 px-2 py-1.5 rounded-lg hover:bg-indigo-50">Annuleren</button>
+                  {startError && <p className="w-full text-sm text-red-700 dark:text-red-300">{startError}</p>}
+                </form>
+              ) : (
+                <p className="text-sm text-slate-600 dark:text-slate-300">
+                  {currentStart ? `Gestart op ${formatDay(currentStart)}. ` : ''}
+                  {now.term > 1 && currentStart && (
+                    <button onClick={() => setStartEdit(currentStart)} className="font-medium text-indigo-700 dark:text-indigo-300 underline underline-offset-2 hover:text-indigo-900">Startdatum wijzigen</button>
+                  )}
+                  {now.term > 1 ? ' · ' : ''}Leermomenten vanaf de startdatum tellen mee voor dit trimester. Is het voorbij? Ga door naar het volgende.
+                </p>
+              )}
             </div>
             {now.term < MAX_TERMS ? (
               <button onClick={() => setSwitchOpen(true)} className="inline-flex items-center justify-center gap-1.5 text-sm font-semibold bg-indigo-600 text-white rounded-xl px-4 py-2.5 hover:bg-indigo-700 shrink-0">

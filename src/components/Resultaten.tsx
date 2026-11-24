@@ -194,7 +194,7 @@ export default function Resultaten({ moments, subjects: initialSubjects, isGuest
   }
 
   const axis = dark ? '#94a3b8' : '#64748b'
-  const enough = selected.length >= MIN_MOMENTS
+  const enough = all.length >= MIN_MOMENTS && selected.length > 0
   const segment = (active: boolean) => `text-sm font-medium px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap ${active ? 'bg-white text-indigo-700 shadow-sm dark:text-white' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'}`
 
   return (
@@ -240,11 +240,19 @@ export default function Resultaten({ moments, subjects: initialSubjects, isGuest
           {!enough ? (
             <section className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-10 text-center">
               <span className="w-12 h-12 mx-auto rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><Target className="w-6 h-6" strokeWidth={2} /></span>
-              <p className="text-base font-semibold text-slate-900 dark:text-white mt-3">Je resultaten worden steeds interessanter naarmate je meer leermomenten registreert.</p>
-              <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
-                Log minstens {MIN_MOMENTS} leermomenten om je studiepatronen te ontdekken.
-                {selected.length > 0 ? ` In deze selectie staan er nu ${selected.length}.` : ''}
-              </p>
+              {all.length >= MIN_MOMENTS ? (
+                <>
+                  <p className="text-base font-semibold text-slate-900 dark:text-white mt-3">Nog geen leermomenten in deze selectie</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Kies hierboven een ander schooljaar, trimester of periode.</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-base font-semibold text-slate-900 dark:text-white mt-3">Je resultaten worden steeds interessanter naarmate je meer leermomenten registreert.</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+                    Log minstens {MIN_MOMENTS} leermomenten om je studiepatronen te ontdekken. Je hebt er nu {all.length}.
+                  </p>
+                </>
+              )}
               {userId ? (
                 <button onClick={() => setFormOpen(true)} className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold bg-indigo-600 text-white rounded-xl px-4 py-2.5 hover:bg-indigo-700">
                   <Plus className="w-4 h-4" strokeWidth={2.5} /> Leermoment toevoegen
