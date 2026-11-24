@@ -7,7 +7,7 @@ create table if not exists public.school_terms (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
   school_year text not null,
-  term smallint not null check (term between 1 and 3),
+  term smallint not null check (term between 1 and 4),
   starts_on date not null,
   unique (user_id, school_year, term)
 );

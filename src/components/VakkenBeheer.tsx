@@ -6,6 +6,7 @@ import type { User } from '@supabase/supabase-js'
 import { ArrowRight, BookOpen, CalendarRange, Check, MoreHorizontal, Pencil, Plus, Target, Trash2, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import Nav from '@/components/Nav'
+import KnowlSelect from '@/components/KnowlSelect'
 import PageInfo from '@/components/PageInfo'
 import { getSchoolYearOptions } from '@/lib/schoolYear'
 import { NO_SUBJECT_COLOR, buildSubjectColors } from '@/lib/subjectColors'
@@ -93,6 +94,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, moments,
   const visible = subjects
     .filter(s => (viewTerm === WHOLE_YEAR ? (!s.school_year || s.school_year === viewYear) : subjectInTerm(s, viewYear, viewTerm)))
     .filter(s => !search.trim() || s.name.toLowerCase().includes(search.toLowerCase()))
+  const yearChoices = getSchoolYearOptions().map(y => ({ value: y, label: y }))
   const currentStart = termsOfYear(terms, now.year).find(t => t.term === now.term)?.starts_on
 
   async function addSubject(e: React.FormEvent) {
@@ -207,10 +209,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, moments,
               <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_11rem]">
                 <input value={name} onChange={e => setName(e.target.value)} placeholder="bijv. Bedrijfseconomie" aria-label="Naam van het vak" maxLength={80}
                   className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-                <select value={newYear} onChange={e => setNewYear(e.target.value)} aria-label="Schooljaar"
-                  className="border border-gray-200 bg-white rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-400">
-                  {getSchoolYearOptions().map(y => <option key={y} value={y}>{y}</option>)}
-                </select>
+                <KnowlSelect value={newYear} onChange={setNewYear} label="Schooljaar" options={yearChoices} />
               </div>
               {termsSupported && (
                 <div>
@@ -230,10 +229,7 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, moments,
 
         <section aria-label="Je vakken" className="space-y-3">
           <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-            <select value={viewYear} onChange={e => setViewYear(e.target.value)} aria-label="Toon schooljaar"
-              className="border border-gray-200 bg-white rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 sm:w-44">
-              {years.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
+            <KnowlSelect value={viewYear} onChange={setViewYear} label="Toon schooljaar" size="sm" className="sm:w-44" options={years.map(y => ({ value: y, label: y }))} />
             <div className="flex bg-indigo-50 rounded-xl p-1 self-start overflow-x-auto max-w-full" role="group" aria-label="Toon trimester">
               {termsSupported && startedTerms.map(t => (
                 <button key={t.term} onClick={() => setViewTerm(t.term)} aria-pressed={viewTerm === t.term} className={segment(viewTerm === t.term)}>
@@ -263,11 +259,11 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, moments,
                 const recurringPct = s.recurring_goal_minutes ? Math.min(100, Math.round((periodDone / s.recurring_goal_minutes) * 100)) : null
                 const active = s.is_active !== false
                 return (
-                  <li key={s.id} className={`relative bg-white rounded-xl border hover:shadow-sm transition-shadow ${active ? '' : 'opacity-70'}`}
+                  <li key={s.id} className={`relative bg-white rounded-xl border hover:shadow-sm transition-shadow ${menuId === s.id ? 'z-20' : ''}`}
                     style={{ backgroundImage: `linear-gradient(${color}10, ${color}10)`, borderColor: `${color}33` }}>
                     <span className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" style={{ backgroundColor: color }} aria-hidden />
                     <div className="pl-4 pr-2 py-3 flex items-start gap-3">
-                      <Link href={`/vakken/${encodeURIComponent(s.name)}`} className="min-w-0 flex-1 group">
+                      <Link href={`/vakken/${encodeURIComponent(s.name)}`} className={`min-w-0 flex-1 group ${active ? '' : 'opacity-60'}`}>
                         <p className="text-sm font-semibold text-slate-900 dark:text-white truncate group-hover:text-indigo-700">{s.name}</p>
                         <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
                           {termsSupported && <span className="inline-flex items-center rounded-full border border-indigo-200 bg-white/70 px-2 py-0.5 text-[11px] font-medium text-indigo-700 dark:text-indigo-300">{termLabel(s)}</span>}
@@ -347,13 +343,10 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, moments,
                             <input type="date" value={goalForm.date} onChange={e => setGoalForm({ ...goalForm, date: e.target.value })}
                               className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-normal" />
                           </label>
-                          <label className="text-xs font-medium text-slate-700 dark:text-slate-200">Terugkerend doel
-                            <select value={goalForm.recurringType} onChange={e => setGoalForm({ ...goalForm, recurringType: e.target.value })}
-                              className="mt-1 w-full border border-gray-200 bg-white rounded-lg px-3 py-2 text-sm font-normal">
-                              <option value="">Geen</option>
-                              {Object.entries(RECURRING).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                            </select>
-                          </label>
+                          <div className="text-xs font-medium text-slate-700 dark:text-slate-200">Terugkerend doel
+                            <KnowlSelect className="mt-1" size="sm" label="Terugkerend doel" value={goalForm.recurringType} onChange={v => setGoalForm({ ...goalForm, recurringType: v })}
+                              options={[{ value: '', label: 'Geen' }, ...Object.entries(RECURRING).map(([k, v]) => ({ value: k, label: v }))]} />
+                          </div>
                           <label className="text-xs font-medium text-slate-700 dark:text-slate-200">Minuten per keer
                             <input type="number" min="1" value={goalForm.recurringMinutes} onChange={e => setGoalForm({ ...goalForm, recurringMinutes: e.target.value })} placeholder="bijv. 60"
                               className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-normal placeholder:text-slate-500" />
@@ -374,12 +367,9 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, moments,
                           if (termsSupported) values.terms = termForm.terms.length ? termForm.terms : null
                           if (await update(s.id, values)) setPanel(null)
                         }}>
-                        <label className="block text-xs font-medium text-slate-700 dark:text-slate-200">Schooljaar
-                          <select value={termForm.year} onChange={e => setTermForm({ ...termForm, year: e.target.value })}
-                            className="mt-1 block border border-gray-200 bg-white rounded-lg px-3 py-2 text-sm font-normal">
-                            {getSchoolYearOptions().map(y => <option key={y} value={y}>{y}</option>)}
-                          </select>
-                        </label>
+                        <div className="text-xs font-medium text-slate-700 dark:text-slate-200">Schooljaar
+                          <KnowlSelect className="mt-1 w-44" size="sm" label="Schooljaar" value={termForm.year} onChange={v => setTermForm({ ...termForm, year: v })} options={yearChoices} />
+                        </div>
                         {termsSupported && (
                           <div>
                             <span className="block text-xs font-medium text-slate-700 dark:text-slate-200 mb-1.5">Hoort bij</span>

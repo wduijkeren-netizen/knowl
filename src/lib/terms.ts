@@ -1,6 +1,6 @@
 import { addDays, schoolYearOf, schoolYearRange, type Range } from './studyStats.ts'
 
-export const MAX_TERMS = 3
+export const MAX_TERMS = 4
 
 export type SchoolTerm = { school_year: string; term: number; starts_on: string }
 export type TermSubject = { name: string; is_active?: boolean | null; school_year?: string | null; terms?: number[] | null }

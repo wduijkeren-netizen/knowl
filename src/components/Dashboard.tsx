@@ -5,6 +5,7 @@ import type { User } from '@supabase/supabase-js'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Check, Copy, Download, Link2, MoreHorizontal, Pencil, Search, Star, Trash2, X } from 'lucide-react'
 import Nav from '@/components/Nav'
+import KnowlSelect from '@/components/KnowlSelect'
 import PageInfo from '@/components/PageInfo'
 import Glyph from '@/components/Glyph'
 import SubjectSelect from '@/components/SubjectSelect'
@@ -344,19 +345,20 @@ export default function Dashboard({ user, subjects, statRows: initialStats, init
             emptyLabel="Alle vakken"
             label="Filter op vak"
           />
-          <select
+          <KnowlSelect
+            className="flex-1 min-w-[140px]"
             value={filters.year}
-            onChange={e => {
-              const option = yearOptions.options.find(o => o.value === e.target.value)
-              setFilters(f => ({ ...f, year: e.target.value, from: option?.from, to: option?.to }))
+            onChange={v => {
+              const option = yearOptions.options.find(o => o.value === v)
+              setFilters(f => ({ ...f, year: v, from: option?.from, to: option?.to }))
             }}
-            aria-label="Filter op schooljaar of trimester"
-            className="flex-1 min-w-[140px] border border-gray-200 bg-white rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          >
-            <option value="">Alle schooljaren</option>
-            {yearOptions.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-            {yearOptions.hasOther && <option value={OTHER_YEAR}>Overig</option>}
-          </select>
+            label="Filter op schooljaar of trimester"
+            options={[
+              { value: '', label: 'Alle schooljaren' },
+              ...yearOptions.options,
+              ...(yearOptions.hasOther ? [{ value: OTHER_YEAR, label: 'Overig' }] : []),
+            ]}
+          />
           <div className="relative" data-menu>
             <button onClick={() => setFilterMenu(o => !o)} aria-label="Meer opties" aria-expanded={filterMenu}
               className="w-10 h-10 flex items-center justify-center border border-gray-200 bg-white rounded-xl text-slate-700 dark:text-slate-200 hover:bg-indigo-50">

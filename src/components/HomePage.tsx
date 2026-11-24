@@ -1,6 +1,7 @@
 'use client'
 
 import Nav from '@/components/Nav'
+import KnowlSelect from '@/components/KnowlSelect'
 import SchoolYearTabs from '@/components/SchoolYearTabs'
 import OnboardingWizard from '@/components/OnboardingWizard'
 import Glyph from '@/components/Glyph'
@@ -874,11 +875,8 @@ export default function HomePage({ user, allMoments: initialMoments, subjects, d
         </motion.section>
 
         <motion.div {...fade(1)} className="flex flex-wrap items-center gap-2">
-          <label htmlFor="dash-scope" className="text-sm text-slate-600 dark:text-slate-300">Je bekijkt</label>
-          <select id="dash-scope" value={scopeValue} onChange={e => chooseScope(e.target.value)}
-            className="border border-indigo-100 bg-white rounded-xl pl-3 pr-8 py-1.5 text-sm font-medium text-indigo-900 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 max-w-full">
-            {scopeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+          <span id="dash-scope-label" className="text-sm text-slate-600 dark:text-slate-300">Je bekijkt</span>
+          <KnowlSelect id="dash-scope" value={scopeValue} onChange={chooseScope} label="Je bekijkt" size="sm" className="w-60 max-w-full" options={scopeOptions} />
           <span className="text-xs text-slate-500 dark:text-slate-400">Je week en streak blijven altijd actueel.</span>
         </motion.div>
 

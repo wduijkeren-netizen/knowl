@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { Pencil, Plus, Target, X } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import Nav from '@/components/Nav'
+import KnowlSelect from '@/components/KnowlSelect'
 import PageInfo from '@/components/PageInfo'
 import MomentForm from '@/components/MomentForm'
 import { createClient } from '@/lib/supabase/client'
@@ -220,11 +221,8 @@ export default function Resultaten({ moments, subjects: initialSubjects, isGuest
 
         {!isGuest && (
           <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-            <select value={year} onChange={e => setYear(e.target.value)} aria-label="Schooljaar of trimester"
-              className="border border-gray-200 bg-white rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 sm:w-48">
-              <option value="">Alle schooljaren</option>
-              {yearOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
+            <KnowlSelect value={year} onChange={setYear} label="Schooljaar of trimester" size="sm" className="sm:w-60"
+              options={[{ value: '', label: 'Alle schooljaren' }, ...yearOptions]} />
             <div className="flex bg-indigo-50 rounded-xl p-1 self-start" role="group" aria-label="Periode">
               {PERIODS.map(p => (
                 <button key={p.value} onClick={() => setPeriod(p.value)} aria-pressed={period === p.value} className={segment(period === p.value)}>{p.label}</button>
