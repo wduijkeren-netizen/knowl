@@ -2,165 +2,193 @@
 
 import Glyph from '@/components/Glyph'
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { Check, ChevronRight, Download, Hand, ListTree, MousePointerClick, Plus, Save, Trash2, X } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 import Nav from '@/components/Nav'
-import Link from 'next/link'
 import SubjectSelect from '@/components/SubjectSelect'
-import { ArrowLeft, Check, Download, Link2, MoreHorizontal, MousePointerClick, Pencil, Save, Trash2 } from 'lucide-react'
-import { buildSubjectColors } from '@/lib/subjectColors'
+import ToolBanner, { bannerButton, bannerTitleInput } from '@/components/ToolBanner'
 import { useStudyTimer } from '@/lib/useStudyTimer'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import { buildSubjectColors } from '@/lib/subjectColors'
+import { buildTree, type TreeItem, type WebEdge, type WebNode } from '@/lib/wordWebTree'
 
-type Node = { id: string; label: string; x: number; y: number; color: string }
-type Edge = { id: string; from: string; to: string; label?: string }
-type Web = { id: string; title: string; vak: string | null; nodes: Node[]; edges: Edge[] }
+type Web = { id: string; title: string; vak: string | null; nodes: WebNode[]; edges: WebEdge[] }
 type Subject = { id: string; name: string }
 type Props = { web: Web | null; subjects: Subject[]; userId: string }
 
-const COLORS = ['#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899']
+const COLORS = ['#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#475569']
+const DOUBLE_TAP_MS = 350
+const DRAG_THRESHOLD = 5
 
 function uid() { return Math.random().toString(36).slice(2) }
 
 export default function WoordwebEditor({ web, subjects, userId }: Props) {
   const router = useRouter()
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const canvasRef = useRef<HTMLDivElement>(null)
+  const { tr } = useLanguage()
+  const ww = tr.woordweb
 
   const [title, setTitle] = useState(web?.title ?? '')
   const [vak, setVak] = useState(web?.vak ?? '')
-  const [nodes, setNodes] = useState<Node[]>(web?.nodes ?? [])
-  const [edges, setEdges] = useState<Edge[]>(web?.edges ?? [])
+  const [nodes, setNodes] = useState<WebNode[]>(web?.nodes ?? [])
+  const [edges, setEdges] = useState<WebEdge[]>(web?.edges ?? [])
+  const [selected, setSelected] = useState<string | null>(null)
   const [connecting, setConnecting] = useState<string | null>(null)
-  const [dragging, setDragging] = useState<{ id: string; ox: number; oy: number } | null>(null)
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null)
   const [editNodeLabel, setEditNodeLabel] = useState('')
   const [editingEdgeId, setEditingEdgeId] = useState<string | null>(null)
   const [editEdgeLabel, setEditEdgeLabel] = useState('')
-  const { tr } = useLanguage()
-  const ww = tr.woordweb
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [dirty, setDirty] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const subjectNames = useMemo(() => Array.from(new Set([...subjects.map(s => s.name), ...(web?.vak ? [web.vak] : [])])).sort((a, b) => a.localeCompare(b)), [subjects, web?.vak])
-  const subjectColors = useMemo(() => buildSubjectColors(subjectNames), [subjectNames])
-
-  useEffect(() => {
-    if (!menuOpen) return
-    function onDown(e: MouseEvent) { if (!(e.target as HTMLElement).closest('[data-menu]')) setMenuOpen(false) }
-    document.addEventListener('mousedown', onDown)
-    return () => document.removeEventListener('mousedown', onDown)
-  }, [menuOpen])
+  const [panelOpen, setPanelOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+  const drag = useRef<{ id: string; startX: number; startY: number; ox: number; oy: number; moved: boolean } | null>(null)
+  const lastTap = useRef<{ t: number; x: number; y: number } | null>(null)
   useStudyTimer('woordweb', web?.title ?? ww.newWeb)
 
-  function addNode(e: React.MouseEvent<HTMLDivElement>) {
-    if ((e.target as HTMLElement).closest('.node')) return
-    const rect = canvasRef.current!.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    const color = COLORS[nodes.length % COLORS.length]
-    const newNode = { id: uid(), label: '', x, y, color }
-    setNodes(n => [...n, newNode])
-    setEditingNodeId(newNode.id)
-    setEditNodeLabel('')
-  }
+  const subjectNames = useMemo(() => Array.from(new Set([...subjects.map(s => s.name), ...(web?.vak ? [web.vak] : [])])).sort((a, b) => a.localeCompare(b)), [subjects, web?.vak])
+  const subjectColors = useMemo(() => buildSubjectColors(subjectNames), [subjectNames])
+  const tree = useMemo(() => buildTree(nodes, edges), [nodes, edges])
 
-  function startDrag(e: React.MouseEvent | React.TouchEvent, id: string) {
-    e.stopPropagation()
-    if (connecting) {
-      if (connecting === id) { setConnecting(null); return }
-      const exists = edges.some(ed => (ed.from === connecting && ed.to === id) || (ed.from === id && ed.to === connecting))
-      if (!exists) setEdges(ed => [...ed, { id: uid(), from: connecting, to: id, label: '' }])
-      setConnecting(null)
-      return
-    }
+  const changeNodes = useCallback((fn: (n: WebNode[]) => WebNode[]) => { setNodes(fn); setDirty(true) }, [])
+  const changeEdges = useCallback((fn: (e: WebEdge[]) => WebEdge[]) => { setEdges(fn); setDirty(true) }, [])
+
+  function startEditing(id: string) {
     const node = nodes.find(n => n.id === id)
     if (!node) return
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
-    setDragging({ id, ox: clientX - node.x, oy: clientY - node.y })
-  }
-
-  const onMouseMove = useCallback((e: MouseEvent) => {
-    if (!dragging) return
-    setNodes(ns => ns.map(n => n.id === dragging.id ? { ...n, x: e.clientX - dragging.ox, y: e.clientY - dragging.oy } : n))
-  }, [dragging])
-
-  const onMouseUp = useCallback(() => setDragging(null), [])
-
-  const onTouchMove = useCallback((e: TouchEvent) => {
-    if (!dragging) return
-    e.preventDefault()
-    const t = e.touches[0]
-    setNodes(ns => ns.map(n => n.id === dragging.id ? { ...n, x: t.clientX - dragging.ox, y: t.clientY - dragging.oy } : n))
-  }, [dragging])
-
-  useEffect(() => {
-    window.addEventListener('mousemove', onMouseMove)
-    window.addEventListener('mouseup', onMouseUp)
-    window.addEventListener('touchmove', onTouchMove, { passive: false })
-    window.addEventListener('touchend', onMouseUp)
-    return () => {
-      window.removeEventListener('mousemove', onMouseMove)
-      window.removeEventListener('mouseup', onMouseUp)
-      window.removeEventListener('touchmove', onTouchMove)
-      window.removeEventListener('touchend', onMouseUp)
-    }
-  }, [onMouseMove, onMouseUp, onTouchMove])
-
-  function startEditNode(e: React.MouseEvent, node: Node) {
-    e.stopPropagation()
-    setEditingNodeId(node.id)
+    setSelected(id)
+    setEditingNodeId(id)
     setEditNodeLabel(node.label)
   }
 
+  function addNodeAt(x: number, y: number, connectTo?: string) {
+    const color = connectTo ? nodes.find(n => n.id === connectTo)?.color ?? COLORS[0] : COLORS[nodes.length % COLORS.length]
+    const node = { id: uid(), label: '', x, y, color }
+    changeNodes(n => [...n, node])
+    if (connectTo) changeEdges(e => [...e, { id: uid(), from: connectTo, to: node.id, label: '' }])
+    setSelected(node.id)
+    setEditingNodeId(node.id)
+    setEditNodeLabel('')
+  }
+
+  function addChild(parentId: string) {
+    const parent = nodes.find(n => n.id === parentId)
+    if (!parent) return
+    const count = edges.filter(e => e.from === parentId || e.to === parentId).length
+    const angle = (count * 55 * Math.PI) / 180 + Math.PI / 6
+    const rect = canvasRef.current?.getBoundingClientRect()
+    const x = Math.max(60, Math.min((rect?.width ?? 800) - 60, parent.x + Math.cos(angle) * 150))
+    const y = Math.max(40, Math.min((rect?.height ?? 600) - 40, parent.y + Math.sin(angle) * 110))
+    if (collapsed.has(parentId)) setCollapsed(c => { const n = new Set(c); n.delete(parentId); return n })
+    addNodeAt(x, y, parentId)
+  }
+
+  function onCanvasClick(e: React.MouseEvent<HTMLDivElement>) {
+    if ((e.target as HTMLElement).closest('.node, .edge-ui')) return
+    const rect = canvasRef.current!.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const now = Date.now()
+    const prev = lastTap.current
+    if (prev && now - prev.t < DOUBLE_TAP_MS && Math.hypot(prev.x - x, prev.y - y) < 30) {
+      lastTap.current = null
+      addNodeAt(x, y)
+      return
+    }
+    lastTap.current = { t: now, x, y }
+    setSelected(null)
+    setConnecting(null)
+  }
+
+  function onNodePointerDown(e: React.PointerEvent, id: string) {
+    if ((e.target as HTMLElement).closest('input, button')) return
+    e.stopPropagation()
+    const node = nodes.find(n => n.id === id)
+    if (!node) return
+    drag.current = { id, startX: e.clientX, startY: e.clientY, ox: e.clientX - node.x, oy: e.clientY - node.y, moved: false }
+  }
+
+  const onPointerMove = useCallback((e: PointerEvent) => {
+    const d = drag.current
+    if (!d) return
+    if (!d.moved && Math.hypot(e.clientX - d.startX, e.clientY - d.startY) < DRAG_THRESHOLD) return
+    d.moved = true
+    changeNodes(ns => ns.map(n => (n.id === d.id ? { ...n, x: e.clientX - d.ox, y: e.clientY - d.oy } : n)))
+  }, [changeNodes])
+
+  const onPointerUp = useCallback(() => {
+    const d = drag.current
+    drag.current = null
+    if (!d || d.moved) return
+    if (connecting) {
+      if (connecting !== d.id) {
+        changeEdges(es => (es.some(ed => (ed.from === connecting && ed.to === d.id) || (ed.from === d.id && ed.to === connecting)) ? es : [...es, { id: uid(), from: connecting, to: d.id, label: '' }]))
+      }
+      setConnecting(null)
+      return
+    }
+    startEditing(d.id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connecting, nodes, changeEdges])
+
+  useEffect(() => {
+    window.addEventListener('pointermove', onPointerMove)
+    window.addEventListener('pointerup', onPointerUp)
+    return () => {
+      window.removeEventListener('pointermove', onPointerMove)
+      window.removeEventListener('pointerup', onPointerUp)
+    }
+  }, [onPointerMove, onPointerUp])
+
+  useEffect(() => {
+    if (!dirty) return
+    function warn(e: BeforeUnloadEvent) { e.preventDefault() }
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [dirty])
+
   function saveNodeEdit() {
-    setNodes(ns => ns.map(n => n.id === editingNodeId
-      ? { ...n, label: editNodeLabel.trim() || 'Knoop' }
-      : n
-    ))
+    if (!editingNodeId) return
+    const id = editingNodeId
+    changeNodes(ns => ns.map(n => (n.id === id ? { ...n, label: editNodeLabel.trim() || n.label || 'Begrip' } : n)))
     setEditingNodeId(null)
   }
 
-  function startEditEdge(e: React.MouseEvent, edge: Edge) {
-    e.stopPropagation()
-    setEditingEdgeId(edge.id)
-    setEditEdgeLabel(edge.label ?? '')
+  function renameNode(id: string, label: string) {
+    changeNodes(ns => ns.map(n => (n.id === id ? { ...n, label } : n)))
+  }
+
+  function recolor(id: string, color: string) {
+    changeNodes(ns => ns.map(n => (n.id === id ? { ...n, color } : n)))
+  }
+
+  function removeNode(id: string) {
+    changeNodes(ns => ns.filter(n => n.id !== id))
+    changeEdges(es => es.filter(e => e.from !== id && e.to !== id))
+    if (connecting === id) setConnecting(null)
+    if (selected === id) setSelected(null)
+    if (editingNodeId === id) setEditingNodeId(null)
   }
 
   function saveEdgeEdit() {
-    setEdges(es => es.map(e => e.id === editingEdgeId ? { ...e, label: editEdgeLabel.trim() } : e))
+    const id = editingEdgeId
+    changeEdges(es => es.map(e => (e.id === id ? { ...e, label: editEdgeLabel.trim() } : e)))
     setEditingEdgeId(null)
   }
 
-  function deleteNode(e: React.MouseEvent, id: string) {
-    e.stopPropagation()
-    setNodes(ns => ns.filter(n => n.id !== id))
-    setEdges(es => es.filter(e => e.from !== id && e.to !== id))
-    if (connecting === id) setConnecting(null)
-  }
-
-  function deleteEdge(id: string) {
-    setEdges(es => es.filter(e => e.id !== id))
-  }
-
   async function handleExport() {
+    if (!canvasRef.current) return
     setExporting(true)
-    // Verberg knoopjes tijdelijk voor de export
-    const btns = canvasRef.current!.querySelectorAll<HTMLElement>('.node-btns')
-    btns.forEach(b => { b.style.display = 'none' })
-
+    const hide = canvasRef.current.querySelectorAll<HTMLElement>('.node-btns, .edge-ui')
+    hide.forEach(b => { b.style.visibility = 'hidden' })
     const html2canvas = (await import('html2canvas')).default
-    const canvas = await html2canvas(canvasRef.current!, {
-      backgroundColor: '#ffffff',
-      scale: 2,
-      useCORS: true,
-    })
-
-    btns.forEach(b => { b.style.display = '' })
-
+    const canvas = await html2canvas(canvasRef.current, { backgroundColor: '#ffffff', scale: 2, useCORS: true })
+    hide.forEach(b => { b.style.visibility = '' })
     const link = document.createElement('a')
     link.download = `${title || 'woordweb'}.png`
     link.href = canvas.toDataURL('image/png')
@@ -182,14 +210,97 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
       await supabase.from('word_webs').update(payload).eq('id', web.id)
     } else {
       const { data } = await supabase.from('word_webs').insert(payload).select('id').single()
-      if (data) { setSaving(false); router.push(`/woordweb/${data.id}`); return }
+      if (data) { setSaving(false); setDirty(false); router.push(`/woordweb/${data.id}`); return }
     }
     setSaving(false)
+    setDirty(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
 
   const getNode = (id: string) => nodes.find(n => n.id === id)
+  const selectedNode = selected ? getNode(selected) : null
+
+  function renderRow(item: TreeItem): React.ReactNode {
+    const n = item.node
+    const isSel = selected === n.id
+    const hasKids = item.children.length > 0
+    const isCollapsed = collapsed.has(n.id)
+    return (
+      <li key={n.id}>
+        <div className={`group flex items-center gap-1 rounded-lg pr-1 ${isSel ? 'bg-indigo-50 dark:bg-white/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}`}
+          style={{ paddingLeft: `${item.depth * 14 + 4}px` }}>
+          <button onClick={() => setCollapsed(c => { const s = new Set(c); if (s.has(n.id)) s.delete(n.id); else s.add(n.id); return s })}
+            aria-label={isCollapsed ? `${n.label} uitklappen` : `${n.label} inklappen`} disabled={!hasKids}
+            className={`w-5 h-5 flex items-center justify-center rounded text-slate-500 ${hasKids ? 'hover:text-indigo-700' : 'invisible'}`}>
+            <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isCollapsed ? '' : 'rotate-90'}`} strokeWidth={2.5} />
+          </button>
+          <button onClick={() => setSelected(isSel ? null : n.id)} aria-pressed={isSel} className="flex-1 min-w-0 flex items-center gap-2 py-1.5 text-left">
+            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: n.color }} aria-hidden />
+            <span className={`text-sm truncate ${item.depth === 0 ? 'font-semibold text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-200'}`}>{n.label || 'Naamloos begrip'}</span>
+            {hasKids && isCollapsed && <span className="text-[11px] text-slate-500 shrink-0">+{item.children.length}</span>}
+          </button>
+          <button onClick={() => addChild(n.id)} aria-label={`Subbegrip onder ${n.label}`} title="Subbegrip toevoegen"
+            className="w-6 h-6 flex items-center justify-center rounded-md text-slate-500 hover:text-indigo-700 hover:bg-white dark:hover:bg-white/10 opacity-0 group-hover:opacity-100 focus:opacity-100">
+            <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
+          </button>
+        </div>
+        {isSel && (
+          <div className="mt-1 mb-2 mx-1 p-3 rounded-xl border border-indigo-100 bg-white space-y-3" style={{ marginLeft: `${item.depth * 14 + 4}px` }}>
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">Naam
+              <input value={n.label} onChange={e => renameNode(n.id, e.target.value)} maxLength={60}
+                className="mt-1 w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+            </label>
+            <div>
+              <span className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">Kleur</span>
+              <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Kleur">
+                {COLORS.map(c => (
+                  <button key={c} role="radio" aria-checked={n.color === c} aria-label={`Kleur ${c}`} onClick={() => recolor(n.id, c)}
+                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-transform hover:scale-110 ${n.color === c ? 'ring-2 ring-offset-2 ring-indigo-500' : ''}`} style={{ backgroundColor: c }}>
+                    {n.color === c && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              <button onClick={() => addChild(n.id)} className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300 border border-indigo-200 rounded-lg px-2 py-1 hover:bg-indigo-50">
+                <Plus className="w-3.5 h-3.5" strokeWidth={2.5} /> Subbegrip
+              </button>
+              <button onClick={() => { setConnecting(n.id); setPanelOpen(false) }} className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-200 border border-gray-200 rounded-lg px-2 py-1 hover:bg-slate-50">
+                <Glyph name="connect" className="w-3.5 h-3.5" /> Verbinden
+              </button>
+              <button onClick={() => removeNode(n.id)} className="inline-flex items-center gap-1 text-xs font-semibold text-red-700 dark:text-red-300 border border-red-200 rounded-lg px-2 py-1 hover:bg-red-50 ml-auto">
+                <Trash2 className="w-3.5 h-3.5" strokeWidth={2} /> Verwijderen
+              </button>
+            </div>
+          </div>
+        )}
+        {hasKids && !isCollapsed && <ul>{item.children.map(renderRow)}</ul>}
+      </li>
+    )
+  }
+
+  const panel = (
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between px-4 pt-4 pb-2">
+        <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Begrippen <span className="font-normal text-slate-500">({nodes.length})</span></h2>
+        <button onClick={() => setPanelOpen(false)} aria-label="Begrippen sluiten" className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100"><X className="w-4 h-4" /></button>
+      </div>
+      <div className="flex-1 overflow-y-auto px-2 pb-3">
+        {nodes.length === 0 ? (
+          <p className="px-2 py-6 text-sm text-slate-600 dark:text-slate-300 text-center">Nog geen begrippen. Dubbeltik op het vlak om je eerste begrip te maken.</p>
+        ) : (
+          <ul className="space-y-0.5">{tree.map(renderRow)}</ul>
+        )}
+      </div>
+      <div className="border-t border-indigo-100 p-3">
+        <button onClick={() => { const r = canvasRef.current?.getBoundingClientRect(); addNodeAt((r?.width ?? 600) / 2, (r?.height ?? 500) / 2); setPanelOpen(false) }}
+          className="w-full inline-flex items-center justify-center gap-1.5 text-sm font-semibold bg-indigo-600 text-white rounded-xl px-3 py-2 hover:bg-indigo-700">
+          <Plus className="w-4 h-4" strokeWidth={2.5} /> Nieuw begrip
+        </button>
+      </div>
+    </div>
+  )
 
   return (
     <div className="min-h-screen bg-[#f8f7ff] flex flex-col">
@@ -208,203 +319,170 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
         </div>
       )}
 
-      <div className="relative z-20 bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-sm">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
-          <svg className="absolute -left-6 -top-4 w-56 h-40 opacity-20" viewBox="0 0 220 160" fill="none" stroke="white" strokeWidth="1.5">
-            <line x1="40" y1="40" x2="110" y2="80" /><line x1="110" y1="80" x2="180" y2="30" /><line x1="110" y1="80" x2="150" y2="140" /><line x1="40" y1="40" x2="30" y2="120" />
-            <circle cx="40" cy="40" r="9" fill="white" fillOpacity=".25" /><circle cx="110" cy="80" r="13" fill="white" fillOpacity=".25" />
-            <circle cx="180" cy="30" r="7" fill="white" fillOpacity=".25" /><circle cx="150" cy="140" r="8" fill="white" fillOpacity=".25" /><circle cx="30" cy="120" r="6" fill="white" fillOpacity=".25" />
-          </svg>
-          <svg className="absolute -right-4 -bottom-10 w-64 h-44 opacity-20" viewBox="0 0 240 170" fill="none" stroke="white" strokeWidth="1.5">
-            <line x1="60" y1="60" x2="140" y2="40" /><line x1="140" y1="40" x2="210" y2="90" /><line x1="60" y1="60" x2="120" y2="130" /><line x1="140" y1="40" x2="120" y2="130" />
-            <circle cx="60" cy="60" r="10" fill="white" fillOpacity=".25" /><circle cx="140" cy="40" r="8" fill="white" fillOpacity=".25" />
-            <circle cx="210" cy="90" r="12" fill="white" fillOpacity=".25" /><circle cx="120" cy="130" r="9" fill="white" fillOpacity=".25" />
-          </svg>
-        </div>
-
-        <div className="relative max-w-6xl mx-auto px-4 py-4 grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_minmax(0,30rem)_1fr] items-center gap-x-3 gap-y-3">
-          <Link href="/woordweb" className="justify-self-start inline-flex items-center gap-1.5 text-sm font-medium text-white/90 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-3 py-1.5 transition-colors">
-            <ArrowLeft className="w-4 h-4" strokeWidth={2} /> Woordwebben
-          </Link>
-
-          <div className="col-span-2 order-last sm:order-none sm:col-span-1 flex flex-col items-center gap-2 min-w-0">
-            <input
-              value={title} onChange={e => setTitle(e.target.value)}
-              placeholder={ww.webName} aria-label="Naam van het woordweb" maxLength={80}
-              className="w-full bg-transparent text-center text-xl md:text-2xl font-bold text-white placeholder:text-white/60 border-b-2 border-white/25 hover:border-white/50 focus:border-white focus:outline-none px-2 py-1 transition-colors"
-            />
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              <SubjectSelect value={vak} onChange={setVak} options={subjectNames.map(n => ({ value: n, label: n }))} colors={subjectColors} emptyLabel={ww.noSubject} label="Vak" className="w-52" />
-              <span className="text-xs text-white/85">
-                {nodes.length} {nodes.length === 1 ? 'begrip' : 'begrippen'} · {edges.length} {edges.length === 1 ? 'verbinding' : 'verbindingen'}
-              </span>
-            </div>
+      <ToolBanner
+        backHref="/woordweb"
+        backLabel="Woordwebben"
+        title={<input value={title} onChange={e => { setTitle(e.target.value); setDirty(true) }} placeholder={ww.webName} aria-label="Naam van het woordweb" maxLength={80} className={bannerTitleInput} />}
+        below={
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <SubjectSelect value={vak} onChange={v => { setVak(v); setDirty(true) }} options={subjectNames.map(n => ({ value: n, label: n }))} colors={subjectColors} emptyLabel={ww.noSubject} label="Vak" className="w-52" />
+            <span className="text-xs text-white/85">{nodes.length} {nodes.length === 1 ? 'begrip' : 'begrippen'} · {edges.length} {edges.length === 1 ? 'verbinding' : 'verbindingen'}</span>
           </div>
-
-          <div className="justify-self-end flex items-center gap-2">
-            <button onClick={handleSave} disabled={saving || !title.trim()}
-              className="inline-flex items-center gap-1.5 bg-white text-indigo-700 text-sm font-semibold px-4 py-2 rounded-xl shadow-sm hover:bg-indigo-50 disabled:opacity-60 transition-colors">
-              {saved ? <Check className="w-4 h-4" strokeWidth={2.5} /> : <Save className="w-4 h-4" strokeWidth={2} />}
-              {saving ? ww.saving : saved ? ww.saved : ww.save}
-            </button>
-            <div className="relative" data-menu>
-              <button onClick={() => setMenuOpen(o => !o)} aria-label="Meer opties" aria-expanded={menuOpen}
-                className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-colors">
-                <MoreHorizontal className="w-4 h-4" strokeWidth={2} />
-              </button>
-              {menuOpen && (
-                <div role="menu" className="absolute right-0 top-full mt-1.5 z-40 w-60 bg-white rounded-xl border border-indigo-100 shadow-xl py-1 text-slate-700 dark:text-slate-200">
-                  <button role="menuitem" onClick={() => { setMenuOpen(false); handleExport() }} disabled={exporting || nodes.length === 0}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-indigo-50 dark:hover:bg-white/5 disabled:opacity-50">
-                    <Download className="w-4 h-4" strokeWidth={2} /> {exporting ? ww.exporting : 'Exporteer als afbeelding'}
-                  </button>
-                  {web && (
-                    <>
-                      <div className="my-1 border-t border-indigo-100" role="separator" />
-                      <button role="menuitem" onClick={() => { setMenuOpen(false); setConfirmDelete(true) }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-red-700 dark:text-red-300 hover:bg-red-50">
-                        <Trash2 className="w-4 h-4" strokeWidth={2} /> Woordweb verwijderen
-                      </button>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+        }
+        actions={
+          <button onClick={handleSave} disabled={saving || !title.trim()} className={bannerButton}>
+            {saved ? <Check className="w-4 h-4" strokeWidth={2.5} /> : <Save className="w-4 h-4" strokeWidth={2} />}
+            {saving ? ww.saving : saved ? ww.saved : ww.save}
+            {dirty && !saving && !saved && <span className="w-1.5 h-1.5 rounded-full bg-amber-500" aria-label="Niet opgeslagen wijzigingen" />}
+          </button>
+        }
+        menu={[
+          { label: exporting ? ww.exporting : 'Exporteer als afbeelding', icon: <Download className="w-4 h-4" strokeWidth={2} />, onClick: handleExport, disabled: exporting || nodes.length === 0 },
+          ...(web ? [{ label: 'Woordweb verwijderen', icon: <Trash2 className="w-4 h-4" strokeWidth={2} />, onClick: () => setConfirmDelete(true), danger: true, divider: true }] : []),
+        ]}
+      />
 
       <div className="bg-white border-b border-indigo-100">
         <div className="max-w-6xl mx-auto px-4 py-2 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs text-slate-600 dark:text-slate-300">
-          <span className="inline-flex items-center gap-1.5"><MousePointerClick className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-300" strokeWidth={2} /> Klik op het vlak om een begrip toe te voegen</span>
-          <span className="inline-flex items-center gap-1.5"><Pencil className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-300" strokeWidth={2} /> Dubbelklik om te bewerken</span>
-          <span className="inline-flex items-center gap-1.5"><Link2 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-300" strokeWidth={2} /> Verbind begrippen met het schakelknopje</span>
+          <button onClick={() => setPanelOpen(true)} className="lg:hidden inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 border border-indigo-200 rounded-lg px-2.5 py-1">
+            <ListTree className="w-3.5 h-3.5" strokeWidth={2} /> Begrippen ({nodes.length})
+          </button>
+          <span className="inline-flex items-center gap-1.5"><MousePointerClick className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-300" strokeWidth={2} /> Dubbeltik op het vlak voor een nieuw begrip</span>
+          <span className="inline-flex items-center gap-1.5"><Glyph name="pen" className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-300" /> Tik op een begrip om het te bewerken</span>
+          <span className="inline-flex items-center gap-1.5"><Hand className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-300" strokeWidth={2} /> Sleep om te verplaatsen</span>
         </div>
       </div>
 
-      {/* Canvas */}
-      <div
-        ref={canvasRef}
-        onClick={addNode}
-        className="flex-1 relative overflow-hidden cursor-crosshair select-none"
-        style={{ minHeight: '600px', background: 'radial-gradient(circle, #e0e7ff 1px, transparent 1px)', backgroundSize: '28px 28px' }}
-      >
-        {/* SVG voor lijnen en labels */}
-        <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
-          {edges.map(edge => {
-            const a = getNode(edge.from)
-            const b = getNode(edge.to)
-            if (!a || !b) return null
-            const mx = (a.x + b.x) / 2
-            const my = (a.y + b.y) / 2
-            const hasLabel = edge.label && edge.label.trim().length > 0
-            return (
-              <g key={edge.id}>
-                <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#c7d2fe" strokeWidth="2" />
+      <div className="flex-1 flex min-h-0">
+        <aside className="hidden lg:block w-72 shrink-0 bg-white border-r border-indigo-100" aria-label="Begrippen">
+          <div className="sticky top-[57px] h-[calc(100vh-57px)]">{panel}</div>
+        </aside>
 
-                {/* Label op de lijn */}
-                {editingEdgeId === edge.id ? (
-                  <foreignObject x={mx - 60} y={my - 16} width="120" height="32" style={{ pointerEvents: 'all' }}>
-                    <input
-                      autoFocus
-                      value={editEdgeLabel}
-                      onChange={e => setEditEdgeLabel(e.target.value)}
-                      onKeyDown={e => { if (e.key === 'Enter') saveEdgeEdit(); if (e.key === 'Escape') setEditingEdgeId(null) }}
-                      onBlur={saveEdgeEdit}
-                      placeholder="label..."
-                      style={{ width: '100%', fontSize: '11px', padding: '2px 6px', borderRadius: '8px', border: '2px solid #6366f1', outline: 'none', background: 'white', textAlign: 'center' }}
-                    />
-                  </foreignObject>
-                ) : (
-                  <g
-                    className="cursor-pointer"
-                    style={{ pointerEvents: 'all' }}
-                    onClick={e => { e.stopPropagation(); startEditEdge(e as unknown as React.MouseEvent, edge) }}
-                  >
-                    {hasLabel ? (
-                      <>
-                        <rect x={mx - 36} y={my - 10} width="72" height="20" rx="6" fill="white" stroke="#c7d2fe" strokeWidth="1.5" />
-                        <text x={mx} y={my + 4} textAnchor="middle" fontSize="11" fill="#6366f1" fontWeight="500">{edge.label}</text>
-                      </>
-                    ) : (
-                      <>
-                        <circle cx={mx} cy={my} r="10" fill="white" stroke="#e0e7ff" strokeWidth="1.5" />
-                        <text x={mx} y={my + 4} textAnchor="middle" fontSize="11" fill="#c7d2fe">+</text>
-                      </>
-                    )}
+        {panelOpen && (
+          <div className="lg:hidden fixed inset-0 z-40 flex" role="dialog" aria-modal="true" aria-label="Begrippen">
+            <div className="w-[85vw] max-w-xs bg-white shadow-2xl h-full">{panel}</div>
+            <button className="flex-1 bg-slate-900/40" onClick={() => setPanelOpen(false)} aria-label="Sluiten" />
+          </div>
+        )}
+
+        <div
+          ref={canvasRef}
+          onClick={onCanvasClick}
+          className="flex-1 relative overflow-hidden cursor-crosshair select-none"
+          style={{ minHeight: '600px', touchAction: 'manipulation', background: 'radial-gradient(circle, #e0e7ff 1px, transparent 1px)', backgroundSize: '28px 28px' }}
+        >
+          <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
+            {edges.map(edge => {
+              const a = getNode(edge.from)
+              const b = getNode(edge.to)
+              if (!a || !b) return null
+              const mx = (a.x + b.x) / 2
+              const my = (a.y + b.y) / 2
+              const hasLabel = !!edge.label?.trim()
+              const highlight = selected === a.id || selected === b.id
+              const dx = a.x * 0.25 + b.x * 0.75
+              const dy = a.y * 0.25 + b.y * 0.75
+              return (
+                <g key={edge.id}>
+                  <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={highlight ? '#818cf8' : '#c7d2fe'} strokeWidth={highlight ? 2.5 : 2} />
+                  {editingEdgeId === edge.id ? (
+                    <foreignObject x={mx - 60} y={my - 16} width="120" height="32" className="edge-ui" style={{ pointerEvents: 'all' }}>
+                      <input autoFocus value={editEdgeLabel} onChange={e => setEditEdgeLabel(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') saveEdgeEdit(); if (e.key === 'Escape') setEditingEdgeId(null) }}
+                        onBlur={saveEdgeEdit} placeholder="label..."
+                        style={{ width: '100%', fontSize: '11px', padding: '2px 6px', borderRadius: '8px', border: '2px solid #6366f1', outline: 'none', background: 'white', textAlign: 'center' }} />
+                    </foreignObject>
+                  ) : (
+                    <g className={`cursor-pointer ${hasLabel ? '' : 'edge-ui'}`} style={{ pointerEvents: 'all' }}
+                      onClick={e => { e.stopPropagation(); setEditingEdgeId(edge.id); setEditEdgeLabel(edge.label ?? '') }}>
+                      {hasLabel ? (
+                        <>
+                          <rect x={mx - 36} y={my - 10} width="72" height="20" rx="6" fill="white" stroke="#c7d2fe" strokeWidth="1.5" />
+                          <text x={mx} y={my + 4} textAnchor="middle" fontSize="11" fill="#4f46e5" fontWeight="500">{edge.label}</text>
+                        </>
+                      ) : (
+                        <>
+                          <circle cx={mx} cy={my} r="10" fill="white" stroke="#e0e7ff" strokeWidth="1.5" />
+                          <text x={mx} y={my + 4} textAnchor="middle" fontSize="11" fill="#a5b4fc">+</text>
+                        </>
+                      )}
+                    </g>
+                  )}
+                  <g className="edge-ui cursor-pointer" style={{ pointerEvents: 'all' }} onClick={e => { e.stopPropagation(); changeEdges(es => es.filter(x => x.id !== edge.id)) }}>
+                    <circle cx={dx} cy={dy} r="7" fill="white" stroke="#fecdd3" strokeWidth="1.5" />
+                    <path d={`M${dx - 2.5} ${dy - 2.5}l5 5m0-5l-5 5`} stroke="#f87171" strokeWidth="1.5" strokeLinecap="round" style={{ pointerEvents: 'none' }} />
                   </g>
-                )}
+                </g>
+              )
+            })}
+          </svg>
 
-                {/* Verwijder-knopje aan het einde van de lijn */}
-                <circle cx={(a.x * 0.25 + b.x * 0.75)} cy={(a.y * 0.25 + b.y * 0.75)} r="7" fill="white" stroke="#fecdd3" strokeWidth="1.5"
-                  className="cursor-pointer" style={{ pointerEvents: 'all' }}
-                  onClick={e => { e.stopPropagation(); deleteEdge(edge.id) }} />
-                <path d={`M${a.x * 0.25 + b.x * 0.75 - 2.5} ${a.y * 0.25 + b.y * 0.75 - 2.5}l5 5m0-5l-5 5`} stroke="#f87171" strokeWidth="1.5" strokeLinecap="round" style={{ pointerEvents: 'none' }} />
-              </g>
+          {nodes.map(node => {
+            const isSel = selected === node.id
+            return (
+              <div key={node.id} className="node absolute" style={{ left: node.x, top: node.y, transform: 'translate(-50%, -50%)', zIndex: isSel ? 15 : 10, touchAction: 'none' }}
+                onPointerDown={e => onNodePointerDown(e, node.id)} onClick={e => e.stopPropagation()}>
+                {editingNodeId === node.id ? (
+                  <div className="bg-white rounded-2xl shadow-lg border-2 p-2 flex gap-1" style={{ borderColor: node.color }}>
+                    <input autoFocus value={editNodeLabel} onChange={e => setEditNodeLabel(e.target.value)} placeholder="Begrip"
+                      onKeyDown={e => { if (e.key === 'Enter' || e.key === 'Escape') saveNodeEdit() }} onBlur={saveNodeEdit} maxLength={60}
+                      className="text-sm px-2 py-1 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 w-36" />
+                    <button onPointerDown={e => e.preventDefault()} onClick={saveNodeEdit} aria-label="Klaar"
+                      className="bg-indigo-600 text-white px-2 py-1 rounded-lg hover:bg-indigo-700"><Check className="w-4 h-4" strokeWidth={2.5} /></button>
+                  </div>
+                ) : (
+                  <div className={`relative flex items-center justify-center px-4 py-2 rounded-2xl shadow-md text-white text-sm font-semibold cursor-grab active:cursor-grabbing transition-shadow ${connecting === node.id ? 'ring-4 ring-offset-2 ring-violet-400' : isSel ? 'ring-[3px] ring-offset-2 ring-indigo-400' : ''} ${connecting && connecting !== node.id ? 'hover:ring-4 hover:ring-violet-300' : ''}`}
+                    style={{ background: node.color, minWidth: '80px', textAlign: 'center' }}>
+                    <span className="flex-1">{node.label || 'Begrip'}</span>
+                    {isSel && (
+                      <div className="node-btns absolute -top-2.5 -right-2.5 flex gap-1">
+                        <button onClick={e => { e.stopPropagation(); setConnecting(connecting === node.id ? null : node.id) }} aria-label="Verbinden met een ander begrip" title="Verbinden"
+                          className={`w-6 h-6 rounded-full flex items-center justify-center shadow border ${connecting === node.id ? 'bg-violet-600 text-white border-violet-600' : 'bg-white text-slate-600 hover:text-violet-700 border-gray-200'}`}>
+                          <Glyph name="connect" className="w-3.5 h-3.5" />
+                        </button>
+                        <button onClick={e => { e.stopPropagation(); addChild(node.id) }} aria-label="Subbegrip toevoegen" title="Subbegrip"
+                          className="w-6 h-6 bg-white rounded-full text-slate-600 hover:text-indigo-700 flex items-center justify-center shadow border border-gray-200"><Plus className="w-3.5 h-3.5" strokeWidth={2.5} /></button>
+                        <button onClick={e => { e.stopPropagation(); removeNode(node.id) }} aria-label="Begrip verwijderen" title="Verwijderen"
+                          className="w-6 h-6 bg-white rounded-full text-slate-600 hover:text-red-600 flex items-center justify-center shadow border border-gray-200"><X className="w-3.5 h-3.5" strokeWidth={2.5} /></button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             )
           })}
-        </svg>
 
-        {/* Nodes */}
-        {nodes.map(node => (
-          <div
-            key={node.id}
-            className="node absolute"
-            style={{ left: node.x, top: node.y, transform: 'translate(-50%, -50%)', zIndex: 10 }}
-            onMouseDown={e => startDrag(e, node.id)}
-            onTouchStart={e => startDrag(e, node.id)}
-          >
-            {editingNodeId === node.id ? (
-              <div className="bg-white rounded-2xl shadow-lg border-2 p-2 flex gap-1" style={{ borderColor: node.color }}
-                onClick={e => e.stopPropagation()}>
-                <input
-                  autoFocus
-                  value={editNodeLabel}
-                  onChange={e => setEditNodeLabel(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') saveNodeEdit(); if (e.key === 'Escape') saveNodeEdit() }}
-                  onBlur={saveNodeEdit}
-                  className="text-sm px-2 py-1 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 w-32"
-                />
-                <button onClick={saveNodeEdit}
-                  className="text-xs bg-indigo-600 text-white px-2 py-1 rounded-lg hover:bg-indigo-700 transition-colors"><Glyph name="check" className="w-4 h-4" /></button>
+          {nodes.length === 0 && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="text-center">
+                <span className="w-14 h-14 mx-auto rounded-2xl bg-white border border-indigo-100 shadow-sm text-indigo-600 flex items-center justify-center"><Glyph name="web" className="w-7 h-7" /></span>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 mt-3">Dubbeltik hier voor je eerste begrip</p>
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">Begin met het hoofdonderwerp in het midden</p>
               </div>
-            ) : (
-              <div
-                className={`relative flex items-center justify-center px-4 py-2 rounded-2xl shadow-md text-white text-sm font-semibold cursor-grab active:cursor-grabbing transition-all ${connecting === node.id ? 'ring-4 ring-offset-2 ring-violet-400' : ''}`}
-                onDoubleClick={e => startEditNode(e, node)}
-                style={{ background: node.color, minWidth: '80px', textAlign: 'center' }}
-              >
-                <span className="flex-1">{node.label}</span>
-                <div className="node-btns absolute -top-2 -right-2 flex gap-0.5" style={{ opacity: 1 }}>
-                  <button onMouseDown={e => e.stopPropagation()} onClick={e => startEditNode(e, node)}
-                    className="w-5 h-5 bg-white rounded-full text-gray-500 hover:text-indigo-600 text-xs flex items-center justify-center shadow border border-gray-200 transition-colors" title="Bewerken"><Glyph name="pen" className="w-3 h-3" /></button>
-                  <button onMouseDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); setConnecting(connecting === node.id ? null : node.id) }}
-                    className={`w-5 h-5 rounded-full text-xs flex items-center justify-center shadow border transition-colors ${connecting === node.id ? 'bg-violet-500 text-white border-violet-500' : 'bg-white text-gray-500 hover:text-violet-600 border-gray-200'}`}
-                    title="Verbinden"><Glyph name="connect" className="w-3 h-3" /></button>
-                  <button onMouseDown={e => e.stopPropagation()} onClick={e => deleteNode(e, node.id)}
-                    className="w-5 h-5 bg-white rounded-full text-gray-500 hover:text-red-500 text-xs flex items-center justify-center shadow border border-gray-200 transition-colors" title="Verwijderen"><Glyph name="close" className="w-3 h-3" /></button>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-
-        {nodes.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="text-center">
-              <Glyph name="web" className="w-10 h-10 mx-auto mb-2 text-indigo-400" />
-              <p className="text-indigo-300 font-medium">{ww.emptyCanvas}</p>
-              <p className="text-xs text-indigo-200 mt-1">{ww.hint}</p>
             </div>
-          </div>
-        )}
+          )}
 
-        {connecting && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-violet-600 text-white text-sm px-4 py-2 rounded-xl shadow-lg z-20">
-            {ww.connectMode} ·{' '}
-            <button onClick={() => setConnecting(null)} className="underline">{ww.cancelConnect}</button>
-          </div>
-        )}
+          {connecting && (
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-violet-600 text-white text-sm px-4 py-2 rounded-xl shadow-lg z-20 whitespace-nowrap">
+              Tik op het begrip om mee te verbinden ·{' '}
+              <button onClick={e => { e.stopPropagation(); setConnecting(null) }} className="underline">{ww.cancelConnect}</button>
+            </div>
+          )}
+
+          {selectedNode && !editingNodeId && !connecting && (
+            <div className="lg:hidden absolute bottom-3 inset-x-3 z-20 bg-white rounded-2xl border border-indigo-100 shadow-xl p-3 flex items-center gap-2" onClick={e => e.stopPropagation()}>
+              <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: selectedNode.color }} aria-hidden />
+              <span className="text-sm font-medium text-slate-900 dark:text-white truncate flex-1">{selectedNode.label || 'Begrip'}</span>
+              <div className="flex gap-1">
+                {COLORS.slice(0, 5).map(c => (
+                  <button key={c} onClick={() => recolor(selectedNode.id, c)} aria-label={`Kleur ${c}`}
+                    className={`w-6 h-6 rounded-full ${selectedNode.color === c ? 'ring-2 ring-offset-1 ring-indigo-500' : ''}`} style={{ backgroundColor: c }} />
+                ))}
+              </div>
+              <button onClick={() => setPanelOpen(true)} className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-lg hover:bg-indigo-50">Meer</button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

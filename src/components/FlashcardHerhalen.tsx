@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
+import ToolBanner from '@/components/ToolBanner'
+import FlipCard from '@/components/FlipCard'
 import { createClient } from '@/lib/supabase/client'
 import { useStudyTimer } from '@/lib/useStudyTimer'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
@@ -47,7 +49,8 @@ export default function FlashcardHerhalen({ set, cards, srMap, userId, totalCard
   const { tr } = useLanguage()
   const fc = tr.flashcards
 
-  const [queue, setQueue] = useState<Card[]>(() => [...cards].sort(() => Math.random() - 0.5))
+  const [queue, setQueue] = useState<Card[]>(cards)
+  useEffect(() => { setQueue([...cards].sort(() => Math.random() - 0.5)) }, [cards])
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
   const [done, setDone] = useState(false)
@@ -97,17 +100,12 @@ export default function FlashcardHerhalen({ set, cards, srMap, userId, totalCard
 
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
-      <Nav />
+      <Nav loggedIn width="max-w-5xl" />
+      <ToolBanner
+        variant="cards" width="max-w-5xl" backHref={`/flashcards/${set.id}`} backLabel={set.title} title={`${fc.repeat}: ${set.title}`}
+        below={<span className="text-xs font-medium bg-white/15 border border-white/20 rounded-full px-3 py-1">{cards.length} / {totalCards} {fc.toRepeat}</span>}
+      />
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Link href="/flashcards" className="text-indigo-400 hover:text-indigo-600 transition-colors text-sm">← {fc.title}</Link>
-            <h1 className="text-xl font-bold text-indigo-900 mt-1">{fc.repeat} — {set.title}</h1>
-          </div>
-          <span className="text-xs bg-amber-50 text-amber-600 border border-amber-200 rounded-full px-3 py-1 font-medium">
-            {cards.length} / {totalCards} {fc.toRepeat}
-          </span>
-        </div>
 
         {done ? (
           <div className="bg-white rounded-3xl border border-indigo-100 shadow-sm p-8 text-center space-y-4">
@@ -137,22 +135,25 @@ export default function FlashcardHerhalen({ set, cards, srMap, userId, totalCard
               <span className="text-sm text-indigo-400 whitespace-nowrap">{index + 1} / {queue.length}</span>
             </div>
 
-            <div onClick={() => setFlipped(f => !f)} className="cursor-pointer select-none" style={{ perspective: '1000px' }}>
-              <div className="relative transition-transform duration-500"
-                style={{ transformStyle: 'preserve-3d', transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)', minHeight: '240px' }}>
-                <div className="absolute inset-0 bg-white rounded-3xl border border-indigo-100 shadow-md flex flex-col items-center justify-center p-8 text-center"
-                  style={{ backfaceVisibility: 'hidden' }}>
-                  <p className="text-xs font-semibold text-amber-400 uppercase tracking-wide mb-4">{fc.repeat}</p>
-                  <p className="text-2xl font-bold text-indigo-900">{card.front}</p>
-                  <p className="text-xs text-indigo-300 mt-6">{fc.flip}</p>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl border border-amber-100 shadow-md flex flex-col items-center justify-center p-8 text-center"
-                  style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
-                  <p className="text-xs font-semibold text-amber-500 uppercase tracking-wide mb-4">{fc.answer}</p>
-                  <p className="text-2xl font-bold text-indigo-900">{card.back}</p>
-                </div>
-              </div>
-            </div>
+            <FlipCard
+              cardKey={card.id}
+              flipped={flipped}
+              onToggle={() => setFlipped(f => !f)}
+              backClassName="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-100"
+              front={
+                <>
+                  <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wide mb-4">{fc.repeat}</p>
+                  <p className="text-2xl font-bold text-indigo-950 dark:text-white break-words">{card.front}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-6">{fc.flip}</p>
+                </>
+              }
+              back={
+                <>
+                  <p className="text-xs font-semibold text-amber-800 dark:text-amber-300 uppercase tracking-wide mb-4">{fc.answer}</p>
+                  <p className="text-2xl font-bold text-indigo-950 dark:text-white break-words">{card.back}</p>
+                </>
+              }
+            />
 
             {flipped ? (
               <div className="grid grid-cols-2 gap-3">

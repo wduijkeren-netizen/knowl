@@ -1,9 +1,10 @@
 'use client'
 
 import Glyph from '@/components/Glyph'
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
+import ToolBanner from '@/components/ToolBanner'
 import { useStudyTimer } from '@/lib/useStudyTimer'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
@@ -34,7 +35,8 @@ export default function FlashcardQuiz({ set, cards }: Props) {
   useStudyTimer('quiz', set.title)
   const { tr } = useLanguage()
   const fc = tr.flashcards
-  const questions = useMemo(() => buildQuestions(cards), [cards])
+  const [questions, setQuestions] = useState<Question[]>([])
+  useEffect(() => { setQuestions(buildQuestions(cards)) }, [cards])
   const [index, setIndex] = useState(0)
   const [selected, setSelected] = useState<string | null>(null)
   const [score, setScore] = useState(0)
@@ -68,16 +70,13 @@ export default function FlashcardQuiz({ set, cards }: Props) {
 
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
-      <Nav />
+      <Nav loggedIn width="max-w-5xl" />
+      <ToolBanner variant="cards" width="max-w-5xl" backHref={`/flashcards/${set.id}`} backLabel={set.title} title={`${fc.quiz}: ${set.title}`} />
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Link href={`/flashcards/${set.id}`} className="text-indigo-400 hover:text-indigo-600 transition-colors text-sm">← {fc.study}</Link>
-            <h1 className="text-xl font-bold text-indigo-900 mt-1">{fc.quiz} — {set.title}</h1>
-          </div>
-        </div>
 
-        {done ? (
+        {!q && !done ? (
+          <div className="bg-white rounded-3xl border border-indigo-100 shadow-sm h-64 animate-pulse" aria-label="Quiz wordt geladen" />
+        ) : done ? (
           <div className="bg-white rounded-3xl border border-indigo-100 shadow-sm p-8 text-center space-y-4">
             <Glyph name={pct >= 80 ? 'trophy' : pct >= 50 ? 'check-circle' : 'books'} className="w-12 h-12 mx-auto text-indigo-500" />
             <h2 className="text-xl font-bold text-indigo-900">{fc.done}</h2>

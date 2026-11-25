@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
+import ToolBanner from '@/components/ToolBanner'
 import { useStudyTimer } from '@/lib/useStudyTimer'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
@@ -19,7 +20,8 @@ export default function FlashcardInvul({ set, cards: initialCards }: Props) {
   const { tr } = useLanguage()
   const fc = tr.flashcards
 
-  const [cards] = useState(() => [...initialCards].sort(() => Math.random() - 0.5))
+  const [cards, setCards] = useState(initialCards)
+  useEffect(() => { setCards([...initialCards].sort(() => Math.random() - 0.5)) }, [initialCards])
   const [index, setIndex] = useState(0)
   const [input, setInput] = useState('')
   const [result, setResult] = useState<'correct' | 'bijna' | 'fout' | null>(null)
@@ -86,15 +88,10 @@ export default function FlashcardInvul({ set, cards: initialCards }: Props) {
 
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
-      <Nav />
+      <Nav loggedIn width="max-w-5xl" />
+      <ToolBanner variant="cards" width="max-w-5xl" backHref={`/flashcards/${set.id}`} backLabel={set.title} title={`${fc.fillTitle}: ${set.title}`}
+        below={<span className="text-xs font-medium bg-white/15 border border-white/20 rounded-full px-3 py-1">{index + 1} / {cards.length}</span>} />
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Link href={`/flashcards/${set.id}`} className="text-indigo-400 hover:text-indigo-600 text-sm">← {fc.study}</Link>
-            <h1 className="text-xl font-bold text-indigo-900 mt-1">{fc.fillTitle} — {set.title}</h1>
-          </div>
-          <span className="text-sm text-indigo-400">{index + 1} / {cards.length}</span>
-        </div>
 
         <div className="flex items-center gap-3">
           <div className="flex-1 bg-indigo-100 rounded-full h-2">

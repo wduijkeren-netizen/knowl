@@ -4,6 +4,9 @@ import Glyph from '@/components/Glyph'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
+import ToolBanner from '@/components/ToolBanner'
+import FlipCard from '@/components/FlipCard'
+import { ListChecks, PenLine, PencilLine } from 'lucide-react'
 import { useStudyTimer } from '@/lib/useStudyTimer'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
@@ -36,7 +39,8 @@ export default function FlashcardStudeer({ set, cards: initialCards, srMap, memb
     return { label: fc.strengthGood, kleur: 'bg-emerald-400' }
   }
 
-  const [cards] = useState(() => [...initialCards].sort(() => Math.random() - 0.5))
+  const [cards, setCards] = useState(initialCards)
+  useEffect(() => { setCards([...initialCards].sort(() => Math.random() - 0.5)) }, [initialCards])
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
   const [known, setKnown] = useState<string[]>([])
@@ -94,28 +98,17 @@ export default function FlashcardStudeer({ set, cards: initialCards, srMap, memb
 
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
-      <Nav />
+      <Nav loggedIn width="max-w-5xl" />
+      <ToolBanner
+        variant="cards" width="max-w-5xl" backHref="/flashcards" backLabel={fc.title} title={set.title}
+        below={<span className="text-xs text-white/85">{set.vak ? `${set.vak} · ` : ''}{cards.length} {cards.length === 1 ? 'kaart' : 'kaarten'}</span>}
+        menu={[
+          { label: fc.quiz, href: `/flashcards/${set.id}/quiz`, icon: <ListChecks className="w-4 h-4" strokeWidth={2} /> },
+          { label: fc.fill, href: `/flashcards/${set.id}/invuloefening`, icon: <PenLine className="w-4 h-4" strokeWidth={2} /> },
+          { label: fc.edit, href: `/flashcards/${set.id}/bewerken`, icon: <PencilLine className="w-4 h-4" strokeWidth={2} />, divider: true },
+        ]}
+      />
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Link href="/flashcards" className="text-indigo-400 hover:text-indigo-600 transition-colors text-sm">← {fc.title}</Link>
-            <h1 className="text-xl font-bold text-indigo-900 mt-1 truncate">{set.title}</h1>
-          </div>
-          <div className="flex gap-2 flex-wrap justify-end">
-            <Link href={`/flashcards/${set.id}/bewerken`}
-              className="text-sm bg-gray-100 text-gray-500 px-3 py-2 rounded-xl font-medium hover:bg-gray-200 transition-colors">
-              {fc.edit}
-            </Link>
-            <Link href={`/flashcards/${set.id}/invuloefening`}
-              className="text-sm bg-indigo-50 text-indigo-600 px-3 py-2 rounded-xl font-medium hover:bg-indigo-100 transition-colors">
-              {fc.fill}
-            </Link>
-            <Link href={`/flashcards/${set.id}/quiz`}
-              className="text-sm bg-violet-100 text-violet-700 px-3 py-2 rounded-xl font-medium hover:bg-violet-200 transition-colors">
-              {fc.quiz}
-            </Link>
-          </div>
-        </div>
 
         {members.length > 0 && (
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm px-5 py-3 flex items-center gap-3 flex-wrap">
@@ -177,46 +170,30 @@ export default function FlashcardStudeer({ set, cards: initialCards, srMap, memb
               <span className="text-sm text-indigo-400 whitespace-nowrap">{index + 1} / {cards.length}</span>
             </div>
 
-            {/* Kaart */}
-            <div
-              onClick={() => setFlipped(f => !f)}
-              className="cursor-pointer select-none"
-              style={{ perspective: '1000px' }}
-            >
-              <div
-                className="relative transition-transform duration-500"
-                style={{
-                  transformStyle: 'preserve-3d',
-                  transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-                  minHeight: '240px',
-                }}
-              >
-                {/* Voorkant */}
-                <div
-                  className="absolute inset-0 bg-white rounded-3xl border border-indigo-100 shadow-md flex flex-col items-center justify-center p-8 text-center"
-                  style={{ backfaceVisibility: 'hidden' }}
-                >
-                  <p className="text-xs font-semibold text-indigo-300 uppercase tracking-wide mb-4">{fc.question}</p>
-                  <p className="text-2xl font-bold text-indigo-900">{card.front}</p>
-                  <p className="text-xs text-indigo-300 mt-6">{fc.flip}</p>
+            <FlipCard
+              cardKey={card.id}
+              flipped={flipped}
+              onToggle={() => setFlipped(f => !f)}
+              front={
+                <>
+                  <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-300 uppercase tracking-wide mb-4">{fc.question}</p>
+                  <p className="text-2xl font-bold text-indigo-950 dark:text-white break-words">{card.front}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-6">{fc.flip}</p>
                   {(() => { const s = sterkte(srMap[card.id]); return (
-                    <div className="absolute top-4 right-4 flex items-center gap-1.5">
+                    <span className="absolute top-4 right-4 flex items-center gap-1.5">
                       <span className={`w-2 h-2 rounded-full ${s.kleur}`} />
-                      <span className="text-xs text-indigo-300">{s.label}</span>
-                    </div>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">{s.label}</span>
+                    </span>
                   ) })()}
-                </div>
-
-                {/* Achterkant */}
-                <div
-                  className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-violet-50 rounded-3xl border border-indigo-100 shadow-md flex flex-col items-center justify-center p-8 text-center"
-                  style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
-                >
-                  <p className="text-xs font-semibold text-violet-400 uppercase tracking-wide mb-4">{fc.answer}</p>
-                  <p className="text-2xl font-bold text-indigo-900">{card.back}</p>
-                </div>
-              </div>
-            </div>
+                </>
+              }
+              back={
+                <>
+                  <p className="text-xs font-semibold text-violet-700 dark:text-violet-300 uppercase tracking-wide mb-4">{fc.answer}</p>
+                  <p className="text-2xl font-bold text-indigo-950 dark:text-white break-words">{card.back}</p>
+                </>
+              }
+            />
 
             {/* Knoppen */}
             {flipped ? (

@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Nav from '@/components/Nav'
-import Link from 'next/link'
+import ToolBanner from '@/components/ToolBanner'
 import { vertaalFout } from '@/lib/foutmelding'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
@@ -79,12 +79,9 @@ export default function FlashcardBewerken({ set, cards: initialCards, subjects, 
 
   return (
     <div className="min-h-screen bg-[#f8f7ff]">
-      <Nav />
+      <Nav loggedIn width="max-w-5xl" />
+      <ToolBanner variant="cards" width="max-w-5xl" backHref={`/flashcards/${set.id}`} backLabel={set.title} title="Set bewerken" />
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-        <div className="flex items-center gap-3">
-          <Link href={`/flashcards/${set.id}`} className="text-indigo-400 hover:text-indigo-600 text-sm">{fc.back}</Link>
-          <h1 className="text-2xl font-bold text-indigo-900">Set bewerken</h1>
-        </div>
 
         <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6 space-y-4">
           <div>
