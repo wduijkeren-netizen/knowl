@@ -9,7 +9,7 @@ export default async function WoordwebPage() {
 
   const { data: webs } = await supabase
     .from('word_webs')
-    .select('id, title, vak, created_at')
+    .select('id, title, vak, created_at, nodes, edges')
     .order('created_at', { ascending: false })
 
   return <WoordwebOverzicht webs={webs ?? []} />

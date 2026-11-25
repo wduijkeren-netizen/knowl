@@ -1,11 +1,14 @@
 'use client'
 
 import Glyph from '@/components/Glyph'
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Nav from '@/components/Nav'
 import Link from 'next/link'
+import SubjectSelect from '@/components/SubjectSelect'
+import { ArrowLeft, Check, Download, Link2, MoreHorizontal, MousePointerClick, Pencil, Save, Trash2 } from 'lucide-react'
+import { buildSubjectColors } from '@/lib/subjectColors'
 import { useStudyTimer } from '@/lib/useStudyTimer'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
@@ -40,6 +43,16 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
   const [saved, setSaved] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const subjectNames = useMemo(() => Array.from(new Set([...subjects.map(s => s.name), ...(web?.vak ? [web.vak] : [])])).sort((a, b) => a.localeCompare(b)), [subjects, web?.vak])
+  const subjectColors = useMemo(() => buildSubjectColors(subjectNames), [subjectNames])
+
+  useEffect(() => {
+    if (!menuOpen) return
+    function onDown(e: MouseEvent) { if (!(e.target as HTMLElement).closest('[data-menu]')) setMenuOpen(false) }
+    document.addEventListener('mousedown', onDown)
+    return () => document.removeEventListener('mousedown', onDown)
+  }, [menuOpen])
   useStudyTimer('woordweb', web?.title ?? ww.newWeb)
 
   function addNode(e: React.MouseEvent<HTMLDivElement>) {
@@ -180,57 +193,92 @@ export default function WoordwebEditor({ web, subjects, userId }: Props) {
 
   return (
     <div className="min-h-screen bg-[#f8f7ff] flex flex-col">
-      <Nav />
+      <Nav loggedIn width="max-w-6xl" />
 
-      {/* Eigen bevestigingsdialoog */}
       {confirmDelete && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center space-y-4">
-            <Glyph name="trash" className="w-10 h-10 mx-auto text-red-400" />
-            <h2 className="text-lg font-bold text-indigo-900">{ww.deleteTitle}</h2>
-            <p className="text-sm text-gray-400">{ww.deleteBody}</p>
-            <div className="flex gap-3 justify-center pt-2">
-              <button onClick={() => setConfirmDelete(false)}
-                className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors">
-                {ww.cancel}
-              </button>
-              <button onClick={handleDelete}
-                className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors">
-                {ww.confirm}
-              </button>
+        <div className="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4" onClick={() => setConfirmDelete(false)}>
+          <div role="alertdialog" aria-modal="true" aria-labelledby="del-web" className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+            <h2 id="del-web" className="text-base font-semibold text-slate-900 dark:text-white">{ww.deleteTitle}</h2>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-2">&lsquo;{title || 'Dit woordweb'}&rsquo; wordt verwijderd. Dit kun je niet ongedaan maken.</p>
+            <div className="flex justify-end gap-2 mt-5">
+              <button onClick={() => setConfirmDelete(false)} autoFocus className="text-sm text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl hover:bg-indigo-50">{ww.cancel}</button>
+              <button onClick={handleDelete} className="text-sm font-semibold bg-red-600 text-white rounded-xl px-4 py-2 hover:bg-red-700">Verwijderen</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Toolbar */}
-      <div className="bg-white border-b border-indigo-100 px-4 py-3 flex flex-wrap items-center gap-2">
-        <Link href="/woordweb" className="text-indigo-400 hover:text-indigo-600 text-sm transition-colors shrink-0">{ww.back}</Link>
-        <input
-          value={title} onChange={e => setTitle(e.target.value)}
-          placeholder={ww.webName}
-          className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 min-w-0 flex-1 sm:w-44 sm:flex-none"
-        />
-        <select value={vak} onChange={e => setVak(e.target.value)}
-          className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
-          <option value="">{ww.noSubject}</option>
-          {subjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
-        </select>
-        <div className="flex gap-2 ml-auto flex-wrap">
-          {web && (
-            <button onClick={() => setConfirmDelete(true)}
-              className="bg-red-50 text-red-500 px-3 py-1.5 rounded-xl text-sm font-medium hover:bg-red-100 transition-all">
-              {ww.deleteWebBtn}
+      <div className="relative z-20 bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-sm">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
+          <svg className="absolute -left-6 -top-4 w-56 h-40 opacity-20" viewBox="0 0 220 160" fill="none" stroke="white" strokeWidth="1.5">
+            <line x1="40" y1="40" x2="110" y2="80" /><line x1="110" y1="80" x2="180" y2="30" /><line x1="110" y1="80" x2="150" y2="140" /><line x1="40" y1="40" x2="30" y2="120" />
+            <circle cx="40" cy="40" r="9" fill="white" fillOpacity=".25" /><circle cx="110" cy="80" r="13" fill="white" fillOpacity=".25" />
+            <circle cx="180" cy="30" r="7" fill="white" fillOpacity=".25" /><circle cx="150" cy="140" r="8" fill="white" fillOpacity=".25" /><circle cx="30" cy="120" r="6" fill="white" fillOpacity=".25" />
+          </svg>
+          <svg className="absolute -right-4 -bottom-10 w-64 h-44 opacity-20" viewBox="0 0 240 170" fill="none" stroke="white" strokeWidth="1.5">
+            <line x1="60" y1="60" x2="140" y2="40" /><line x1="140" y1="40" x2="210" y2="90" /><line x1="60" y1="60" x2="120" y2="130" /><line x1="140" y1="40" x2="120" y2="130" />
+            <circle cx="60" cy="60" r="10" fill="white" fillOpacity=".25" /><circle cx="140" cy="40" r="8" fill="white" fillOpacity=".25" />
+            <circle cx="210" cy="90" r="12" fill="white" fillOpacity=".25" /><circle cx="120" cy="130" r="9" fill="white" fillOpacity=".25" />
+          </svg>
+        </div>
+
+        <div className="relative max-w-6xl mx-auto px-4 py-4 grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_minmax(0,30rem)_1fr] items-center gap-x-3 gap-y-3">
+          <Link href="/woordweb" className="justify-self-start inline-flex items-center gap-1.5 text-sm font-medium text-white/90 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-3 py-1.5 transition-colors">
+            <ArrowLeft className="w-4 h-4" strokeWidth={2} /> Woordwebben
+          </Link>
+
+          <div className="col-span-2 order-last sm:order-none sm:col-span-1 flex flex-col items-center gap-2 min-w-0">
+            <input
+              value={title} onChange={e => setTitle(e.target.value)}
+              placeholder={ww.webName} aria-label="Naam van het woordweb" maxLength={80}
+              className="w-full bg-transparent text-center text-xl md:text-2xl font-bold text-white placeholder:text-white/60 border-b-2 border-white/25 hover:border-white/50 focus:border-white focus:outline-none px-2 py-1 transition-colors"
+            />
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <SubjectSelect value={vak} onChange={setVak} options={subjectNames.map(n => ({ value: n, label: n }))} colors={subjectColors} emptyLabel={ww.noSubject} label="Vak" className="w-52" />
+              <span className="text-xs text-white/85">
+                {nodes.length} {nodes.length === 1 ? 'begrip' : 'begrippen'} · {edges.length} {edges.length === 1 ? 'verbinding' : 'verbindingen'}
+              </span>
+            </div>
+          </div>
+
+          <div className="justify-self-end flex items-center gap-2">
+            <button onClick={handleSave} disabled={saving || !title.trim()}
+              className="inline-flex items-center gap-1.5 bg-white text-indigo-700 text-sm font-semibold px-4 py-2 rounded-xl shadow-sm hover:bg-indigo-50 disabled:opacity-60 transition-colors">
+              {saved ? <Check className="w-4 h-4" strokeWidth={2.5} /> : <Save className="w-4 h-4" strokeWidth={2} />}
+              {saving ? ww.saving : saved ? ww.saved : ww.save}
             </button>
-          )}
-          <button onClick={handleExport} disabled={exporting || nodes.length === 0}
-            className="bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-xl text-sm font-medium hover:bg-indigo-200 disabled:opacity-40 transition-all">
-            {exporting ? ww.exporting : ww.exportBtn}
-          </button>
-          <button onClick={handleSave} disabled={saving || !title.trim()}
-            className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-4 py-1.5 rounded-xl text-sm font-semibold hover:from-indigo-700 hover:to-violet-700 disabled:opacity-50 transition-all">
-            {saving ? ww.saving : saved ? ww.saved : ww.save}
-          </button>
+            <div className="relative" data-menu>
+              <button onClick={() => setMenuOpen(o => !o)} aria-label="Meer opties" aria-expanded={menuOpen}
+                className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-colors">
+                <MoreHorizontal className="w-4 h-4" strokeWidth={2} />
+              </button>
+              {menuOpen && (
+                <div role="menu" className="absolute right-0 top-full mt-1.5 z-40 w-60 bg-white rounded-xl border border-indigo-100 shadow-xl py-1 text-slate-700 dark:text-slate-200">
+                  <button role="menuitem" onClick={() => { setMenuOpen(false); handleExport() }} disabled={exporting || nodes.length === 0}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-indigo-50 dark:hover:bg-white/5 disabled:opacity-50">
+                    <Download className="w-4 h-4" strokeWidth={2} /> {exporting ? ww.exporting : 'Exporteer als afbeelding'}
+                  </button>
+                  {web && (
+                    <>
+                      <div className="my-1 border-t border-indigo-100" role="separator" />
+                      <button role="menuitem" onClick={() => { setMenuOpen(false); setConfirmDelete(true) }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-red-700 dark:text-red-300 hover:bg-red-50">
+                        <Trash2 className="w-4 h-4" strokeWidth={2} /> Woordweb verwijderen
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white border-b border-indigo-100">
+        <div className="max-w-6xl mx-auto px-4 py-2 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs text-slate-600 dark:text-slate-300">
+          <span className="inline-flex items-center gap-1.5"><MousePointerClick className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-300" strokeWidth={2} /> Klik op het vlak om een begrip toe te voegen</span>
+          <span className="inline-flex items-center gap-1.5"><Pencil className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-300" strokeWidth={2} /> Dubbelklik om te bewerken</span>
+          <span className="inline-flex items-center gap-1.5"><Link2 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-300" strokeWidth={2} /> Verbind begrippen met het schakelknopje</span>
         </div>
       </div>
 
