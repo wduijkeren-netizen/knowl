@@ -194,39 +194,6 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, moments,
           </div>
         )}
 
-        {user && termsSupported && (
-          <section className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 flex flex-col sm:flex-row sm:items-center gap-4">
-            <span className="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0"><CalendarRange className="w-5 h-5" strokeWidth={2} /></span>
-            <div className="flex-1 min-w-0">
-              <p className="text-base font-semibold text-slate-900 dark:text-white">Trimester {now.term} · {now.year}</p>
-              {startEdit !== null ? (
-                <form className="mt-2 flex flex-wrap items-center gap-2" onSubmit={saveStart}>
-                  <label className="text-sm text-slate-700 dark:text-slate-200" htmlFor="term-start">Trimester {now.term} begon op</label>
-                  <input id="term-start" type="date" value={startEdit} min={previousStart ? addDays(previousStart, 1) : undefined} max={today}
-                    onChange={e => setStartEdit(e.target.value)} className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm" />
-                  <button className="text-sm font-semibold bg-indigo-600 text-white rounded-lg px-3 py-1.5 hover:bg-indigo-700">Opslaan</button>
-                  <button type="button" onClick={() => { setStartEdit(null); setStartError('') }} className="text-sm text-slate-700 dark:text-slate-200 px-2 py-1.5 rounded-lg hover:bg-indigo-50">Annuleren</button>
-                  {startError && <p className="w-full text-sm text-red-700 dark:text-red-300">{startError}</p>}
-                </form>
-              ) : (
-                <p className="text-sm text-slate-600 dark:text-slate-300">
-                  {currentStart ? `Gestart op ${formatDay(currentStart)}. ` : ''}
-                  {now.term > 1 && currentStart && (
-                    <button onClick={() => setStartEdit(currentStart)} className="font-medium text-indigo-700 dark:text-indigo-300 underline underline-offset-2 hover:text-indigo-900">Startdatum wijzigen</button>
-                  )}
-                  {now.term > 1 ? ' · ' : ''}Leermomenten vanaf de startdatum tellen mee voor dit trimester. Is het voorbij? Ga door naar het volgende.
-                </p>
-              )}
-            </div>
-            {now.term < MAX_TERMS ? (
-              <button onClick={() => setSwitchOpen(true)} className="inline-flex items-center justify-center gap-1.5 text-sm font-semibold bg-indigo-600 text-white rounded-xl px-4 py-2.5 hover:bg-indigo-700 shrink-0">
-                Naar trimester {now.term + 1} <ArrowRight className="w-4 h-4" strokeWidth={2} />
-              </button>
-            ) : (
-              <span className="text-sm text-slate-600 dark:text-slate-300 shrink-0">Laatste trimester van dit jaar</span>
-            )}
-          </section>
-        )}
         {user && !termsSupported && (
           <p className="text-sm text-slate-700 dark:text-slate-200 bg-white border border-indigo-100 rounded-xl px-4 py-3">Trimesters zijn nog niet ingeschakeld in de database. Je vakken werken gewoon per schooljaar.</p>
         )}
@@ -423,6 +390,39 @@ export default function VakkenBeheer({ user, subjects: initialSubjects, moments,
             </ul>
           )}
         </section>
+        {user && termsSupported && (
+          <section className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+            <span className="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0"><CalendarRange className="w-5 h-5" strokeWidth={2} /></span>
+            <div className="flex-1 min-w-0">
+              <p className="text-base font-semibold text-slate-900 dark:text-white">Trimester {now.term} · {now.year}</p>
+              {startEdit !== null ? (
+                <form className="mt-2 flex flex-wrap items-center gap-2" onSubmit={saveStart}>
+                  <label className="text-sm text-slate-700 dark:text-slate-200" htmlFor="term-start">Trimester {now.term} begon op</label>
+                  <input id="term-start" type="date" value={startEdit} min={previousStart ? addDays(previousStart, 1) : undefined} max={today}
+                    onChange={e => setStartEdit(e.target.value)} className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm" />
+                  <button className="text-sm font-semibold bg-indigo-600 text-white rounded-lg px-3 py-1.5 hover:bg-indigo-700">Opslaan</button>
+                  <button type="button" onClick={() => { setStartEdit(null); setStartError('') }} className="text-sm text-slate-700 dark:text-slate-200 px-2 py-1.5 rounded-lg hover:bg-indigo-50">Annuleren</button>
+                  {startError && <p className="w-full text-sm text-red-700 dark:text-red-300">{startError}</p>}
+                </form>
+              ) : (
+                <p className="text-sm text-slate-600 dark:text-slate-300">
+                  {currentStart ? `Gestart op ${formatDay(currentStart)}. ` : ''}
+                  {now.term > 1 && currentStart && (
+                    <button onClick={() => setStartEdit(currentStart)} className="font-medium text-indigo-700 dark:text-indigo-300 underline underline-offset-2 hover:text-indigo-900">Startdatum wijzigen</button>
+                  )}
+                  {now.term > 1 ? ' · ' : ''}Leermomenten vanaf de startdatum tellen mee voor dit trimester. Is het voorbij? Ga door naar het volgende.
+                </p>
+              )}
+            </div>
+            {now.term < MAX_TERMS ? (
+              <button onClick={() => setSwitchOpen(true)} className="inline-flex items-center justify-center gap-1.5 text-sm font-semibold bg-indigo-600 text-white rounded-xl px-4 py-2.5 hover:bg-indigo-700 shrink-0">
+                Naar trimester {now.term + 1} <ArrowRight className="w-4 h-4" strokeWidth={2} />
+              </button>
+            ) : (
+              <span className="text-sm text-slate-600 dark:text-slate-300 shrink-0">Laatste trimester van dit jaar</span>
+            )}
+          </section>
+        )}
       </main>
 
       {deleting && (
