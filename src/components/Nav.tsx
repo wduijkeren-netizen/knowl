@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import {
   BarChart3, BookOpen, Calculator, CalendarClock, CalendarDays, Check, GraduationCap, ChevronDown, House, Layers, LogOut, Mail, Menu, Moon,
-  Network, NotebookPen, PenLine, Search, Sun, Timer, User as UserIcon, Users, UsersRound, X, type LucideIcon,
+  Network, NotebookPen, PenLine, Search, Sun, Timer, User as UserIcon, X, type LucideIcon,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
@@ -88,7 +88,6 @@ export default function Nav({ loggedIn, width = 'max-w-3xl' }: { loggedIn?: bool
   const moreGroups: { label: string; links: NavLink[] }[] = [
     { label: tr.nav.learn, links: [
       { href: '/pomodoro', label: tr.nav.timer, icon: Timer },
-      { href: '/pomodoro/groep', label: tr.nav.group ?? 'Groepsstudie', icon: UsersRound },
       { href: '/flashcards', label: tr.nav.flashcards ?? 'Flashcards', icon: Layers },
       { href: '/woordweb', label: tr.nav.woordweb ?? 'Woordweb', icon: Network },
       { href: '/notities', label: tr.nav.notities ?? 'Notities', icon: NotebookPen },
@@ -99,7 +98,6 @@ export default function Nav({ loggedIn, width = 'max-w-3xl' }: { loggedIn?: bool
       { href: '/rooster', label: tr.nav.schedule, icon: CalendarClock },
     ] },
     { label: tr.nav.more, links: [
-      { href: '/vrienden', label: tr.nav.friends ?? 'Vrienden', icon: Users },
       { href: '/cijfers', label: tr.nav.grades ?? 'Cijferberekening', icon: Calculator },
     ] },
   ]
