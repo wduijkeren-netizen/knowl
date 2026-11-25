@@ -138,7 +138,7 @@ export default function Rooster({ initialSlots, userId }: { initialSlots: Slot[]
                 <h2 className="text-base font-semibold text-white">Les toevoegen</h2>
                 <p className="text-sm text-white/85">Elke week op hetzelfde moment</p>
               </div>
-              <PageInfo text="Voer hier je lesrooster in. Knowl berekent welke tijd je vrij hebt op een dag, zodat je weet wanneer je kunt studeren." />
+              <PageInfo dark text="Voer hier je lesrooster in. Knowl berekent welke tijd je vrij hebt op een dag, zodat je weet wanneer je kunt studeren." />
             </div>
             <div className="p-5 space-y-3">
               <label className="block"><span className={label}>{r.label}</span>
