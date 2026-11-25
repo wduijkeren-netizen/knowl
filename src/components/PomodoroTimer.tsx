@@ -4,6 +4,8 @@ import Glyph from '@/components/Glyph'
 import { useState, useEffect, useRef } from 'react'
 import Nav from '@/components/Nav'
 import PageInfo from '@/components/PageInfo'
+import ToolBanner from '@/components/ToolBanner'
+import { Brain, Circle as CircleIcon, Coffee, Minus, Monitor, Pause, Play, RotateCcw, Settings2 } from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import type { User } from '@supabase/supabase-js'
 import MomentForm, { POMODORO_UNLOGGED_KEY } from '@/components/MomentForm'
@@ -38,7 +40,6 @@ export default function PomodoroTimer({ user, subjects }: Props) {
   const [seconds, setSeconds] = useState(25 * 60)
   const [running, setRunning] = useState(false)
   const [completed, setCompleted] = useState(0)
-  const [showSettings, setShowSettings] = useState(false)
   const [sessionMode, setSessionMode] = useState(false)
   const [timerStyle, setTimerStyle] = useState<Style>('circle')
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -217,16 +218,40 @@ export default function PomodoroTimer({ user, subjects }: Props) {
   const btnStart = isWork ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:opacity-90' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90'
   const btnReset = focusMode ? 'bg-white/10 text-white hover:bg-white/20' : 'text-indigo-400 bg-indigo-50 hover:bg-indigo-100'
 
+  const segment = (active: boolean) => `flex-1 inline-flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${active ? 'bg-white text-indigo-700 shadow-sm dark:text-white' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'}`
+  const card = 'bg-white rounded-2xl border border-indigo-100 shadow-sm'
+  const label = 'block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5'
+  const styles: { value: Style; label: string; icon: React.ReactNode }[] = [
+    { value: 'circle', label: 'Cirkel', icon: <CircleIcon className="w-4 h-4" strokeWidth={2} /> },
+    { value: 'minimal', label: 'Minimaal', icon: <Minus className="w-4 h-4" strokeWidth={2} /> },
+    { value: 'retro', label: 'Retro', icon: <Monitor className="w-4 h-4" strokeWidth={2} /> },
+  ]
+
+  function applyMinutes(work: number, brk: number) {
+    const w = Math.min(120, Math.max(1, work || 25))
+    const b = Math.min(60, Math.max(1, brk || 5))
+    setCustomWork(w)
+    setCustomBreak(b)
+    setRunning(false)
+    setSeconds((mode === 'work' ? w : b) * 60)
+  }
+
   return (
-    <div className={`min-h-screen transition-all duration-500 ${
+    <div className={`min-h-screen transition-colors duration-500 ${
       focusMode ? (retro ? 'bg-gray-950' : isWork ? 'bg-indigo-950' : 'bg-emerald-950') : 'bg-[#f8f7ff]'
     }`}>
-      <div className={`transition-all duration-500 ${focusMode ? 'opacity-0 pointer-events-none h-0 overflow-hidden' : 'opacity-100'}`}>
-        <Nav />
-      </div>
+      {!focusMode && (
+        <>
+          <Nav loggedIn={user ? true : undefined} width="max-w-5xl" />
+          <ToolBanner
+            variant="timer" width="max-w-5xl" title={p.title ?? 'Timer'}
+            below={<span className="text-xs text-white/85">{completed > 0 ? `${completed} ${completed === 1 ? 'focusblok' : 'focusblokken'} afgerond` : `Focus ${customWork} min · pauze ${customBreak} min`}</span>}
+          />
+        </>
+      )}
 
       {showSessionForm && user && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-start sm:items-center justify-center p-4 overflow-y-auto" onClick={() => setShowSessionForm(false)}>
+        <div className="fixed inset-0 bg-slate-900/40 z-50 flex items-start sm:items-center justify-center p-4 overflow-y-auto" onClick={() => setShowSessionForm(false)}>
           <div className="w-full max-w-2xl my-8" onClick={e => e.stopPropagation()}>
             <p className="text-center text-white font-semibold mb-3 inline-flex items-center justify-center gap-2 w-full"><Glyph name="celebrate" className="w-5 h-5" /> {p.sessionDone}</p>
             <MomentForm
@@ -243,103 +268,106 @@ export default function PomodoroTimer({ user, subjects }: Props) {
         </div>
       )}
 
-      <main className={`max-w-md mx-auto px-4 space-y-6 transition-all duration-500 ${
-        focusMode ? 'flex flex-col items-center justify-center min-h-screen py-0' : 'py-10'
-      }`}>
-        {!focusMode && (
-          <div className="text-center">
-            <div className="flex items-center gap-2"><h1 className="text-2xl font-bold text-indigo-900">{p.title ?? 'Pomodoro Timer'}</h1><PageInfo text="Studeer in blokken van 25 minuten met 5 minuten pauze. Deze methode heet de Pomodoro-techniek en is bewezen effectief voor concentratie." /></div>
-            <p className="text-sm text-indigo-400 mt-1">{p.subtitle}</p>
-          </div>
-        )}
-
-        {!focusMode && (
-          <div className="flex gap-2 justify-center">
-            {([['circle', '◯', 'Cirkel'], ['minimal', '—', 'Minimaal'], ['retro', '▪︎', 'Retro']] as [Style, string, string][]).map(([s, icon, label]) => (
-              <button key={s} onClick={() => setTimerStyle(s)}
-                className={`px-4 py-1.5 rounded-xl text-sm font-medium transition-all border ${
-                  timerStyle === s ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-indigo-400 border-indigo-100 hover:border-indigo-300 hover:text-indigo-600'
-                }`}>
-                {icon} {label}
+      {focusMode ? (
+        <main className="max-w-md mx-auto px-4 flex flex-col items-center justify-center min-h-screen">
+          <div className="flex flex-col items-center p-8 w-full">
+            {timerViews[timerStyle]}
+            <div className="flex gap-3 w-full mt-6 max-w-xs">
+              <button onClick={() => setRunning(false)} className={`flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-2xl font-semibold text-sm shadow-sm ${btnStart}`}>
+                <Pause className="w-4 h-4" strokeWidth={2.5} /> {p.pause}
               </button>
-            ))}
-          </div>
-        )}
-
-        {!focusMode && user && (
-          <div className="flex items-center justify-between bg-white rounded-2xl border border-indigo-100 px-5 py-3">
-            <div>
-              <p className="text-sm font-medium text-indigo-800">{p.sessionMode}</p>
-              <p className="text-xs text-indigo-400">{p.sessionModeDesc}</p>
+              <button onClick={reset} className={`px-5 py-3 rounded-2xl text-sm font-medium ${btnReset}`} aria-label={p.reset}><RotateCcw className="w-4 h-4" strokeWidth={2} /></button>
             </div>
-            <button onClick={() => setSessionMode(s => !s)}
-              className={`relative w-12 h-6 rounded-full transition-colors ${sessionMode ? 'bg-indigo-600' : 'bg-gray-200'}`}>
-              <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${sessionMode ? 'left-7' : 'left-1'}`} />
-            </button>
+            <p className={`text-xs mt-6 opacity-60 ${retro ? 'text-gray-400 font-mono' : 'text-white'}`}>Pauzeer om terug te keren</p>
           </div>
-        )}
-
-        {!focusMode && (
-          <div className='flex gap-2 rounded-2xl border p-2 bg-white border-indigo-100'>
-            {(['work', 'break'] as Mode[]).map(m => (
-              <button key={m} onClick={() => switchMode(m)}
-                className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${
-                  mode === m
-                    ? m === 'work' ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-sm' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm'
-                    : 'text-indigo-400 hover:text-indigo-600'
-                }`}>
-                {m === 'work' ? p.focus : p.break}
+        </main>
+      ) : (
+        <main className="max-w-5xl mx-auto px-4 py-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] items-start">
+          <section className={`${isWork ? card : 'bg-gradient-to-b from-emerald-50 to-white rounded-2xl border border-emerald-100 shadow-sm'} p-6 sm:p-8 flex flex-col items-center`} aria-label="Timer">
+            <div className="flex bg-indigo-50 rounded-xl p-1 w-full max-w-xs mb-6" role="group" aria-label="Soort blok">
+              {(['work', 'break'] as Mode[]).map(m => (
+                <button key={m} onClick={() => switchMode(m)} aria-pressed={mode === m} className={segment(mode === m)}>
+                  {m === 'work' ? <Brain className="w-4 h-4" strokeWidth={2} /> : <Coffee className="w-4 h-4" strokeWidth={2} />}
+                  {m === 'work' ? p.focus : p.break}
+                </button>
+              ))}
+            </div>
+            <div className={retro ? 'w-full flex justify-center' : ''}>{timerViews[timerStyle]}</div>
+            <div className="flex gap-3 w-full max-w-sm mt-7">
+              <button onClick={() => setRunning(r => !r)} className={`flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-2xl font-semibold text-sm shadow-sm ${btnStart}`}>
+                <Play className="w-4 h-4" strokeWidth={2.5} /> {seconds === total ? p.start : p.resume}
               </button>
-            ))}
-          </div>
-        )}
+              <button onClick={reset} className="inline-flex items-center gap-1.5 px-4 py-3 rounded-2xl text-sm font-medium text-indigo-700 dark:text-indigo-300 bg-indigo-50 hover:bg-indigo-100">
+                <RotateCcw className="w-4 h-4" strokeWidth={2} /> {p.reset}
+              </button>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 text-center">Tijdens het focussen verdwijnt alles behalve de timer.</p>
+          </section>
 
-        <div className={`flex flex-col items-center ${retro && !focusMode ? 'bg-transparent' : focusMode ? '' : isWork ? 'bg-white rounded-3xl border border-indigo-100 shadow-sm' : 'bg-gradient-to-b from-emerald-50 to-white rounded-3xl border border-emerald-100 shadow-sm'} p-8`}>
-          {timerViews[timerStyle]}
-          <div className={`flex gap-3 w-full mt-6 ${focusMode ? 'max-w-xs' : ''}`}>
-            <button onClick={() => setRunning(r => !r)} className={`flex-1 py-3 rounded-2xl font-semibold text-sm transition-all shadow-sm ${btnStart}`}>
-              {running ? p.pause : seconds === total ? p.start : p.resume}
-            </button>
-            <button onClick={reset} className={`px-5 py-3 rounded-2xl text-sm font-medium transition-colors ${btnReset}`}>
-              {p.reset}
-            </button>
-          </div>
-          {focusMode && (
-            <p className={`text-xs mt-6 opacity-40 ${retro ? 'text-gray-400 font-mono' : 'text-white'}`}>
-              Pauzeer om terug te keren
-            </p>
-          )}
-        </div>
-
-        {!focusMode && (
-          <div className='rounded-2xl border shadow-sm p-5 bg-white border-indigo-100'>
-            <button onClick={() => setShowSettings(s => !s)}
-              className='w-full text-sm font-medium flex justify-between items-center text-indigo-500 hover:text-indigo-700'>
-              <span>{p.settings}</span><span>{showSettings ? '▲' : '▼'}</span>
-            </button>
-            {showSettings && (
-              <div className="mt-4 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className='block text-xs mb-1 text-indigo-400'>{p.focusMin}</label>
-                    <input type="number" min="1" max="60" value={customWork} onChange={e => setCustomWork(parseInt(e.target.value))}
-                      className='w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 border-gray-200' />
-                  </div>
-                  <div>
-                    <label className='block text-xs mb-1 text-indigo-400'>{p.breakMin}</label>
-                    <input type="number" min="1" max="60" value={customBreak} onChange={e => setCustomBreak(parseInt(e.target.value))}
-                      className='w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 border-gray-200' />
-                  </div>
+          <aside className="space-y-4">
+            <div className={`${card} p-5 space-y-4`}>
+              <div className="flex items-center gap-2">
+                <Settings2 className="w-4 h-4 text-indigo-600 dark:text-indigo-300" strokeWidth={2} />
+                <h2 className="text-sm font-semibold text-slate-900 dark:text-white">{p.settings}</h2>
+                <PageInfo text="Studeer in blokken van 25 minuten met 5 minuten pauze. Deze methode heet de Pomodoro-techniek en helpt je om geconcentreerd te blijven." />
+              </div>
+              <div>
+                <span className={label}>{p.focusMin}</span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {[25, 45, 50].map(m => (
+                    <button key={m} onClick={() => applyMinutes(m, customBreak)} aria-pressed={customWork === m}
+                      className={`text-xs font-semibold rounded-lg px-2.5 py-1.5 border ${customWork === m ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-gray-200 text-slate-700 dark:text-slate-200 hover:bg-indigo-50'}`}>{m} min</button>
+                  ))}
+                  <input type="number" min="1" max="120" value={customWork} aria-label={p.focusMin}
+                    onChange={e => applyMinutes(parseInt(e.target.value), customBreak)}
+                    className="w-16 border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-center focus:outline-none focus:ring-2 focus:ring-indigo-400" />
                 </div>
-                <button onClick={() => { setShowSettings(false); setRunning(false); setSeconds((mode === 'work' ? customWork : customBreak) * 60) }}
-                  className="w-full bg-indigo-600 text-white rounded-xl py-2 text-sm font-medium hover:bg-indigo-700 transition-colors">
-                  {p.apply}
+              </div>
+              <div>
+                <span className={label}>{p.breakMin}</span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {[5, 10, 15].map(m => (
+                    <button key={m} onClick={() => applyMinutes(customWork, m)} aria-pressed={customBreak === m}
+                      className={`text-xs font-semibold rounded-lg px-2.5 py-1.5 border ${customBreak === m ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-gray-200 text-slate-700 dark:text-slate-200 hover:bg-emerald-50'}`}>{m} min</button>
+                  ))}
+                  <input type="number" min="1" max="60" value={customBreak} aria-label={p.breakMin}
+                    onChange={e => applyMinutes(customWork, parseInt(e.target.value))}
+                    className="w-16 border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-center focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                </div>
+              </div>
+              <div>
+                <span className={label}>Weergave</span>
+                <div className="flex bg-indigo-50 rounded-xl p-1" role="group" aria-label="Weergave">
+                  {styles.map(st => (
+                    <button key={st.value} onClick={() => setTimerStyle(st.value)} aria-pressed={timerStyle === st.value} className={segment(timerStyle === st.value)}>
+                      {st.icon}<span className="hidden sm:inline lg:hidden xl:inline">{st.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {user && (
+              <div className={`${card} p-5 flex items-center justify-between gap-3`}>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">{p.sessionMode}</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">{p.sessionModeDesc}</p>
+                </div>
+                <button onClick={() => setSessionMode(s => !s)} role="switch" aria-checked={sessionMode} aria-label={p.sessionMode}
+                  className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${sessionMode ? 'bg-indigo-600' : 'bg-slate-300'}`}>
+                  <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${sessionMode ? 'left-6' : 'left-1'}`} />
                 </button>
               </div>
             )}
-          </div>
-        )}
-      </main>
+
+            <div className={`${card} p-5`}>
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">Vandaag</p>
+              <div className="mt-2"><SessionDots completed={completed} /></div>
+              <p className="text-xs text-slate-600 dark:text-slate-300 mt-2">Na elk focusblok tel je je minuten op bij een leermoment.</p>
+            </div>
+          </aside>
+        </main>
+      )}
     </div>
   )
 }

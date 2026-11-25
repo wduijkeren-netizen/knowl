@@ -6,7 +6,50 @@ import { ArrowLeft, MoreHorizontal } from 'lucide-react'
 
 export type BannerMenuItem = { label: string; icon?: ReactNode; onClick?: () => void; href?: string; danger?: boolean; disabled?: boolean; divider?: boolean }
 
-function Decoration({ variant }: { variant: 'web' | 'cards' }) {
+type Variant = 'web' | 'cards' | 'notes' | 'timer' | 'calendar'
+
+function Decoration({ variant }: { variant: Variant }) {
+  if (variant === 'timer') {
+    return (
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
+        <svg className="absolute -left-8 -top-10 w-52 h-52 opacity-20" viewBox="0 0 200 200" fill="none" stroke="white" strokeWidth="1.5">
+          <circle cx="100" cy="100" r="62" fill="white" fillOpacity=".12" /><circle cx="100" cy="100" r="46" strokeDasharray="4 8" />
+          <line x1="100" y1="100" x2="100" y2="64" strokeWidth="3" strokeLinecap="round" /><line x1="100" y1="100" x2="126" y2="112" strokeWidth="3" strokeLinecap="round" />
+        </svg>
+        <svg className="absolute -right-10 -bottom-16 w-60 h-60 opacity-20" viewBox="0 0 220 220" fill="none" stroke="white" strokeWidth="1.5">
+          <circle cx="110" cy="110" r="70" fill="white" fillOpacity=".12" /><path d="M110 40 A70 70 0 0 1 180 110" strokeWidth="6" strokeLinecap="round" />
+        </svg>
+      </div>
+    )
+  }
+  if (variant === 'calendar') {
+    return (
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
+        <svg className="absolute -left-4 -top-6 w-48 h-44 opacity-20" viewBox="0 0 200 180" fill="none" stroke="white" strokeWidth="1.5">
+          <rect x="35" y="40" width="110" height="100" rx="12" transform="rotate(-8 90 90)" fill="white" fillOpacity=".15" />
+          <g transform="rotate(-8 90 90)">{[0, 1, 2, 3].map(c => [0, 1, 2].map(r => <rect key={`${c}${r}`} x={50 + c * 22} y={70 + r * 20} width="12" height="10" rx="2" fill="white" fillOpacity=".35" stroke="none" />))}</g>
+        </svg>
+        <svg className="absolute -right-6 -bottom-12 w-56 h-48 opacity-20" viewBox="0 0 220 190" fill="none" stroke="white" strokeWidth="1.5">
+          <rect x="70" y="40" width="110" height="100" rx="12" transform="rotate(10 125 90)" fill="white" fillOpacity=".15" />
+          <line x1="95" y1="30" x2="95" y2="55" strokeWidth="4" strokeLinecap="round" /><line x1="150" y1="38" x2="148" y2="62" strokeWidth="4" strokeLinecap="round" />
+        </svg>
+      </div>
+    )
+  }
+  if (variant === 'notes') {
+    return (
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
+        <svg className="absolute -left-4 -top-6 w-48 h-44 opacity-20" viewBox="0 0 200 180" fill="none" stroke="white" strokeWidth="1.5">
+          <rect x="40" y="30" width="90" height="120" rx="10" transform="rotate(-10 85 90)" fill="white" fillOpacity=".15" />
+          <line x1="58" y1="70" x2="112" y2="60" /><line x1="60" y1="88" x2="114" y2="78" /><line x1="62" y1="106" x2="100" y2="99" />
+        </svg>
+        <svg className="absolute -right-6 -bottom-12 w-56 h-48 opacity-20" viewBox="0 0 220 190" fill="none" stroke="white" strokeWidth="1.5">
+          <rect x="80" y="40" width="90" height="120" rx="10" transform="rotate(12 125 100)" fill="white" fillOpacity=".15" />
+          <line x1="100" y1="80" x2="152" y2="90" /><line x1="98" y1="98" x2="150" y2="108" /><line x1="96" y1="116" x2="134" y2="123" />
+        </svg>
+      </div>
+    )
+  }
   if (variant === 'cards') {
     return (
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
@@ -38,14 +81,16 @@ function Decoration({ variant }: { variant: 'web' | 'cards' }) {
 }
 
 /** Kleurrijke kop voor woordwebben en flashcards: terug links, titel in het midden, acties rechts. */
-export default function ToolBanner({ backHref, backLabel, title, below, actions, menu = [], variant = 'web', width = 'max-w-6xl' }: {
-  backHref: string
-  backLabel: string
+export default function ToolBanner({ backHref, onBack, backLabel = '', backMobileOnly = false, title, below, actions, menu = [], variant = 'web', width = 'max-w-6xl' }: {
+  backHref?: string
+  onBack?: () => void
+  backMobileOnly?: boolean
+  backLabel?: string
   title: ReactNode
   below?: ReactNode
   actions?: ReactNode
   menu?: BannerMenuItem[]
-  variant?: 'web' | 'cards'
+  variant?: Variant
   width?: string
 }) {
   const [open, setOpen] = useState(false)
@@ -60,15 +105,18 @@ export default function ToolBanner({ backHref, backLabel, title, below, actions,
     return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey) }
   }, [open])
 
+  const backCls = `${backMobileOnly ? 'sm:invisible ' : ''}justify-self-start inline-flex items-center gap-1.5 text-sm font-medium text-white/90 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-3 py-1.5 transition-colors max-w-full`
   const itemCls = (danger?: boolean) => `w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left disabled:opacity-50 ${danger ? 'font-medium text-red-700 dark:text-red-300 hover:bg-red-50' : 'text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-white/5'}`
 
   return (
     <div className="relative z-20 bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-sm">
       <Decoration variant={variant} />
       <div className={`relative ${width} mx-auto px-4 py-4 grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_minmax(0,30rem)_1fr] items-center gap-x-3 gap-y-3`}>
-        <Link href={backHref} className="justify-self-start inline-flex items-center gap-1.5 text-sm font-medium text-white/90 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-3 py-1.5 transition-colors max-w-full">
-          <ArrowLeft className="w-4 h-4 shrink-0" strokeWidth={2} /> <span className="truncate">{backLabel}</span>
-        </Link>
+        {onBack ? (
+          <button onClick={onBack} className={backCls}><ArrowLeft className="w-4 h-4 shrink-0" strokeWidth={2} /> <span className="truncate">{backLabel}</span></button>
+        ) : backHref ? (
+          <Link href={backHref} className={backCls}><ArrowLeft className="w-4 h-4 shrink-0" strokeWidth={2} /> <span className="truncate">{backLabel}</span></Link>
+        ) : <span aria-hidden />}
 
         <div className="col-span-2 order-last sm:order-none sm:col-span-1 flex flex-col items-center gap-2 min-w-0 text-center">
           {typeof title === 'string' ? <h1 className="w-full text-xl md:text-2xl font-bold text-white truncate">{title}</h1> : title}
